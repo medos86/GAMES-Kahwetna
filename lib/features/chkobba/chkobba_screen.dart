@@ -70,8 +70,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     final columns = size.width < 600 ? 4 : 6;
-    // Hauteur de carte : 15 % de l'écran, bornée comme la variable --base-card-height du source.
-    final cardHeight = math.min(math.max(size.height * 0.15, 64.0), 110.0);
+    // Hauteur de carte : 11 % de l'écran, bornée pour laisser la place au tapis.
+    final cardHeight = math.min(math.max(size.height * 0.11, 56.0), 92.0);
     final style = GameStyle.current;
 
     return Scaffold(
@@ -79,7 +79,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
         fit: StackFit.expand,
         children: [
           style.villageBackground
-              ? Image.asset('assets/images/background.webp', fit: BoxFit.cover)
+              ? const _CalmBackground()
               : const _WoodBackground(),
           SafeArea(
             child: ListenableBuilder(
@@ -162,7 +162,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 520),
+                        constraints: const BoxConstraints(maxWidth: 400),
                         child: ChkobbaTable(cards: slots, columns: columns, emptyLabel: 'Chkobba !'),
                       ),
                     ),
@@ -193,8 +193,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
             // Main du joueur, plus grande que celle de l'adversaire.
             _Hand(
               cards: game.hands[Player.player]!,
-              width: cardWidth * 1.1,
-              height: cardHeight * 1.1,
+              width: cardWidth,
+              height: cardHeight,
               builder: (card) => ChkobbaCardFace(
                 card: card,
                 onTap: canPlay ? () => _onPlayerCard(card.id) : null,
@@ -230,6 +230,41 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
 }
 
 /// Fond bois du jeu React (style d'origine) : bandes brunes verticales.
+/// Fond village calmé : image désaturée et voilée, pour que le tapis et les cartes ressortent.
+class _CalmBackground extends StatelessWidget {
+  const _CalmBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ColorFiltered(
+          colorFilter: const ColorFilter.matrix(_saturation40),
+          child: Image.asset('assets/images/background.webp', fit: BoxFit.cover),
+        ),
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0x99000000), Color(0xCC000000)],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// Matrice de saturation à 40 % (luminance Rec. 709).
+const _saturation40 = <double>[
+  0.52756, 0.42912, 0.04332, 0, 0,
+  0.12756, 0.82912, 0.04332, 0, 0,
+  0.12756, 0.42912, 0.44332, 0, 0,
+  0, 0, 0, 1, 0,
+];
+
 class _WoodBackground extends StatelessWidget {
   const _WoodBackground();
 
@@ -308,11 +343,11 @@ class _TargetBadge extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           const Icon(Icons.emoji_events, size: 44, color: Color(0xFFFBBF24)),
-          Positioned(
-            top: 11,
+          Align(
+            alignment: const Alignment(0, -0.25),
             child: Text(
               '$target',
-              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF20284B)),
+              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Color(0xFF20284B)),
             ),
           ),
         ],
@@ -330,7 +365,7 @@ class _Scoreboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFFFACC15), Color(0xFFFBBF24), Color(0xFFFB923C)],
@@ -388,8 +423,8 @@ class _ScoreSide extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 46,
-          height: 46,
+          width: 34,
+          height: 34,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: Colors.white,
@@ -398,10 +433,10 @@ class _ScoreSide extends StatelessWidget {
           ),
           child: Text(
             '$score',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: color),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
           name.toUpperCase(),
           style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: color, letterSpacing: 0.5),
