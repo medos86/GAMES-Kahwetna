@@ -5,6 +5,7 @@ import 'core/audio/sounds.dart';
 import 'core/layout/device_metrics.dart';
 import 'core/theme/app_colors.dart';
 import 'features/chkobba/chkobba_screen.dart';
+import 'features/coinche/coinche_screen.dart';
 import 'features/domino/domino_screen.dart';
 import 'features/menu/main_menu_screen.dart';
 import 'features/menu/menu_models.dart';
@@ -29,8 +30,19 @@ Future<void> main() async {
   runApp(const KahwetneApp());
 }
 
-/// Relie le menu aux écrans de jeu. Seul le Domino est disponible pour l'instant.
+/// Relie le menu aux écrans de jeu (Chkobba, Domino, Belote = Coinche).
 void _onPlay(LaunchRequest request) {
+  if (request.game.name == 'Belote') {
+    _navigatorKey.currentState?.push(
+      MaterialPageRoute<void>(
+        builder: (_) => CoincheScreen(
+          difficulty: request.difficulty,
+          targetScore: request.target,
+        ),
+      ),
+    );
+    return;
+  }
   if (request.game.name == 'Chkobba') {
     _navigatorKey.currentState?.push(
       MaterialPageRoute<void>(
