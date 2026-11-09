@@ -40,9 +40,7 @@ class AdBanner extends StatelessWidget {
           ),
           Pressable(
             semanticLabel: 'Voir la publicité',
-            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Espace publicitaire de démonstration'), behavior: SnackBarBehavior.floating),
-            ),
+            onTap: () {},
             child: Container(
               constraints: const BoxConstraints(minHeight: 40),
               padding: const EdgeInsets.symmetric(horizontal: 10),

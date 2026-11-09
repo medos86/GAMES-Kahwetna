@@ -14,7 +14,6 @@ import 'features/splash/splash_screen.dart';
 const bool kSizeProbe = bool.fromEnvironment('PROBE');
 
 final _navigatorKey = GlobalKey<NavigatorState>();
-final _messengerKey = GlobalKey<ScaffoldMessengerState>();
 
 /// Plein écran immersif (barre de navigation Android et barre d'état masquées,
 /// elles reviennent au glissement depuis le bord) et portrait uniquement.
@@ -54,12 +53,6 @@ void _onPlay(LaunchRequest request) {
     );
     return;
   }
-  _messengerKey.currentState?.showSnackBar(
-    SnackBar(
-      behavior: SnackBarBehavior.floating,
-      content: Text('${request.game.name} arrive bientôt'),
-    ),
-  );
 }
 
 class KahwetneApp extends StatelessWidget {
@@ -69,7 +62,6 @@ class KahwetneApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       navigatorKey: _navigatorKey,
-      scaffoldMessengerKey: _messengerKey,
       debugShowCheckedModeBanner: false,
       title: 'Kahwetne',
       theme: ThemeData(

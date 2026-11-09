@@ -520,24 +520,12 @@ class _Footer extends StatelessWidget {
   final bool sm;
   final DominoController controller;
 
-  /// Message court à l'écran quand une action n'est pas possible.
-  void _say(BuildContext context, String message) {
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.clearSnackBars();
-    messenger.showSnackBar(SnackBar(
-      content: Text(message),
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(milliseconds: 1400),
-    ));
-  }
-
   void _onTile(BuildContext context, DominoTile tile, bool playable, bool canAct) {
     if (canAct && playable) {
       controller.tapTile(tile);
       return;
     }
     if (canAct) controller.flagInvalid(tile.id);
-    _say(context, canAct ? 'Ce domino ne va pas ici' : 'Attends ton tour');
   }
 
   void _onDraw(BuildContext context) {

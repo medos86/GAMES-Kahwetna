@@ -84,21 +84,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     if (!mounted) return;
     setState(() => _adFreeLeft = _adFreeSeconds);
     _syncTimer();
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(
-          behavior: SnackBarBehavior.floating,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Mode tranquille activé', style: TextStyle(fontWeight: FontWeight.w900)),
-              Text('Profite de Kahwetne sans publicité pendant 30 minutes.'),
-            ],
-          ),
-        ),
-      );
   }
 
   void _selectGame(GameEntry game) {
