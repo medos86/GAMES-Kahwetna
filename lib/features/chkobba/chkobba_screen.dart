@@ -11,7 +11,6 @@ import 'chkobba_card_face.dart';
 import 'chkobba_controller.dart';
 import 'chkobba_table.dart';
 
-const _brown = Color(0xFF4A2A10);
 
 /// Écran de jeu de la Chkobba, fidèle à GameScreen.tsx : scores, pioche, tapis, mains,
 /// bannière de tour, Haya, choix de prise et récapitulatif de manche.
