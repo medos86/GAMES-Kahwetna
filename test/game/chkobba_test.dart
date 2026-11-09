@@ -140,7 +140,7 @@ void main() {
         table: [card(9)],
         lastCapturer: Player.opponent,
         won: {
-          Player.player: [card(1), card(2)],
+          Player.player: [card(1)],
           Player.opponent: [card(4)],
         },
       );
