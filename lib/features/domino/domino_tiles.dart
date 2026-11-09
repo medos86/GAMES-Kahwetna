@@ -5,7 +5,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../game/common.dart';
 import '../../game/domino.dart';
 
 const _pipColor = Color(0xFF17304B);
