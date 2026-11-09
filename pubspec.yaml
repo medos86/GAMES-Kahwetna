@@ -24,5 +24,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/images/cards_cartoon/
     - assets/icons/
     - assets/sounds/domino/
