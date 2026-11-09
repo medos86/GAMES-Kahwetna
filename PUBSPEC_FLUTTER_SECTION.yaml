@@ -1,0 +1,35 @@
+# Remplacer la section `flutter:` de pubspec.yaml (généré par flutter create) par ce bloc.
+# Les dépendances sont ajoutées avec `flutter pub add` (voir README.md).
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/sounds/domino/
+  fonts:
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Nunito-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Nunito-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Nunito-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Nunito-Black.ttf
+          weight: 900
+    - family: RobotoSlab
+      fonts:
+        - asset: assets/fonts/RobotoSlab-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/RobotoSlab-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/RobotoSlab-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/RobotoSlab-Black.ttf
+          weight: 900
+    - family: BowlbyOneSC
+      fonts:
+        - asset: assets/fonts/BowlbyOneSC-Regular.ttf

@@ -1,0 +1,25 @@
+# Vérifie que le projet compile : flutter pub get puis flutter analyze.
+# Les erreurs apparaissent dans l'onglet Actions du dépôt GitHub.
+name: Analyse Flutter
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Dépendances
+        run: flutter pub get
+
+      - name: Analyse statique (erreurs de compilation)
+        run: flutter analyze

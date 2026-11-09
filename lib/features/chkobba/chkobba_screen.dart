@@ -1,0 +1,851 @@
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+
+import '../../core/theme/game_style.dart';
+import '../../game/chkobba.dart';
+import '../../game/common.dart';
+import '../../widgets/ad_banner.dart';
+import '../menu/menu_models.dart';
+import 'chkobba_card_face.dart';
+import 'chkobba_controller.dart';
+import 'chkobba_table.dart';
+
+const _brown = Color(0xFF4A2A10);
+
+/// Écran de jeu de la Chkobba, fidèle à GameScreen.tsx : scores, pioche, tapis, mains,
+/// bannière de tour, Haya, choix de prise et récapitulatif de manche.
+class ChkobbaScreen extends StatefulWidget {
+  const ChkobbaScreen({super.key, required this.difficulty, required this.targetScore});
+
+  final Difficulty difficulty;
+  final int targetScore;
+
+  @override
+  State<ChkobbaScreen> createState() => _ChkobbaScreenState();
+}
+
+class _ChkobbaScreenState extends State<ChkobbaScreen> {
+  late final ChkobbaController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ChkobbaController(
+      targetScore: widget.targetScore,
+      level: _levelFor(widget.difficulty),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  static ChkobbaAiLevel _levelFor(Difficulty d) => switch (d) {
+        Difficulty.facile => ChkobbaAiLevel.facile,
+        Difficulty.moyen => ChkobbaAiLevel.moyen,
+        Difficulty.difficile => ChkobbaAiLevel.difficile,
+      };
+
+  Future<void> _onPlayerCard(String cardId) async {
+    _controller.tapPlayerCard(cardId);
+    final pending = _controller.pendingCapture;
+    if (pending == null) return;
+    final option = await showModalBottomSheet<List<ChkobbaCard>>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => _CapturePicker(options: pending.options),
+    );
+    if (!mounted) return;
+    if (option == null) {
+      _controller.cancelPendingCapture();
+    } else {
+      _controller.choosePendingCapture(option);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final columns = size.width < 600 ? 4 : 6;
+    // Hauteur de carte : 15 % de l'écran, bornée comme la variable --base-card-height du source.
+    final cardHeight = math.min(math.max(size.height * 0.15, 64.0), 110.0);
+    final style = GameStyle.current;
+
+    return Scaffold(
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          style.villageBackground
+              ? Image.asset('assets/images/background.webp', fit: BoxFit.cover)
+              : const _WoodBackground(),
+          SafeArea(
+            child: ListenableBuilder(
+              listenable: _controller,
+              builder: (context, _) => _buildBoard(context, columns, cardHeight),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBoard(BuildContext context, int columns, double cardHeight) {
+    final game = _controller.game;
+    final summary = _controller.roundSummary;
+    final over = summary != null;
+    final revealed = _controller.revealedCardId;
+    final hayaBy = _controller.hayaBy;
+    final thinking = _controller.isOpponentThinking;
+    final canPlay = !over && game.winner == null && game.turn == Player.player;
+    final cardWidth = cardHeight * 0.7;
+    final style = GameStyle.current;
+
+    // Emplacements du tapis : au moins 12, multiple du nombre de colonnes (comme TABLE_MIN_SLOTS).
+    final slotCount = _roundUp(math.max(12, game.table.length), columns);
+    final slots = <Widget?>[
+      for (final card in game.table) ChkobbaCardFace(card: card),
+    ];
+    while (slots.length < slotCount) {
+      slots.add(null);
+    }
+
+    return Stack(
+      children: [
+        Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6, 10, 0),
+              child: Row(
+                children: [
+                  _PillButton(
+                    label: 'Menu',
+                    icon: Icons.arrow_back,
+                    onTap: () => Navigator.of(context).pop(),
+                  ),
+                  const Spacer(),
+                  if (game.winner != null) ...[
+                    _PillButton(
+                      label: 'Nouvelle partie',
+                      icon: Icons.refresh,
+                      onTap: _controller.startNewGame,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  _TargetBadge(target: game.targetScore),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
+              child: _Scoreboard(game: game),
+            ),
+            const SizedBox(height: 8),
+            // Main de l'adversaire : dos des cartes, sauf celle qu'il montre.
+            _Hand(
+              cards: game.hands[Player.opponent]!,
+              width: cardWidth,
+              height: cardHeight,
+              builder: (card) => card.id == revealed
+                  ? ChkobbaCardFace(card: card, highlight: true)
+                  : const ChkobbaCardBack(),
+            ),
+            Expanded(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (game.winner != null && !over)
+                    _FinalCard(state: game)
+                  else
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 520),
+                        child: ChkobbaTable(cards: slots, columns: columns, emptyLabel: 'Chkobba !'),
+                      ),
+                    ),
+                  if (hayaBy != null)
+                    Positioned(
+                      top: 6,
+                      child: ChkobbaBanner(
+                        text: '♦ 7AYA !',
+                        colors: style.ayaGradient,
+                        angle: 0.09,
+                      ),
+                    ),
+                  // Bannière de tour : toujours réservée, visible seulement quand l'adversaire réfléchit.
+                  Positioned(
+                    bottom: 6,
+                    left: 0,
+                    right: 0,
+                    child: IgnorePointer(
+                      child: Opacity(
+                        opacity: thinking ? 1 : 0,
+                        child: const Center(child: _ThinkingBadge()),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Main du joueur, plus grande que celle de l'adversaire.
+            _Hand(
+              cards: game.hands[Player.player]!,
+              width: cardWidth * 1.1,
+              height: cardHeight * 1.1,
+              builder: (card) => ChkobbaCardFace(
+                card: card,
+                onTap: canPlay ? () => _onPlayerCard(card.id) : null,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(8, 0, 8, 8),
+              child: AdBanner(),
+            ),
+          ],
+        ),
+        if (summary != null)
+          Positioned.fill(
+            child: ColoredBox(
+              color: Colors.black.withValues(alpha: 0.7),
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: _RoundCard(
+                    summary: summary,
+                    onContinue: _controller.continueAfterRound,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  static int _roundUp(int value, int multiple) => ((value + multiple - 1) ~/ multiple) * multiple;
+}
+
+/// Fond bois du jeu React (style d'origine) : bandes brunes verticales.
+class _WoodBackground extends StatelessWidget {
+  const _WoodBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(painter: _WoodPainter());
+  }
+}
+
+class _WoodPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawRect(Offset.zero & size, Paint()..color = const Color(0xFF8B4513));
+    final light = Paint()..color = const Color(0xFFA0522D);
+    final dark = Paint()..color = const Color(0xFF654321);
+    for (double x = 0; x < size.width; x += 8) {
+      canvas.drawRect(Rect.fromLTWH(x + 2, 0, 2, size.height), light);
+      canvas.drawRect(Rect.fromLTWH(x + 6, 0, 2, size.height), dark);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Bouton blanc à bordure brune, comme le bouton « Menu » du source.
+class _PillButton extends StatelessWidget {
+  const _PillButton({required this.label, required this.icon, required this.onTap});
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(color: _brown, spreadRadius: 3),
+            BoxShadow(color: _brown, offset: Offset(0, 5)),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 18, color: const Color(0xFF7E22CE)),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF7E22CE)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Pastille du score cible (trophée jaune avec le nombre dessus).
+class _TargetBadge extends StatelessWidget {
+  const _TargetBadge({required this.target});
+
+  final int target;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 44,
+      height: 44,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          const Icon(Icons.emoji_events, size: 44, color: Color(0xFFFBBF24)),
+          Positioned(
+            top: 11,
+            child: Text(
+              '$target',
+              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF20284B)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Tableau de bord : score de chaque joueur, Chkobba, cartes ramassées et pioche.
+class _Scoreboard extends StatelessWidget {
+  const _Scoreboard({required this.game});
+
+  final ChkobbaState game;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFACC15), Color(0xFFFBBF24), Color(0xFFFB923C)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(color: _brown, spreadRadius: 3),
+          BoxShadow(color: _brown, offset: Offset(0, 4)),
+          BoxShadow(color: Color(0x4D281405), blurRadius: 16, offset: Offset(0, 7)),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _ScoreSide(
+            name: 'Vous',
+            score: game.scores[Player.player]!,
+            chkobbas: game.chkobbas[Player.player]!,
+            cards: game.won[Player.player]!.length,
+            color: const Color(0xFF047857),
+          ),
+          _DeckPile(count: game.deck.length),
+          _ScoreSide(
+            name: 'Adversaire',
+            score: game.scores[Player.opponent]!,
+            chkobbas: game.chkobbas[Player.opponent]!,
+            cards: game.won[Player.opponent]!.length,
+            color: const Color(0xFFB91C1C),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScoreSide extends StatelessWidget {
+  const _ScoreSide({
+    required this.name,
+    required this.score,
+    required this.chkobbas,
+    required this.cards,
+    required this.color,
+  });
+
+  final String name;
+  final int score;
+  final int chkobbas;
+  final int cards;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    const info = TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xB3451A03));
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 46,
+          height: 46,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color, width: 2),
+          ),
+          child: Text(
+            '$score',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: color),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          name.toUpperCase(),
+          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: color, letterSpacing: 0.5),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.star, size: 12, color: Color(0xFF92400E)),
+            Text(' $chkobbas', style: info),
+            const SizedBox(width: 8),
+            Text('$cards cartes', style: info),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Pioche : trois cartes empilées avec le nombre de cartes restantes.
+class _DeckPile extends StatelessWidget {
+  const _DeckPile({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget pile(Color color) => Container(
+          width: 18,
+          height: 26,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+            border: Border.all(color: Colors.black, width: 2),
+          ),
+        );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: 46,
+          height: 46,
+          child: Stack(
+            alignment: Alignment.center,
+            clipBehavior: Clip.none,
+            children: [
+              Transform.translate(
+                offset: const Offset(-4, 0),
+                child: Transform.rotate(angle: -0.2, child: pile(const Color(0xFFA82D49))),
+              ),
+              Transform.translate(
+                offset: const Offset(4, 0),
+                child: Transform.rotate(angle: 0.2, child: pile(const Color(0xFF8F203D))),
+              ),
+              pile(const Color(0xFFC63D55)),
+              const Icon(Icons.layers, size: 14, color: Color(0xFFFFE16B)),
+              Positioned(
+                top: -2,
+                right: -2,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFFDF5),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.black),
+                  ),
+                  child: Text(
+                    '$count',
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF20284B)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Text(
+          'PIOCHE',
+          style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Color(0xFF17213D)),
+        ),
+      ],
+    );
+  }
+}
+
+/// Rangée de trois emplacements fixes : les cartes ne se décalent pas quand la main diminue.
+class _Hand extends StatelessWidget {
+  const _Hand({
+    required this.cards,
+    required this.width,
+    required this.height,
+    required this.builder,
+  });
+
+  final List<ChkobbaCard> cards;
+  final double width;
+  final double height;
+  final Widget Function(ChkobbaCard card) builder;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        for (var i = 0; i < 3; i++) ...[
+          if (i > 0) const SizedBox(width: 8),
+          SizedBox(
+            width: width,
+            height: height,
+            child: i < cards.length ? builder(cards[i]) : const _EmptySlot(),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _EmptySlot extends StatelessWidget {
+  const _EmptySlot();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0x26FFFFFF), width: 2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+    );
+  }
+}
+
+/// « Tour de l'adversaire... », affiché pendant que l'IA réfléchit.
+class _ThinkingBadge extends StatelessWidget {
+  const _ThinkingBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(colors: [Color(0xFFF97316), Color(0xFFDC2626)]),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.black, width: 3),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 5))],
+      ),
+      child: const Text(
+        "⏳ Tour de l'adversaire...",
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15),
+      ),
+    );
+  }
+}
+
+/// Résultat final de la partie (affiché sur le tapis après le récapitulatif).
+class _FinalCard extends StatelessWidget {
+  const _FinalCard({required this.state});
+
+  final ChkobbaState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final won = state.winner == Player.player;
+    final rounds = state.round;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white30, width: 2),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            won ? '🏆 Victoire !' : 'Défaite',
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 26),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '${state.scores[Player.player]} – ${state.scores[Player.opponent]} · $rounds manche${rounds > 1 ? 's' : ''}',
+            style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w800),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Récapitulatif de manche, comme la carte « Manche N » du source.
+class _RoundCard extends StatelessWidget {
+  const _RoundCard({required this.summary, required this.onContinue});
+
+  final ChkobbaRoundScore summary;
+  final VoidCallback onContinue;
+
+  static final _categories = <({String label, bool Function(String) matches})>[
+    (label: 'Chkobba', matches: (l) => l.startsWith('Chkobba')),
+    (label: 'Haya · 7♦', matches: (l) => l.startsWith('Haya')),
+    (label: 'Cartes', matches: (l) => l == 'Cartes'),
+    (label: 'Deniers', matches: (l) => l == 'Deniers'),
+    (label: 'Bermila', matches: (l) => l == 'Bermila'),
+  ];
+
+  int _pointsFor(Player p, bool Function(String) matches) =>
+      summary.points[p]!.where((x) => matches(x.label)).fold(0, (sum, x) => sum + x.value);
+
+  int _total(Player p) => summary.points[p]!.fold(0, (sum, x) => sum + x.value);
+
+  static String _show(int v) => v == 0 ? '—' : '$v';
+
+  Widget _row(String label, String player, String opponent, {TextStyle? style, double pad = 8}) {
+    final base = style ?? const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF17213D));
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: pad),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: base)),
+          SizedBox(
+            width: 64,
+            child: Text(
+              player,
+              textAlign: TextAlign.center,
+              style: base.copyWith(color: const Color(0xFF065F46)),
+            ),
+          ),
+          SizedBox(
+            width: 76,
+            child: Text(
+              opponent,
+              textAlign: TextAlign.center,
+              style: base.copyWith(color: const Color(0xFF9F1239)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = summary.state;
+    final winner = state.winner;
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 420),
+      decoration: BoxDecoration(
+        color: const Color(0xFF059669),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.black, width: 4),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 7))],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(colors: [Color(0xFF10B981), Color(0xFF047857)]),
+                border: Border(bottom: BorderSide(color: Colors.black, width: 4)),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFE16B),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.black, width: 2),
+                    ),
+                    child: const Text(
+                      'RÉCAPITULATIF',
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2, color: Color(0xFF17213D)),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Manche ${state.round}',
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 24),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _row(
+                    'Points de la manche',
+                    'Vous',
+                    'Adversaire',
+                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11, color: Colors.white),
+                    pad: 0,
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFFDF5),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.black, width: 3),
+                    ),
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < _categories.length; i++)
+                          Container(
+                            decoration: BoxDecoration(
+                              border: i == 0
+                                  ? null
+                                  : const Border(top: BorderSide(color: Color(0xFFB8C5AD), width: 2)),
+                            ),
+                            child: _row(
+                              _categories[i].label,
+                              _show(_pointsFor(Player.player, _categories[i].matches)),
+                              _show(_pointsFor(Player.opponent, _categories[i].matches)),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF15264D),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.black, width: 3),
+                    ),
+                    child: _row(
+                      'Score de la manche',
+                      '+${_total(Player.player)}',
+                      '+${_total(Player.opponent)}',
+                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(colors: [Color(0xFFFFE16B), Color(0xFFFFC24B)]),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.black, width: 3),
+                    ),
+                    child: _row(
+                      'Score total',
+                      '${state.scores[Player.player]}',
+                      '${state.scores[Player.opponent]}',
+                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Color(0xFF17213D)),
+                      pad: 10,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  GestureDetector(
+                    onTap: onContinue,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(colors: [Color(0xFFFFE16B), Color(0xFFFFB43C)]),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.black, width: 3),
+                        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 5))],
+                      ),
+                      child: Text(
+                        winner == null ? 'Manche suivante →' : 'Voir le résultat final',
+                        style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF30264F)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Feuille de choix quand une carte peut prendre plusieurs combinaisons (« Que veux-tu prendre ? »).
+class _CapturePicker extends StatelessWidget {
+  const _CapturePicker({required this.options});
+
+  final List<List<ChkobbaCard>> options;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFF059669),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(top: BorderSide(color: _brown, width: 4)),
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Que veux-tu prendre ?',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 20),
+              ),
+              const SizedBox(height: 12),
+              for (final option in options)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).pop(option),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white30, width: 2),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          for (final card in option)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: SizedBox(
+                                width: 52,
+                                height: 74,
+                                child: ChkobbaCardFace(card: card),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 4),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Annuler'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

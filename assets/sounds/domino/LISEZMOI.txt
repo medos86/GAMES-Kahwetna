@@ -1,0 +1,7 @@
+Déposez ici (dossier domino) les sons du jeu, au format WAV, avec ces noms exacts :
+  place.wav  (pose d'une pierre)
+  draw.wav   (pioche)
+  pass.wav   (passe)
+  win.wav    (victoire de manche ou de partie)
+  lose.wav   (défaite de manche ou de partie)
+Sans ces fichiers, le jeu fonctionne en silence.

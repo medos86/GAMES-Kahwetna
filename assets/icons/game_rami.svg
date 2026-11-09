@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" width="56" height="56">
+  <g transform="rotate(-18 25 38)">
+    <rect x="8" y="14" width="31" height="47" rx="6" fill="#1676d2" stroke="#15264d" stroke-width="4"/>
+    <text x="15" y="34" fill="#fff8e7" font-size="16" font-weight="900" font-family="Nunito">7</text>
+  </g>
+  <g transform="rotate(-2 36 35)">
+    <rect x="21" y="9" width="31" height="50" rx="6" fill="#fff8e7" stroke="#15264d" stroke-width="4"/>
+    <text x="28" y="29" fill="#e43f5f" font-size="16" font-weight="900" font-family="Nunito">8</text>
+    <path d="M36 38c-6-5-7-9-3-11 3-2 5 0 5 2 1-2 3-4 6-2 4 3 1 7-8 11Z" fill="#e43f5f"/>
+  </g>
+  <g transform="rotate(15 49 37)">
+    <rect x="35" y="12" width="30" height="48" rx="6" fill="#ffd653" stroke="#15264d" stroke-width="4"/>
+    <text x="42" y="33" fill="#15264d" font-size="16" font-weight="900" font-family="Nunito">9</text>
+    <circle cx="51" cy="45" r="5" fill="#e43f5f" stroke="#15264d" stroke-width="2"/>
+  </g>
+</svg>
