@@ -113,7 +113,7 @@ android:screenOrientation="portrait"
 ## Style cartoon (interrupteur)
 
 - `lib/core/theme/game_style.dart` contient `kCartoonStyle`.
-  - `true` : tapis bleu, bordure zellige, cadre terracotta, accents magenta et jaune (style actuel).
-  - `false` : retour au style d'origine du jeu React (tapis vert, cadre brun, bannières jaune-orange et sky-indigo).
-- Pour annuler : remplacez `true` par `false`, puis relancez l'application.
+  - `true` : tapis bleu, bordure zellige, cadre terracotta, accents magenta et jaune.
+  - `false` : style d'origine du jeu React (tapis vert, cadre brun, bannières jaune-orange et sky-indigo). Réglage actuel.
+- Réglage actuel : `false` (rendu React d'origine). Pour le style cartoon : remplacez `false` par `true`, puis relancez l'application.
 - L'écran Chkobba ouvert depuis le menu est un aperçu du tapis (`lib/features/chkobba/`). La logique du jeu n'est pas encore portée.

@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 /// INTERRUPTEUR ESTHÉTIQUE
 /// true  : style cartoon tunisien (tapis bleu, bordure zellige, fond village, bannières magenta et jaune).
 /// false : style d'origine du jeu React (tapis émeraude, cadre brun, fond bois, bannières jaune-orange et sky-indigo).
-/// Pour annuler le style cartoon : remplacez `true` par `false` ci-dessous, puis relancez l'application.
-const bool kCartoonStyle = true;
+/// Réglé sur `false` : rendu aligné sur l'application React d'origine.
+/// Pour revenir au style cartoon : remplacez `false` par `true` ci-dessous, puis relancez l'application.
+const bool kCartoonStyle = false;
 
 class GameStyle {
   const GameStyle({
