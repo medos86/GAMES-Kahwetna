@@ -1,0 +1,28 @@
+# pubspec minimal pour l'analyse (CI). Sur ton Mac, garde le pubspec.yaml généré par flutter create
+# et ajoute les dépendances avec flutter pub add.
+name: kahwetne
+description: Jeux de cartes kahwetne (Chkobba, Domino, Belote, Ludo, Rami).
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.6.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_soloud: any
+  flutter_svg: any
+  shared_preferences: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  fake_async: any
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/sounds/domino/
