@@ -23,3 +23,6 @@ jobs:
 
       - name: Analyse statique (erreurs de compilation)
         run: flutter analyze
+
+      - name: Tests unitaires
+        run: flutter test
