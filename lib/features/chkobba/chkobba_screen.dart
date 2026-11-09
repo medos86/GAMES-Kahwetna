@@ -307,10 +307,8 @@ class _PillButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: const [
-            BoxShadow(color: _brown, spreadRadius: 3),
-            BoxShadow(color: _brown, offset: Offset(0, 5)),
-          ],
+          border: Border.all(color: Colors.black, width: 3),
+          boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 4))],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -371,11 +369,8 @@ class _Scoreboard extends StatelessWidget {
           colors: [Color(0xFFFACC15), Color(0xFFFBBF24), Color(0xFFFB923C)],
         ),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(color: _brown, spreadRadius: 3),
-          BoxShadow(color: _brown, offset: Offset(0, 4)),
-          BoxShadow(color: Color(0x4D281405), blurRadius: 16, offset: Offset(0, 7)),
-        ],
+        border: Border.all(color: Colors.black, width: 3),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 5))],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -605,7 +600,7 @@ class _FinalCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.35),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white30, width: 2),
+        border: Border.all(color: Colors.black, width: 3),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -827,7 +822,7 @@ class _CapturePicker extends StatelessWidget {
       decoration: const BoxDecoration(
         color: Color(0xFF059669),
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border(top: BorderSide(color: _brown, width: 4)),
+        border: Border(top: BorderSide(color: Colors.black, width: 4)),
       ),
       child: SafeArea(
         child: Padding(
@@ -852,7 +847,7 @@ class _CapturePicker extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white30, width: 2),
+                        border: Border.all(color: Colors.black, width: 3),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

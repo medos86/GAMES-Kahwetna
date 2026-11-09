@@ -33,7 +33,7 @@ class ChkobbaTable extends StatelessWidget {
           color: style.frame,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(color: style.outline, width: 3),
-          boxShadow: [BoxShadow(color: style.frame, offset: const Offset(0, 8))],
+          boxShadow: [BoxShadow(color: style.outline, offset: const Offset(0, 8))],
         ),
         child: Padding(
           padding: const EdgeInsets.all(6),
