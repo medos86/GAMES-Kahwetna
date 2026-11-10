@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../game/common.dart';
 import '../../game/rami.dart' as rules;
+import '../../core/strings.dart';
 
 /// Délai d'une action de l'IA (550 ms dans le source).
 const ramiAiDelay = Duration(milliseconds: 550);
@@ -170,7 +171,7 @@ class RamiController extends ChangeNotifier {
   }
 
   /// Pose la sélection comme combinaison.
-  void pose() => _apply(rules.poseMeld(_game, List.of(_selected)), "Ce n'est pas une combinaison valide");
+  void pose() => _apply(rules.poseMeld(_game, List.of(_selected)), Strings.notAMeld);
 
   /// Valide l'ouverture (51 points minimum).
   void commit() => _apply(
@@ -186,16 +187,16 @@ class RamiController extends ChangeNotifier {
       return;
     }
     if (_game.staged.isNotEmpty) {
-      onMessage?.call("Valide ton ouverture d'abord");
+      onMessage?.call(Strings.ramiFinishOpeningFirst);
       return;
     }
-    _apply(rules.layOff(_game, cardId, meldId), 'Cette carte ne peut pas être ajoutée ici');
+    _apply(rules.layOff(_game, cardId, meldId), Strings.ramiCannotLayOff);
   }
 
   /// Ajoute la carte sélectionnée sur une combinaison de la table.
   void layOffSelected(String meldId) {
     if (_selected.length != 1) {
-      onMessage?.call('Sélectionne une carte, puis la combinaison');
+      onMessage?.call(Strings.ramiSelectCardThenMeld);
       return;
     }
     layOffCard(_selected.first, meldId);
@@ -203,19 +204,19 @@ class RamiController extends ChangeNotifier {
 
   void discardOne(String cardId) {
     if (_game.staged.isNotEmpty) {
-      onMessage?.call("Valide ou annule ton ouverture d'abord");
+      onMessage?.call(Strings.ramiFinishOrCancel);
       return;
     }
     final failure = cardId == _game.takenId
-        ? 'Tu ne peux pas défausser la carte prise à la défausse'
-        : 'Défausse impossible';
+        ? Strings.ramiCannotDiscardTaken
+        : Strings.ramiDiscardRefused;
     _apply(rules.discardCard(_game, cardId), failure);
   }
 
   /// Défausse la carte sélectionnée.
   void discardSelected() {
     if (_selected.length != 1) {
-      onMessage?.call('Sélectionne la carte à défausser');
+      onMessage?.call(Strings.ramiSelectDiscard);
       return;
     }
     discardOne(_selected.first);
@@ -246,7 +247,7 @@ class RamiController extends ChangeNotifier {
       return;
     }
     if (!canPlay) {
-      onMessage?.call(canDraw ? "Pioche d'abord" : 'Attends ton tour');
+      onMessage?.call(canDraw ? Strings.drawFirst : Strings.waitTurn);
       return;
     }
     if (t is RamiDropDiscard) {
@@ -260,10 +261,10 @@ class RamiController extends ChangeNotifier {
     // Relâché sur la table : il faut un paquet d'au moins 3 cartes.
     final ids = [for (final card in groupFor(id)) card.id];
     if (ids.length < 3) {
-      onMessage?.call("Forme d'abord un paquet : 3 cartes ou plus côte à côte");
+      onMessage?.call(Strings.ramiFormFirst);
       return;
     }
-    _apply(rules.poseMeld(_game, ids), "Ce n'est pas une combinaison valide");
+    _apply(rules.poseMeld(_game, ids), Strings.notAMeld);
   }
 
   void nextRound() {

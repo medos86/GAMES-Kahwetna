@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'pressable.dart';
+import '../core/strings.dart';
 
 /// Bannière publicitaire réutilisable (aspect de la bannière du source React).
 /// Contenu de démonstration : à remplacer par le SDK publicitaire réel avant publication.
@@ -32,14 +33,14 @@ class AdBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('PUBLICITÉ', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 2, color: Color(0xFFFFE681))),
-                Text('Votre annonce dans Kahwetne', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white)),
-                Text('Partenaire local · contenu sponsorisé', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0x8CFFFFFF))),
+                Text(Strings.adLabel, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 2, color: Color(0xFFFFE681))),
+                Text(Strings.adTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white)),
+                Text(Strings.adSponsored, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0x8CFFFFFF))),
               ],
             ),
           ),
           Pressable(
-            semanticLabel: 'Voir la publicité',
+            semanticLabel: Strings.adSeeSemantic,
             onTap: () {},
             child: Container(
               constraints: const BoxConstraints(minHeight: 40),
@@ -53,7 +54,7 @@ class AdBanner extends StatelessWidget {
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Voir', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white)),
+                  Text(Strings.adSee, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white)),
                   SizedBox(width: 4),
                   Icon(Icons.open_in_new, size: 14, color: Colors.white),
                 ],

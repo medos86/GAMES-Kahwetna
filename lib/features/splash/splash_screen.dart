@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import '../../core/strings.dart';
 
 /// Écran d'ouverture : fond du village, titre et message, puis passage au widget `next`.
 /// Un appui sur l'écran passe directement à la suite.
@@ -115,7 +116,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   const Padding(
                     padding: EdgeInsets.only(bottom: 48),
                     child: Text(
-                      'Touchez pour commencer',
+                      Strings.splashTap,
                       style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xCCFFFFFF)),
                     ),
                   ),

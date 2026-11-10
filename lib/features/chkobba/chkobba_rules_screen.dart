@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../widgets/texture_patterns.dart';
+import '../../core/strings.dart';
 
 const _woodColor = Color(0xFF8B4513);
 const _inkColor = Color(0xFF78350F);
@@ -133,7 +134,7 @@ class _BackButton extends StatelessWidget {
                 Icon(Icons.arrow_back, size: 18, color: _purpleColor),
                 SizedBox(width: 8),
                 Text(
-                  'Retour au Menu',
+                  Strings.backToMenuChkobba,
                   style: TextStyle(color: _purpleColor, fontWeight: FontWeight.w900),
                 ),
               ],
@@ -171,7 +172,7 @@ class _TitleCard extends StatelessWidget {
         boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 10))],
       ),
       child: const Text(
-        'Règles de la Chkobba',
+        Strings.rulesTitleChkobba,
         textAlign: TextAlign.center,
         style: TextStyle(
           color: Colors.white,
