@@ -28,7 +28,7 @@ void main() {
     expect(bar.behavior, SnackBarBehavior.floating);
     expect(bar.duration, const Duration(seconds: 3));
     expect(bar.margin, isNotNull);
-    expect(bar.margin!.bottom, 96);
+    expect(bar.margin!.resolve(TextDirection.ltr).bottom, 96);
     expect(kToastBottomMargin, 96);
   });
 
