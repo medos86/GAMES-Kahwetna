@@ -658,14 +658,18 @@ RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {
   final seat = state.turn;
   final plan = _planMelds(state.hands[seat]);
   final planTotal = plan.fold<int>(0, (sum, cards) => sum + pointsOf(cards));
+  // Facile : ouvre plus tard que la règle (seuil relevé).
+  final openMin = level == RamiAiLevel.facile ? ramiOpenMin + 15 : ramiOpenMin;
   if (state.opened[seat] && plan.isNotEmpty) return _poseAll(state, plan);
-  if (!state.opened[seat] && planTotal >= ramiOpenMin) {
+  if (!state.opened[seat] && planTotal >= openMin) {
     return commitOpening(_poseAll(state, plan));
   }
 
   if (state.opened[seat]) {
     final lay = _findLayOff(state, seat);
-    if (lay != null) return layOff(state, lay.cardId, lay.meldId);
+    // Facile : oublie de poser sur la table une fois sur deux.
+    final forgets = level == RamiAiLevel.facile && draw() < 0.5;
+    if (lay != null && !forgets) return layOff(state, lay.cardId, lay.meldId);
   }
   return discardCard(state, _chooseDiscard(state, seat, level, draw));
 }
