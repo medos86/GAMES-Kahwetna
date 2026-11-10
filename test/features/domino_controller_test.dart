@@ -57,6 +57,45 @@ void main() {
       expect(move.side, DominoSide.right);
     });
 
+    test('difficile garde les doubles pour la fin, le moyen joue le plus fort', () {
+      final state = _state(
+        hands: {
+          Player.player: [_t(id: '0-1', a: 0, b: 1)],
+          Player.opponent: [
+            _t(id: '5-5', a: 5, b: 5), // total 10, double
+            _t(id: '4-5', a: 4, b: 5), // total 9, pose à droite (5)
+          ],
+        },
+        chain: [const PlacedTile(id: '3-5', a: 3, b: 5, left: 3, right: 5)],
+        leftEnd: 3,
+        rightEnd: 5,
+        turn: Player.opponent,
+      );
+      expect(chooseOpponentMove(state).tile!.id, '5-5');
+      final hard = chooseOpponentMove(state, level: DominoAiLevel.difficile);
+      expect(hard.tile!.id, '4-5');
+      expect(hard.side, DominoSide.right);
+    });
+
+    test('facile : tirage à 0 joue la première tuile légale, sur le seul côté possible', () {
+      final state = _state(
+        hands: {
+          Player.player: [_t(id: '0-1', a: 0, b: 1)],
+          Player.opponent: [
+            _t(id: '1-3', a: 1, b: 3), // pose à gauche (3)
+            _t(id: '2-5', a: 2, b: 5), // pose à droite (5)
+          ],
+        },
+        chain: [const PlacedTile(id: '3-5', a: 3, b: 5, left: 3, right: 5)],
+        leftEnd: 3,
+        rightEnd: 5,
+        turn: Player.opponent,
+      );
+      final move = chooseOpponentMove(state, level: DominoAiLevel.facile, random: () => 0.0);
+      expect(move.tile!.id, '1-3');
+      expect(move.side, DominoSide.left);
+    });
+
     test('pioche quand aucune tuile ne se pose et que la pioche n\'est pas vide', () {
       final state = _state(
         hands: {

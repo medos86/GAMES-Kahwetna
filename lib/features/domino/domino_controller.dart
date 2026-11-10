@@ -165,7 +165,10 @@ class DominoController extends ChangeNotifier {
   }
 
   void _aiStep() {
-    final move = chooseOpponentMove(_game);
+    final move = chooseOpponentMove(
+      _game,
+      level: DominoAiLevel.values.byName(difficulty.name),
+    );
     switch (move.action) {
       case DominoAction.play:
         _update(playDomino(_game, Player.opponent, move.tile!.id, move.side!));
