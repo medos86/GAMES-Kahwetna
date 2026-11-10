@@ -83,6 +83,14 @@ abstract final class Strings {
   static const dominoDrawUnavailable = 'Pioche indisponible';
   static const dominoPlaceHere = 'Poser ici';
 
+  // Menu (issue #31, source MainMenu.tsx).
+  static const menuAdFreeToastTitle = 'Mode tranquille activé';
+  static const menuAdFreeToastBody = 'Profite de Kahwetne sans publicité pendant 30 minutes.';
+  static const menuDifficultyTitle = 'Niveau de difficulté';
+  static const menuHumanPlayersCount = 'Nombre de joueurs humains';
+  static const menuComingSoonBody = 'On prépare la table. Encore un petit café ☕';
+  static const menuBackgroundAlt = 'Ruelle tunisienne colorée aux portes bleues et bougainvilliers';
+
 }
 
 /// Équivalents arabes (noms de jeux et slogan, fournis par l'issue #10).

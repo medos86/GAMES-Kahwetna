@@ -12,6 +12,7 @@ import 'game_icons.dart';
 import 'menu_models.dart';
 import '../../core/strings.dart';
 import '../../core/services/ad_free_service.dart';
+import '../../core/services/toast.dart';
 
 
 // Couleurs fixes reprises du source (Tailwind -> hex).
@@ -80,6 +81,14 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   }
 
   void _selectGame(GameEntry game) {
+    if (!game.available) {
+      showToast(
+        context,
+        '${game.name} arrive bientôt !',
+        description: Strings.menuComingSoonBody,
+      );
+      return;
+    }
     setState(() {
       _selected = game;
       _target = game.defaultTarget;
@@ -176,7 +185,10 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         _AdFreeButton(
           sm: sm,
           secondsLeft: _adFreeLeft,
-          onTap: _adFree.activate,
+          onTap: () {
+            _adFree.activate();
+            showToast(context, Strings.menuAdFreeToastTitle, description: Strings.menuAdFreeToastBody);
+          },
         ),
       ],
     );
@@ -209,6 +221,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        _sectionLabel(Strings.menuDifficultyTitle),
+                        const SizedBox(height: 8),
                         _difficultyRow(wide: wide),
                         if (!_selected.isLudo && scoreOptions.isNotEmpty) ...[
                           const SizedBox(height: 16),
@@ -218,7 +232,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                         ],
                         if (_selected.isLudo) ...[
                           const SizedBox(height: 16),
-                          _sectionLabel(Strings.menuHumanPlayers),
+                          _sectionLabel(Strings.menuHumanPlayersCount),
                           const SizedBox(height: 8),
                           _playerRow(),
                           const SizedBox(height: 8),
@@ -452,6 +466,7 @@ class _Background extends StatelessWidget {
             colorFilter: filter,
             child: Image.asset(
               'assets/images/background.webp',
+              semanticLabel: Strings.menuBackgroundAlt,
               fit: BoxFit.cover,
               alignment: Alignment.center,
               errorBuilder: (_, error, __) => ColoredBox(
