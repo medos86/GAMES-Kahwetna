@@ -12,6 +12,9 @@ import 'rami_controller.dart';
 import '../../core/strings.dart';
 import '../../core/services/ad_free_service.dart';
 
+/// Facteur d'agrandissement des cartes Rami (lisibilité sur téléphone).
+const double _ramiCardScale = 1.35;
+
 /// Clé partagée avec le mode sans pub (même nom que le web).
 const _feltColor = Color(0xFF10B981);
 const _frameColor = Color(0xFF4A2A10);
@@ -225,7 +228,8 @@ class _RamiScreenState extends State<RamiScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     final metrics = DeviceMetrics(width: size.width, height: size.height);
-    final handWidth = metrics.ramiHandCardWidth;
+    // Cartes agrandies sur l'écran Rami (la formule de DeviceMetrics reste celle du source).
+    final handWidth = metrics.ramiHandCardWidth * _ramiCardScale;
 
     return Scaffold(
       backgroundColor: _woodColor,
