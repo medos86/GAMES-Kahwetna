@@ -99,8 +99,8 @@ class RamiCardView extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      ramiSuitSymbol(suit!),
-                      style: TextStyle(color: ramiSuitColor(suit!), fontSize: fontSize, height: 1.05),
+                      ramiSuitSymbol(suit),
+                      style: TextStyle(color: ramiSuitColor(suit), fontSize: fontSize, height: 1.05),
                     ),
                   ],
           ),
