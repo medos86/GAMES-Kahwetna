@@ -91,6 +91,9 @@ abstract final class Strings {
   static const menuComingSoonBody = 'On prépare la table. Encore un petit café ☕';
   static const menuBackgroundAlt = 'Ruelle tunisienne colorée aux portes bleues et bougainvilliers';
 
+  // Règles de la Chkobba (issue #33, source Rules.tsx).
+  static const chkobbaRuleHaya = '**7 de deniers (Haya) :** à garder dans vos cartes ramassées pour marquer 1 point (voir Points)';
+
 }
 
 /// Équivalents arabes (noms de jeux et slogan, fournis par l'issue #10).

@@ -42,6 +42,7 @@ const _chkobbaRules = <_RuleSection>[
       'Si vous ramassez toutes les cartes du tapis : **Chkobba !** (+1 point), sauf avec la dernière carte de la manche',
       'Si vous ne pouvez rien ramasser, votre carte reste sur le tapis',
       'En fin de manche, les cartes restantes vont au dernier joueur qui a ramassé',
+      Strings.chkobbaRuleHaya,
     ],
   ),
   (
