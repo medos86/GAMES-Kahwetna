@@ -215,6 +215,51 @@ ChkobbaState newMatch({int targetScore = chkobbaDefaultTarget, RandomDouble? ran
       random: random,
     );
 
+/// Donne fixe pour vérifier le dialogue de choix de prise (issue #29, équivalent de `?demo=choice` du React).
+/// Le joueur a 7 d'épées, 10 de bâtons et 9 de coupes ; le tapis est 3 d'épées, 4 de bâtons, 2 de coupes,
+/// 5 de deniers, 1 d'épées et 6 de coupes. Les cartes de l'adversaire ne sont pas précisées par la source :
+/// ici 1, 8 et 9 de deniers. Utilisé uniquement en mode debug.
+ChkobbaState chkobbaDemoChoiceState({int targetScore = chkobbaDefaultTarget}) {
+  const playerHand = [
+    ChkobbaCard(suit: ChkobbaSuit.epees, rank: 7, id: 'epees-7'),
+    ChkobbaCard(suit: ChkobbaSuit.batons, rank: 10, id: 'batons-10'),
+    ChkobbaCard(suit: ChkobbaSuit.coupes, rank: 9, id: 'coupes-9'),
+  ];
+  const opponentHand = [
+    ChkobbaCard(suit: ChkobbaSuit.deniers, rank: 1, id: 'deniers-1'),
+    ChkobbaCard(suit: ChkobbaSuit.deniers, rank: 8, id: 'deniers-8'),
+    ChkobbaCard(suit: ChkobbaSuit.deniers, rank: 9, id: 'deniers-9'),
+  ];
+  const table = [
+    ChkobbaCard(suit: ChkobbaSuit.epees, rank: 3, id: 'epees-3'),
+    ChkobbaCard(suit: ChkobbaSuit.batons, rank: 4, id: 'batons-4'),
+    ChkobbaCard(suit: ChkobbaSuit.coupes, rank: 2, id: 'coupes-2'),
+    ChkobbaCard(suit: ChkobbaSuit.deniers, rank: 5, id: 'deniers-5'),
+    ChkobbaCard(suit: ChkobbaSuit.epees, rank: 1, id: 'epees-1'),
+    ChkobbaCard(suit: ChkobbaSuit.coupes, rank: 6, id: 'coupes-6'),
+  ];
+  final used = {...playerHand, ...opponentHand, ...table}.map((c) => c.id).toSet();
+  final deck = [
+    for (final suit in ChkobbaSuit.values)
+      for (var rank = 1; rank <= 10; rank++)
+        if (!used.contains('${suit.name}-$rank')) ChkobbaCard(suit: suit, rank: rank, id: '${suit.name}-$rank'),
+  ];
+  return ChkobbaState(
+    targetScore: targetScore,
+    deck: deck,
+    hands: {Player.player: playerHand, Player.opponent: opponentHand},
+    table: table,
+    won: {Player.player: [], Player.opponent: []},
+    chkobbas: {Player.player: 0, Player.opponent: 0},
+    scores: {Player.player: 0, Player.opponent: 0},
+    lastCapturer: null,
+    turn: Player.player,
+    starter: Player.player,
+    round: 1,
+    winner: null,
+  );
+}
+
 /// Distribue les 6 cartes suivantes du paquet (si la distribution n'a pas tout donné).
 ChkobbaState dealHands(ChkobbaState state) => state.copyWith(
       deck: state.deck.skip(6).toList(),
