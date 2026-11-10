@@ -3,8 +3,8 @@ import 'package:kahwetne/features/chkobba/chkobba_controller.dart';
 import 'package:kahwetne/game/chkobba.dart';
 import 'package:kahwetne/game/common.dart';
 
-/// Ids d'une combinaison, triés pour comparer sans tenir compte de l'ordre.
-Set<String> ids(List<ChkobbaCard> option) => option.map((c) => c.id).toSet();
+/// Clé d'une combinaison : ids triés et joints, pour comparer sans tenir compte de l'ordre.
+String key(List<ChkobbaCard> option) => (option.map((c) => c.id).toList()..sort()).join(',');
 
 void main() {
   group('donne de démo « choice » (issue #29)', () {
@@ -47,15 +47,13 @@ void main() {
       expect(pending, isNotNull, reason: 'un 7 peut prendre plusieurs combinaisons : le dialogue doit s\'ouvrir');
       expect(pending!.cardId, 'epees-7');
 
-      final options = pending.options.map(ids).toList();
-      expect(options, contains({'epees-3', 'batons-4'}));
-      expect(options, contains({'coupes-2', 'deniers-5'}));
-      expect(options, contains({'epees-1', 'coupes-6'}));
+      final keys = pending.options.map(key).toList();
+      expect(keys, containsAll(['batons-4,epees-3', 'coupes-2,deniers-5', 'coupes-6,epees-1']));
 
       // Écart avec l'issue : la recherche de sous-ensembles de lib/game/chkobba.dart trouve aussi
       // 1 + 2 + 4 (épées 1, coupes 2, bâtons 4). La règle n'est pas modifiée ici : à trancher.
-      expect(options.length, 4);
-      expect(options, contains({'epees-1', 'coupes-2', 'batons-4'}));
+      expect(keys.length, 4);
+      expect(keys, contains('batons-4,coupes-2,epees-1'));
     });
   });
 }
