@@ -129,7 +129,7 @@ class _LudoScreenState extends State<LudoScreen> {
                           child: landscapeShort
                               ? Row(
                                   children: [
-                                    Expanded(child: Center(child: _Board(controller: c))),
+                                    Expanded(child: Center(child: _BoardWithDice(controller: c))),
                                     const SizedBox(width: 12),
                                     SizedBox(
                                       width: size.width * 0.42,
@@ -147,7 +147,7 @@ class _LudoScreenState extends State<LudoScreen> {
                                   children: [
                                     _Players(controller: c),
                                     const SizedBox(height: 8),
-                                    Expanded(child: Center(child: _Board(controller: c))),
+                                    Expanded(child: Center(child: _BoardWithDice(controller: c))),
                                     const SizedBox(height: 8),
                                     _Footer(controller: c),
                                   ],
@@ -290,6 +290,74 @@ class _Players extends StatelessWidget {
   String _placeText(int place) {
     if (place == 0) return 'au centre';
     return '${place == 1 ? '1er' : '${place}e'} ✓';
+  }
+}
+
+/// Taille d'un dé et marge réservée autour du plateau pour les quatre emplacements.
+const _dieSize = 44.0;
+const _dieMargin = 36.0;
+
+/// Plateau entouré des quatre emplacements de dé, un par coin de maison :
+/// joueur 1 (bleu) en bas à gauche, 2 (jaune) en bas à droite,
+/// 3 (rouge) en haut à gauche, 4 (vert) en haut à droite.
+class _BoardWithDice extends StatelessWidget {
+  const _BoardWithDice({required this.controller});
+
+  final LudoController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(_dieMargin),
+          child: _Board(controller: controller),
+        ),
+        for (final color in LudoColor.values) _positionedDie(color),
+      ],
+    );
+  }
+
+  Widget _positionedDie(LudoColor color) {
+    final corner = ludoCorner(color);
+    final isLeft = corner.col == 0;
+    final isTop = corner.row == 0;
+    return Positioned(
+      left: isLeft ? 0 : null,
+      right: isLeft ? null : 0,
+      top: isTop ? 0 : null,
+      bottom: isTop ? null : 0,
+      child: _DieSlot(controller: controller, color: color),
+    );
+  }
+}
+
+/// Emplacement fixe du dé d'une couleur. Le dé n'apparaît dans cet emplacement
+/// que lorsque cette couleur vient de lancer ; sinon il reste en placeholder.
+class _DieSlot extends StatelessWidget {
+  const _DieSlot({required this.controller, required this.color});
+
+  final LudoController controller;
+  final LudoColor color;
+
+  @override
+  Widget build(BuildContext context) {
+    final game = controller.game;
+    final tone = _toneOf(color);
+    final rolledHere = game.diceOwner == color && game.dice != null;
+    final active = game.turn == color && !controller.roundOver;
+    return Container(
+      decoration: active
+          ? BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [BoxShadow(color: Color(0xFFFFE16B), spreadRadius: 3)],
+            )
+          : null,
+      child: KeyedSubtree(
+        key: rolledHere ? ValueKey('roll-${game.rollId}') : ValueKey('idle-${color.name}'),
+        child: _Die(value: rolledHere ? game.dice : null, tone: tone.fill, size: _dieSize),
+      ),
+    );
   }
 }
 
@@ -535,12 +603,6 @@ class _Footer extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _Die(
-            key: ValueKey(game.rollId),
-            value: game.dice,
-            tone: game.diceOwner != null ? _toneOf(game.diceOwner!).fill : _ink,
-          ),
-          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -577,10 +639,11 @@ class _Footer extends StatelessWidget {
 
 /// Dé : tourne et rebondit à chaque lancer (le widget est recréé pour chaque rollId).
 class _Die extends StatelessWidget {
-  const _Die({super.key, required this.value, required this.tone});
+  const _Die({required this.value, required this.tone, this.size = 56});
 
   final int? value;
   final Color tone;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -597,11 +660,11 @@ class _Die extends StatelessWidget {
       child: Semantics(
         label: value != null ? 'Dé : $value' : 'Dé',
         child: Container(
-          width: 56,
-          height: 56,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
             color: const Color(0xFFFFF9E9),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(size * 0.21),
             border: Border.all(color: const Color(0xFF24364B), width: 3),
           ),
           child: Stack(
@@ -615,8 +678,8 @@ class _Die extends StatelessWidget {
                   child: Opacity(
                     opacity: value != null ? 1 : 0.2,
                     child: Container(
-                      width: 12,
-                      height: 12,
+                      width: size * 0.21,
+                      height: size * 0.21,
                       decoration: BoxDecoration(
                         color: tone,
                         shape: BoxShape.circle,
