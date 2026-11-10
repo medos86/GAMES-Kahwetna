@@ -607,9 +607,11 @@ class _Die extends StatelessWidget {
           child: Stack(
             children: [
               for (final index in pips)
-                Positioned(
-                  left: _pipAxis[index % 3] / 100 * 56 - 6,
-                  top: _pipAxis[index ~/ 3] / 100 * 56 - 6,
+                Align(
+                  alignment: Alignment(
+                    _pipAxis[index % 3] / 50 - 1,
+                    _pipAxis[index ~/ 3] / 50 - 1,
+                  ),
                   child: Opacity(
                     opacity: value != null ? 1 : 0.2,
                     child: Container(
