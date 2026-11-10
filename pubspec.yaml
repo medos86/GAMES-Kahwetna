@@ -27,3 +27,11 @@ flutter:
     - assets/images/cards_cartoon/
     - assets/icons/
     - assets/sounds/domino/
+  fonts:
+    # Roboto Slab (Apache 2.0). Nunito et Bowlby One SC : à ajouter quand les fichiers sont dans assets/fonts/.
+    - family: RobotoSlab
+      fonts:
+        - asset: assets/fonts/RobotoSlab-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/RobotoSlab-Bold.ttf
+          weight: 700
