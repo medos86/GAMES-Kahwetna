@@ -23,7 +23,7 @@ const _gold = Color(0xFFFFE16B);
 const _shadowSoft = Color(0x47141630); // rgba(20,22,48,0.28)
 
 /// Menu principal : liste des jeux, choix du niveau et du score, mode sans pub.
-/// Porte MainMenu.tsx. `onPlay` reçoit la partie choisie (la navigation viendra avec go_router).
+/// Porte MainMenu.tsx. `onPlay` reçoit la partie choisie (la navigation passe par lib/app/game_routes.dart).
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key, this.onPlay});
 
