@@ -696,6 +696,17 @@ class _RamiScreenState extends State<RamiScreen> {
                   opacity: dragged ? 0.3 : 1,
                   child: RamiCardView(card: card, width: width, selected: selected),
                 ),
+                if (_c.drawnId == card.id)
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(width * 0.14),
+                          border: Border.all(color: _goldColor, width: 3),
+                        ),
+                      ),
+                    ),
+                  ),
                 if (insert != null)
                   Positioned(
                     top: 0,
