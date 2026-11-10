@@ -387,7 +387,8 @@ bool _isThreatened(LudoState state, LudoColor color, int index) => state.tokens.
       return distance >= 1 && distance <= 6;
     });
 
-double _scoreMove(LudoState state, Token token, int dice, bool lookAhead) {
+/// Score moyen : avancée, sortie, cases sûres et captures (sans anticipation).
+double _scoreMove(LudoState state, Token token, int dice) {
   final progress = _advance(token.progress, dice) ?? token.progress;
   var score = progress / 10;
   if (token.progress == 0) score += 4;
@@ -402,13 +403,44 @@ double _scoreMove(LudoState state, Token token, int dice, bool lookAhead) {
           .where((item) => item.color != token.color && trackIndex(item.color, item.progress) == index)
           .length;
       score += victims * 8;
-      if (lookAhead && _isThreatened(state, token.color, index)) score -= 5;
     }
   }
   return score;
 }
 
-/// Id du pion à déplacer (null si aucun coup). Facile : au hasard ; moyen et difficile : scores.
+/// Score difficile : anticipe les coups adverses.
+/// - Capturer un pion adverse vaut plus s'il est avancé (il a plus perdu).
+/// - Sortir de la base sur un 6 est encouragé ; une case exposée à un adversaire est pénalisée.
+/// - Quitter une case menacée pour une case sûre est récompensé.
+double _scoreHard(LudoState state, Token token, int dice) {
+  final progress = _advance(token.progress, dice) ?? token.progress;
+  var score = progress / 10;
+  if (token.progress == 0) score += 6;
+  if (progress == ludoFinish) score += 10;
+  if (progress >= 52 && progress < ludoFinish) score += 2;
+
+  final index = trackIndex(token.color, progress);
+  if (index != null) {
+    for (final item in state.tokens) {
+      if (item.color == token.color || trackIndex(item.color, item.progress) != index) continue;
+      if (ludoSafeIndexes.contains(index)) break;
+      score += 8 + item.progress / 4;
+    }
+    if (ludoSafeIndexes.contains(index)) {
+      score += 3;
+    } else if (_isThreatened(state, token.color, index)) {
+      score -= 6;
+    }
+  }
+
+  final from = trackIndex(token.color, token.progress);
+  if (from != null && _isThreatened(state, token.color, from) && (index == null || !_isThreatened(state, token.color, index))) {
+    score += 2;
+  }
+  return score;
+}
+
+/// Id du pion à déplacer (null si aucun coup). Facile : au hasard ; moyen : scores ; difficile : scores anticipés.
 String? chooseMove(LudoState state, LudoAiLevel level, [RandomDouble? random]) {
   final options = legalTokenIds(state);
   if (options.isEmpty) return null;
@@ -422,7 +454,9 @@ String? chooseMove(LudoState state, LudoAiLevel level, [RandomDouble? random]) {
   var bestScore = double.negativeInfinity;
   for (final id in options) {
     final token = state.tokens.firstWhere((item) => item.id == id);
-    final score = _scoreMove(state, token, dice, level == LudoAiLevel.difficile);
+    final score = level == LudoAiLevel.difficile
+        ? _scoreHard(state, token, dice)
+        : _scoreMove(state, token, dice);
     if (score > bestScore) {
       best = id;
       bestScore = score;
