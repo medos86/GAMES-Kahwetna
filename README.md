@@ -10,7 +10,7 @@ Le projet doit déjà exister (`flutter create`) et contenir `pubspec.yaml`.
 
 ```bash
 cd ~/Documents/projects/kahwetne_flutter
-flutter pub add shared_preferences flutter_svg audioplayers
+flutter pub add shared_preferences flutter_svg flutter_soloud
 flutter pub add --dev fake_async
 # Copier lib/, test/, assets/ de l'archive, puis remplacer la section flutter: de pubspec.yaml
 # par PUBSPEC_FLUTTER_SECTION.yaml
@@ -21,6 +21,27 @@ flutter test                    # tous les tests : layout, parité Domino, règl
 flutter run                     # menu principal
 flutter run --dart-define=PROBE=true   # écran de contrôle des tailles
 ```
+
+## Dépendances
+
+Ce que déclare `pubspec.yaml` et ce que le code utilise :
+
+| Paquet | Rôle |
+|---|---|
+| `flutter_soloud` | effets sonores (`lib/core/audio/sounds.dart`, fichiers `.wav`) |
+| `flutter_svg` | icônes des jeux (`assets/icons/*.svg`) |
+| `shared_preferences` | mode sans pub (équivalent du `localStorage` du React) |
+| `fake_async` (dev) | tests des contrôleurs avec minuteurs |
+
+Écarts volontaires avec le guide, qui prévoyait quatre paquets de plus :
+
+- `go_router` : non adopté. L'application garde le `Navigator` de Flutter avec une seule table de routes
+  (`lib/app/game_routes.dart`, voir la décision en tête de ce fichier).
+- `flutter_animate` : non adopté. Les animations passent par `lib/widgets/` (`fade_slide_in.dart`, `pressable.dart`).
+- `collection` : non nécessaire. Le tri stable et le mélange sont dans `lib/core/utils/js_compat.dart`, sans dépendance.
+- `lucide_icons_flutter` : non adopté. Les icônes sont des SVG locaux ; aucun code n'utilise `LucideIcons`.
+
+Si l'un de ces paquets est adopté plus tard, l'ajouter à `pubspec.yaml` et mettre à jour ce tableau dans le même commit.
 
 ## Tests
 
@@ -89,7 +110,6 @@ android:screenOrientation="portrait"
 
 - Flou de fond approximé (sigma 12) ; sépia et rotation de teinte du fond non reproduits ; motif de points omis.
 - Chiffres 7, 8 et 9 des icônes SVG : `flutter_svg` ne rend pas toujours le texte. À superposer en `Text` si besoin.
-- Noms d'icônes Lucide (`LucideIcons.cloudSun`, etc.) à vérifier dans la version installée.
 
 ## Fichiers à fournir (non inclus dans l'archive)
 
@@ -105,9 +125,9 @@ android:screenOrientation="portrait"
 
 ## Sons
 
-- Dépendance : `flutter pub add audioplayers`.
+- Dépendance : `flutter_soloud` (`flutter pub add flutter_soloud`), faible latence pour les effets.
 - Ajoutez `- assets/sounds/domino/` sous `assets:` dans `pubspec.yaml` (voir `patch_pubspec.py`).
-- Déposez `place.mp3`, `draw.mp3`, `pass.mp3`, `win.mp3`, `lose.mp3` dans `assets/sounds/domino/` (voir `assets/sounds/domino/LISEZMOI.txt`).
+- Déposez `place.wav`, `draw.wav`, `pass.wav`, `win.wav`, `lose.wav` dans `assets/sounds/domino/` (voir `assets/sounds/domino/LISEZMOI.txt`).
 - Les sons sont déclenchés par `lib/core/audio/sounds.dart` depuis le contrôleur du Domino. Sans fichiers, le jeu reste silencieux.
 
 ## Style cartoon (interrupteur)
