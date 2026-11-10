@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../../core/layout/device_metrics.dart';
+import '../../core/strings.dart';
 import '../../game/common.dart';
 import '../../game/domino.dart';
 import '../../widgets/ad_banner.dart';
@@ -560,7 +561,7 @@ class _Footer extends StatelessWidget {
               _ShakeOnTrigger(
                 trigger: controller.drawInvalidCount,
                 child: Pressable(
-                semanticLabel: label,
+                semanticLabel: game.boneyard.isEmpty ? '$label, ${Strings.dominoDrawUnavailable}' : label,
                 onTap: () => _onDraw(context),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -752,7 +753,7 @@ class _RoundOverlay extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  matchOver ? 'PARTIE TERMINÉE' : 'MANCHE ${game.round} TERMINÉE',
+                  matchOver ? Strings.dominoMatchOver.toUpperCase() : 'MANCHE ${game.round} TERMINÉE',
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 2.6, color: Color(0xFFF4D28A)),
                 ),
                 const SizedBox(height: 8),
