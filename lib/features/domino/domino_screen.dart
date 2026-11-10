@@ -106,11 +106,13 @@ class _DominoScreenState extends State<DominoScreen> {
               ),
               if (!_adFree) const Positioned(left: 8, right: 8, bottom: 8, child: AdBanner()),
               if (game.roundWinner != null || game.matchWinner != null)
-                _RoundOverlay(
-                  game: game,
-                  onNext: _controller.startNextRound,
-                  onRestart: _controller.restart,
-                  onMenu: () => Navigator.of(context).maybePop(),
+                Positioned.fill(
+                  child: _RoundOverlay(
+                    game: game,
+                    onNext: _controller.startNextRound,
+                    onRestart: _controller.restart,
+                    onMenu: () => Navigator.of(context).maybePop(),
+                  ),
                 ),
             ],
           );
@@ -737,8 +739,7 @@ class _RoundOverlay extends StatelessWidget {
     final points = game.pointsAwarded;
     final canContinue = game.roundWinner != null && game.matchWinner == null;
 
-    return Positioned.fill(
-      child: ColoredBox(
+    return ColoredBox(
         color: const Color(0xB3071B20),
         child: Center(
           child: Container(
@@ -791,8 +792,7 @@ class _RoundOverlay extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
 
