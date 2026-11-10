@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'app/game_routes.dart';
 import 'core/audio/sounds.dart';
 import 'core/layout/device_metrics.dart';
 import 'core/theme/app_colors.dart';
-import 'features/chkobba/chkobba_screen.dart';
-import 'features/coinche/coinche_screen.dart';
-import 'features/domino/domino_screen.dart';
-import 'features/ludo/ludo_screen.dart';
 import 'features/menu/main_menu_screen.dart';
 import 'features/menu/menu_models.dart';
-import 'features/rami/rami_screen.dart';
 import 'features/splash/splash_screen.dart';
 
 /// Lancer avec `flutter run --dart-define=PROBE=true` pour afficher l'écran de contrôle des tailles.
 const bool kSizeProbe = bool.fromEnvironment('PROBE');
 
 final _navigatorKey = GlobalKey<NavigatorState>();
+final _messengerKey = GlobalKey<ScaffoldMessengerState>();
 
 /// Plein écran immersif (barre de navigation Android et barre d'état masquées,
 /// elles reviennent au glissement depuis le bord) et portrait uniquement.
@@ -32,63 +29,15 @@ Future<void> main() async {
   runApp(const KahwetneApp());
 }
 
-/// Relie le menu aux écrans de jeu (Chkobba, Domino, Belote = Coinche).
+/// Le menu envoie la partie choisie vers sa route ; un jeu sans écran n'est jamais ignoré en silence.
 void _onPlay(LaunchRequest request) {
-  if (request.game.name == 'Ludo') {
-    _navigatorKey.currentState?.push(
-      MaterialPageRoute<void>(
-        builder: (_) => LudoScreen(
-          difficulty: request.difficulty,
-          players: request.players,
-        ),
-      ),
+  if (gameForRoute(request.game.route) == null) {
+    _messengerKey.currentState?.showSnackBar(
+      const SnackBar(content: Text('Bientôt disponible')),
     );
     return;
   }
-  if (request.game.name == 'Belote') {
-    _navigatorKey.currentState?.push(
-      MaterialPageRoute<void>(
-        builder: (_) => CoincheScreen(
-          difficulty: request.difficulty,
-          targetScore: request.target,
-        ),
-      ),
-    );
-    return;
-  }
-  if (request.game.name == 'Rami') {
-    _navigatorKey.currentState?.push(
-      MaterialPageRoute<void>(
-        builder: (_) => RamiScreen(
-          difficulty: request.difficulty,
-          targetScore: request.target,
-        ),
-      ),
-    );
-    return;
-  }
-  if (request.game.name == 'Chkobba') {
-    _navigatorKey.currentState?.push(
-      MaterialPageRoute<void>(
-        builder: (_) => ChkobbaScreen(
-          difficulty: request.difficulty,
-          targetScore: request.target,
-        ),
-      ),
-    );
-    return;
-  }
-  if (request.game.name == 'Domino') {
-    _navigatorKey.currentState?.push(
-      MaterialPageRoute<void>(
-        builder: (_) => DominoScreen(
-          difficulty: request.difficulty,
-          targetScore: request.target,
-        ),
-      ),
-    );
-    return;
-  }
+  _navigatorKey.currentState?.pushNamed(request.location);
 }
 
 class KahwetneApp extends StatelessWidget {
@@ -98,6 +47,8 @@ class KahwetneApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       navigatorKey: _navigatorKey,
+      scaffoldMessengerKey: _messengerKey,
+      onGenerateRoute: (settings) => buildGameRoute(settings.name),
       debugShowCheckedModeBanner: false,
       title: 'Kahwetne',
       theme: ThemeData(
