@@ -404,7 +404,26 @@ class _RamiScreenState extends State<RamiScreen> {
           ),
           const SizedBox(height: 8),
           Expanded(child: _tableCards(handWidth * 0.8, g)),
+          _contextActions(g),
         ],
+      ),
+    );
+  }
+
+  /// Boutons d'action affichés sur la table seulement quand ils servent :
+  /// valider/annuler pendant une pose en cours, poser/défausser quand des cartes sont sélectionnées.
+  Widget _contextActions(rules.RamiState g) {
+    final c = _c;
+    if (!c.canPlay) return const SizedBox.shrink();
+    final staged = g.staged.isNotEmpty;
+    if (!staged && c.selected.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 6,
+        runSpacing: 6,
+        children: _actions(staged),
       ),
     );
   }
@@ -543,7 +562,6 @@ class _RamiScreenState extends State<RamiScreen> {
   Widget _footer(double handWidth) {
     final c = _c;
     final hand = c.hand;
-    final staged = c.game.staged.isNotEmpty;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
@@ -583,7 +601,6 @@ class _RamiScreenState extends State<RamiScreen> {
                   ),
                 ),
               ),
-              if (c.canPlay) Wrap(spacing: 6, runSpacing: 6, children: _actions(staged)),
             ],
           ),
         ],
