@@ -1,18 +1,16 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../../game/ludo.dart';
 import '../../widgets/ad_banner.dart';
 import '../menu/menu_models.dart';
 import 'ludo_controller.dart';
 import 'ludo_layout.dart';
+import '../../core/services/ad_free_service.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
-const _adFreeKey = 'kahwetne-ad-free-until';
-
 const _ink = Color(0xFF20284B);
 const _cream = Color(0xFFFFF8E7);
 const _brown = Color(0xFF4A2A10);
@@ -74,8 +72,7 @@ class _LudoScreenState extends State<LudoScreen> {
     playerCount: widget.players,
     difficulty: _aiLevel(widget.difficulty),
   );
-  bool _adFree = false;
-  Timer? _adTimer;
+  final ValueListenable<bool> _adFree = AdFreeService.instance.active;
 
   static LudoAiLevel _aiLevel(Difficulty d) => switch (d) {
         Difficulty.facile => LudoAiLevel.facile,
@@ -86,25 +83,18 @@ class _LudoScreenState extends State<LudoScreen> {
   @override
   void initState() {
     super.initState();
-    _loadAdFree();
+    _adFree.addListener(_onAdFreeChanged);
   }
 
   @override
   void dispose() {
-    _adTimer?.cancel();
+    _adFree.removeListener(_onAdFreeChanged);
     _controller.dispose();
     super.dispose();
   }
 
-  Future<void> _loadAdFree() async {
-    final prefs = await SharedPreferences.getInstance();
-    final expiresAt = prefs.getInt(_adFreeKey) ?? 0;
-    final remaining = expiresAt - DateTime.now().millisecondsSinceEpoch;
-    if (!mounted || remaining <= 0) return;
-    setState(() => _adFree = true);
-    _adTimer = Timer(Duration(milliseconds: remaining), () {
-      if (mounted) setState(() => _adFree = false);
-    });
+  void _onAdFreeChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -130,7 +120,7 @@ class _LudoScreenState extends State<LudoScreen> {
                 SafeArea(
                   bottom: false,
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(12, 12, 12, _adFree ? 12 : 88),
+                    padding: EdgeInsets.fromLTRB(12, 12, 12, _adFree.value ? 12 : 88),
                     child: Column(
                       children: [
                         _Header(controller: c),
@@ -167,7 +157,7 @@ class _LudoScreenState extends State<LudoScreen> {
                     ),
                   ),
                 ),
-                if (!_adFree) const Positioned(left: 8, right: 8, bottom: 8, child: AdBanner()),
+                if (!_adFree.value) const Positioned(left: 8, right: 8, bottom: 8, child: AdBanner()),
                 if (c.roundOver)
                   Positioned.fill(
                     child: _EndDialog(

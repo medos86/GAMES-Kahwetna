@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'app/game_routes.dart';
 import 'core/audio/sounds.dart';
 import 'core/layout/device_metrics.dart';
+import 'core/services/ad_free_service.dart';
 import 'core/services/toast.dart';
 import 'core/theme/app_colors.dart';
 import 'features/menu/main_menu_screen.dart';
@@ -27,6 +28,8 @@ Future<void> main() async {
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   // Sons chargés dès l'ouverture de l'application, pour qu'ils soient prêts au premier coup.
   Sounds.preload();
+  // Échéance du mode sans pub relue avant le premier écran : pas de bannière qui clignote au démarrage.
+  await AdFreeService.instance.load();
   runApp(const KahwetneApp());
 }
 

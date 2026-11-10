@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../core/services/ad_free_service.dart';
 import '../../core/theme/game_style.dart';
 import '../../game/chkobba.dart';
 import '../../game/common.dart';
@@ -209,9 +210,15 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(8, 0, 8, 8),
-              child: AdBanner(),
+            // Bannière masquée pendant le mode sans pub, de retour à l'expiration.
+            ValueListenableBuilder<bool>(
+              valueListenable: AdFreeService.instance.active,
+              builder: (context, adFree, _) => adFree
+                  ? const SizedBox.shrink()
+                  : const Padding(
+                      padding: EdgeInsets.fromLTRB(8, 0, 8, 8),
+                      child: AdBanner(),
+                    ),
             ),
           ],
         ),

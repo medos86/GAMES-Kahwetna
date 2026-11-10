@@ -1,7 +1,6 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../../core/layout/device_metrics.dart';
 import '../../core/services/toast.dart';
@@ -11,10 +10,9 @@ import '../menu/menu_models.dart';
 import 'rami_card_view.dart';
 import 'rami_controller.dart';
 import '../../core/strings.dart';
+import '../../core/services/ad_free_service.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
-const _adFreeKey = 'kahwetne-ad-free-until';
-
 const _feltColor = Color(0xFF10B981);
 const _frameColor = Color(0xFF4A2A10);
 const _creamColor = Color(0xFFFFF8E7);
@@ -126,31 +124,23 @@ class _RamiScreenState extends State<RamiScreen> {
   final GlobalKey _bodyKey = GlobalKey();
   _Press? _press;
   _Drag? _drag;
-  bool _adFree = false;
-  Timer? _adTimer;
+  final ValueListenable<bool> _adFree = AdFreeService.instance.active;
 
   @override
   void initState() {
     super.initState();
-    _loadAdFree();
+    _adFree.addListener(_onAdFreeChanged);
   }
 
   @override
   void dispose() {
-    _adTimer?.cancel();
+    _adFree.removeListener(_onAdFreeChanged);
     _c.dispose();
     super.dispose();
   }
 
-  Future<void> _loadAdFree() async {
-    final prefs = await SharedPreferences.getInstance();
-    final expiresAt = prefs.getInt(_adFreeKey) ?? 0;
-    final remaining = expiresAt - DateTime.now().millisecondsSinceEpoch;
-    if (!mounted || remaining <= 0) return;
-    setState(() => _adFree = true);
-    _adTimer = Timer(Duration(milliseconds: remaining), () {
-      if (mounted) setState(() => _adFree = false);
-    });
+  void _onAdFreeChanged() {
+    if (mounted) setState(() {});
   }
 
   void _showMessage(String message) {
@@ -249,7 +239,7 @@ class _RamiScreenState extends State<RamiScreen> {
               const Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(color: _woodColor))),
               SafeArea(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(8, 8, 8, _adFree ? 8 : 80),
+                  padding: EdgeInsets.fromLTRB(8, 8, 8, _adFree.value ? 8 : 80),
                   child: Column(
                     children: [
                       _header(g),
@@ -263,7 +253,7 @@ class _RamiScreenState extends State<RamiScreen> {
                   ),
                 ),
               ),
-              if (!_adFree) const Positioned(left: 8, right: 8, bottom: 8, child: AdBanner()),
+              if (!_adFree.value) const Positioned(left: 8, right: 8, bottom: 8, child: AdBanner()),
               if (_drag != null) _dragOverlay(handWidth),
               if (g.phase == rules.RamiPhase.end && g.roundResult != null) Positioned.fill(child: _summary(g)),
             ],

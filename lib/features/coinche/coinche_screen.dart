@@ -1,7 +1,6 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../../core/layout/device_metrics.dart';
 import '../../game/coinche.dart';
@@ -9,10 +8,9 @@ import '../../widgets/ad_banner.dart';
 import '../menu/menu_models.dart';
 import 'coinche_card_view.dart';
 import 'coinche_controller.dart';
+import '../../core/services/ad_free_service.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
-const _adFreeKey = 'kahwetne-ad-free-until';
-
 const _feltColor = Color(0xFF10B981);
 const _frameColor = Color(0xFF4A2A10);
 const _creamColor = Color(0xFFFFF8E7);
@@ -44,31 +42,23 @@ class _CoincheScreenState extends State<CoincheScreen> {
     target: widget.targetScore,
     difficulty: widget.difficulty,
   );
-  bool _adFree = false;
-  Timer? _adTimer;
+  final ValueListenable<bool> _adFree = AdFreeService.instance.active;
 
   @override
   void initState() {
     super.initState();
-    _loadAdFree();
+    _adFree.addListener(_onAdFreeChanged);
   }
 
   @override
   void dispose() {
-    _adTimer?.cancel();
+    _adFree.removeListener(_onAdFreeChanged);
     _controller.dispose();
     super.dispose();
   }
 
-  Future<void> _loadAdFree() async {
-    final prefs = await SharedPreferences.getInstance();
-    final expiresAt = prefs.getInt(_adFreeKey) ?? 0;
-    final remaining = expiresAt - DateTime.now().millisecondsSinceEpoch;
-    if (!mounted || remaining <= 0) return;
-    setState(() => _adFree = true);
-    _adTimer = Timer(Duration(milliseconds: remaining), () {
-      if (mounted) setState(() => _adFree = false);
-    });
+  void _onAdFreeChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -87,7 +77,7 @@ class _CoincheScreenState extends State<CoincheScreen> {
               const Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(color: Color(0xFF8B4513)))),
               SafeArea(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(12, 12, 12, _adFree ? 12 : 88),
+                  padding: EdgeInsets.fromLTRB(12, 12, 12, _adFree.value ? 12 : 88),
                   child: Column(
                     children: [
                       _Header(controller: c),
@@ -101,7 +91,7 @@ class _CoincheScreenState extends State<CoincheScreen> {
                   ),
                 ),
               ),
-              if (!_adFree) const Positioned(left: 8, right: 8, bottom: 8, child: AdBanner()),
+              if (!_adFree.value) const Positioned(left: 8, right: 8, bottom: 8, child: AdBanner()),
               if (c.summary != null)
                 Positioned.fill(
                   child: _SummaryDialog(
