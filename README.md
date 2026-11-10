@@ -128,6 +128,10 @@ android:screenOrientation="portrait"
 
 ## Écran d'ouverture et fond
 
+Décision (issue #34) : l'écran d'ouverture est **conservé**, bien qu'il n'existe pas dans l'app React qui ouvre directement le menu.
+Motif : il donne au lancement une identité visuelle propre au portage (fond du village, titre) et laisse le joueur démarrer d'un appui.
+Pour le retirer, supprimer `splash_screen.dart` et pointer l'accueil vers le menu dans `lib/main.dart`.
+
 - `lib/features/splash/splash_screen.dart` : écran d'ouverture (fond du village, titre, « Touchez pour commencer »),
   puis passage au menu après environ 2,4 s, ou dès l'appui.
 - Le même fond (`assets/images/background.webp`) sert à l'ouverture, au menu principal et au choix du niveau.
