@@ -7,6 +7,7 @@ import 'core/theme/app_colors.dart';
 import 'features/chkobba/chkobba_screen.dart';
 import 'features/coinche/coinche_screen.dart';
 import 'features/domino/domino_screen.dart';
+import 'features/ludo/ludo_screen.dart';
 import 'features/menu/main_menu_screen.dart';
 import 'features/menu/menu_models.dart';
 import 'features/splash/splash_screen.dart';
@@ -32,6 +33,17 @@ Future<void> main() async {
 
 /// Relie le menu aux écrans de jeu (Chkobba, Domino, Belote = Coinche).
 void _onPlay(LaunchRequest request) {
+  if (request.game.name == 'Ludo') {
+    _navigatorKey.currentState?.push(
+      MaterialPageRoute<void>(
+        builder: (_) => LudoScreen(
+          difficulty: request.difficulty,
+          players: request.players,
+        ),
+      ),
+    );
+    return;
+  }
   if (request.game.name == 'Belote') {
     _navigatorKey.currentState?.push(
       MaterialPageRoute<void>(
