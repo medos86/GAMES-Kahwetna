@@ -32,6 +32,8 @@ class ChkobbaController extends ChangeNotifier {
   ChkobbaRoundScore? _roundSummary;
   Player? _hayaBy;
   String? _opponentChoice;
+  /// Décision de l'adversaire : prend-il une prise s'il en a une (facile seulement).
+  bool _opponentCaptures = true;
   PendingCapture? _pendingCapture;
 
   Timer? _timer;
@@ -164,14 +166,16 @@ class ChkobbaController extends ChangeNotifier {
     if (revealed == null) {
       // Phase 1 : l'adversaire choisit et montre sa carte.
       _timer = Timer(const Duration(milliseconds: 1000), () {
-        _opponentChoice = chooseOpponentCard(_game, level, random: _random);
+        final move = chooseOpponentMove(_game, level, random: _random);
+        _opponentChoice = move.cardId;
+        _opponentCaptures = move.capture;
         notifyListeners();
         _schedule();
       });
     } else {
       // Phase 2 : il joue la carte montrée.
       _timer = Timer(const Duration(milliseconds: 1200), () {
-        final result = playCard(_game, Player.opponent, revealed);
+        final result = playCard(_game, Player.opponent, revealed, discardOnly: !_opponentCaptures);
         _apply(result.state, haya: result.haya ? Player.opponent : null, sfx: Sfx.place);
       });
     }
