@@ -9,6 +9,7 @@ import '../../widgets/ad_banner.dart';
 import '../menu/menu_models.dart';
 import 'chkobba_card_face.dart';
 import 'chkobba_controller.dart';
+import 'chkobba_rules_screen.dart';
 import 'chkobba_table.dart';
 
 
@@ -125,6 +126,14 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                     onTap: () => Navigator.of(context).pop(),
                   ),
                   const Spacer(),
+                  _PillButton(
+                    label: 'Règles',
+                    icon: Icons.menu_book,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(builder: (_) => const ChkobbaRulesScreen()),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   if (game.winner != null) ...[
                     _PillButton(
                       label: 'Nouvelle partie',
