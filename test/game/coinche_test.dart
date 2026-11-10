@@ -285,7 +285,7 @@ void main() {
     final partnerWinning = [
       Play(seat: Seat.west, card: card(CoincheSuit.batons, CoincheRank.seven)),
       Play(seat: Seat.north, card: card(CoincheSuit.batons, CoincheRank.ace)),
-      Play(seat: Seat.east, card: card(CoincheSuit.batons, CoincheRank.king)),
+      Play(seat: Seat.east, card: card(CoincheSuit.batons, CoincheRank.roi)),
     ];
     final south = [
       card(CoincheSuit.batons, CoincheRank.ten),
