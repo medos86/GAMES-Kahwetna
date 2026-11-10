@@ -4,7 +4,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/fade_slide_in.dart';
 import '../../widgets/pressable.dart';
@@ -12,9 +11,8 @@ import '../../widgets/texture_patterns.dart';
 import 'game_icons.dart';
 import 'menu_models.dart';
 import '../../core/strings.dart';
+import '../../core/services/ad_free_service.dart';
 
-const _adFreeKey = 'kahwetne-ad-free-until';
-const _adFreeSeconds = 30 * 60;
 
 // Couleurs fixes reprises du source (Tailwind -> hex).
 const _ink = Color(0xFF15264D);
@@ -41,50 +39,44 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   int _target = gameEntries.first.defaultTarget;
   int _playerCount = 1;
   _MenuScreen _screen = _MenuScreen.menu;
+  final AdFreeService _adFree = AdFreeService.instance;
   int _adFreeLeft = 0;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _loadAdFree();
+    // L'échéance conservée est relue au démarrage (main) ; ici on suit seulement le service.
+    _adFreeLeft = _secondsLeft();
+    _adFree.active.addListener(_syncAdFree);
+    _startCountdown();
   }
 
   @override
   void dispose() {
+    _adFree.active.removeListener(_syncAdFree);
     _timer?.cancel();
     super.dispose();
   }
 
-  Future<void> _loadAdFree() async {
-    final prefs = await SharedPreferences.getInstance();
-    final expiresAt = prefs.getInt(_adFreeKey) ?? 0;
-    final left = ((expiresAt - DateTime.now().millisecondsSinceEpoch) / 1000).ceil();
+  int _secondsLeft() => (_adFree.remaining.inMilliseconds / 1000).ceil();
+
+  /// Le service a changé d'état (activation ou expiration).
+  void _syncAdFree() {
     if (!mounted) return;
-    setState(() => _adFreeLeft = math.max(0, left));
-    _syncTimer();
+    setState(() => _adFreeLeft = _secondsLeft());
+    _startCountdown();
   }
 
   /// Décompte d'une seconde, actif seulement tant qu'il reste du temps (comme le useEffect source).
-  void _syncTimer() {
+  void _startCountdown() {
     _timer?.cancel();
-    if (_adFreeLeft <= 0) return;
+    if (!_adFree.active.value) return;
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
-      setState(() => _adFreeLeft = math.max(0, _adFreeLeft - 1));
-      if (_adFreeLeft == 0) _timer?.cancel();
+      setState(() => _adFreeLeft = _secondsLeft());
+      if (!_adFree.active.value) _timer?.cancel();
     });
-  }
-
-  Future<void> _activateAdFree() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(
-      _adFreeKey,
-      DateTime.now().millisecondsSinceEpoch + _adFreeSeconds * 1000,
-    );
-    if (!mounted) return;
-    setState(() => _adFreeLeft = _adFreeSeconds);
-    _syncTimer();
   }
 
   void _selectGame(GameEntry game) {
@@ -184,7 +176,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         _AdFreeButton(
           sm: sm,
           secondsLeft: _adFreeLeft,
-          onTap: _activateAdFree,
+          onTap: _adFree.activate,
         ),
       ],
     );

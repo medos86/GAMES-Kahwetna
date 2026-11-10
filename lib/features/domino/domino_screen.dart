@@ -1,9 +1,7 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import '../../core/audio/sounds.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/layout/device_metrics.dart';
 import '../../game/common.dart';
@@ -14,8 +12,7 @@ import '../../widgets/texture_patterns.dart';
 import '../menu/menu_models.dart';
 import 'domino_controller.dart';
 import 'domino_tiles.dart';
-
-const _adFreeKey = 'kahwetne-ad-free-until';
+import '../../core/services/ad_free_service.dart';
 
 /// Écran de jeu Domino (DominoGameScreen.tsx).
 class DominoScreen extends StatefulWidget {
@@ -33,33 +30,24 @@ class _DominoScreenState extends State<DominoScreen> {
     targetScore: widget.targetScore,
     difficulty: widget.difficulty,
   );
-  bool _adFree = false;
-  Timer? _adTimer;
+  final ValueListenable<bool> _adFree = AdFreeService.instance.active;
 
   @override
   void initState() {
     super.initState();
     Sounds.preload().then((_) => Sounds.play(Sfx.draw));
-    _loadAdFree();
+    _adFree.addListener(_onAdFreeChanged);
   }
 
   @override
   void dispose() {
-    _adTimer?.cancel();
+    _adFree.removeListener(_onAdFreeChanged);
     _controller.dispose();
     super.dispose();
   }
 
-  Future<void> _loadAdFree() async {
-    final prefs = await SharedPreferences.getInstance();
-    final expiresAt = prefs.getInt(_adFreeKey) ?? 0;
-    final remaining = expiresAt - DateTime.now().millisecondsSinceEpoch;
-    if (!mounted) return;
-    if (remaining <= 0) return;
-    setState(() => _adFree = true);
-    _adTimer = Timer(Duration(milliseconds: remaining), () {
-      if (mounted) setState(() => _adFree = false);
-    });
+  void _onAdFreeChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -83,7 +71,7 @@ class _DominoScreenState extends State<DominoScreen> {
               const Positioned.fill(child: StripePattern(period: 11, width: 1, color: Color(0x05000000), vertical: true)),
               SafeArea(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(12, 12, 12, _adFree ? 12 : 88),
+                  padding: EdgeInsets.fromLTRB(12, 12, 12, _adFree.value ? 12 : 88),
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 1100),
@@ -104,7 +92,7 @@ class _DominoScreenState extends State<DominoScreen> {
                   ),
                 ),
               ),
-              if (!_adFree) const Positioned(left: 8, right: 8, bottom: 8, child: AdBanner()),
+              if (!_adFree.value) const Positioned(left: 8, right: 8, bottom: 8, child: AdBanner()),
               if (game.roundWinner != null || game.matchWinner != null)
                 Positioned.fill(
                   child: _RoundOverlay(
