@@ -46,6 +46,8 @@ class CoincheController extends ChangeNotifier {
   /// Le jeu aléatoire est réservé au niveau facile (même règle que le source).
   bool get randomPlay => difficulty == Difficulty.facile;
 
+  CoincheAiLevel get aiLevel => CoincheAiLevel.values.byName(difficulty.name);
+
   bool get isBiddingTurn => _round.phase == CoinchePhase.bidding && _round.turn == Seat.south;
 
   bool get isHumanPlayTurn => _round.phase == CoinchePhase.playing && _round.turn == Seat.south;
@@ -132,7 +134,7 @@ class CoincheController extends ChangeNotifier {
         final turn = round.turn;
         if (turn == null || turn == Seat.south) return;
         _timer = Timer(const Duration(milliseconds: 900), () {
-          _setRound(placeBid(_round, turn, chooseBid(_round, turn)));
+          _setRound(placeBid(_round, turn, chooseBid(_round, turn, aiLevel)));
         });
         break;
       case CoinchePhase.playing:
@@ -145,7 +147,7 @@ class CoincheController extends ChangeNotifier {
         final turn = round.turn;
         if (turn == null || turn == Seat.south) return;
         _timer = Timer(const Duration(milliseconds: 900), () {
-          _setRound(playCard(_round, turn, chooseCard(_round, turn, randomPlay, _random)));
+          _setRound(playCard(_round, turn, chooseCard(_round, turn, randomPlay, _random, aiLevel)));
         });
         break;
       case CoinchePhase.done:

@@ -672,7 +672,11 @@ CoincheMatch applyRound(CoincheMatch match, CoincheRoundResult result) {
 // IA (même logique que le source ; seul le jeu de carte change avec la difficulté)
 // ---------------------------------------------------------------------------
 
-BidAction chooseBid(RoundState round, Seat seat) {
+/// Niveau de l'IA Coinche (même valeurs que Difficulty côté interface).
+enum CoincheAiLevel { facile, moyen, difficile }
+
+/// Enchères. Facile : seuil de force relevé (annonce plus rarement). Moyen et difficile : même règle.
+BidAction chooseBid(RoundState round, Seat seat, [CoincheAiLevel level = CoincheAiLevel.moyen]) {
   final contract = round.contract;
   if (contract != null && teamOf(contract.seat) == teamOf(seat)) return const PassBid();
 
@@ -688,19 +692,27 @@ BidAction chooseBid(RoundState round, Seat seat) {
       bestSuit = suit;
     }
   }
-  if (bestSuit == null || bestStrength < bidThreshold) return const PassBid();
+  final threshold = level == CoincheAiLevel.facile ? bidThreshold + 10 : bidThreshold;
+  if (bestSuit == null || bestStrength < threshold) return const PassBid();
 
   final minValue = minBidValue(round);
   final value = math.min(
     maxBid,
-    math.max(minValue, minBid + ((bestStrength - bidThreshold) / 8).floor() * 10),
+    math.max(minValue, minBid + ((bestStrength - threshold) / 8).floor() * 10),
   );
   if (value < minValue || value > maxBid) return const PassBid();
   return ValueBid(value, bestSuit);
 }
 
 /// Renvoie l'id de la carte choisie. `randomPlay` = jeu aléatoire (difficulté facile).
-String chooseCard(RoundState round, Seat seat, [bool randomPlay = false, RandomDouble? random]) {
+/// Difficile : quand le partenaire tient le pli, il lui donne la carte la plus chère (points).
+String chooseCard(
+  RoundState round,
+  Seat seat, [
+  bool randomPlay = false,
+  RandomDouble? random,
+  CoincheAiLevel level = CoincheAiLevel.moyen,
+]) {
   final moves = legalCards(round, seat);
   final contract = round.contract;
   if (randomPlay || contract == null) {
@@ -727,7 +739,13 @@ String chooseCard(RoundState round, Seat seat, [bool randomPlay = false, RandomD
   }
 
   final winner = winningPlay(round.trick, mode);
-  if (teamOf(winner.seat) == teamOf(seat)) return cheapest(moves).id;
+  if (teamOf(winner.seat) == teamOf(seat)) {
+    if (level == CoincheAiLevel.difficile) {
+      final gift = priciest(moves);
+      if (cardPoints(gift, mode) >= 10) return gift.id;
+    }
+    return cheapest(moves).id;
+  }
 
   final ledSuit = round.trick.first.card.suit;
   final winners = moves.where((c) => beats(c, winner.card, ledSuit, mode)).toList();
