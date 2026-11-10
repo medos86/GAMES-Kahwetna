@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/layout/device_metrics.dart';
+import '../../core/services/toast.dart';
 import '../../game/rami.dart' as rules;
 import '../../widgets/ad_banner.dart';
 import '../menu/menu_models.dart';
@@ -154,9 +155,8 @@ class _RamiScreenState extends State<RamiScreen> {
 
   void _showMessage(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message), duration: const Duration(milliseconds: 1600)));
+    // Tous les messages du contrôleur sont des actions refusées.
+    showToast(context, message, type: ToastType.error);
   }
 
   GlobalKey _key(String name) => _keys.putIfAbsent(name, () => GlobalKey());

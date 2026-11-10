@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'app/game_routes.dart';
 import 'core/audio/sounds.dart';
 import 'core/layout/device_metrics.dart';
+import 'core/services/toast.dart';
 import 'core/theme/app_colors.dart';
 import 'features/menu/main_menu_screen.dart';
 import 'features/menu/menu_models.dart';
@@ -32,9 +33,8 @@ Future<void> main() async {
 /// Le menu envoie la partie choisie vers sa route ; un jeu sans écran n'est jamais ignoré en silence.
 void _onPlay(LaunchRequest request) {
   if (gameForRoute(request.game.route) == null) {
-    _messengerKey.currentState?.showSnackBar(
-      const SnackBar(content: Text('Bientôt disponible')),
-    );
+    final messenger = _messengerKey.currentState;
+    if (messenger != null) showToastOn(messenger, 'Bientôt disponible');
     return;
   }
   _navigatorKey.currentState?.pushNamed(request.location);
