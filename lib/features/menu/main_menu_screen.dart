@@ -11,6 +11,7 @@ import '../../widgets/pressable.dart';
 import '../../widgets/texture_patterns.dart';
 import 'game_icons.dart';
 import 'menu_models.dart';
+import '../../core/strings.dart';
 
 const _adFreeKey = 'kahwetne-ad-free-until';
 const _adFreeSeconds = 30 * 60;
@@ -219,18 +220,18 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                         _difficultyRow(wide: wide),
                         if (!_selected.isLudo && scoreOptions.isNotEmpty) ...[
                           const SizedBox(height: 16),
-                          _sectionLabel('Score de la partie'),
+                          _sectionLabel(Strings.menuScoreSection),
                           const SizedBox(height: 8),
                           _scoreRow(scoreOptions),
                         ],
                         if (_selected.isLudo) ...[
                           const SizedBox(height: 16),
-                          _sectionLabel('Joueurs humains'),
+                          _sectionLabel(Strings.menuHumanPlayers),
                           const SizedBox(height: 8),
                           _playerRow(),
                           const SizedBox(height: 8),
                           const Text(
-                            "Les autres places sont jouées par l’IA",
+                            Strings.menuAiSeatsNote,
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0x99FFFFFF)),
                           ),
@@ -557,13 +558,13 @@ class _Header extends StatelessWidget {
         else
           _GlassButton(
             onTap: onBack,
-            semanticLabel: 'Retour aux jeux',
+            semanticLabel: Strings.menuBackToGames,
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.arrow_back, size: 20),
                 SizedBox(width: 8),
-                Text('Retour', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                Text(Strings.menuBack, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
               ],
             ),
           ),
@@ -573,14 +574,14 @@ class _Header extends StatelessWidget {
             _GlassButton(
               square: true,
               onTap: () {},
-              semanticLabel: 'Activer ou désactiver le son',
+              semanticLabel: Strings.menuToggleSound,
               child: const Icon(Icons.volume_up, size: 20),
             ),
             const SizedBox(width: 8),
             _GlassButton(
               square: true,
               onTap: () {},
-              semanticLabel: 'Ouvrir les paramètres',
+              semanticLabel: Strings.menuOpenSettings,
               child: const Icon(Icons.settings, size: 20),
             ),
           ],
@@ -596,7 +597,7 @@ class _CoinsPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GlassButton(
-      semanticLabel: 'Solde de pièces',
+      semanticLabel: Strings.menuCoinBalance,
       onTap: () {},
       child: const Row(
         mainAxisSize: MainAxisSize.min,
@@ -691,7 +692,7 @@ class _TitleBlock extends StatelessWidget {
               const Icon(Icons.auto_awesome, size: 14, color: Color(0xFFFFE76A)),
               const SizedBox(width: 6),
               Text(
-                'EL KAHWA TEJMAÂNA',
+                Strings.menuTagline,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
@@ -759,7 +760,7 @@ class _GamesPanel extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'CHOISIS TA TABLE',
+                        Strings.menuChooseTable,
                         style: TextStyle(
                           fontSize: sm ? 12 : 10,
                           fontWeight: FontWeight.w900,
@@ -768,7 +769,7 @@ class _GamesPanel extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Commencer à jouer',
+                        Strings.menuStart,
                         style: TextStyle(
                           fontFamily: 'RobotoSlab',
                           fontSize: sm ? 24 : 20,
@@ -961,7 +962,7 @@ class _AdFreeButton extends StatelessWidget {
     return Pressable(
       semanticLabel: active
           ? 'Mode sans publicité actif, $minutes minutes et $seconds secondes restantes'
-          : 'Activer 30 minutes sans publicité',
+          : Strings.menuAdFreeEnable,
       onTap: onTap,
       child: Container(
         // Hauteur fixe : le bandeau ne doit pas changer de taille quand le texte se met à jour.
@@ -1008,7 +1009,7 @@ class _AdFreeButton extends StatelessWidget {
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            active ? 'Mode sans pub actif' : '30 min sans pub',
+                            active ? Strings.menuAdFreeActive : Strings.menuAdFreeOffer,
                             maxLines: 1,
                             style: TextStyle(
                               fontFamily: 'RobotoSlab',
@@ -1023,7 +1024,7 @@ class _AdFreeButton extends StatelessWidget {
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            active ? 'La partie reste 100% tranquille' : 'Une pause café, zéro interruption',
+                            active ? Strings.menuAdFreeActiveNote : Strings.menuAdFreeOfferNote,
                             maxLines: 1,
                             style: TextStyle(
                               fontSize: sm ? 14 : 11,
@@ -1104,7 +1105,7 @@ class _DifficultyTitle extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Choisis ton niveau',
+          Strings.menuChooseLevel,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: 'BowlbyOneSC',
@@ -1119,7 +1120,7 @@ class _DifficultyTitle extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         const Text(
-          'Choisis ton ambiance de jeu et le score à atteindre.',
+          Strings.menuChooseLevelNote,
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xCCFFFFFF)),
         ),
@@ -1138,7 +1139,7 @@ class _LaunchButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Pressable(
-      semanticLabel: 'Lancer la partie',
+      semanticLabel: Strings.menuLaunch,
       onTap: onTap,
       pressedScale: 0.98,
       child: Container(

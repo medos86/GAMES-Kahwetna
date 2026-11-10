@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/strings.dart';
 
 /// Données du menu, reprises de src/app/components/MainMenu.tsx.
 
@@ -27,8 +28,8 @@ class DifficultyOption {
 const difficultyOptions = <DifficultyOption>[
   DifficultyOption(
     difficulty: Difficulty.facile,
-    label: 'Facile',
-    detail: 'Chill',
+    label: Strings.levelEasy,
+    detail: Strings.levelEasyDetail,
     icon: Icons.wb_cloudy,
     activeBackground: Color(0xFFFFE16B),
     activeForeground: Color(0xFF513B00),
@@ -36,8 +37,8 @@ const difficultyOptions = <DifficultyOption>[
   ),
   DifficultyOption(
     difficulty: Difficulty.moyen,
-    label: 'Moyen',
-    detail: 'Épicé',
+    label: Strings.levelMedium,
+    detail: Strings.levelMediumDetail,
     icon: Icons.local_fire_department,
     activeBackground: Color(0xFFFF8A4C),
     activeForeground: Color(0xFF4D1C0A),
@@ -45,8 +46,8 @@ const difficultyOptions = <DifficultyOption>[
   ),
   DifficultyOption(
     difficulty: Difficulty.difficile,
-    label: 'Difficile',
-    detail: 'Expert',
+    label: Strings.levelHard,
+    detail: Strings.levelHardDetail,
     icon: Icons.nightlight_round,
     activeBackground: Color(0xFF9B8CFF),
     activeForeground: Color(0xFF21195C),

@@ -9,6 +9,7 @@ import '../../widgets/ad_banner.dart';
 import '../menu/menu_models.dart';
 import 'rami_card_view.dart';
 import 'rami_controller.dart';
+import '../../core/strings.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
 const _adFreeKey = 'kahwetne-ad-free-until';
@@ -41,7 +42,7 @@ final _ramiRules = <({String title, String text})>[
         'Brelan ou carré : 3 ou 4 cartes de même valeur et de couleurs différentes.',
   ),
   (
-    title: 'Joker',
+    title: Strings.jokerLabel,
     text: "Remplace n'importe quelle carte dans une combinaison, avec au moins 2 vraies cartes.",
   ),
   (
@@ -75,11 +76,11 @@ final _ramiRules = <({String title, String text})>[
 String _statusText(rules.RamiState g, int stagedPoints) {
   if (g.phase == rules.RamiPhase.end) return '';
   if (g.turn != 0) return '${_seatNames[g.turn]} réfléchit…';
-  if (g.phase == rules.RamiPhase.draw) return 'À toi : touche la pioche ou la défausse';
+  if (g.phase == rules.RamiPhase.draw) return Strings.ramiYourDraw;
   if (g.staged.isNotEmpty) {
     return 'Ouverture : $stagedPoints / ${rules.ramiOpenMin} pts. Valide quand c\'est bon';
   }
-  if (g.opened[0]) return 'Glisse un paquet sur la table, puis une carte sur la défausse';
+  if (g.opened[0]) return Strings.ramiSlideThenDiscard;
   return 'Ouvre avec ${rules.ramiOpenMin} pts : glisse tes paquets sur la table';
 }
 
@@ -288,7 +289,7 @@ class _RamiScreenState extends State<RamiScreen> {
                 children: [
                   Icon(Icons.arrow_back, size: 18, color: Color(0xFF7E22CE)),
                   SizedBox(width: 4),
-                  Text('Menu', style: TextStyle(color: Color(0xFF7E22CE), fontWeight: FontWeight.w900)),
+                  Text(Strings.menuLabel, style: TextStyle(color: Color(0xFF7E22CE), fontWeight: FontWeight.w900)),
                 ],
               ),
             ),
@@ -298,7 +299,7 @@ class _RamiScreenState extends State<RamiScreen> {
           child: Column(
             children: [
               const Text(
-                'KAHWETNE · RAMI',
+                Strings.headerRami,
                 style: TextStyle(
                   color: Color(0xFFFFF1BD),
                   fontWeight: FontWeight.w900,
@@ -311,7 +312,7 @@ class _RamiScreenState extends State<RamiScreen> {
           ),
         ),
         IconButton(
-          tooltip: 'Voir les règles',
+          tooltip: Strings.seeRules,
           onPressed: _showRules,
           icon: const Icon(Icons.menu_book, color: Colors.white),
         ),
@@ -344,7 +345,7 @@ class _RamiScreenState extends State<RamiScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: _creamColor,
-        title: const Text('Règles du Rami', style: TextStyle(color: _inkColor, fontWeight: FontWeight.w900)),
+        title: const Text(Strings.rulesTitleRami, style: TextStyle(color: _inkColor, fontWeight: FontWeight.w900)),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -368,7 +369,7 @@ class _RamiScreenState extends State<RamiScreen> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Fermer')),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text(Strings.close)),
         ],
       ),
     );
@@ -524,7 +525,7 @@ class _RamiScreenState extends State<RamiScreen> {
               SizedBox(
                 width: double.infinity,
                 child: Text(
-                  c.canPlay ? 'Glisse un paquet ici pour le poser' : 'Aucune combinaison posée',
+                  c.canPlay ? Strings.ramiDropHint : Strings.ramiNoMeld,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w700),
                 ),
@@ -568,9 +569,9 @@ class _RamiScreenState extends State<RamiScreen> {
                   style: const TextStyle(color: _inkColor, fontWeight: FontWeight.w900, fontSize: 12),
                 ),
               ),
-              _ActionButton(label: 'Couleur', onTap: () => c.sortBy(RamiSortMode.suit)),
+              _ActionButton(label: Strings.sortSuit, onTap: () => c.sortBy(RamiSortMode.suit)),
               const SizedBox(width: 6),
-              _ActionButton(label: 'Valeur', onTap: () => c.sortBy(RamiSortMode.rank)),
+              _ActionButton(label: Strings.sortRank, onTap: () => c.sortBy(RamiSortMode.rank)),
             ],
           ),
           const SizedBox(height: 6),
@@ -605,16 +606,16 @@ class _RamiScreenState extends State<RamiScreen> {
       return '$count paquet$plural prêt$plural$opening';
     }
     if (c.canPlay && c.selectedCards.length > 1 && !c.selectionIsMeld) {
-      return 'Sélection : pas une combinaison';
+      return Strings.selectionNotMeld;
     }
-    return 'Glisse tes cartes pour former des paquets';
+    return Strings.ramiFormHint;
   }
 
   List<Widget> _actions(bool staged) {
     final c = _c;
     return [
       if (!staged)
-        _ActionButton(label: 'Poser', onTap: c.pose, enabled: c.selectionIsMeld, primary: true)
+        _ActionButton(label: Strings.actPose, onTap: c.pose, enabled: c.selectionIsMeld, primary: true)
       else ...[
         _ActionButton(
           label: 'Valider (${c.stagedPoints}/${rules.ramiOpenMin})',
@@ -622,10 +623,10 @@ class _RamiScreenState extends State<RamiScreen> {
           enabled: c.stagedPoints >= rules.ramiOpenMin,
           primary: true,
         ),
-        _ActionButton(label: 'Annuler', onTap: c.cancel),
+        _ActionButton(label: Strings.actCancel, onTap: c.cancel),
       ],
       _ActionButton(
-        label: 'Défausser',
+        label: Strings.actDiscard,
         onTap: c.discardSelected,
         enabled: c.selected.length == 1 && !staged,
         danger: true,
@@ -755,11 +756,11 @@ class _RamiScreenState extends State<RamiScreen> {
     final winner = result.winner;
     final matchWinner = g.matchWinner;
     final title = matchWinner != null
-        ? (matchWinner == 0 ? 'Victoire !' : 'Défaite')
+        ? (matchWinner == 0 ? Strings.victory : Strings.defeat)
         : winner == 0
-            ? 'Manche gagnée !'
+            ? Strings.roundWon
             : winner == null
-                ? 'Pioche épuisée'
+                ? Strings.drawExhausted
                 : '${_seatNames[winner]} gagne la manche';
 
     return ColoredBox(
@@ -788,7 +789,7 @@ class _RamiScreenState extends State<RamiScreen> {
                       border: Border.all(color: Colors.black, width: 2),
                     ),
                     child: Text(
-                      matchWinner != null ? 'PARTIE TERMINÉE' : 'MANCHE ${g.round}',
+                      matchWinner != null ? Strings.matchOver : 'MANCHE ${g.round}',
                       style: const TextStyle(color: Color(0xFF17213D), fontSize: 11, fontWeight: FontWeight.w900),
                     ),
                   ),
@@ -832,13 +833,13 @@ class _RamiScreenState extends State<RamiScreen> {
                   ),
                   const SizedBox(height: 20),
                   if (matchWinner != null) ...[
-                    _DialogButton(label: 'Rejouer', onTap: _c.restart),
+                    _DialogButton(label: Strings.replay, onTap: _c.restart),
                     TextButton(
                       onPressed: () => Navigator.of(context).maybePop(),
-                      child: const Text('Retour au menu', style: TextStyle(color: Colors.white70)),
+                      child: const Text(Strings.backToMenu, style: TextStyle(color: Colors.white70)),
                     ),
                   ] else
-                    _DialogButton(label: 'Manche suivante', onTap: _c.nextRound),
+                    _DialogButton(label: Strings.nextRoundButton, onTap: _c.nextRound),
                 ],
               ),
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../game/rami.dart' as rules;
+import '../../core/strings.dart';
 
 /// Libellé d'une valeur : As, Valet, Dame, Roi, ou le chiffre.
 String ramiRankLabel(int rank) => switch (rank) {
@@ -42,7 +43,7 @@ class RamiCardView extends StatelessWidget {
     final fontSize = height * 0.25;
     final joker = card.isJoker;
     final rules.RamiSuit? suit = card.suit;
-    final semanticsLabel = joker ? 'Joker' : '${ramiRankLabel(card.rank)} ${ramiSuitSymbol(suit!)}';
+    final semanticsLabel = joker ? Strings.jokerLabel : '${ramiRankLabel(card.rank)} ${ramiSuitSymbol(suit!)}';
 
     return Semantics(
       label: semanticsLabel,

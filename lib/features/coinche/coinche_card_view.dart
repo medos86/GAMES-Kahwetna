@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../game/coinche.dart';
+import '../../core/strings.dart';
 
 /// Symbole de chaque couleur (suitSymbols du source).
 String coincheSuitSymbol(CoincheSuit suit) => switch (suit) {
@@ -20,10 +21,10 @@ Color coincheSuitColor(CoincheSuit suit) => switch (suit) {
 
 /// Nom de couleur en français (suitNames du source, utilisé pour les accessibilités).
 String coincheSuitName(CoincheSuit suit) => switch (suit) {
-      CoincheSuit.deniers => 'Carreau',
-      CoincheSuit.coupes => 'Cœur',
-      CoincheSuit.epees => 'Pique',
-      CoincheSuit.batons => 'Trèfle',
+      CoincheSuit.deniers => Strings.suitCarreau,
+      CoincheSuit.coupes => Strings.suitCoeur,
+      CoincheSuit.epees => Strings.suitPique,
+      CoincheSuit.batons => Strings.suitTrefle,
     };
 
 /// Matrice couleur : luminosité 0.75 et saturation 0.5 (style « jouée / illégale » du source).
