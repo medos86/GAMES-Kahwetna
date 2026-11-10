@@ -639,7 +639,7 @@ class _Footer extends StatelessWidget {
 
 /// Dé : tourne et rebondit à chaque lancer (le widget est recréé pour chaque rollId).
 class _Die extends StatelessWidget {
-  const _Die({super.key, required this.value, required this.tone, this.size = 56});
+  const _Die({required this.value, required this.tone, this.size = 56});
 
   final int? value;
   final Color tone;
