@@ -145,4 +145,28 @@ void main() {
       expect(LudoState.fromJson(decoded).toJson(), equals(json));
     });
   });
+
+  group('niveau difficile', () {
+    test('capture le pion adverse le plus avancé', () {
+      // Rouge 10 -> case 13 (bleu 26 y est). Rouge 5 -> case 8 (vert 47 y est).
+      // Le difficile préfère la capture du vert, plus avancé.
+      final state = makeState(
+        turn: LudoColor.red,
+        dice: 3,
+        progress: {'red-0': 10, 'red-1': 5, 'blue-0': 26, 'green-0': 47},
+      );
+      expect(chooseMove(state, LudoAiLevel.difficile), 'red-1');
+    });
+
+    test('renvoie toujours un coup légal ou null', () {
+      final state = makeState(
+        turn: LudoColor.blue,
+        dice: 6,
+        progress: {'blue-0': 3, 'red-0': 20, 'green-0': 33},
+      );
+      final id = chooseMove(state, LudoAiLevel.difficile);
+      expect(legalTokenIds(state), contains(id));
+      expect(chooseMove(makeState(turn: LudoColor.red, dice: 2), LudoAiLevel.difficile), isNull);
+    });
+  });
 }
