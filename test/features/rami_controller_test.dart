@@ -75,4 +75,18 @@ void main() {
     expect(messages, ['Il faut au moins 51 points pour ouvrir']);
     c.dispose();
   });
+
+  test('la carte piochée arrive à la fin de la main', () {
+    final c = RamiController(
+      targetScore: 100,
+      difficulty: rules.RamiAiLevel.facile,
+      random: () => 0.0,
+    );
+    final before = [for (final card in c.displayed) card.id];
+    c.drawFromStock();
+    final after = [for (final card in c.displayed) card.id];
+    expect(after.length, before.length + 1);
+    expect(after.sublist(0, before.length), before);
+    c.dispose();
+  });
 }

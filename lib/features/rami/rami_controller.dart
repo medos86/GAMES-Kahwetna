@@ -163,11 +163,20 @@ class RamiController extends ChangeNotifier {
   }
 
   void drawFromStock() {
-    if (canDraw) _apply(rules.drawStock(_game, _random));
+    if (!canDraw) return;
+    _keepOrder();
+    _apply(rules.drawStock(_game, _random));
   }
 
   void drawFromDiscard() {
-    if (canDraw) _apply(rules.drawDiscard(_game));
+    if (!canDraw) return;
+    _keepOrder();
+    _apply(rules.drawDiscard(_game));
+  }
+
+  /// Fige l'ordre affiché avant une pioche : la carte piochée arrive alors à la fin de la main.
+  void _keepOrder() {
+    if (_order.isEmpty) _order = [for (final card in displayed) card.id];
   }
 
   /// Pose la sélection comme combinaison.
