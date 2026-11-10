@@ -49,7 +49,7 @@ jobs:
       # Le dépôt ne contient pas le dossier android/ (généré par flutter create sur Mac) :
       # on le génère ici, sans toucher à lib/ ni à pubspec.yaml.
       - name: Dossier Android
-        run: flutter create --platforms=android --project-name kahwetne --org tn.kahwetne .
+        run: flutter create --platforms=android --project-name kahwetne --org com.kahwetne .
 
       - name: Dépendances
         run: flutter pub get
