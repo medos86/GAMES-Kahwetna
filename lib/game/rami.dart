@@ -2,10 +2,11 @@
 // Dart pur : aucun import Flutter dans lib/game/.
 // Mêmes fonctions, même ordre des opérations, mêmes valeurs de retour.
 // Une action refusée renvoie l'instance reçue (identical) : le contrôleur s'en sert pour le toast d'erreur.
-// Les tris passent par _sortedStable : List.sort de Dart n'est pas stable, Array.sort de JS l'est.
+// Les tris passent par sortedStable : List.sort de Dart n'est pas stable, Array.sort de JS l'est.
 
 import 'dart:math' as math;
 
+import '../core/utils/js_compat.dart';
 import 'common.dart';
 
 /// Couleurs ; un joker a suit == null.
@@ -197,27 +198,6 @@ final _defaultRandom = math.Random();
 // Utilitaires
 // ---------------------------------------------------------------------------
 
-/// Tri stable (même résultat que Array.prototype.sort du source).
-List<T> _sortedStable<T>(List<T> items, int Function(T a, T b) compare) {
-  final indexed = [for (var i = 0; i < items.length; i++) (index: i, item: items[i])];
-  indexed.sort((x, y) {
-    final c = compare(x.item, y.item);
-    return c != 0 ? c : x.index.compareTo(y.index);
-  });
-  return [for (final e in indexed) e.item];
-}
-
-List<T> _shuffle<T>(List<T> items, RandomDouble random) {
-  final copy = [...items];
-  for (var i = copy.length - 1; i > 0; i--) {
-    final j = (random() * (i + 1)).floor();
-    final tmp = copy[i];
-    copy[i] = copy[j];
-    copy[j] = tmp;
-  }
-  return copy;
-}
-
 bool isJoker(RamiCard card) => card.isJoker;
 
 int nextSeat(int seat) => (seat + 1) % 4;
@@ -239,7 +219,7 @@ List<RamiCard> _createDeck(RandomDouble random) {
   }
   cards.add(const RamiCard(id: 'joker-0', suit: null, rank: 0));
   cards.add(const RamiCard(id: 'joker-1', suit: null, rank: 0));
-  return _shuffle(cards, random);
+  return shuffled(cards, random);
 }
 
 // ---------------------------------------------------------------------------
@@ -254,7 +234,7 @@ List<RamiCard>? _runOrder(List<RamiCard> cards) {
   if (naturals.length < 2 || naturals.any((card) => card.suit != naturals.first.suit)) return null;
 
   for (final aceHigh in [false, true]) {
-    final slots = _sortedStable(
+    final slots = sortedStable(
       [for (final card in naturals) (card: card, pos: card.rank == 1 && aceHigh ? _aceHigh : card.rank)],
       (a, b) => a.pos - b.pos,
     );
@@ -399,7 +379,7 @@ RamiState drawStock(RamiState state, [RandomDouble? random]) {
   var discard = state.discard;
   if (stock.isEmpty) {
     if (discard.length < 2) return _finish(state, null);
-    stock = _shuffle(discard.sublist(0, discard.length - 1), random ?? _defaultRandom.nextDouble);
+    stock = shuffled(discard.sublist(0, discard.length - 1), random ?? _defaultRandom.nextDouble);
     discard = discard.sublist(discard.length - 1);
   }
   final card = stock.last;
@@ -583,7 +563,7 @@ List<List<RamiCard>> _runCandidates(List<RamiCard> hand) {
 }
 
 List<List<RamiCard>> _planMelds(List<RamiCard> hand) {
-  final candidates = _sortedStable(
+  final candidates = sortedStable(
     [..._setCandidates(hand), ..._runCandidates(hand)],
     (a, b) => pointsOf(b) - pointsOf(a) != 0 ? pointsOf(b) - pointsOf(a) : b.length - a.length,
   );

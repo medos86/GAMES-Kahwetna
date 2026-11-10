@@ -2,10 +2,11 @@
 // Dart pur : aucun import Flutter dans lib/game/.
 // Mêmes fonctions, même ordre des opérations, mêmes valeurs de retour.
 // Une action refusée renvoie l'instance reçue (identical), comme le source.
-// Les tris passent par _sortedStable : List.sort de Dart n'est pas stable, Array.sort de JS l'est.
+// Les tris passent par sortedStable : List.sort de Dart n'est pas stable, Array.sort de JS l'est.
 
 import 'dart:math' as math;
 
+import '../core/utils/js_compat.dart';
 import 'common.dart';
 
 enum Seat { south, west, north, east }
@@ -89,16 +90,6 @@ int _plainValue(CoincheRank rank) => switch (rank) {
       CoincheRank.roi => 4,
       CoincheRank.ace => 11,
     };
-
-/// Tri stable (même résultat que Array.prototype.sort du source).
-List<T> _sortedStable<T>(List<T> items, int Function(T a, T b) compare) {
-  final indexed = [for (var i = 0; i < items.length; i++) (index: i, item: items[i])];
-  indexed.sort((x, y) {
-    final c = compare(x.item, y.item);
-    return c != 0 ? c : x.index.compareTo(y.index);
-  });
-  return [for (final e in indexed) e.item];
-}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -426,7 +417,7 @@ int _power(CoincheCard card, CoincheSuit mode) =>
 int cardPoints(CoincheCard card, CoincheSuit mode) =>
     isTrump(card, mode) ? _trumpValue(card.rank) : _plainValue(card.rank);
 
-List<CoincheCard> sortHand(List<CoincheCard> cards) => _sortedStable(cards, (a, b) {
+List<CoincheCard> sortHand(List<CoincheCard> cards) => sortedStable(cards, (a, b) {
       final bySuit = a.suit.index - b.suit.index;
       return bySuit != 0 ? bySuit : plainOrder.indexOf(a.rank) - plainOrder.indexOf(b.rank);
     });
@@ -723,8 +714,8 @@ String chooseCard(RoundState round, Seat seat, [bool randomPlay = false, RandomD
     return byPoints != 0 ? byPoints : _power(a, mode) - _power(b, mode);
   }
 
-  CoincheCard cheapest(List<CoincheCard> cards) => _sortedStable(cards, compare).first;
-  CoincheCard priciest(List<CoincheCard> cards) => _sortedStable(cards, compare).last;
+  CoincheCard cheapest(List<CoincheCard> cards) => sortedStable(cards, compare).first;
+  CoincheCard priciest(List<CoincheCard> cards) => sortedStable(cards, compare).last;
 
   if (round.trick.isEmpty) {
     final plain = moves.where((c) => !isTrump(c, mode)).toList();
