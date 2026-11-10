@@ -299,7 +299,10 @@ class _ScoreBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Semantics(
+      label: 'Score ${label == 'Vous' ? 'vous' : 'adversaire'} : $value',
+      excludeSemantics: true,
+      child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (label == 'Adv.') ...[
@@ -324,6 +327,7 @@ class _ScoreBox extends StatelessWidget {
           Text(label.toUpperCase(), style: TextStyle(fontSize: unit * 0.7, fontWeight: FontWeight.w900, color: color)),
         ],
       ],
+      ),
     );
   }
 }
@@ -337,7 +341,10 @@ class _Pile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Semantics(
+      label: 'Pioche : $count ${count == 1 ? 'pierre' : 'pierres'}',
+      excludeSemantics: true,
+      child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
@@ -372,6 +379,7 @@ class _Pile extends StatelessWidget {
         ),
         Text('PIOCHE', style: TextStyle(fontSize: unit * 0.55, fontWeight: FontWeight.w900, letterSpacing: 1, color: const Color(0xFF17213D))),
       ],
+      ),
     );
   }
 }
@@ -454,7 +462,9 @@ class _Table extends StatelessWidget {
             const Positioned.fill(child: DotPattern(spacing: 8, radius: 1, color: Color(0x1A000000))),
             Column(
         children: [
-          Text(
+          Semantics(
+            liveRegion: true,
+            child: Text(
             status,
             textAlign: TextAlign.center,
             maxLines: 1,
@@ -464,6 +474,7 @@ class _Table extends StatelessWidget {
               fontWeight: FontWeight.w900,
               color: Colors.white,
               shadows: const [Shadow(offset: Offset(1, 1), color: Color(0xFF123B2B))],
+            ),
             ),
           ),
           SizedBox(height: sm ? 12 : 8),
