@@ -10,6 +10,7 @@ import 'features/domino/domino_screen.dart';
 import 'features/ludo/ludo_screen.dart';
 import 'features/menu/main_menu_screen.dart';
 import 'features/menu/menu_models.dart';
+import 'features/rami/rami_screen.dart';
 import 'features/splash/splash_screen.dart';
 
 /// Lancer avec `flutter run --dart-define=PROBE=true` pour afficher l'écran de contrôle des tailles.
@@ -48,6 +49,17 @@ void _onPlay(LaunchRequest request) {
     _navigatorKey.currentState?.push(
       MaterialPageRoute<void>(
         builder: (_) => CoincheScreen(
+          difficulty: request.difficulty,
+          targetScore: request.target,
+        ),
+      ),
+    );
+    return;
+  }
+  if (request.game.name == 'Rami') {
+    _navigatorKey.currentState?.push(
+      MaterialPageRoute<void>(
+        builder: (_) => RamiScreen(
           difficulty: request.difficulty,
           targetScore: request.target,
         ),
