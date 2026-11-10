@@ -35,6 +35,7 @@ abstract final class Strings {
   static const adSponsored = 'Partenaire local · contenu sponsorisé';
   static const adSeeSemantic = 'Voir la publicité';
   static const adSee = 'Voir';
+  static const adDemoToast = 'Espace publicitaire de démonstration';
   static const suitCarreau = 'Carreau';
   static const suitCoeur = 'Cœur';
   static const suitPique = 'Pique';

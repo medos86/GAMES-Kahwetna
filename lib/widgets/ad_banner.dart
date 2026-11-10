@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'pressable.dart';
+import '../core/services/toast.dart';
 import '../core/strings.dart';
 
 /// Bannière publicitaire réutilisable (aspect de la bannière du source React).
@@ -41,7 +42,7 @@ class AdBanner extends StatelessWidget {
           ),
           Pressable(
             semanticLabel: Strings.adSeeSemantic,
-            onTap: () {},
+            onTap: () => showToast(context, Strings.adDemoToast),
             child: Container(
               constraints: const BoxConstraints(minHeight: 40),
               padding: const EdgeInsets.symmetric(horizontal: 10),
