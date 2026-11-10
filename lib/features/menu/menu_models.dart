@@ -66,6 +66,7 @@ class GameEntry {
     required this.route,
     required this.targets,
     required this.defaultTarget,
+    this.available = true,
   });
 
   final String name;
@@ -74,6 +75,9 @@ class GameEntry {
   final Color gradientTo;
   final Color edgeColor;
   final String iconAsset;
+
+  /// Jeu jouable. Un jeu non disponible affiche le toast « arrive bientôt » au lieu de s'ouvrir.
+  final bool available;
 
   /// Chemin de la partie (même contrat que le web, cf. guide §1.3).
   final String route;
