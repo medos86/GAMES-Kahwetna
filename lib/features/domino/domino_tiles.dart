@@ -5,6 +5,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../core/strings.dart';
 import '../../game/domino.dart';
 
 const _pipColor = Color(0xFF17304B);
@@ -300,7 +301,9 @@ class DominoChain extends StatelessWidget {
               top: top,
               width: tileWidth,
               height: tileHeight,
-              child: tile,
+              child: sides.isNotEmpty
+                  ? Semantics(button: true, label: Strings.dominoPlaceHere, child: tile)
+                  : tile,
             ));
           }
           // Pas entre rangées = longueur du vertical (le domino horizontal suivant se pose dessous).

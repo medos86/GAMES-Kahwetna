@@ -88,4 +88,9 @@ abstract final class StringsAr {
   static const gameLudo = 'لودو';
   static const gameRami = 'رامي';
   static const tagline = 'لمّـة، ضحكة ولعبة تونسية';
+
+  // Domino (issue #30, source DominoGameScreen.tsx).
+  static const dominoMatchOver = 'Partie terminée';
+  static const dominoDrawUnavailable = 'Pioche indisponible';
+  static const dominoPlaceHere = 'Poser ici';
 }
