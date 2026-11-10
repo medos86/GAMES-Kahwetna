@@ -129,14 +129,16 @@ class _LudoScreenState extends State<LudoScreen> {
                           child: landscapeShort
                               ? Row(
                                   children: [
-                                    Expanded(child: Center(child: _BoardWithDice(controller: c))),
+                                    Expanded(child: Center(child: _Board(controller: c))),
                                     const SizedBox(width: 12),
                                     SizedBox(
                                       width: size.width * 0.42,
                                       child: Column(
                                         children: [
-                                          _Players(controller: c),
+                                          _PlayerRow(controller: c, top: true),
                                           const Spacer(),
+                                          _PlayerRow(controller: c, top: false),
+                                          const SizedBox(height: 8),
                                           _Footer(controller: c),
                                         ],
                                       ),
@@ -145,9 +147,11 @@ class _LudoScreenState extends State<LudoScreen> {
                                 )
                               : Column(
                                   children: [
-                                    _Players(controller: c),
+                                    _PlayerRow(controller: c, top: true),
                                     const SizedBox(height: 8),
-                                    Expanded(child: Center(child: _BoardWithDice(controller: c))),
+                                    Expanded(child: Center(child: _Board(controller: c))),
+                                    const SizedBox(height: 8),
+                                    _PlayerRow(controller: c, top: false),
                                     const SizedBox(height: 8),
                                     _Footer(controller: c),
                                   ],
@@ -223,139 +227,226 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _Players extends StatelessWidget {
-  const _Players({required this.controller});
+/// Taille du dé affiché sur la carte d'un joueur.
+const _dieSize = 34.0;
+
+/// Une rangée de deux cartes joueurs. La rangée du haut (rouge, vert) est retournée à 180°.
+class _PlayerRow extends StatelessWidget {
+  const _PlayerRow({required this.controller, required this.top});
 
   final LudoController controller;
+  final bool top;
 
   @override
   Widget build(BuildContext context) {
-    final game = controller.game;
+    final colors = top ? const [LudoColor.red, LudoColor.green] : const [LudoColor.blue, LudoColor.yellow];
     return Row(
       children: [
-        for (final color in LudoColor.values)
+        for (final color in colors)
           Expanded(
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-              decoration: BoxDecoration(
-                color: _cream,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: game.turn == color && !controller.roundOver ? const Color(0xFFFFE16B) : _brown,
-                  width: game.turn == color && !controller.roundOver ? 3 : 2,
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: _toneOf(color).fill,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: _brown),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          _colorName(color, controller.solo).toUpperCase(),
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: _ink, fontWeight: FontWeight.w900, fontSize: 11),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    '${game.tokens.where((t) => t.color == color && t.progress == ludoFinish).length}/4',
-                    style: const TextStyle(color: _ink, fontWeight: FontWeight.w900, fontSize: 18),
-                  ),
-                  Text(
-                    _placeText(game.rankings.indexOf(color) + 1),
-                    style: const TextStyle(color: Color(0x99202848), fontSize: 10, fontWeight: FontWeight.w700),
-                  ),
-                ],
-              ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: _PlayerSlot(controller: controller, color: color, top: top),
             ),
           ),
       ],
     );
   }
+}
+
+/// Carte joueur avec sa flèche orange. La flèche est posée hors de la rotation,
+/// côté plateau, et pointe vers la carte active.
+class _PlayerSlot extends StatelessWidget {
+  const _PlayerSlot({required this.controller, required this.color, required this.top});
+
+  final LudoController controller;
+  final LudoColor color;
+  final bool top;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = controller.game.turn == color && !controller.roundOver;
+    final card = _PlayerCard(controller: controller, color: color, active: active);
+    final arrow = Center(
+      child: Opacity(
+        opacity: active ? 1 : 0,
+        child: Icon(
+          top ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+          size: 30,
+          color: const Color(0xFFFF8A00),
+        ),
+      ),
+    );
+    final turned = top ? RotatedBox(quarterTurns: 2, child: card) : card;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: top ? [turned, arrow] : [arrow, turned],
+    );
+  }
+}
+
+class _PlayerCard extends StatelessWidget {
+  const _PlayerCard({required this.controller, required this.color, required this.active});
+
+  final LudoController controller;
+  final LudoColor color;
+  final bool active;
+
+  static const _grayscale = ColorFilter.matrix(<double>[
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0, 0, 0, 1, 0,
+  ]);
 
   String _placeText(int place) {
     if (place == 0) return 'au centre';
     return '${place == 1 ? '1er' : '${place}e'} ✓';
   }
-}
-
-/// Taille d'un dé et marge réservée autour du plateau pour les quatre emplacements.
-const _dieSize = 44.0;
-const _dieMargin = 36.0;
-
-/// Plateau entouré des quatre emplacements de dé, un par coin de maison :
-/// joueur 1 (bleu) en bas à gauche, 2 (jaune) en bas à droite,
-/// 3 (rouge) en haut à gauche, 4 (vert) en haut à droite.
-class _BoardWithDice extends StatelessWidget {
-  const _BoardWithDice({required this.controller});
-
-  final LudoController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(_dieMargin),
-          child: _Board(controller: controller),
-        ),
-        for (final color in LudoColor.values) _positionedDie(color),
-      ],
-    );
-  }
-
-  Widget _positionedDie(LudoColor color) {
-    final corner = ludoCorner(color);
-    final isLeft = corner.col == 0;
-    final isTop = corner.row == 0;
-    return Positioned(
-      left: isLeft ? 0 : null,
-      right: isLeft ? null : 0,
-      top: isTop ? 0 : null,
-      bottom: isTop ? null : 0,
-      child: _DieSlot(controller: controller, color: color),
-    );
-  }
-}
-
-/// Emplacement fixe du dé d'une couleur. Le dé n'apparaît dans cet emplacement
-/// que lorsque cette couleur vient de lancer ; sinon il reste en placeholder.
-class _DieSlot extends StatelessWidget {
-  const _DieSlot({required this.controller, required this.color});
-
-  final LudoController controller;
-  final LudoColor color;
 
   @override
   Widget build(BuildContext context) {
     final game = controller.game;
-    final tone = _toneOf(color);
+    final tone = _toneOf(color).fill;
     final rolledHere = game.diceOwner == color && game.dice != null;
-    final active = game.turn == color && !controller.roundOver;
+    final clickable = active && controller.canRoll;
+    final arrived = game.tokens.where((t) => t.color == color && t.progress == ludoFinish).length;
+
+    final die = KeyedSubtree(
+      key: rolledHere ? ValueKey('roll-${game.rollId}') : ValueKey('idle-${color.name}'),
+      child: _Die(value: rolledHere ? game.dice : null, tone: tone, size: _dieSize),
+    );
+    final dieWidget = active
+        ? _RollableDie(pulse: clickable, onTap: clickable ? controller.roll : null, child: die)
+        : ColorFiltered(
+            colorFilter: _grayscale,
+            child: Opacity(opacity: 0.5, child: die),
+          );
+
     return Container(
-      decoration: active
-          ? BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [BoxShadow(color: Color(0xFFFFE16B), spreadRadius: 3)],
-            )
-          : null,
-      child: KeyedSubtree(
-        key: rolledHere ? ValueKey('roll-${game.rollId}') : ValueKey('idle-${color.name}'),
-        child: _Die(value: rolledHere ? game.dice : null, tone: tone.fill, size: _dieSize),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(8, 6, 6, 6),
+      decoration: BoxDecoration(
+        color: _cream,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: active ? const Color(0xFFFFD653) : _brown,
+          width: active ? 3 : 2,
+        ),
+        boxShadow: active ? const [BoxShadow(color: Color(0x66FFD653), spreadRadius: 2)] : null,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: tone,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: _brown),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        _colorName(color, controller.solo).toUpperCase(),
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: _ink, fontWeight: FontWeight.w900, fontSize: 11),
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  '$arrived/4',
+                  style: const TextStyle(color: _ink, fontWeight: FontWeight.w900, fontSize: 16),
+                ),
+                Text(
+                  _placeText(game.rankings.indexOf(color) + 1),
+                  style: const TextStyle(color: Color(0x99202848), fontSize: 10, fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+          ),
+          dieWidget,
+        ],
+      ),
+    );
+  }
+}
+
+/// Dé cliquable du joueur actif : pulse tant qu'il peut lancer (désactivé si
+/// l'utilisateur a réduit les animations).
+class _RollableDie extends StatefulWidget {
+  const _RollableDie({required this.pulse, required this.onTap, required this.child});
+
+  final bool pulse;
+  final VoidCallback? onTap;
+  final Widget child;
+
+  @override
+  State<_RollableDie> createState() => _RollableDieState();
+}
+
+class _RollableDieState extends State<_RollableDie> with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(covariant _RollableDie oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _sync();
+  }
+
+  void _sync() {
+    if (widget.pulse) {
+      if (!_pulse.isAnimating) _pulse.repeat(reverse: true);
+    } else {
+      _pulse.stop();
+      _pulse.value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final reduce = MediaQuery.disableAnimationsOf(context);
+    final clickable = widget.onTap != null;
+    return Semantics(
+      button: clickable,
+      label: clickable ? 'Lancer le dé' : 'Dé',
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        child: AnimatedBuilder(
+          animation: _pulse,
+          child: widget.child,
+          builder: (context, child) {
+            final scale = (widget.pulse && !reduce) ? 1 + 0.08 * _pulse.value : 1.0;
+            return Transform.scale(scale: scale, child: child);
+          },
+        ),
       ),
     );
   }
@@ -592,7 +683,6 @@ class _Footer extends StatelessWidget {
                     ? '${solo ? 'À toi' : 'À $turnName'} : lance le dé'
                     : 'Touche un pion en surbrillance'
                 : '$turnName joue…';
-    final tone = _toneOf(game.turn);
 
     return Container(
       padding: const EdgeInsets.all(10),
@@ -621,16 +711,6 @@ class _Footer extends StatelessWidget {
               ],
             ),
           ),
-          if (controller.canRoll)
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: tone.fill,
-                foregroundColor: game.turn == LudoColor.yellow ? const Color(0xFF513B00) : Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              ),
-              onPressed: controller.roll,
-              child: const Text('Lancer le dé', style: TextStyle(fontWeight: FontWeight.w900)),
-            ),
         ],
       ),
     );
