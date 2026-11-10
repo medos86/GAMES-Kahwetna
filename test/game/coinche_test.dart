@@ -278,4 +278,48 @@ void main() {
       expect(RoundState.fromJson(decoded).toJson(), equals(json));
     });
   });
+
+  group('niveaux de l\'IA', () {
+    final contract = const Contract(seat: Seat.north, value: 80, mode: CoincheSuit.coupes, multiplier: 1);
+    // Le partenaire (nord) tient le pli avec l'as de bâton, sud doit jouer.
+    final partnerWinning = [
+      Play(seat: Seat.west, card: card(CoincheSuit.batons, CoincheRank.seven)),
+      Play(seat: Seat.north, card: card(CoincheSuit.batons, CoincheRank.ace)),
+      Play(seat: Seat.east, card: card(CoincheSuit.batons, CoincheRank.king)),
+    ];
+    final south = [
+      card(CoincheSuit.batons, CoincheRank.ten),
+      card(CoincheSuit.batons, CoincheRank.nine),
+    ];
+
+    test('difficile donne la carte la plus chère à son partenaire', () {
+      final round = makeRound(
+        phase: CoinchePhase.playing,
+        turn: Seat.south,
+        contract: contract,
+        hands: {Seat.south: south},
+        trick: partnerWinning,
+      );
+      expect(
+        chooseCard(round, Seat.south, false, null, CoincheAiLevel.difficile),
+        card(CoincheSuit.batons, CoincheRank.ten).id,
+      );
+      expect(
+        chooseCard(round, Seat.south, false, null, CoincheAiLevel.moyen),
+        card(CoincheSuit.batons, CoincheRank.nine).id,
+      );
+    });
+
+    test('facile passe une annonce que le moyen accepte', () {
+      // Valet 20 + neuf 14 + dix 10 = 44 : entre le seuil moyen (36) et le seuil facile (46).
+      final hand = [
+        card(CoincheSuit.coupes, CoincheRank.valet),
+        card(CoincheSuit.coupes, CoincheRank.nine),
+        card(CoincheSuit.coupes, CoincheRank.ten),
+      ];
+      final round = makeRound(hands: {Seat.south: hand});
+      expect(chooseBid(round, Seat.south, CoincheAiLevel.moyen), isA<ValueBid>());
+      expect(chooseBid(round, Seat.south, CoincheAiLevel.facile), isA<PassBid>());
+    });
+  });
 }
