@@ -164,28 +164,19 @@ class RamiController extends ChangeNotifier {
 
   void drawFromStock() {
     if (!canDraw) return;
-    final before = _game;
+    _keepOrder();
     _apply(rules.drawStock(_game, _random));
-    _markDrawn(before, _game);
   }
 
   void drawFromDiscard() {
     if (!canDraw) return;
-    final before = _game;
+    _keepOrder();
     _apply(rules.drawDiscard(_game));
-    _markDrawn(before, _game);
   }
 
-  /// Carte que le joueur vient de piocher (en évidence jusqu'à son prochain coup).
-  String? _drawnId;
-  String? get drawnId => _drawnId;
-
-  void _markDrawn(rules.RamiState before, rules.RamiState after) {
-    if (identical(before, after)) return;
-    final old = {for (final card in before.hands[0]) card.id};
-    final added = [for (final card in after.hands[0]) if (!old.contains(card.id)) card.id];
-    _drawnId = added.isEmpty ? null : added.first;
-    notifyListeners();
+  /// Fige l'ordre affiché avant une pioche : la carte piochée arrive alors à la fin de la main.
+  void _keepOrder() {
+    if (_order.isEmpty) _order = [for (final card in displayed) card.id];
   }
 
   /// Pose la sélection comme combinaison.
@@ -289,7 +280,6 @@ class RamiController extends ChangeNotifier {
     _game = rules.nextRound(_game, _random);
     _selected.clear();
     _order = [];
-    _drawnId = null;
     _reschedule();
     notifyListeners();
   }
@@ -298,7 +288,6 @@ class RamiController extends ChangeNotifier {
     _game = rules.newMatch(targetScore, _random);
     _selected.clear();
     _order = [];
-    _drawnId = null;
     _reschedule();
     notifyListeners();
   }
@@ -311,7 +300,6 @@ class RamiController extends ChangeNotifier {
     }
     _game = next;
     _selected.clear();
-    _drawnId = null;
     _reschedule();
     notifyListeners();
   }

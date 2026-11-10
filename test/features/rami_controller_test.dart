@@ -76,19 +76,17 @@ void main() {
     c.dispose();
   });
 
-  test('la carte piochée est mise en évidence jusqu\'au prochain coup', () {
+  test('la carte piochée arrive à la fin de la main', () {
     final c = RamiController(
       targetScore: 100,
       difficulty: rules.RamiAiLevel.facile,
       random: () => 0.0,
     );
-    expect(c.drawnId, isNull);
+    final before = [for (final card in c.displayed) card.id];
     c.drawFromStock();
-    expect(c.drawnId, isNotNull);
-    expect(c.hand.map((card) => card.id), contains(c.drawnId));
-
-    c.discardOne(c.hand.first.id);
-    expect(c.drawnId, isNull);
+    final after = [for (final card in c.displayed) card.id];
+    expect(after.length, before.length + 1);
+    expect(after.sublist(0, before.length), before);
     c.dispose();
   });
 }
