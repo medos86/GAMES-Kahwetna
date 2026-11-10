@@ -169,9 +169,11 @@ class _LudoScreenState extends State<LudoScreen> {
                 ),
                 if (!_adFree) const Positioned(left: 8, right: 8, bottom: 8, child: AdBanner()),
                 if (c.roundOver)
-                  _EndDialog(
-                    controller: c,
-                    onMenu: () => Navigator.of(context).maybePop(),
+                  Positioned.fill(
+                    child: _EndDialog(
+                      controller: c,
+                      onMenu: () => Navigator.of(context).maybePop(),
+                    ),
                   ),
               ],
             );
@@ -654,8 +656,7 @@ class _EndDialog extends StatelessWidget {
         ? 'Victoire !'
         : '${_colorName(first, solo)} gagne';
 
-    return Positioned.fill(
-      child: ColoredBox(
+    return ColoredBox(
         color: const Color(0xB3052A52),
         child: Center(
           child: Padding(
@@ -729,7 +730,6 @@ class _EndDialog extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

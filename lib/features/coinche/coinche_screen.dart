@@ -103,9 +103,11 @@ class _CoincheScreenState extends State<CoincheScreen> {
               ),
               if (!_adFree) const Positioned(left: 8, right: 8, bottom: 8, child: AdBanner()),
               if (c.summary != null)
-                _SummaryDialog(
-                  controller: c,
-                  onMenu: () => Navigator.of(context).maybePop(),
+                Positioned.fill(
+                  child: _SummaryDialog(
+                    controller: c,
+                    onMenu: () => Navigator.of(context).maybePop(),
+                  ),
                 ),
             ],
           );
@@ -813,8 +815,7 @@ class _SummaryDialog extends StatelessWidget {
             : 'Chute';
     final multiplier = summary.contract.multiplier > 1 ? ' ×${summary.contract.multiplier}' : '';
 
-    return Positioned.fill(
-      child: ColoredBox(
+    return ColoredBox(
         color: Colors.black54,
         child: Center(
           child: Padding(
@@ -906,8 +907,7 @@ class _SummaryDialog extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
 
