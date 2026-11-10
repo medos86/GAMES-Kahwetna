@@ -385,7 +385,10 @@ class _Scoreboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Semantics(
+      container: true,
+      label: 'Score : vous ${game.scores[Player.player]}, adversaire ${game.scores[Player.opponent]}',
+      child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -405,7 +408,10 @@ class _Scoreboard extends StatelessWidget {
             cards: game.won[Player.player]!.length,
             color: const Color(0xFF047857),
           ),
-          _DeckPile(count: game.deck.length),
+          Semantics(
+            label: 'Pioche : ${game.deck.length} cartes non distribuées',
+            child: _DeckPile(count: game.deck.length),
+          ),
           _ScoreSide(
             name: 'Adversaire',
             score: game.scores[Player.opponent]!,
@@ -414,6 +420,7 @@ class _Scoreboard extends StatelessWidget {
             color: const Color(0xFFB91C1C),
           ),
         ],
+      ),
       ),
     );
   }
