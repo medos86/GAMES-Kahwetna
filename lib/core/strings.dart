@@ -78,6 +78,11 @@ abstract final class Strings {
   static const ramiFormFirst = 'Forme d\'abord un paquet : 3 cartes ou plus côte à côte';
   static const rulesTitleChkobba = 'Règles de la Chkobba';
   static const backToMenuChkobba = 'Retour au Menu';
+  // Domino (issue #30, source DominoGameScreen.tsx).
+  static const dominoMatchOver = 'Partie terminée';
+  static const dominoDrawUnavailable = 'Pioche indisponible';
+  static const dominoPlaceHere = 'Poser ici';
+
 }
 
 /// Équivalents arabes (noms de jeux et slogan, fournis par l'issue #10).
@@ -88,9 +93,4 @@ abstract final class StringsAr {
   static const gameLudo = 'لودو';
   static const gameRami = 'رامي';
   static const tagline = 'لمّـة، ضحكة ولعبة تونسية';
-
-  // Domino (issue #30, source DominoGameScreen.tsx).
-  static const dominoMatchOver = 'Partie terminée';
-  static const dominoDrawUnavailable = 'Pioche indisponible';
-  static const dominoPlaceHere = 'Poser ici';
 }
