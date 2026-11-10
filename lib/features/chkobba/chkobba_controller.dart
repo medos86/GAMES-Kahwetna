@@ -16,6 +16,27 @@ class PendingCapture {
 
 /// État et actions d'une partie de Chkobba (logique de GameScreen.tsx).
 /// Les règles restent dans lib/game/chkobba.dart ; ce contrôleur gère les délais et la séquence des tours.
+/// Emplacement fixe de chaque carte du tapis. Une carte garde son emplacement tant qu'elle est sur la table ;
+/// une carte nouvelle prend le plus petit emplacement libre ; un emplacement libéré est réutilisable.
+Map<String, int> assignTableSlots(Map<String, int> previous, List<String> ids) {
+  final present = ids.toSet();
+  final slots = <String, int>{
+    for (final entry in previous.entries)
+      if (present.contains(entry.key)) entry.key: entry.value,
+  };
+  final taken = slots.values.toSet();
+  var next = 0;
+  for (final id in ids) {
+    if (slots.containsKey(id)) continue;
+    while (taken.contains(next)) {
+      next++;
+    }
+    slots[id] = next;
+    taken.add(next);
+  }
+  return slots;
+}
+
 class ChkobbaController extends ChangeNotifier {
   ChkobbaController({
     required this.targetScore,
@@ -40,6 +61,14 @@ class ChkobbaController extends ChangeNotifier {
   Timer? _hayaTimer;
 
   ChkobbaState get game => _game;
+
+  Map<String, int> _tableSlots = {};
+
+  /// Emplacements des cartes du tapis, stables d'un coup à l'autre.
+  Map<String, int> tableSlots() {
+    _tableSlots = assignTableSlots(_tableSlots, [for (final card in _game.table) card.id]);
+    return Map.unmodifiable(_tableSlots);
+  }
   ChkobbaRoundScore? get roundSummary => _roundSummary;
   Player? get hayaBy => _hayaBy;
   PendingCapture? get pendingCapture => _pendingCapture;

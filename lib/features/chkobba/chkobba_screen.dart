@@ -105,12 +105,13 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     final style = GameStyle.current;
 
     // Emplacements du tapis : au moins 12, multiple du nombre de colonnes (comme TABLE_MIN_SLOTS).
-    final slotCount = _roundUp(math.max(12, game.table.length), columns);
-    final slots = <Widget?>[
-      for (final card in game.table) ChkobbaCardFace(card: card),
-    ];
-    while (slots.length < slotCount) {
-      slots.add(null);
+    // Chaque carte garde son emplacement : les autres ne glissent pas après un jeu.
+    final assigned = _controller.tableSlots();
+    final used = assigned.values.fold<int>(0, (max, index) => math.max(max, index + 1));
+    final slotCount = _roundUp(math.max(12, used), columns);
+    final slots = List<Widget?>.filled(slotCount, null);
+    for (final card in game.table) {
+      slots[assigned[card.id]!] = ChkobbaCardFace(card: card);
     }
 
     return Stack(
