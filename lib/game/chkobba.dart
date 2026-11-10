@@ -17,6 +17,14 @@ class ChkobbaCard {
   final int rank;
   final String id;
 
+  factory ChkobbaCard.fromJson(Map<String, dynamic> json) => ChkobbaCard(
+        suit: ChkobbaSuit.values.byName(json['suit'] as String),
+        rank: intFromJson(json['rank']),
+        id: json['id'] as String,
+      );
+
+  Map<String, dynamic> toJson() => {'suit': suit.name, 'rank': rank, 'id': id};
+
   bool get isHaya => suit == ChkobbaSuit.deniers && rank == 7;
 
   @override
@@ -57,6 +65,45 @@ class ChkobbaState {
   final Player starter;
   final int round;
   final Player? winner;
+
+  /// Relit un état produit par [toJson] (mêmes clés que les champs du source TypeScript).
+  factory ChkobbaState.fromJson(Map<String, dynamic> json) {
+    List<ChkobbaCard> cards(Object? raw) =>
+        [for (final c in raw as List<dynamic>) ChkobbaCard.fromJson(c as Map<String, dynamic>)];
+    final hands = json['hands'] as Map<String, dynamic>;
+    final won = json['won'] as Map<String, dynamic>;
+    final chkobbas = json['chkobbas'] as Map<String, dynamic>;
+    final scores = json['scores'] as Map<String, dynamic>;
+    return ChkobbaState(
+      targetScore: intFromJson(json['targetScore']),
+      deck: cards(json['deck']),
+      hands: {for (final p in Player.values) p: cards(hands[p.name])},
+      table: cards(json['table']),
+      won: {for (final p in Player.values) p: cards(won[p.name])},
+      chkobbas: {for (final p in Player.values) p: intFromJson(chkobbas[p.name])},
+      scores: {for (final p in Player.values) p: intFromJson(scores[p.name])},
+      lastCapturer: playerFromJson(json['lastCapturer']),
+      turn: Player.values.byName(json['turn'] as String),
+      starter: Player.values.byName(json['starter'] as String),
+      round: intFromJson(json['round']),
+      winner: playerFromJson(json['winner']),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'targetScore': targetScore,
+        'deck': [for (final c in deck) c.toJson()],
+        'hands': {for (final p in Player.values) p.name: [for (final c in hands[p]!) c.toJson()]},
+        'table': [for (final c in table) c.toJson()],
+        'won': {for (final p in Player.values) p.name: [for (final c in won[p]!) c.toJson()]},
+        'chkobbas': {for (final p in Player.values) p.name: chkobbas[p]},
+        'scores': {for (final p in Player.values) p.name: scores[p]},
+        'lastCapturer': lastCapturer?.name,
+        'turn': turn.name,
+        'starter': starter.name,
+        'round': round,
+        'winner': winner?.name,
+      };
 
   ChkobbaState copyWith({
     List<ChkobbaCard>? deck,

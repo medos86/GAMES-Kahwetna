@@ -15,6 +15,12 @@ class DominoTile {
   final int a;
   final int b;
 
+  factory DominoTile.fromJson(Map<String, dynamic> json) => DominoTile(
+        id: json['id'] as String,
+        a: intFromJson(json['a']),
+        b: intFromJson(json['b']),
+      );
+
   Map<String, dynamic> toJson() => {'id': id, 'a': a, 'b': b};
 
   @override
@@ -36,6 +42,14 @@ class PlacedTile extends DominoTile {
 
   final int left;
   final int right;
+
+  factory PlacedTile.fromJson(Map<String, dynamic> json) => PlacedTile(
+        id: json['id'] as String,
+        a: intFromJson(json['a']),
+        b: intFromJson(json['b']),
+        left: intFromJson(json['left']),
+        right: intFromJson(json['right']),
+      );
 
   @override
   Map<String, dynamic> toJson() => {...super.toJson(), 'left': left, 'right': right};
@@ -73,6 +87,31 @@ class DominoState {
   final int pointsAwarded;
   final int targetScore;
   final int round;
+
+  /// Relit un état produit par [toJson] (ou par `JSON.stringify(state)` côté TypeScript).
+  factory DominoState.fromJson(Map<String, dynamic> json) {
+    List<DominoTile> tiles(Object? raw) =>
+        [for (final t in raw as List<dynamic>) DominoTile.fromJson(t as Map<String, dynamic>)];
+    final hands = json['hands'] as Map<String, dynamic>;
+    final scores = json['scores'] as Map<String, dynamic>;
+    return DominoState(
+      hands: {for (final p in Player.values) p: tiles(hands[p.name])},
+      boneyard: tiles(json['boneyard']),
+      chain: [
+        for (final t in json['chain'] as List<dynamic>) PlacedTile.fromJson(t as Map<String, dynamic>),
+      ],
+      leftEnd: json['leftEnd'] == null ? null : intFromJson(json['leftEnd']),
+      rightEnd: json['rightEnd'] == null ? null : intFromJson(json['rightEnd']),
+      scores: {for (final p in Player.values) p: intFromJson(scores[p.name])},
+      turn: Player.values.byName(json['turn'] as String),
+      consecutivePasses: intFromJson(json['consecutivePasses']),
+      roundWinner: playerFromJson(json['roundWinner']),
+      matchWinner: playerFromJson(json['matchWinner']),
+      pointsAwarded: intFromJson(json['pointsAwarded']),
+      targetScore: intFromJson(json['targetScore']),
+      round: intFromJson(json['round']),
+    );
+  }
 
   /// Les champs nullables utilisent le motif sentinelle : passer `null` les remet à null.
   DominoState copyWith({
