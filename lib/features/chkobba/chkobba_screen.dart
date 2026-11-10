@@ -17,10 +17,13 @@ import 'chkobba_table.dart';
 /// Écran de jeu de la Chkobba, fidèle à GameScreen.tsx : scores, pioche, tapis, mains,
 /// bannière de tour, Haya, choix de prise et récapitulatif de manche.
 class ChkobbaScreen extends StatefulWidget {
-  const ChkobbaScreen({super.key, required this.difficulty, required this.targetScore});
+  const ChkobbaScreen({super.key, required this.difficulty, required this.targetScore, this.demoChoice = false});
 
   final Difficulty difficulty;
   final int targetScore;
+
+  /// Donne fixe du dialogue de choix de prise (`?demo=choice`). Sans effet hors debug.
+  final bool demoChoice;
 
   @override
   State<ChkobbaScreen> createState() => _ChkobbaScreenState();
@@ -35,6 +38,9 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     _controller = ChkobbaController(
       targetScore: widget.targetScore,
       level: _levelFor(widget.difficulty),
+      initialState: kDebugMode && widget.demoChoice
+          ? chkobbaDemoChoiceState(targetScore: widget.targetScore)
+          : null,
     );
   }
 

@@ -42,8 +42,9 @@ class ChkobbaController extends ChangeNotifier {
     required this.targetScore,
     required this.level,
     RandomDouble? random,
+    ChkobbaState? initialState,
   })  : _random = random,
-        _game = newMatch(targetScore: targetScore, random: random);
+        _game = initialState ?? newMatch(targetScore: targetScore, random: random);
 
   final int targetScore;
   final ChkobbaAiLevel level;
