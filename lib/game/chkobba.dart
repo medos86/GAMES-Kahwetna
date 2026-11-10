@@ -278,7 +278,13 @@ List<List<ChkobbaCard>> getCaptureOptions(ChkobbaState state, Player who, String
 }
 
 /// Joue une carte. `chosenIds` choisit une des prises légales ; sinon la meilleure est prise.
-ChkobbaMoveResult playCard(ChkobbaState state, Player who, String cardId, {List<String>? chosenIds}) {
+ChkobbaMoveResult playCard(
+  ChkobbaState state,
+  Player who,
+  String cardId, {
+  List<String>? chosenIds,
+  bool discardOnly = false,
+}) {
   final card = _findCard(state.hands[who]!, cardId);
   if (card == null) {
     return ChkobbaMoveResult(state: state, captured: const [], chkobba: false, haya: false);
@@ -298,7 +304,8 @@ ChkobbaMoveResult playCard(ChkobbaState state, Player who, String cardId, {List<
       }
     }
   }
-  final captured = chosen ?? _bestCapture(state.table, card.rank);
+  // discardOnly : l'adversaire facile pose sa carte sans prendre, même quand il le pourrait.
+  final captured = discardOnly ? <ChkobbaCard>[] : (chosen ?? _bestCapture(state.table, card.rank));
 
   if (captured.isEmpty) {
     return ChkobbaMoveResult(
@@ -394,40 +401,92 @@ ChkobbaRoundScore scoreRound(ChkobbaState state) {
   );
 }
 
-int _evaluateMove(ChkobbaState state, ChkobbaCard card, ChkobbaAiLevel level) {
-  final captured = _bestCapture(state.table, card.rank);
-  int tableSum(List<ChkobbaCard> cards) => cards.fold(0, (sum, c) => sum + c.rank);
-
-  if (captured.isNotEmpty) {
-    final remaining = state.table.where((c) => !captured.contains(c)).toList();
-    var score = 100 + _cardsValue([...captured, card]) + (remaining.isEmpty ? 50 : 0);
-    // Laisser une table valant 10 ou moins permet à l'adversaire de la ramasser d'un coup.
-    if (level == ChkobbaAiLevel.difficile && remaining.isNotEmpty && tableSum(remaining) <= 10) {
-      score -= 4;
-    }
-    return score;
+/// Gain d'un coup de `card` sur `table` (prise la meilleure, comme playCard), et table qui en résulte.
+/// `priority` ajoute la priorité aux points de fin de manche (moyen et difficile).
+({int score, List<ChkobbaCard> table}) _simulateMove(
+  List<ChkobbaCard> table,
+  ChkobbaCard card, {
+  bool priority = false,
+}) {
+  final captured = _bestCapture(table, card.rank);
+  if (captured.isEmpty) {
+    return (score: -_cardsValue([card]), table: [...table, card]);
   }
-
-  var score = -_cardsValue([card]);
-  if (level == ChkobbaAiLevel.difficile && tableSum([...state.table, card]) <= 10) score -= 4;
-  return score;
+  final remaining = table.where((c) => !captured.contains(c)).toList();
+  var score = 100 + _cardsValue([...captured, card]) + (remaining.isEmpty ? 50 : 0);
+  if (priority) score += _pointsPriority(captured);
+  return (score: score, table: remaining);
 }
 
-/// Carte jouée par l'adversaire : au hasard en facile, sinon la mieux évaluée.
-String chooseOpponentCard(
+/// Carreaux pris (points de fin de manche), et surtout le 7 de carreau (haya).
+int _pointsPriority(List<ChkobbaCard> captured) {
+  var bonus = 0;
+  for (final c in captured) {
+    if (c.suit == ChkobbaSuit.deniers) bonus += 3;
+    if (c.suit == ChkobbaSuit.deniers && c.rank == 7) bonus += 8;
+  }
+  return bonus;
+}
+
+/// Décision de l'adversaire : la carte jouée, et s'il prend une prise quand il en a une.
+typedef ChkobbaAiMove = ({String cardId, bool capture});
+
+/// Coup de l'adversaire selon le niveau.
+/// - Facile : carte au hasard ; quand une prise existe, il ne la prend qu'environ 60 % du temps.
+/// - Moyen : évaluation gloutonne, avec priorité aux carreaux.
+/// - Difficile : deux coups d'avance, en lisant la main du joueur (choix assumé).
+ChkobbaAiMove chooseOpponentMove(
   ChkobbaState state,
   ChkobbaAiLevel level, {
   RandomDouble? random,
 }) {
+  final r = random ?? _defaultRandom.nextDouble;
   final hand = state.hands[Player.opponent]!;
+
   if (level == ChkobbaAiLevel.facile) {
-    final r = random ?? _defaultRandom.nextDouble;
-    return hand[(r() * hand.length).floor()].id;
+    final card = hand[(r() * hand.length).floor()];
+    final canCapture = _captureOptions(state.table, card.rank).isNotEmpty;
+    final capture = !canCapture || r() >= 0.4;
+    return (cardId: card.id, capture: capture);
   }
 
-  var best = hand.first;
-  for (final card in hand.skip(1)) {
-    if (_evaluateMove(state, card, level) > _evaluateMove(state, best, level)) best = card;
+  if (level == ChkobbaAiLevel.moyen) {
+    var best = hand.first;
+    for (final card in hand.skip(1)) {
+      if (_simulateMove(state.table, card, priority: true).score >
+          _simulateMove(state.table, best, priority: true).score) {
+        best = card;
+      }
+    }
+    return (cardId: best.id, capture: true);
   }
-  return best.id;
+
+  // Difficile : pour chaque carte, on retranche le meilleur coup que le joueur peut faire ensuite
+  // sur la table qui en résulte. Une table que le joueur ramasse d'un coup coûte donc cher.
+  final playerHand = state.hands[Player.player]!;
+  var bestCard = hand.first;
+  var bestTotal = 0;
+  var first = true;
+  for (final card in hand) {
+    final mine = _simulateMove(state.table, card, priority: true);
+    var reply = 0;
+    if (playerHand.isNotEmpty) {
+      reply = playerHand.map((c) => _simulateMove(mine.table, c).score).reduce((a, b) => a > b ? a : b);
+    }
+    final total = mine.score - reply;
+    if (first || total > bestTotal) {
+      bestCard = card;
+      bestTotal = total;
+      first = false;
+    }
+  }
+  return (cardId: bestCard.id, capture: true);
 }
+
+/// Carte jouée par l'adversaire (voir chooseOpponentMove).
+String chooseOpponentCard(
+  ChkobbaState state,
+  ChkobbaAiLevel level, {
+  RandomDouble? random,
+}) =>
+    chooseOpponentMove(state, level, random: random).cardId;

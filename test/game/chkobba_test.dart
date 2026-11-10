@@ -189,5 +189,50 @@ void main() {
         expect(s.hands[Player.opponent]!.map((c) => c.id), contains(id));
       }
     });
+
+    test('facile : sans prise quand r() est bas, la carte reste sur le tapis', () {
+      final s = makeState(
+        hands: {
+          Player.player: [card(1)],
+          Player.opponent: [card(6)],
+        },
+        table: [card(6, ChkobbaSuit.coupes)],
+      );
+      // Tirages à 0 : carte 0, et décision « ne pas prendre » (0 < 0,4).
+      final move = chooseOpponentMove(s, ChkobbaAiLevel.facile, random: () => 0.0);
+      expect(move.cardId, 'batons-6');
+      expect(move.capture, isFalse);
+
+      final result = playCard(s, Player.opponent, move.cardId, discardOnly: true);
+      expect(result.captured, isEmpty);
+      expect(result.state.table.map((c) => c.id), containsAll(['coupes-6', 'batons-6']));
+    });
+
+    test('moyen : priorité au 7 de carreau capturé', () {
+      final s = makeState(
+        hands: {
+          Player.player: [card(1)],
+          Player.opponent: [card(2, ChkobbaSuit.epees), card(7, ChkobbaSuit.coupes)],
+        },
+        table: [card(7, ChkobbaSuit.deniers)],
+      );
+      final move = chooseOpponentMove(s, ChkobbaAiLevel.moyen);
+      expect(move.cardId, 'coupes-7');
+      expect(move.capture, isTrue);
+    });
+
+    test('difficile lit la main du joueur : ne laisse pas une table qu\'il ramasse d\'un coup', () {
+      // Table 5 + 2 (somme 7). Le joueur a un 7 pour tout ramasser. L'IA ne doit pas
+      // ajouter une carte qui laisse la table à ramasser d'un coup, quand une autre carte est sûre.
+      final s = makeState(
+        hands: {
+          Player.player: [card(7, ChkobbaSuit.coupes)],
+          Player.opponent: [card(4, ChkobbaSuit.epees), card(9, ChkobbaSuit.batons)],
+        },
+        table: [card(5, ChkobbaSuit.deniers), card(2, ChkobbaSuit.coupes)],
+      );
+      final id = chooseOpponentCard(s, ChkobbaAiLevel.difficile);
+      expect(s.hands[Player.opponent]!.map((c) => c.id), contains(id));
+    });
   });
 }
