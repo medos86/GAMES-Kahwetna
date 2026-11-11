@@ -22,7 +22,8 @@ jobs:
         run: flutter pub get
 
       - name: Analyse statique (erreurs de compilation)
-        run: flutter analyze
+        # Les infos (ex. dépréciations de material.dart) ne bloquent pas : seules les erreurs et avertissements comptent.
+        run: flutter analyze --no-fatal-infos
 
       - name: Tests unitaires
         run: flutter test
