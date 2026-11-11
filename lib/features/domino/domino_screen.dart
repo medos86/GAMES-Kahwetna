@@ -600,7 +600,7 @@ class _Footer extends StatelessWidget {
           SizedBox(
             height: sm ? 96 : 76,
             child: game.hands[Player.player]!.isEmpty
-                ? const Center(
+                ? Center(
                     child: Text(t('emptyHand'), style: TextStyle(fontWeight: FontWeight.w700, color: Color(0x9920284B))),
                   )
                 : _HandScroller(

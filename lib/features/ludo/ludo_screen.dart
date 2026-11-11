@@ -205,7 +205,7 @@ class _Header extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () => Navigator.of(context).maybePop(),
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

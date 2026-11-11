@@ -137,7 +137,7 @@ class _Header extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () => Navigator.of(context).maybePop(),
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -535,7 +535,7 @@ class _BidPanel extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(t('yourBid'), style: TextStyle(color: _inkColor, fontWeight: FontWeight.w900, fontSize: 16)),
               ),
               Text(
