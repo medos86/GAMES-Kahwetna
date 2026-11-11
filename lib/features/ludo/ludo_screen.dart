@@ -702,11 +702,14 @@ class _Footer extends StatelessWidget {
                   'TOUR : ${turnName.toUpperCase()}',
                   style: TextStyle(color: _ink.withValues(alpha: 0.6), fontSize: 10, fontWeight: FontWeight.w900),
                 ),
-                Text(
-                  prompt,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: _ink, fontWeight: FontWeight.w900, fontSize: 14),
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    prompt,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: _ink, fontWeight: FontWeight.w900, fontSize: 14),
+                  ),
                 ),
               ],
             ),
@@ -729,9 +732,10 @@ class _Die extends StatelessWidget {
   Widget build(BuildContext context) {
     final face = value ?? 5;
     final pips = _pipLayout[face]!;
+    final reduce = MediaQuery.disableAnimationsOf(context);
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 450),
+      duration: reduce ? Duration.zero : const Duration(milliseconds: 450),
       curve: Curves.elasticOut,
       builder: (context, t, child) => Transform.rotate(
         angle: (1 - t) * -200 * math.pi / 180,

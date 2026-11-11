@@ -606,9 +606,12 @@ class _ThinkingBadge extends StatelessWidget {
         border: Border.all(color: Colors.black, width: 3),
         boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 5))],
       ),
-      child: const Text(
-        "⏳ Tour de l'adversaire...",
-        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15),
+      child: Semantics(
+        liveRegion: true,
+        child: const Text(
+          "⏳ Tour de l'adversaire...",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15),
+        ),
       ),
     );
   }
