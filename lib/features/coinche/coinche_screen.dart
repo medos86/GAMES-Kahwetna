@@ -1,10 +1,14 @@
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../../core/layout/device_metrics.dart';
 import '../../game/coinche.dart';
 import '../../widgets/ad_banner.dart';
+import '../../core/strings.dart';
+import '../../core/theme/game_style.dart';
+import '../../widgets/comic/comic_pill.dart';
 import '../menu/menu_models.dart';
 import 'coinche_card_view.dart';
 import 'coinche_controller.dart';
@@ -120,7 +124,13 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Material(
+        kComicCoinche
+            ? ComicPill(
+                label: Strings.menuLabel,
+                icon: Icons.arrow_back,
+                onTap: () => Navigator.of(context).maybePop(),
+              )
+            : Material(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           child: InkWell(

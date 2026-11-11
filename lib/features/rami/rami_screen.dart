@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../../core/layout/device_metrics.dart';
+import '../../widgets/comic/comic_pill.dart';
 import '../../core/services/toast.dart';
 import '../../game/rami.dart' as rules;
 import '../../widgets/ad_banner.dart';
@@ -10,6 +11,7 @@ import '../menu/menu_models.dart';
 import 'rami_card_view.dart';
 import 'rami_controller.dart';
 import '../../core/strings.dart';
+import '../../core/theme/game_style.dart';
 import '../../core/services/ad_free_service.dart';
 
 /// Facteur d'agrandissement des cartes Rami (lisibilité sur téléphone).
@@ -270,7 +272,13 @@ class _RamiScreenState extends State<RamiScreen> {
   Widget _header(rules.RamiState g) {
     return Row(
       children: [
-        Material(
+        kComicRami
+            ? ComicPill(
+                label: Strings.menuLabel,
+                icon: Icons.arrow_back,
+                onTap: () => Navigator.of(context).maybePop(),
+              )
+            : Material(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
