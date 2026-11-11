@@ -36,7 +36,7 @@ class GameHeader extends StatelessWidget {
                 onPressed: onMenu,
                 icon: const Icon(Icons.arrow_back, size: 18, color: Color(0xFFFFF1BD)),
                 label: showLabel
-                    ? const Text(
+                    ? Text(
                         Strings.menuLabel,
                         style: TextStyle(color: Color(0xFFFFF1BD), fontWeight: FontWeight.w800),
                       )
