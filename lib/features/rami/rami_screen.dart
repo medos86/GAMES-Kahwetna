@@ -11,6 +11,7 @@ import '../menu/menu_models.dart';
 import 'rami_card_view.dart';
 import 'rami_controller.dart';
 import '../../core/strings.dart';
+import '../../core/theme/game_style.dart';
 import '../../core/services/ad_free_service.dart';
 
 /// Facteur d'agrandissement des cartes Rami (lisibilité sur téléphone).
