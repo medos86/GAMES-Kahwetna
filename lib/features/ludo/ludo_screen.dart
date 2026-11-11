@@ -195,7 +195,7 @@ class _Header extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             onTap: () => Navigator.of(context).maybePop(),
             child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -521,14 +521,15 @@ class _Board extends StatelessWidget {
                         key: ValueKey(placed.token.id),
                         duration: const Duration(milliseconds: 500),
                         curve: Curves.easeOut,
-                        left: (placed.x - placed.size / 2) * u,
-                        top: (placed.y - placed.size / 2) * u,
-                        width: placed.size * u,
-                        height: placed.size * u,
+                        left: placed.x * u - _tokenHitSize(placed.size * u) / 2,
+                        top: placed.y * u - _tokenHitSize(placed.size * u) / 2,
+                        width: _tokenHitSize(placed.size * u),
+                        height: _tokenHitSize(placed.size * u),
                         child: _TokenButton(
                           token: placed.token,
                           clickable: legal.contains(placed.token.id),
                           onTap: () => controller.tapToken(placed.token.id),
+                          visualSize: placed.size * u,
                         ),
                       ),
                   ],
@@ -635,12 +636,23 @@ class _CenterPiece extends StatelessWidget {
   }
 }
 
+/// Zone tactile d'un pion : au moins 44 px (issue #23), même si le pion dessiné est plus petit.
+double _tokenHitSize(double visual) => math.max(visual, 44);
+
 class _TokenButton extends StatelessWidget {
-  const _TokenButton({required this.token, required this.clickable, required this.onTap});
+  const _TokenButton({
+    required this.token,
+    required this.clickable,
+    required this.onTap,
+    required this.visualSize,
+  });
 
   final Token token;
   final bool clickable;
   final VoidCallback onTap;
+
+  /// Taille du pion dessiné, centré dans la zone tactile.
+  final double visualSize;
 
   @override
   Widget build(BuildContext context) {
@@ -649,20 +661,27 @@ class _TokenButton extends StatelessWidget {
       button: clickable,
       label: 'Pion ${tone.name}${clickable ? ', à déplacer' : ''}',
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: clickable ? onTap : null,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              center: const Alignment(-0.3, -0.4),
-              colors: [Colors.white, tone.fill, tone.dark],
-              stops: const [0.1, 0.38, 1],
+        child: Center(
+          child: SizedBox(
+            width: visualSize,
+            height: visualSize,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  center: const Alignment(-0.3, -0.4),
+                  colors: [Colors.white, tone.fill, tone.dark],
+                  stops: const [0.1, 0.38, 1],
+                ),
+                border: Border.all(color: clickable ? Colors.white : _brown, width: clickable ? 3 : 2),
+                boxShadow: const [
+                  BoxShadow(color: _brown, offset: Offset(0, 3)),
+                  BoxShadow(color: Color(0x59000000), blurRadius: 8, offset: Offset(0, 5)),
+                ],
+              ),
             ),
-            border: Border.all(color: clickable ? Colors.white : _brown, width: clickable ? 3 : 2),
-            boxShadow: const [
-              BoxShadow(color: _brown, offset: Offset(0, 3)),
-              BoxShadow(color: Color(0x59000000), blurRadius: 8, offset: Offset(0, 5)),
-            ],
           ),
         ),
       ),
