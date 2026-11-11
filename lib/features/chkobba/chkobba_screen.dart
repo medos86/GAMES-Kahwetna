@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/services/ad_free_service.dart';
+import '../../core/i18n/app_language.dart';
+import '../../core/strings.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../core/theme/game_style.dart';
 import '../../game/chkobba.dart';
@@ -132,13 +134,13 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
               child: Row(
                 children: [
                   _PillButton(
-                    label: 'Menu',
+                    label: Strings.menuLabel,
                     icon: Icons.arrow_back,
                     onTap: () => Navigator.of(context).pop(),
                   ),
                   const Spacer(),
                   _PillButton(
-                    label: 'Règles',
+                    label: t('chkobbaRules'),
                     icon: Icons.menu_book,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(builder: (_) => const ChkobbaRulesScreen()),
@@ -147,7 +149,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                   const SizedBox(width: 8),
                   if (game.winner != null) ...[
                     _PillButton(
-                      label: 'Nouvelle partie',
+                      label: t('newGame'),
                       icon: Icons.refresh,
                       onTap: _controller.startNewGame,
                     ),
@@ -429,7 +431,7 @@ class _Scoreboard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _ScoreSide(
-            name: 'Vous',
+            name: t('you'),
             score: game.scores[Player.player]!,
             chkobbas: game.chkobbas[Player.player]!,
             cards: game.won[Player.player]!.length,
@@ -499,7 +501,7 @@ class _ScoreSide extends StatelessWidget {
             const Icon(Icons.star, size: 12, color: Color(0xFF92400E)),
             Text(' $chkobbas', style: info),
             const SizedBox(width: 8),
-            Text('$cards cartes', style: info),
+            Text(tf('cardCount', {'n': '$cards'}), style: info),
           ],
         ),
       ],
@@ -782,9 +784,9 @@ class _RoundCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _row(
-                    'Points de la manche',
-                    'Vous',
-                    'Adversaire',
+                    t('roundPoints'),
+                    t('you'),
+                    t('opponent'),
                     style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11, color: Colors.white),
                     pad: 0,
                   ),
@@ -930,7 +932,7 @@ class _CapturePicker extends StatelessWidget {
               OutlinedButton(
                 style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Annuler'),
+                child: Text(Strings.actCancel),
               ),
             ],
           ),

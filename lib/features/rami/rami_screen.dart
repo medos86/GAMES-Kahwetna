@@ -11,6 +11,7 @@ import '../menu/menu_models.dart';
 import 'rami_card_view.dart';
 import 'rami_controller.dart';
 import '../../core/strings.dart';
+import '../../core/i18n/app_language.dart';
 import '../../core/theme/game_style.dart';
 import '../../core/services/ad_free_service.dart';
 
@@ -309,7 +310,7 @@ class _RamiScreenState extends State<RamiScreen> {
                   fontSize: 13,
                 ),
               ),
-              Text('Manche ${g.round}', style: const TextStyle(fontWeight: FontWeight.w800)),
+              Text(tf('round', {'n': '${g.round}'}), style: const TextStyle(fontWeight: FontWeight.w800)),
             ],
           ),
         ),
@@ -319,7 +320,7 @@ class _RamiScreenState extends State<RamiScreen> {
           icon: const Icon(Icons.menu_book, color: Colors.white),
         ),
         Semantics(
-          label: 'Objectif : ${g.targetScore} points de pénalité',
+          label: tf('target', {'n': '${g.targetScore}'}),
           child: SizedBox(
             width: 48,
             height: 48,
@@ -587,7 +588,7 @@ class _RamiScreenState extends State<RamiScreen> {
         _ActionButton(label: Strings.actPose, onTap: c.pose, enabled: c.selectionIsMeld, primary: true)
       else ...[
         _ActionButton(
-          label: 'Valider (${c.stagedPoints}/${rules.ramiOpenMin})',
+          label: tf('validate', {'cur': '${c.stagedPoints}', 'min': '${rules.ramiOpenMin}'}),
           onTap: c.commit,
           enabled: c.stagedPoints >= rules.ramiOpenMin,
           primary: true,

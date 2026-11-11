@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 import '../../core/layout/device_metrics.dart';
 import '../../game/coinche.dart';
 import '../../widgets/ad_banner.dart';
+import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
 import '../../core/theme/game_style.dart';
 import '../../widgets/comic/comic_pill.dart';
@@ -136,14 +137,14 @@ class _Header extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () => Navigator.of(context).maybePop(),
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.arrow_back, size: 18, color: Color(0xFF7E22CE)),
                   SizedBox(width: 4),
-                  Text('Menu', style: TextStyle(color: Color(0xFF7E22CE), fontWeight: FontWeight.w900)),
+                  Text(Strings.menuLabel, style: TextStyle(color: Color(0xFF7E22CE), fontWeight: FontWeight.w900)),
                 ],
               ),
             ),
@@ -534,8 +535,8 @@ class _BidPanel extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Expanded(
-                child: Text('Ton annonce', style: TextStyle(color: _inkColor, fontWeight: FontWeight.w900, fontSize: 16)),
+              Expanded(
+                child: Text(t('yourBid'), style: TextStyle(color: _inkColor, fontWeight: FontWeight.w900, fontSize: 16)),
               ),
               Text(
                 contract == null
@@ -588,22 +589,22 @@ class _BidPanel extends StatelessWidget {
             runSpacing: 8,
             alignment: WrapAlignment.center,
             children: [
-              _ActionButton(label: 'Passer', onTap: () => controller.callBid(const PassBid())),
+              _ActionButton(label: t('pass'), onTap: () => controller.callBid(const PassBid())),
               _ActionButton(
-                label: 'Annoncer',
+                label: t('bid'),
                 primary: true,
                 enabled: canAnnounce,
                 onTap: controller.announce,
               ),
               if (controller.canContre)
                 _ActionButton(
-                  label: 'Contre ×2',
+                  label: t('contre'),
                   danger: true,
                   onTap: () => controller.callBid(const ContreBid()),
                 ),
               if (controller.canSurcoinche)
                 _ActionButton(
-                  label: 'Surcoinche ×4',
+                  label: t('surcoinche'),
                   danger: true,
                   onTap: () => controller.callBid(const SurcoincheBid()),
                 ),
@@ -894,13 +895,13 @@ class _SummaryDialog extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     if (winner != null) ...[
-                      _DialogButton(label: 'Rejouer', onTap: controller.restart),
+                      _DialogButton(label: t('replay'), onTap: controller.restart),
                       TextButton(
                         onPressed: onMenu,
-                        child: const Text('Retour au menu', style: TextStyle(color: Colors.white70)),
+                        child: Text(t('backToMenu'), style: TextStyle(color: Colors.white70)),
                       ),
                     ] else
-                      _DialogButton(label: 'Manche suivante', onTap: controller.nextRound),
+                      _DialogButton(label: t('nextRound'), onTap: controller.nextRound),
                   ],
                 ),
               ),
