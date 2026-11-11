@@ -33,8 +33,7 @@ DominoSide _preferredSide(DominoTile tile, DominoState state) =>
 /// - Facile : tuile légale au hasard, côté au hasard parmi les côtés possibles.
 /// - Moyen : la tuile au plus grand total (la première en cas d'égalité, comme le tri stable du source),
 ///   côté droit si elle s'y pose, sinon à gauche.
-/// - Difficile : comme le moyen, mais les doubles sont gardés pour la fin (ils posent des points
-///   à l'adversaire en fin de partie). Pas de lecture de la main adverse.
+/// - Difficile : voir [_difficileMove] (estime les options du joueur, garde les doubles, sans lire sa main).
 /// À défaut de tuile jouable : piocher, puis passer.
 DominoAiMove chooseOpponentMove(
   DominoState state, {
@@ -57,6 +56,8 @@ DominoAiMove chooseOpponentMove(
       return DominoAiMove.play(tile, side);
     }
 
+    if (level == DominoAiLevel.difficile) return _difficileMove(state, moves);
+
     var best = moves.first;
     for (final tile in moves.skip(1)) {
       if (_score(tile, level) > _score(best, level)) best = tile;
@@ -67,9 +68,59 @@ DominoAiMove chooseOpponentMove(
   return const DominoAiMove.pass();
 }
 
-int _score(DominoTile tile, DominoAiLevel level) {
-  final pips = _pips(tile);
-  return level == DominoAiLevel.difficile && tile.a == tile.b ? pips - 3 : pips;
+int _score(DominoTile tile, DominoAiLevel level) => _pips(tile);
+
+/// Toutes les tuiles du jeu (28), sans doublon.
+List<DominoTile> _allTiles() => [
+      for (var a = 0; a <= 6; a++)
+        for (var b = a; b <= 6; b++) DominoTile(id: '$a-$b', a: a, b: b),
+    ];
+
+/// Extrémités (gauche, droite) après avoir posé `tile` du côté `side`.
+List<int> _endsAfter(DominoTile tile, DominoState state, DominoSide side) {
+  if (state.chain.isEmpty) return [tile.a, tile.b];
+  final ends = <int>[state.leftEnd!, state.rightEnd!];
+  if (side == DominoSide.left) {
+    ends[0] = tile.a == state.leftEnd ? tile.b : tile.a;
+  } else {
+    ends[1] = tile.a == state.rightEnd ? tile.b : tile.a;
+  }
+  return ends;
+}
+
+/// Difficile (loyal) : ne lit que la chaîne et sa propre main.
+/// Pour chaque coup, compte les tuiles inconnues que le joueur pourrait poser sur les extrémités
+/// qui en résulteraient (pioche et main du joueur). Préfère les coups qui en laissent le moins,
+/// garde les doubles pour la fin, et choisit le côté le plus restrictif.
+DominoAiMove _difficileMove(DominoState state, List<DominoTile> moves) {
+  final ownHand = {for (final t in state.hands[Player.opponent]!) t.id};
+  final onTable = {for (final t in state.chain) t.id};
+  final unseen = [
+    for (final t in _allTiles())
+      if (!ownHand.contains(t.id) && !onTable.contains(t.id)) t,
+  ];
+
+  DominoTile? bestTile;
+  var bestSide = DominoSide.left;
+  var bestValue = double.negativeInfinity;
+  for (final tile in moves) {
+    final sides = state.chain.isEmpty
+        ? const [DominoSide.left]
+        : [for (final side in DominoSide.values) if (canPlace(tile, state, side)) side];
+    for (final side in sides) {
+      final ends = _endsAfter(tile, state, side);
+      final playerOptions = unseen
+          .where((u) => u.id != tile.id && (ends.contains(u.a) || ends.contains(u.b)))
+          .length;
+      final value = _pips(tile) - (tile.a == tile.b ? 3 : 0) - 0.5 * playerOptions;
+      if (value > bestValue) {
+        bestValue = value;
+        bestTile = tile;
+        bestSide = side;
+      }
+    }
+  }
+  return DominoAiMove.play(bestTile ?? moves.first, bestSide);
 }
 
 final _defaultRandom = math.Random();
