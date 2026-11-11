@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../game/common.dart';
 import '../../game/rami.dart' as rules;
+import '../../core/audio/sounds.dart';
 import '../../core/strings.dart';
 
 /// Délai d'une action de l'IA (550 ms dans le source).
@@ -164,12 +165,14 @@ class RamiController extends ChangeNotifier {
 
   void drawFromStock() {
     if (!canDraw) return;
+    Sounds.play(Sfx.draw);
     _keepOrder();
     _apply(rules.drawStock(_game, _random));
   }
 
   void drawFromDiscard() {
     if (!canDraw) return;
+    Sounds.play(Sfx.draw);
     _keepOrder();
     _apply(rules.drawDiscard(_game));
   }

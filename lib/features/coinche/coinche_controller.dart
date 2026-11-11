@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../game/coinche.dart';
+import '../../core/audio/sounds.dart';
 import '../../game/common.dart';
 import '../menu/menu_models.dart';
 
@@ -97,7 +98,11 @@ class CoincheController extends ChangeNotifier {
     callBid(ValueBid(value, mode));
   }
 
-  void playHuman(String cardId) => _setRound(playCard(_round, Seat.south, cardId));
+  void playHuman(String cardId) {
+    final next = playCard(_round, Seat.south, cardId);
+    if (!identical(next, _round)) Sounds.play(Sfx.place);
+    _setRound(next);
+  }
 
   /// Ferme le récapitulatif et donne la manche suivante.
   void nextRound() {
