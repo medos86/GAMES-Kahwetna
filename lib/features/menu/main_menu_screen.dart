@@ -5,6 +5,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../core/theme/comic_palette.dart';
+import '../../core/theme/game_style.dart';
+import '../../widgets/comic/comic_panel.dart';
+import '../../widgets/comic/halftone_overlay.dart';
 import '../../widgets/fade_slide_in.dart';
 import '../../widgets/pressable.dart';
 import '../../widgets/texture_patterns.dart';
@@ -436,6 +440,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
 // Composants visuels
 // =====================================================================
 
+/// Fond sombre des cases BD du menu (encre semi-transparente).
+Color get _comicInk => ComicPalette.ink.withAlpha(0xE6);
+
 class _Background extends StatelessWidget {
   const _Background({required this.difficulty});
 
@@ -489,6 +496,8 @@ class _Background extends StatelessWidget {
             ),
           ),
         ),
+        if (kComicMenu)
+          const IgnorePointer(child: HalftoneOverlay(child: SizedBox.expand())),
         IgnorePointer(child: DecoratedBox(decoration: BoxDecoration(gradient: _tint(difficulty)))),
         IgnorePointer(
           child: Opacity(
@@ -647,6 +656,27 @@ class _GlassButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kComicMenu) {
+      return Pressable(
+        semanticLabel: semanticLabel,
+        onTap: onTap,
+        pressedScale: 0.92,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+          child: ComicPanel(
+            color: _comicInk,
+            outlineColor: ComicPalette.paper,
+            radius: 14,
+            shadowOffset: const Offset(3, 3),
+            padding: square ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: DefaultTextStyle.merge(
+              style: const TextStyle(color: _ceramic),
+              child: child,
+            ),
+          ),
+        ),
+      );
+    }
     return Pressable(
       semanticLabel: semanticLabel,
       onTap: onTap,
@@ -682,6 +712,27 @@ class _TitleBlock extends StatelessWidget {
   final double vw;
   final bool sm;
 
+  /// Titre BD : Bangers jaune avec contour d'encre (issue #96).
+  Widget _comicTitle(double size) {
+    final base = TextStyle(fontFamily: 'Bangers', fontSize: size, height: 1, letterSpacing: 1);
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Text(
+          'Kahwetne',
+          style: base.copyWith(
+            foreground: Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = size * 0.12
+              ..strokeJoin = StrokeJoin.round
+              ..color = ComicPalette.ink,
+          ),
+        ),
+        Text('Kahwetne', style: base.copyWith(color: ComicPalette.yellow)),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // font-size: clamp(2.6rem, 11vw, 5.5rem)
@@ -714,7 +765,9 @@ class _TitleBlock extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
+        kComicMenu
+            ? _comicTitle(titleSize)
+            : Text(
           'Kahwetne',
           style: TextStyle(
             fontFamily: 'BowlbyOneSC',
@@ -1202,6 +1255,15 @@ class _GlassPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kComicMenu) {
+      return ComicPanel(
+        color: _comicInk,
+        outlineColor: ComicPalette.paper,
+        radius: radius,
+        padding: padding,
+        child: child,
+      );
+    }
     final color = switch (difficulty) {
       Difficulty.facile => const Color(0x7A0A2349),
       Difficulty.moyen => const Color(0x993F1D32),

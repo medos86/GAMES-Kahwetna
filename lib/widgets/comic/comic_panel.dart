@@ -12,6 +12,7 @@ class ComicPanel extends StatelessWidget {
     this.shadowOffset = const Offset(4, 4),
     this.radius = 12,
     this.padding = const EdgeInsets.all(12),
+    this.outlineColor = ComicPalette.ink,
   });
 
   final Widget child;
@@ -21,6 +22,9 @@ class ComicPanel extends StatelessWidget {
   final Offset shadowOffset;
   final double radius;
   final EdgeInsetsGeometry padding;
+
+  /// Couleur du contour (encre par défaut ; papier sur fond sombre).
+  final Color outlineColor;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +56,7 @@ class ComicPanel extends StatelessWidget {
               color: color,
               borderRadius: BorderRadius.circular(radius),
             ),
-            child: InkOutline(radius: radius, child: body),
+            child: InkOutline(radius: radius, color: outlineColor, child: body),
           ),
         ],
       ),

@@ -12,6 +12,12 @@ const bool kCartoonStyle = true;
 /// Quand `true`, ce thème remplace le `ThemeData` de `main.dart`.
 const bool kComicStyle = false;
 
+/// THÈME BD DU MENU (issue #96)
+/// true : le menu principal prend le style BD (cases sombres à contour papier, titre en Bangers).
+/// Indépendant de `kComicStyle` : les jeux restent en style cartoon tant que #97 n'est pas fait.
+/// À supprimer quand #97 sera fusionné.
+const bool kComicMenu = true;
+
 class GameStyle {
   const GameStyle({
     required this.felt,
