@@ -327,7 +327,7 @@ class _PlayerCard extends StatelessWidget {
 
     final die = KeyedSubtree(
       key: rolledHere ? ValueKey('roll-${game.rollId}') : ValueKey('idle-${color.name}'),
-      child: _Die(value: rolledHere ? game.dice : null, tone: tone, size: _dieSize),
+      child: LudoDie(value: rolledHere ? game.dice : null, tone: tone, size: _dieSize, animate: rolledHere),
     );
     final dieWidget = active
         ? _RollableDie(pulse: clickable, onTap: clickable ? controller.roll : null, child: die)
@@ -758,21 +758,31 @@ class _Footer extends StatelessWidget {
 }
 
 /// Dé : tourne et rebondit à chaque lancer (le widget est recréé pour chaque rollId).
-class _Die extends StatelessWidget {
-  const _Die({required this.value, required this.tone, this.size = 56});
+/// `animate` est vrai seulement pour le dé du joueur qui vient de lancer (#120) :
+/// les dés inactifs restent immobiles.
+class LudoDie extends StatelessWidget {
+  const LudoDie({
+    super.key,
+    required this.value,
+    required this.tone,
+    this.size = 56,
+    this.animate = true,
+  });
 
   final int? value;
   final Color tone;
   final double size;
+  final bool animate;
 
   @override
   Widget build(BuildContext context) {
     final face = value ?? 5;
     final pips = _pipLayout[face]!;
     final reduce = MediaQuery.disableAnimationsOf(context);
+    final still = reduce || !animate;
     return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: reduce ? Duration.zero : const Duration(milliseconds: 450),
+      tween: Tween(begin: still ? 1 : 0, end: 1),
+      duration: still ? Duration.zero : const Duration(milliseconds: 450),
       curve: Curves.elasticOut,
       builder: (context, t, child) => Transform.rotate(
         angle: (1 - t) * -200 * math.pi / 180,
