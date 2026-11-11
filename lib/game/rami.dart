@@ -619,7 +619,9 @@ String _chooseDiscard(RamiState state, int seat, RamiAiLevel level, RandomDouble
     // Difficile : évite de jeter une carte que les autres peuvent poser sur la table.
     final useful = level == RamiAiLevel.difficile &&
         state.table.any((meld) => isValidMeld([...meld.cards, card]));
-    return _keepValue(card, hand) * 2 - cardValue(card) * 0.5 + (useful ? 4 : 0);
+    // Difficile : une carte qui se combine avec la défausse (que le joueur a pu laisser passer) est gardée.
+    final pile = level == RamiAiLevel.difficile ? _keepValue(card, state.discard) : 0;
+    return _keepValue(card, hand) * 2 + pile - cardValue(card) * 0.5 + (useful ? 4 : 0);
   }
 
   var best = options.first;
