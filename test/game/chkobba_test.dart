@@ -234,5 +234,24 @@ void main() {
       final id = chooseOpponentCard(s, ChkobbaAiLevel.difficile);
       expect(s.hands[Player.opponent]!.map((c) => c.id), contains(id));
     });
+
+    test('difficile ne lit pas la main du joueur : même coup quelle que soit sa main', () {
+      final base = {
+        Player.opponent: [card(4, ChkobbaSuit.epees), card(9, ChkobbaSuit.batons)],
+      };
+      final table = [card(5, ChkobbaSuit.deniers), card(2, ChkobbaSuit.coupes)];
+      final withSeven = makeState(
+        hands: {...base, Player.player: [card(7, ChkobbaSuit.coupes)]},
+        table: table,
+      );
+      final withOne = makeState(
+        hands: {...base, Player.player: [card(1, ChkobbaSuit.batons)]},
+        table: table,
+      );
+      expect(
+        chooseOpponentCard(withSeven, ChkobbaAiLevel.difficile),
+        chooseOpponentCard(withOne, ChkobbaAiLevel.difficile),
+      );
+    });
   });
 }
