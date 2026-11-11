@@ -694,6 +694,11 @@ BidAction chooseBid(RoundState round, Seat seat, [CoincheAiLevel level = Coinche
   }
   final threshold = level == CoincheAiLevel.facile ? bidThreshold + 10 : bidThreshold;
   if (bestSuit == null || bestStrength < threshold) return const PassBid();
+  // Difficile : annonce seulement avec au moins trois atouts (maîtrise), pour ne pas surenchérir à tort.
+  if (level == CoincheAiLevel.difficile &&
+      hand.where((c) => c.suit == bestSuit).length < 3) {
+    return const PassBid();
+  }
 
   final minValue = minBidValue(round);
   final value = math.min(
@@ -739,6 +744,12 @@ String chooseCard(
   }
 
   final winner = winningPlay(round.trick, mode);
+  // Difficile : dernier pli (dix de der, 10 points) : prendre avec la carte la plus chère qui gagne.
+  if (level == CoincheAiLevel.difficile && round.tricksPlayed == 7 && teamOf(winner.seat) != teamOf(seat)) {
+    final ledSuit = round.trick.first.card.suit;
+    final winning = moves.where((c) => beats(c, winner.card, ledSuit, mode)).toList();
+    if (winning.isNotEmpty) return priciest(winning).id;
+  }
   if (teamOf(winner.seat) == teamOf(seat)) {
     if (level == CoincheAiLevel.difficile) {
       final gift = priciest(moves);
