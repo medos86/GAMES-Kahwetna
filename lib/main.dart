@@ -10,12 +10,16 @@ import 'core/i18n/app_language.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/comic_theme.dart';
 import 'core/theme/game_style.dart';
+import 'features/comic_demo/comic_demo_screen.dart';
 import 'features/menu/main_menu_screen.dart';
 import 'features/menu/menu_models.dart';
 import 'features/splash/splash_screen.dart';
 
 /// Lancer avec `flutter run --dart-define=PROBE=true` pour afficher l'écran de contrôle des tailles.
 const bool kSizeProbe = bool.fromEnvironment('PROBE');
+
+/// Lancer avec `flutter run --dart-define=COMIC_DEMO=true` pour afficher la page de démo BD (issue #98).
+const bool kComicDemo = bool.fromEnvironment('COMIC_DEMO');
 
 final _navigatorKey = GlobalKey<NavigatorState>();
 final _messengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -76,8 +80,10 @@ class KahwetneApp extends StatelessWidget {
                 error: AppColors.destructive,
               ),
             ),
-      home: kSizeProbe
-          ? const SizeProbeScreen()
+      home: kComicDemo
+          ? const ComicDemoScreen()
+          : kSizeProbe
+              ? const SizeProbeScreen()
           : const SplashScreen(next: MainMenuScreen(onPlay: _onPlay)),
     ),
     );
