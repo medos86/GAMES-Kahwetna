@@ -6,6 +6,12 @@ import 'package:flutter/material.dart';
 /// Réglé sur `true` : palette A (violet-magenta, issue #64). Pour revenir au style React : `false`.
 const bool kCartoonStyle = true;
 
+/// INTERRUPTEUR THÈME BD (issue #93)
+/// true  : thème BD (papier, encre noire, boutons jaunes) appliqué à l'application (lib/core/theme/comic_theme.dart).
+/// false : thème actuel (fond sombre). Réglé sur `false` tant que les écrans BD ne sont pas faits (#96, #97).
+/// Quand `true`, ce thème remplace le `ThemeData` de `main.dart`.
+const bool kComicStyle = false;
+
 class GameStyle {
   const GameStyle({
     required this.felt,
