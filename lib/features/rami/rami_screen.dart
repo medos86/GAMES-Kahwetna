@@ -567,10 +567,8 @@ class _RamiScreenState extends State<RamiScreen> {
     );
   }
 
+  /// Pied : seulement la main (#121 : plus de tri, de compteur ni de libellé de paquets).
   Widget _footer(double handWidth) {
-    final c = _c;
-    final hand = c.hand;
-
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
       decoration: BoxDecoration(
@@ -578,56 +576,8 @@ class _RamiScreenState extends State<RamiScreen> {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: _frameColor, width: 3),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'TA MAIN · ${hand.length} · ${rules.pointsOf(hand)} pts',
-                  style: const TextStyle(color: _inkColor, fontWeight: FontWeight.w900, fontSize: 12),
-                ),
-              ),
-              _ActionButton(label: Strings.sortSuit, onTap: () => c.sortBy(RamiSortMode.suit)),
-              const SizedBox(width: 6),
-              _ActionButton(label: Strings.sortRank, onTap: () => c.sortBy(RamiSortMode.rank)),
-            ],
-          ),
-          const SizedBox(height: 6),
-          _handRow(handWidth),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  _footerInfo(),
-                  style: TextStyle(
-                    color: _inkColor.withValues(alpha: 0.75),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+      child: _handRow(handWidth),
     );
-  }
-
-  String _footerInfo() {
-    final c = _c;
-    final count = c.groups.length;
-    if (count > 0) {
-      final plural = count > 1 ? 's' : '';
-      final opening = c.opened ? '' : ' · ${c.readyPoints + c.stagedPoints}/${rules.ramiOpenMin} pts';
-      return '$count paquet$plural prêt$plural$opening';
-    }
-    if (c.canPlay && c.selectedCards.length > 1 && !c.selectionIsMeld) {
-      return Strings.selectionNotMeld;
-    }
-    return Strings.ramiFormHint;
   }
 
   List<Widget> _actions(bool staged) {
