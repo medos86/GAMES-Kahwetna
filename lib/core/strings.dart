@@ -1,4 +1,4 @@
-import '../i18n/app_language.dart';
+import 'i18n/app_language.dart';
 
 // Libellés de l'interface (guide §0.1 règle 6 : textes identiques au source, centralisés).
 // Les textes sont des getters : ils ne sont plus utilisables dans les widgets const (issue #100).
