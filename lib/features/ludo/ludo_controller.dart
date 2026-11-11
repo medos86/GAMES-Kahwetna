@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../core/audio/sounds.dart';
 import '../../game/common.dart';
 import '../../game/ludo.dart';
 
@@ -52,10 +53,18 @@ class LudoController extends ChangeNotifier {
   bool get canRoll => humanTurn && _game.phase == LudoPhase.roll;
 
   /// Le joueur lance le dé.
-  void roll() => _setGame(rollDice(_game, _random));
+  void roll() {
+    final next = rollDice(_game, _random);
+    if (!identical(next, _game)) Sounds.play(Sfx.dice);
+    _setGame(next);
+  }
 
   /// Le joueur touche un pion (sans effet si le coup n'est pas légal).
-  void tapToken(String tokenId) => _setGame(moveToken(_game, tokenId));
+  void tapToken(String tokenId) {
+    final next = moveToken(_game, tokenId);
+    if (!identical(next, _game)) Sounds.play(Sfx.place);
+    _setGame(next);
+  }
 
   /// Nouvelle partie, mêmes joueurs et niveau.
   void restart() => _setGame(newLudoGame());
