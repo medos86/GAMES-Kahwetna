@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 /// INTERRUPTEUR ESTHÉTIQUE
 /// true  : style cartoon tunisien (tapis bleu, bordure zellige, fond village, bannières magenta et jaune).
 /// false : style d'origine du jeu React (tapis émeraude, cadre brun, fond bois, bannières jaune-orange et sky-indigo).
-/// Réglé sur `false` : rendu aligné sur l'application React d'origine.
-/// Pour revenir au style cartoon : remplacez `false` par `true` ci-dessous, puis relancez l'application.
-const bool kCartoonStyle = false;
+/// Réglé sur `true` : palette A (violet-magenta, issue #64). Pour revenir au style React : `false`.
+const bool kCartoonStyle = true;
 
 class GameStyle {
   const GameStyle({
@@ -34,16 +33,17 @@ class GameStyle {
   final List<Color> chkobbaGradient;
   final List<Color> ayaGradient;
 
+  // Palette A (issue #64) : tapis violet-magenta, cadre noir, bannières jaune-orange et rose-jaune.
   static const cartoon = GameStyle(
-    felt: Color(0xFF1E7FD8),
-    frame: Color(0xFFC8643B),
-    zellige: Color(0xFF1E5BD8),
+    felt: Color(0xFF5B2BD6),
+    frame: Color(0xFF000000),
+    zellige: Color(0xFF8E1AB8),
     zelligeAccent: Color(0xFFFFFFFF),
     outline: Color(0xFF000000),
     showZellige: true,
     villageBackground: true,
-    chkobbaGradient: [Color(0xFFF5C842), Color(0xFFF08A1C)],
-    ayaGradient: [Color(0xFFE0218A), Color(0xFF7A1A9E)],
+    chkobbaGradient: [Color(0xFFFFE14D), Color(0xFFFF8A2B)],
+    ayaGradient: [Color(0xFFFF4F9A), Color(0xFFFFE14D)],
   );
 
   // Valeurs d'origine (React) : emerald-500, cadre brun, yellow-300 → orange-500, sky-300 → indigo-600.
