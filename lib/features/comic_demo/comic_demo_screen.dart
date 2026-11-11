@@ -68,7 +68,7 @@ class _ComicDemoScreenState extends State<ComicDemoScreen> {
             _section('Case et trame'),
             HalftoneOverlay(
               child: ComicPanel(
-                color: Colors.white,
+                color: ComicPalette.paper,
                 child: Text(
                   _texts['menuChooseLevelNote'] ?? '',
                   textAlign: _arabic ? TextAlign.right : TextAlign.left,
