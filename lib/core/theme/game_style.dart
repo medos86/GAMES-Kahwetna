@@ -18,6 +18,11 @@ const bool kComicStyle = false;
 /// À supprimer quand #97 sera fusionné.
 const bool kComicMenu = true;
 
+/// THÈME BD DU CHKOBBA (issue #97)
+/// true : la bannière « Chkobba ! » devient un éclat BD (ActionBurst) qui rebondit quand la table se vide.
+/// Les règles et la donne ne changent pas. Indépendant de `kComicStyle`.
+const bool kComicChkobba = true;
+
 class GameStyle {
   const GameStyle({
     required this.felt,

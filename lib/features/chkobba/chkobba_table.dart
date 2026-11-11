@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../core/theme/game_style.dart';
+import '../../widgets/comic/action_burst.dart';
 
 const double _zelligeBand = 14;
 
@@ -99,6 +100,8 @@ class ChkobbaBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Style BD (issue #97) : éclat d'impact au lieu de la bannière dégradée.
+    if (kComicChkobba) return ActionBurst(text: text, size: 150);
     final style = GameStyle.current;
     const base = TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.1);
     return Transform.rotate(
