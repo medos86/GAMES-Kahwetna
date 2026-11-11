@@ -7,6 +7,8 @@ import 'core/layout/device_metrics.dart';
 import 'core/services/ad_free_service.dart';
 import 'core/services/toast.dart';
 import 'core/theme/app_colors.dart';
+import 'core/theme/comic_theme.dart';
+import 'core/theme/game_style.dart';
 import 'features/menu/main_menu_screen.dart';
 import 'features/menu/menu_models.dart';
 import 'features/splash/splash_screen.dart';
@@ -54,15 +56,17 @@ class KahwetneApp extends StatelessWidget {
       onGenerateRoute: (settings) => buildGameRoute(settings.name),
       debugShowCheckedModeBanner: false,
       title: 'Kahwetne',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: AppColors.background,
-        colorScheme: const ColorScheme.dark(
-          primary: AppColors.primary,
-          secondary: AppColors.secondary,
-          error: AppColors.destructive,
-        ),
-      ),
+      theme: kComicStyle
+          ? buildComicTheme()
+          : ThemeData(
+              brightness: Brightness.dark,
+              scaffoldBackgroundColor: AppColors.background,
+              colorScheme: const ColorScheme.dark(
+                primary: AppColors.primary,
+                secondary: AppColors.secondary,
+                error: AppColors.destructive,
+              ),
+            ),
       home: kSizeProbe
           ? const SizeProbeScreen()
           : const SplashScreen(next: MainMenuScreen(onPlay: _onPlay)),
