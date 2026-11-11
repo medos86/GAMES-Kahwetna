@@ -437,6 +437,19 @@ double _scoreHard(LudoState state, Token token, int dice) {
   if (from != null && _isThreatened(state, token.color, from) && (index == null || !_isThreatened(state, token.color, index))) {
     score += 2;
   }
+
+  // Menace : pions adverses 1 à 6 cases devant la nouvelle case (capturables au tour suivant).
+  if (index != null) {
+    var targets = 0;
+    for (final item in state.tokens) {
+      if (item.color == token.color) continue;
+      final at = trackIndex(item.color, item.progress);
+      if (at == null || ludoSafeIndexes.contains(at)) continue;
+      final distance = (at - index + ludoTrackLength) % ludoTrackLength;
+      if (distance >= 1 && distance <= 6) targets++;
+    }
+    score += 1.5 * targets;
+  }
   return score;
 }
 
