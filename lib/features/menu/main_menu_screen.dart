@@ -665,7 +665,7 @@ class _GlassButton extends StatelessWidget {
           constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           child: ComicPanel(
             color: _comicInk,
-            outlineColor: ComicPalette.paper,
+            outlineColor: ComicPalette.tunisBlue,
             radius: 14,
             shadowOffset: const Offset(3, 3),
             padding: square ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1258,7 +1258,7 @@ class _GlassPanel extends StatelessWidget {
     if (kComicMenu) {
       return ComicPanel(
         color: _comicInk,
-        outlineColor: ComicPalette.paper,
+        outlineColor: ComicPalette.tunisBlue,
         radius: radius,
         padding: padding,
         child: child,
