@@ -161,10 +161,11 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
             ),
             const SizedBox(height: 8),
             // Main de l'adversaire : dos des cartes, sauf celle qu'il montre.
+            // Taille réduite (≈ 0,8 × la main du joueur), comme le source React (0,9 vs 1,06).
             _Hand(
               cards: game.hands[Player.opponent]!,
-              width: cardWidth,
-              height: cardHeight,
+              width: cardWidth * 0.8,
+              height: cardHeight * 0.8,
               builder: (card) => card.id == revealed
                   ? ChkobbaCardFace(card: card, highlight: true)
                   : const ChkobbaCardBack(),
