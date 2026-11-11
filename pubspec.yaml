@@ -28,10 +28,44 @@ flutter:
     - assets/icons/
     - assets/sounds/domino/
   fonts:
-    # Roboto Slab (Apache 2.0). Nunito et Bowlby One SC : à ajouter quand les fichiers sont dans assets/fonts/.
+    # Licences : voir ATTRIBUTIONS.md (OFL pour Nunito et Bowlby One SC, Apache 2.0 pour Roboto Slab).
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-400.ttf
+          weight: 400
+        - asset: assets/fonts/Nunito-600.ttf
+          weight: 600
+        - asset: assets/fonts/Nunito-700.ttf
+          weight: 700
+        - asset: assets/fonts/Nunito-800.ttf
+          weight: 800
+        - asset: assets/fonts/Nunito-900.ttf
+          weight: 900
     - family: RobotoSlab
       fonts:
         - asset: assets/fonts/RobotoSlab-Regular.ttf
           weight: 400
+        - asset: assets/fonts/RobotoSlab-600.ttf
+          weight: 600
         - asset: assets/fonts/RobotoSlab-Bold.ttf
           weight: 700
+        - asset: assets/fonts/RobotoSlab-800.ttf
+          weight: 800
+        - asset: assets/fonts/RobotoSlab-900.ttf
+          weight: 900
+    - family: BowlbyOneSC
+      fonts:
+        - asset: assets/fonts/BowlbyOneSC-Regular.ttf
+    # Thème BD (issue #12) : titres et onomatopées en Bangers, texte arabe et repli en Tajawal.
+    - family: Bangers
+      fonts:
+        - asset: assets/fonts/Bangers-Regular.ttf
+          weight: 400
+    - family: Tajawal
+      fonts:
+        - asset: assets/fonts/Tajawal-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Tajawal-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Tajawal-ExtraBold.ttf
+          weight: 800
