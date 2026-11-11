@@ -119,7 +119,9 @@ class DominoFace extends StatelessWidget {
           : Container(height: 2, margin: const EdgeInsets.symmetric(horizontal: 3), color: _edgeColor.withValues(alpha: 0.5)),
       Expanded(child: SizedBox.expand(child: CustomPaint(painter: _HalfPainter(second, rotated: horizontal)))),
     ];
-    return Container(
+    return Semantics(
+      label: 'Domino $first et $second',
+      child: Container(
       width: width,
       height: height,
       padding: const EdgeInsets.all(3),
@@ -154,6 +156,7 @@ class DominoFace extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

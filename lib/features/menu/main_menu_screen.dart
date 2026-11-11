@@ -269,13 +269,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         ],
       );
     }
-    return Column(
+    return Semantics(
+      inMutuallyExclusiveGroup: true,
+      child: Column(
       children: [
         for (var i = 0; i < buttons.length; i++) ...[
           if (i > 0) const SizedBox(height: 12),
           buttons[i],
         ],
       ],
+      ),
     );
   }
 
@@ -323,7 +326,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     );
 
     return Pressable(
-      semanticLabel: o.label,
+      semanticLabel: active ? '${o.label}, sélectionné' : o.label,
       onTap: () => setState(() => _difficulty = o.difficulty),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
