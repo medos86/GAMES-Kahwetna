@@ -441,7 +441,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
 // =====================================================================
 
 /// Fond sombre des cases BD du menu (encre semi-transparente).
-const Color _comicInk = Color(0xE615111A);
+Color get _comicInk => ComicPalette.ink.withAlpha(0xE6);
 
 class _Background extends StatelessWidget {
   const _Background({required this.difficulty});
