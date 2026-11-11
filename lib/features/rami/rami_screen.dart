@@ -276,7 +276,7 @@ class _RamiScreenState extends State<RamiScreen> {
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () => Navigator.of(context).maybePop(),
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -292,7 +292,7 @@ class _RamiScreenState extends State<RamiScreen> {
         Expanded(
           child: Column(
             children: [
-              const Text(
+              Text(
                 Strings.headerRami,
                 style: TextStyle(
                   color: Color(0xFFFFF1BD),
@@ -339,7 +339,7 @@ class _RamiScreenState extends State<RamiScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: _creamColor,
-        title: const Text(Strings.rulesTitleRami, style: TextStyle(color: _inkColor, fontWeight: FontWeight.w900)),
+        title: Text(Strings.rulesTitleRami, style: TextStyle(color: _inkColor, fontWeight: FontWeight.w900)),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -363,7 +363,7 @@ class _RamiScreenState extends State<RamiScreen> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text(Strings.close)),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(Strings.close)),
         ],
       ),
     );
@@ -847,7 +847,7 @@ class _RamiScreenState extends State<RamiScreen> {
                     _DialogButton(label: Strings.replay, onTap: _c.restart),
                     TextButton(
                       onPressed: () => Navigator.of(context).maybePop(),
-                      child: const Text(Strings.backToMenu, style: TextStyle(color: Colors.white70)),
+                      child: Text(Strings.backToMenu, style: TextStyle(color: Colors.white70)),
                     ),
                   ] else
                     _DialogButton(label: Strings.nextRoundButton, onTap: _c.nextRound),

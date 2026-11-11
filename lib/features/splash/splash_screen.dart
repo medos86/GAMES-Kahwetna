@@ -113,7 +113,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                   ),
                   const Spacer(),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(bottom: 48),
                     child: Text(
                       Strings.splashTap,

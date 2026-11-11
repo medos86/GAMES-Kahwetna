@@ -10,7 +10,7 @@ const _purpleColor = Color(0xFF7E22CE);
 /// Une section des règles (Rules.tsx). Le texte est repris tel quel ; « ** » encadre le gras.
 typedef _RuleSection = ({String title, String? paragraph, List<String> items});
 
-const _chkobbaRules = <_RuleSection>[
+final _chkobbaRules = <_RuleSection>[
   (
     title: '🎴 Le Jeu',
     paragraph:
@@ -127,7 +127,7 @@ class _BackButton extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: onTap,
-          child: const Padding(
+          child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -172,7 +172,7 @@ class _TitleCard extends StatelessWidget {
         border: Border.all(color: Colors.black, width: 6),
         boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 10))],
       ),
-      child: const Text(
+      child: Text(
         Strings.rulesTitleChkobba,
         textAlign: TextAlign.center,
         style: TextStyle(

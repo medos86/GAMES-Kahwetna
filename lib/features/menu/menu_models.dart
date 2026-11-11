@@ -25,7 +25,7 @@ class DifficultyOption {
   final Color activeShadow;
 }
 
-const difficultyOptions = <DifficultyOption>[
+final difficultyOptions = <DifficultyOption>[
   DifficultyOption(
     difficulty: Difficulty.facile,
     label: Strings.levelEasy,
