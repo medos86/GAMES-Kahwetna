@@ -6,6 +6,7 @@ import 'core/audio/sounds.dart';
 import 'core/layout/device_metrics.dart';
 import 'core/services/ad_free_service.dart';
 import 'core/services/toast.dart';
+import 'core/i18n/app_language.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/comic_theme.dart';
 import 'core/theme/game_style.dart';
@@ -50,7 +51,15 @@ class KahwetneApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return ValueListenableBuilder<AppLanguage>(
+      valueListenable: appLanguage,
+      builder: (context, language, _) => MaterialApp(
+      locale: localeOf(language),
+      // Arabe : mise en page en RTL. Les cartes et le plateau restent gérés par leurs écrans.
+      builder: (context, child) => Directionality(
+        textDirection: isRtl(language) ? TextDirection.rtl : TextDirection.ltr,
+        child: child!,
+      ),
       navigatorKey: _navigatorKey,
       scaffoldMessengerKey: _messengerKey,
       onGenerateRoute: (settings) => buildGameRoute(settings.name),
@@ -70,6 +79,7 @@ class KahwetneApp extends StatelessWidget {
       home: kSizeProbe
           ? const SizeProbeScreen()
           : const SplashScreen(next: MainMenuScreen(onPlay: _onPlay)),
+    ),
     );
   }
 }
