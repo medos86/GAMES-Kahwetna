@@ -4,10 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/services/ad_free_service.dart';
+import '../../core/theme/comic_palette.dart';
 import '../../core/theme/game_style.dart';
 import '../../game/chkobba.dart';
 import '../../game/common.dart';
 import '../../widgets/ad_banner.dart';
+import '../../widgets/comic/comic_panel.dart';
 import '../menu/menu_models.dart';
 import 'chkobba_card_face.dart';
 import 'chkobba_controller.dart';
@@ -323,6 +325,30 @@ class _PillButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kComicChkobba) {
+      // Style BD (issue #97) : case papier à contour d'encre et ombre dure, libellé en Bangers.
+      return GestureDetector(
+        onTap: onTap,
+        child: ComicPanel(
+          color: ComicPalette.paper,
+          outlineColor: ComicPalette.ink,
+          radius: 12,
+          shadowOffset: const Offset(3, 3),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 18, color: ComicPalette.ink),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: const TextStyle(fontFamily: 'Bangers', fontSize: 18, letterSpacing: 1, color: ComicPalette.ink),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return GestureDetector(
       onTap: onTap,
       child: Container(
