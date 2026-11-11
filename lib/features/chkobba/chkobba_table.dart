@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/game_style.dart';
 import '../../widgets/comic/action_burst.dart';
 
-const double _zelligeBand = 14;
+const double _zelligeBand = 16;
 
 /// Tapis de Chkobba : cadre, feutre, coins noirs, bordure zellige (si activée), cartes en grille.
 /// `cards` contient un élément par emplacement ; null = emplacement vide.
@@ -45,7 +45,7 @@ class ChkobbaTable extends StatelessWidget {
               children: [
                 DecoratedBox(decoration: BoxDecoration(color: style.felt)),
                 CustomPaint(painter: _DotsPainter()),
-                if (style.showZellige) CustomPaint(painter: _ZelligePainter(style)),
+                if (style.showZellige) CustomPaint(painter: _ComicBorderPainter(style)),
                 // Coins noirs épais, comme les décorations du source React.
                 const Positioned(left: 8, top: 8, child: _Corner(top: true, left: true)),
                 const Positioned(right: 8, top: 8, child: _Corner(top: true, left: false)),
@@ -179,42 +179,70 @@ class _DotsPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// Bordure zellige : bande avec des losanges alternés sur les quatre côtés.
-class _ZelligePainter extends CustomPainter {
-  const _ZelligePainter(this.style);
+/// Bordure BD : bande crème avec trame de points noirs et étoiles en éclat contournées de noir.
+class _ComicBorderPainter extends CustomPainter {
+  const _ComicBorderPainter(this.style);
 
   final GameStyle style;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final band = Paint()..color = style.zellige;
-    final tile = Paint()..color = style.zelligeAccent;
     const b = _zelligeBand;
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, b), band);
-    canvas.drawRect(Rect.fromLTWH(0, size.height - b, size.width, b), band);
-    canvas.drawRect(Rect.fromLTWH(0, 0, b, size.height), band);
-    canvas.drawRect(Rect.fromLTWH(size.width - b, 0, b, size.height), band);
-    const r = b * 0.32;
+    final band = Paint()..color = style.zellige;
+    final dot = Paint()..color = style.outline.withValues(alpha: 0.33);
+    final outline = Paint()
+      ..color = style.outline
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    final burst = Paint()..color = style.zelligeAccent;
+
+    final rects = [
+      Rect.fromLTWH(0, 0, size.width, b),
+      Rect.fromLTWH(0, size.height - b, size.width, b),
+      Rect.fromLTWH(0, 0, b, size.height),
+      Rect.fromLTWH(size.width - b, 0, b, size.height),
+    ];
+    for (final r in rects) {
+      canvas.drawRect(r, band);
+      // Trame de points (halftone BD).
+      for (double y = r.top + 3; y < r.bottom; y += 4) {
+        for (double x = r.left + 3; x < r.right; x += 4) {
+          canvas.drawCircle(Offset(x, y), 1.1, dot);
+        }
+      }
+      canvas.drawRect(r, outline..strokeWidth = 1.5);
+    }
+
+    // Étoiles en éclat le long des bords.
+    const r = b * 0.36;
     for (double x = b / 2; x < size.width; x += b) {
-      _diamond(canvas, Offset(x, b / 2), r, tile);
-      _diamond(canvas, Offset(x, size.height - b / 2), r, tile);
+      _burst(canvas, Offset(x, b / 2), r, burst, outline);
+      _burst(canvas, Offset(x, size.height - b / 2), r, burst, outline);
     }
     for (double y = b / 2; y < size.height; y += b) {
-      _diamond(canvas, Offset(b / 2, y), r, tile);
-      _diamond(canvas, Offset(size.width - b / 2, y), r, tile);
+      _burst(canvas, Offset(b / 2, y), r, burst, outline);
+      _burst(canvas, Offset(size.width - b / 2, y), r, burst, outline);
     }
   }
 
-  void _diamond(Canvas canvas, Offset o, double r, Paint p) {
-    final path = Path()
-      ..moveTo(o.dx, o.dy - r)
-      ..lineTo(o.dx + r, o.dy)
-      ..lineTo(o.dx, o.dy + r)
-      ..lineTo(o.dx - r, o.dy)
-      ..close();
-    canvas.drawPath(path, p);
+  /// Étoile à 8 branches (éclat BD) : alternance rayon plein / creux.
+  void _burst(Canvas canvas, Offset o, double r, Paint fill, Paint stroke) {
+    final path = Path();
+    for (var i = 0; i < 16; i++) {
+      final radius = i.isEven ? r : r * 0.5;
+      final angle = i * math.pi / 8;
+      final p = Offset(o.dx + radius * math.cos(angle), o.dy + radius * math.sin(angle));
+      if (i == 0) {
+        path.moveTo(p.dx, p.dy);
+      } else {
+        path.lineTo(p.dx, p.dy);
+      }
+    }
+    path.close();
+    canvas.drawPath(path, fill);
+    canvas.drawPath(path, stroke);
   }
 
   @override
-  bool shouldRepaint(covariant _ZelligePainter oldDelegate) => oldDelegate.style != style;
+  bool shouldRepaint(covariant _ComicBorderPainter oldDelegate) => oldDelegate.style != style;
 }
