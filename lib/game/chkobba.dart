@@ -463,6 +463,22 @@ ChkobbaRoundScore scoreRound(ChkobbaState state) {
   return (score: score, table: remaining);
 }
 
+/// Cartes que l'IA ne voit pas : ni sur la table, ni ramassées, ni dans sa propre main.
+List<ChkobbaCard> _unseenCards(ChkobbaState state) {
+  final seen = <String>{
+    for (final c in state.table) '${c.suit.name}-${c.rank}',
+    for (final c in state.won[Player.player]!) '${c.suit.name}-${c.rank}',
+    for (final c in state.won[Player.opponent]!) '${c.suit.name}-${c.rank}',
+    for (final c in state.hands[Player.opponent]!) '${c.suit.name}-${c.rank}',
+  };
+  return [
+    for (final suit in ChkobbaSuit.values)
+      for (var rank = 1; rank <= 10; rank++)
+        if (!seen.contains('${suit.name}-$rank'))
+          ChkobbaCard(suit: suit, rank: rank, id: '${suit.name}-$rank'),
+  ];
+}
+
 /// Carreaux pris (points de fin de manche), et surtout le 7 de carreau (haya).
 int _pointsPriority(List<ChkobbaCard> captured) {
   var bonus = 0;
@@ -479,7 +495,7 @@ typedef ChkobbaAiMove = ({String cardId, bool capture});
 /// Coup de l'adversaire selon le niveau.
 /// - Facile : carte au hasard ; quand une prise existe, il ne la prend qu'environ 60 % du temps.
 /// - Moyen : évaluation gloutonne, avec priorité aux carreaux.
-/// - Difficile : deux coups d'avance, en lisant la main du joueur (choix assumé).
+/// - Difficile : deux coups d'avance, sans lire la main du joueur (cartes inconnues seulement).
 ChkobbaAiMove chooseOpponentMove(
   ChkobbaState state,
   ChkobbaAiLevel level, {
@@ -506,17 +522,17 @@ ChkobbaAiMove chooseOpponentMove(
     return (cardId: best.id, capture: true);
   }
 
-  // Difficile : pour chaque carte, on retranche le meilleur coup que le joueur peut faire ensuite
-  // sur la table qui en résulte. Une table que le joueur ramasse d'un coup coûte donc cher.
-  final playerHand = state.hands[Player.player]!;
+  // Difficile (loyal) : pour chaque carte, on retranche la meilleure réponse que le joueur pourrait
+  // faire parmi les cartes encore inconnues (ni tombées, ni dans la main de l'IA). La main du joueur n'est pas lue.
+  final unseen = _unseenCards(state);
   var bestCard = hand.first;
   var bestTotal = 0;
   var first = true;
   for (final card in hand) {
     final mine = _simulateMove(state.table, card, priority: true);
     var reply = 0;
-    if (playerHand.isNotEmpty) {
-      reply = playerHand.map((c) => _simulateMove(mine.table, c).score).reduce((a, b) => a > b ? a : b);
+    if (unseen.isNotEmpty) {
+      reply = unseen.map((c) => _simulateMove(mine.table, c).score).reduce((a, b) => a > b ? a : b);
     }
     final total = mine.score - reply;
     if (first || total > bestTotal) {
