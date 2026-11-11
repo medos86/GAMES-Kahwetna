@@ -8,6 +8,7 @@ import '../../widgets/ad_banner.dart';
 import '../menu/menu_models.dart';
 import 'ludo_controller.dart';
 import 'ludo_layout.dart';
+import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
@@ -215,7 +216,7 @@ class _Header extends StatelessWidget {
                 style: TextStyle(color: Color(0xFFFFE16B), fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 13),
               ),
               Text(
-                'لودو · $count joueur${count > 1 ? 's' : ''}',
+                count == 1 ? t('ludoPlayerOne') : tf('ludoPlayers', {'n': '$count'}),
                 style: const TextStyle(fontWeight: FontWeight.w800),
               ),
             ],
@@ -277,7 +278,8 @@ class _PlayerSlot extends StatelessWidget {
         ),
       ),
     );
-    final turned = top ? RotatedBox(quarterTurns: 2, child: card) : card;
+    // Cartes du haut : pas de rotation (#124), le texte reste lisible pour tous les joueurs.
+    final turned = card;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -36,4 +36,12 @@ void main() {
     expect(isRtl(AppLanguage.fr), isFalse);
     expect(localeOf(AppLanguage.ar).languageCode, 'ar');
   });
+
+  test('tf remplace les paramètres {n} dans la langue courante', () {
+    appLanguage.value = AppLanguage.fr;
+    expect(tf('ludoPlayers', {'n': '2'}), '2 joueurs');
+    appLanguage.value = AppLanguage.ar;
+    expect(tf('ludoPlayers', {'n': '2'}), '2 لاعبين');
+    appLanguage.value = AppLanguage.fr;
+  });
 }

@@ -20,3 +20,10 @@ String t(String key) {
   }
   return frTexts[key] ?? key;
 }
+
+/// Texte avec remplacements `{nom}` (ex. `tf('ludoPlayers', {'n': '2'})`). Repli sur la clé.
+String tf(String key, Map<String, String> args) {
+  var text = t(key);
+  args.forEach((name, value) => text = text.replaceAll('{$name}', value));
+  return text;
+}

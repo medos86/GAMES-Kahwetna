@@ -93,6 +93,8 @@ const Map<String, String> frTexts = {
   'gameLudo': 'Ludo',
   'gameRami': 'Rami',
   'tagline': 'Lamma, rire et jeu tunisien',
+  'ludoPlayerOne': '1 joueur',
+  'ludoPlayers': '{n} joueurs',
 };
 
 const Map<String, String> arTexts = {
@@ -185,4 +187,6 @@ const Map<String, String> arTexts = {
   'gameLudo': 'لودو',
   'gameRami': 'رامي',
   'tagline': 'لمّـة، ضحكة ولعبة تونسية',
+  'ludoPlayerOne': 'لاعب واحد',
+  'ludoPlayers': '{n} لاعبين',
 };
