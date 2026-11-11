@@ -23,6 +23,9 @@ const bool kComicMenu = true;
 /// Les règles et la donne ne changent pas. Indépendant de `kComicStyle`.
 const bool kComicChkobba = true;
 
+/// THÈME BD DU DOMINO (issue #97) : bouton « Menu » en case BD. Règles inchangées.
+const bool kComicDomino = true;
+
 class GameStyle {
   const GameStyle({
     required this.felt,

@@ -2,6 +2,10 @@ import 'dart:math' as math;
 
 import '../../core/audio/sounds.dart';
 import 'package:flutter/material.dart';
+
+import '../../core/theme/comic_palette.dart';
+import '../../core/theme/game_style.dart';
+import '../../widgets/comic/comic_panel.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../../core/layout/device_metrics.dart';
@@ -148,7 +152,7 @@ class _Header extends StatelessWidget {
         Pressable(
           semanticLabel: 'Menu',
           onTap: onMenu,
-          child: Container(
+          child: kComicDomino ? _comicMenuPill(unit) : Container(
             padding: EdgeInsets.symmetric(horizontal: unit, vertical: unit * 0.55),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -821,4 +825,23 @@ class _OverlayButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Bouton « Menu » du Domino en case BD (issue #97).
+Widget _comicMenuPill(double unit) {
+  return ComicPanel(
+    color: ComicPalette.paper,
+    outlineColor: ComicPalette.ink,
+    radius: 12,
+    shadowOffset: const Offset(3, 3),
+    padding: EdgeInsets.symmetric(horizontal: unit, vertical: unit * 0.55),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.arrow_back, size: unit, color: ComicPalette.ink),
+        SizedBox(width: unit * 0.4),
+        Text('Menu', style: TextStyle(fontFamily: 'Bangers', fontSize: unit * 0.95, letterSpacing: 1, color: ComicPalette.ink)),
+      ],
+    ),
+  );
 }
