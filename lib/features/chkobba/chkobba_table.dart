@@ -189,9 +189,9 @@ class _ComicBorderPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     const b = _zelligeBand;
     final band = Paint()..color = style.zellige;
-    final dot = Paint()..color = const Color(0x55000000);
+    final dot = Paint()..color = style.outline.withValues(alpha: 0.33);
     final outline = Paint()
-      ..color = Colors.black
+      ..color = style.outline
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
     final burst = Paint()..color = style.zelligeAccent;
