@@ -29,7 +29,7 @@ class AdBanner extends StatelessWidget {
             child: const Icon(Icons.campaign, size: 20, color: Color(0xFF513800)),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -52,7 +52,7 @@ class AdBanner extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0x33FFFFFF)),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(Strings.adSee, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white)),

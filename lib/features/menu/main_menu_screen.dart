@@ -236,7 +236,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                           const SizedBox(height: 8),
                           _playerRow(),
                           const SizedBox(height: 8),
-                          const Text(
+                          Text(
                             Strings.menuAiSeatsNote,
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0x99FFFFFF)),
@@ -569,7 +569,7 @@ class _Header extends StatelessWidget {
           _GlassButton(
             onTap: onBack,
             semanticLabel: Strings.menuBackToGames,
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.arrow_back, size: 20),
@@ -1129,7 +1129,7 @@ class _DifficultyTitle extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           Strings.menuChooseLevelNote,
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xCCFFFFFF)),

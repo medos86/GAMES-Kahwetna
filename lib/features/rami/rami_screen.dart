@@ -276,7 +276,7 @@ class _RamiScreenState extends State<RamiScreen> {
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () => Navigator.of(context).maybePop(),
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -292,7 +292,7 @@ class _RamiScreenState extends State<RamiScreen> {
         Expanded(
           child: Column(
             children: [
-              const Text(
+              Text(
                 Strings.headerRami,
                 style: TextStyle(
                   color: Color(0xFFFFF1BD),
