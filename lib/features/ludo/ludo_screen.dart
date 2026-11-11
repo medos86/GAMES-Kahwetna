@@ -212,7 +212,7 @@ class _Header extends StatelessWidget {
                 children: [
                   Icon(Icons.arrow_back, size: 18, color: Color(0xFF0B3F7A)),
                   SizedBox(width: 4),
-                  Text('Menu', style: TextStyle(color: Color(0xFF0B3F7A), fontWeight: FontWeight.w900)),
+                  Text(Strings.menuLabel, style: TextStyle(color: Color(0xFF0B3F7A), fontWeight: FontWeight.w900)),
                 ],
               ),
             ),
@@ -483,7 +483,7 @@ class _Board extends StatelessWidget {
         final u = side / ludoBoardUnits;
         final legal = controller.legalIds;
         return Semantics(
-          label: 'Plateau de Ludo',
+          label: t('ludoBoard'),
           child: SizedBox(
             width: side,
             height: side,
@@ -903,12 +903,12 @@ class _EndDialog extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                         onPressed: controller.restart,
-                        child: const Text('Rejouer', style: TextStyle(fontWeight: FontWeight.w900)),
+                        child: Text(t('replay'), style: TextStyle(fontWeight: FontWeight.w900)),
                       ),
                     ),
                     TextButton(
                       onPressed: onMenu,
-                      child: const Text('Retour au menu', style: TextStyle(color: Colors.white60)),
+                      child: Text(t('backToMenu'), style: TextStyle(color: Colors.white60)),
                     ),
                   ],
                 ),

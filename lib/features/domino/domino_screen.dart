@@ -9,6 +9,7 @@ import '../../widgets/comic/comic_panel.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../../core/layout/device_metrics.dart';
+import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
 import '../../game/common.dart';
 import '../../game/domino.dart';
@@ -150,7 +151,7 @@ class _Header extends StatelessWidget {
     return Row(
       children: [
         Pressable(
-          semanticLabel: 'Menu',
+          semanticLabel: Strings.menuLabel,
           onTap: onMenu,
           child: kComicDomino ? _comicMenuPill(unit) : Container(
             padding: EdgeInsets.symmetric(horizontal: unit, vertical: unit * 0.55),
@@ -167,7 +168,7 @@ class _Header extends StatelessWidget {
               children: [
                 Icon(Icons.arrow_back, size: unit, color: const Color(0xFF7E22CE)),
                 SizedBox(width: unit * 0.4),
-                Text('Menu', style: TextStyle(fontWeight: FontWeight.w900, fontSize: unit * 0.85, color: const Color(0xFF7E22CE))),
+                Text(Strings.menuLabel, style: TextStyle(fontWeight: FontWeight.w900, fontSize: unit * 0.85, color: const Color(0xFF7E22CE))),
               ],
             ),
           ),
@@ -270,7 +271,7 @@ class _ScoreStrip extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _ScoreBox(
-            label: 'Vous',
+            label: t('you'),
             value: game.scores[Player.player]!,
             color: const Color(0xFF047857),
             active: turnIsPlayer,
@@ -278,7 +279,7 @@ class _ScoreStrip extends StatelessWidget {
           ),
           _Pile(unit: unit, count: game.boneyard.length, bounce: mustDraw && game.boneyard.isNotEmpty),
           _ScoreBox(
-            label: 'Adv.',
+            label: t('opponentShort'),
             value: game.scores[Player.opponent]!,
             color: const Color(0xFFB91C1C),
             active: turnIsOpponent,
@@ -304,7 +305,7 @@ class _ScoreBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Score ${label == 'Vous' ? 'vous' : 'adversaire'} : $value',
+      label: 'Score ${label == t('you') ? 'vous' : 'adversaire'} : $value',
       excludeSemantics: true,
       child: Row(
       mainAxisSize: MainAxisSize.min,
@@ -326,7 +327,7 @@ class _ScoreBox extends StatelessWidget {
           ),
           child: Text('$value', style: TextStyle(fontSize: unit * 1.4, fontWeight: FontWeight.w900, color: color)),
         ),
-        if (label == 'Vous') ...[
+        if (label == t('you')) ...[
           SizedBox(width: unit * 0.3),
           Text(label.toUpperCase(), style: TextStyle(fontSize: unit * 0.7, fontWeight: FontWeight.w900, color: color)),
         ],
@@ -381,7 +382,7 @@ class _Pile extends StatelessWidget {
             ],
           ),
         ),
-        Text('PIOCHE', style: TextStyle(fontSize: unit * 0.55, fontWeight: FontWeight.w900, letterSpacing: 1, color: const Color(0xFF17213D))),
+        Text(t('draw'), style: TextStyle(fontSize: unit * 0.55, fontWeight: FontWeight.w900, letterSpacing: 1, color: const Color(0xFF17213D))),
       ],
       ),
     );
@@ -552,7 +553,7 @@ class _Footer extends StatelessWidget {
     final playable = controller.playable.map((t) => t.id).toSet();
     final canAct = game.turn == Player.player && game.roundWinner == null;
 
-    final label = game.boneyard.isNotEmpty ? 'Piocher' : 'Passer';
+    final label = game.boneyard.isNotEmpty ? t('pickUp') : t('pass');
 
     return Container(
       padding: const EdgeInsets.all(10),
@@ -600,7 +601,7 @@ class _Footer extends StatelessWidget {
             height: sm ? 96 : 76,
             child: game.hands[Player.player]!.isEmpty
                 ? const Center(
-                    child: Text('Main vide — belle pose !', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0x9920284B))),
+                    child: Text(t('emptyHand'), style: TextStyle(fontWeight: FontWeight.w700, color: Color(0x9920284B))),
                   )
                 : _HandScroller(
                     children: [
@@ -791,7 +792,7 @@ class _RoundOverlay extends StatelessWidget {
                 Pressable(
                   semanticLabel: 'Retour au menu',
                   onTap: onMenu,
-                  child: const Text('Retour au menu', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0x99FFFFFF))),
+                  child: Text(t('backToMenu'), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0x99FFFFFF))),
                 ),
               ],
             ),
@@ -840,7 +841,7 @@ Widget _comicMenuPill(double unit) {
       children: [
         Icon(Icons.arrow_back, size: unit, color: ComicPalette.ink),
         SizedBox(width: unit * 0.4),
-        Text('Menu', style: TextStyle(fontFamily: 'Bangers', fontSize: unit * 0.95, letterSpacing: 1, color: ComicPalette.ink)),
+        Text(Strings.menuLabel, style: TextStyle(fontFamily: 'Bangers', fontSize: unit * 0.95, letterSpacing: 1, color: ComicPalette.ink)),
       ],
     ),
   );
