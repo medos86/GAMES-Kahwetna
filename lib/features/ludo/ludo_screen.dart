@@ -439,13 +439,19 @@ class _RollableDieState extends State<_RollableDie> with SingleTickerProviderSta
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: widget.onTap,
-        child: AnimatedBuilder(
-          animation: _pulse,
-          child: widget.child,
-          builder: (context, child) {
-            final scale = (widget.pulse && !reduce) ? 1 + 0.08 * _pulse.value : 1.0;
-            return Transform.scale(scale: scale, child: child);
-          },
+        // Cible tactile d'au moins 44 px (issue #23), même si le dé affiché est plus petit.
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+          child: Center(
+            child: AnimatedBuilder(
+              animation: _pulse,
+              child: widget.child,
+              builder: (context, child) {
+                final scale = (widget.pulse && !reduce) ? 1 + 0.08 * _pulse.value : 1.0;
+                return Transform.scale(scale: scale, child: child);
+              },
+            ),
+          ),
         ),
       ),
     );
