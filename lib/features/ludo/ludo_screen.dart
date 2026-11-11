@@ -1,10 +1,13 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../../game/ludo.dart';
 import '../../widgets/ad_banner.dart';
+import '../../core/strings.dart';
+import '../../widgets/comic/comic_pill.dart';
 import '../menu/menu_models.dart';
 import 'ludo_controller.dart';
 import 'ludo_layout.dart';
@@ -189,7 +192,13 @@ class _Header extends StatelessWidget {
     final count = controller.playerCount;
     return Row(
       children: [
-        Material(
+        kComicLudo
+            ? ComicPill(
+                label: Strings.menuLabel,
+                icon: Icons.arrow_back,
+                onTap: () => Navigator.of(context).maybePop(),
+              )
+            : Material(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
