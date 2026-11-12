@@ -199,7 +199,7 @@ const Map<String, String> arTexts = {
   'settingsTitle': 'الإعدادات',
   'settingsDisplay': 'العرض',
   'settingsLanguage': 'اللغة',
-  'langFrench': 'Français',
+  'langFrench': 'الفرنسية',
   'langArabic': 'عربي',
   'opponent': 'الخصم',
   'roundPoints': 'نقاط الجولة',
