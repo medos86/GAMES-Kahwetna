@@ -152,3 +152,14 @@ Pour le retirer, supprimer `splash_screen.dart` et pointer l'accueil vers le men
   - `true` : tapis bleu, bordure zellige, cadre terracotta, accents magenta et jaune.
   - `false` : style d'origine du jeu React (tapis vert, cadre brun, bannières jaune-orange et sky-indigo).
 - Réglage actuel : `false`. Pour le style cartoon, remplacez `false` par `true`, puis relancez l'application.
+
+## Version de Flutter (CI)
+
+Tous les workflows (`analyze.yml`, `apk.yml`, `goldens.yml`, `screenshots.yml`) épinglent la même version de Flutter (`flutter-version:`), pour des builds reproductibles.
+
+Pour la mettre à jour :
+
+1. Choisir la nouvelle version stable sur https://docs.flutter.dev/release/whats-new (la version de Dart doit rester compatible avec `sdk:` dans `pubspec.yaml`).
+2. Remplacer `flutter-version: '…'` dans les 4 workflows par la même valeur.
+3. Lancer `analyze.yml` sur une branche et attendre le vert avant de fusionner sur `main`.
+4. Mettre à jour cette section si la version change de majeure.
