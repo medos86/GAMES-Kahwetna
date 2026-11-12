@@ -689,12 +689,14 @@ class _RoundCard extends StatelessWidget {
   final ChkobbaRoundScore summary;
   final VoidCallback onContinue;
 
-  static final _categories = <({String label, bool Function(String) matches})>[
-    (label: 'Chkobba', matches: (l) => l.startsWith('Chkobba')),
-    (label: 'Haya · 7♦', matches: (l) => l.startsWith('Haya')),
-    (label: 'Cartes', matches: (l) => l == 'Cartes'),
-    (label: 'Deniers', matches: (l) => l == 'Deniers'),
-    (label: 'Bermila', matches: (l) => l == 'Bermila'),
+  // La correspondance porte sur le libellé français produit par la logique du jeu (inchangé).
+  // Seul l'affichage est traduit, avec une clé lue à chaque build (pas de cache de langue).
+  static final _categories = <({String key, bool Function(String) matches})>[
+    (key: 'catChkobba', matches: (l) => l.startsWith('Chkobba')),
+    (key: 'catHaya', matches: (l) => l.startsWith('Haya')),
+    (key: 'catCards', matches: (l) => l == 'Cartes'),
+    (key: 'catDeniers', matches: (l) => l == 'Deniers'),
+    (key: 'catBermila', matches: (l) => l == 'Bermila'),
   ];
 
   int _pointsFor(Player p, bool Function(String) matches) =>
@@ -807,7 +809,7 @@ class _RoundCard extends StatelessWidget {
                                   : const Border(top: BorderSide(color: Color(0xFFB8C5AD), width: 2)),
                             ),
                             child: _row(
-                              _categories[i].label,
+                              t(_categories[i].key),
                               _show(_pointsFor(Player.player, _categories[i].matches)),
                               _show(_pointsFor(Player.opponent, _categories[i].matches)),
                             ),
