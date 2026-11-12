@@ -16,6 +16,7 @@ import '../../core/services/ad_free_service.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../widgets/comic/comic_panel.dart';
 import '../../widgets/exit_guard.dart';
+import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 
@@ -98,7 +99,7 @@ class _CoincheScreenState extends State<CoincheScreen> {
                     decoration: BoxDecoration(color: Color(0xFF8B4513)),
                   ),
                 ),
-                SafeArea(
+                GameSafeArea(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
                       12,
