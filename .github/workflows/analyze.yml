@@ -25,6 +25,10 @@ jobs:
       - name: Dépendances
         run: flutter pub get
 
+      - name: Formatage (dart format)
+        # Le pipeline échoue si un fichier Dart n'est pas formaté.
+        run: dart format --output=none --set-exit-if-changed .
+
       - name: Analyse statique (erreurs de compilation)
         # Les infos (ex. dépréciations de material.dart) ne bloquent pas : seules les erreurs et avertissements comptent.
         run: flutter analyze --no-fatal-infos
