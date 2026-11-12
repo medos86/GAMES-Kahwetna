@@ -637,6 +637,33 @@ class _ChoiceButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kComicCoinche) {
+      // Case BD (#156) : papier, jaune quand sélectionnée, libellé en Bangers.
+      return Semantics(
+        button: true,
+        selected: selected,
+        enabled: enabled,
+        label: semanticsLabel,
+        child: Opacity(
+          opacity: enabled ? 1 : 0.3,
+          child: GestureDetector(
+            onTap: enabled ? onTap : null,
+            child: ComicPanel(
+              color: selected ? ComicPalette.yellow : ComicPalette.paper,
+              radius: 10,
+              shadowOffset: const Offset(2, 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              child: Center(
+                child: Text(
+                  label,
+                  style: TextStyle(fontFamily: 'Bangers', fontSize: 20, letterSpacing: 1, color: ComicPalette.ink),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return Semantics(
       button: true,
       selected: selected,
