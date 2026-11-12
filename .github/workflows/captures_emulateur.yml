@@ -1,7 +1,7 @@
 # Captures d'écran sur émulateur Android (issue #206). Manuel uniquement :
 # Actions → « Captures d'écran émulateur » → Run workflow.
 # Les PNG sont dans l'artifact « captures-emulateur ». Ne bloque pas analyze.yml.
-# Encoche : l'émulateur n'expose pas encore de vraie découpe d'écran ; à compléter (voir #206).
+# Encoche : simulée dans integration_test (marge haute de 36 px via MediaQuery).
 name: Captures d'écran émulateur
 
 on:
