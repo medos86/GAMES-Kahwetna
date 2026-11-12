@@ -442,7 +442,7 @@ class _Scoreboard extends StatelessWidget {
             child: _DeckPile(count: game.deck.length),
           ),
           _ScoreSide(
-            name: 'Adversaire',
+            name: t('opponent'),
             score: game.scores[Player.opponent]!,
             chkobbas: game.chkobbas[Player.opponent]!,
             cards: game.won[Player.opponent]!.length,
@@ -566,8 +566,8 @@ class _DeckPile extends StatelessWidget {
             ],
           ),
         ),
-        const Text(
-          'PIOCHE',
+        Text(
+          t('draw'),
           style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Color(0xFF17213D)),
         ),
       ],
