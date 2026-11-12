@@ -12,7 +12,7 @@ Portage Flutter des jeux de cartes kahwetne (Chkobba, Domino, Belote/Coinche, Lu
 | Ludo | `lib/game/ludo.dart` | `chooseMove` par niveau | `ludo_screen.dart`, `ludo_layout.dart` | `test/game/ludo_test.dart`, `test/features/ludo_*` |
 | Rami | `lib/game/rami.dart` | `aiStep` par niveau | `rami_screen.dart` | `test/game/rami_test.dart`, `test/features/rami_controller_test.dart` |
 
-Le parité TS ↔ Dart n'existe que pour le Domino ; elle reste à étendre à Chkobba (voir les issues ouvertes).
+La parité TS ↔ Dart n'existe que pour le Domino, et les fixtures sont figées : le projet React n'est plus maintenu, la référence est désormais l'app Flutter elle-même.
 
 ## Mise en place
 
@@ -58,9 +58,10 @@ Si l'un de ces paquets est adopté plus tard, l'ajouter à `pubspec.yaml` et met
 ## Tests
 
 - `test/layout/` : règles de taille (formules CSS du source).
-- `test/parity/domino_parity_test.dart` : rejoue 8 parties de référence (245 actions) générées par le
-  code `domino.ts`. Pour chaque action, il compare l'état complet et l'identité du retour.
-  Le hasard est enregistré côté TypeScript et rejoué côté Dart, donc les donnes sont identiques.
+- `test/parity/domino_parity_test.dart` : test de non-régression. Rejoue 8 parties (245 actions) enregistrées
+  à partir de l'ancien code `domino.ts`, et compare l'état complet et l'identité du retour à chaque action.
+  Le hasard est rejoué depuis les tirages enregistrés. Les fixtures ne sont plus régénérées : si une règle
+  Domino change volontairement, mettre à jour le JSON dans le même commit.
 - Les fixtures sont dans `test/parity/fixtures/domino_parity.json`.
 - `test/game/` : règles pures de chaque jeu. `test/features/` : contrôleurs et widgets.
 
