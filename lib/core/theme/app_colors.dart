@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Palette issue de src/styles/theme.css (:root).
 abstract final class AppColors {

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Équivalent de `whileTap` (motion/react) : réduit légèrement le bouton à l'appui.
 class Pressable extends StatefulWidget {

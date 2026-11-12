@@ -1,5 +1,5 @@
 // Écran des règles de la Chkobba : titre et six sections du source (Rules.tsx).
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/chkobba/chkobba_rules_screen.dart';
 

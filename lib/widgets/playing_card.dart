@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Carte à jouer générique (guide §8) : gère le dos, la sélection et le tap.
 /// Le contenu de la face est fourni par l'appelant (ex. ChkobbaCardFace).

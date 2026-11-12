@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Équivalent des entrées `motion.div initial/animate` : fondu + léger glissement, avec délai.
 class FadeSlideIn extends StatefulWidget {

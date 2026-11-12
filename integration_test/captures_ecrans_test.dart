@@ -3,7 +3,7 @@
 // Chaque écran est ouvert, laissé quelques secondes, puis capturé.
 // Encoche simulée : une marge haute de 36 px est imposée à MediaQuery, comme le ferait
 // une caméra découpée. Les écrans doivent la respecter (boutons sous la caméra, pas dessous).
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:kahwetne/features/chkobba/chkobba_rules_screen.dart';

@@ -6,7 +6,7 @@
 // Router (/game?difficulty=facile&target=11), donc un passage à go_router reste
 // possible sans changer les écrans.
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../features/chkobba/chkobba_screen.dart';
 import '../features/coinche/coinche_screen.dart';
