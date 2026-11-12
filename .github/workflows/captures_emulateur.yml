@@ -32,6 +32,9 @@ jobs:
       - name: Dépendances
         run: flutter pub get
 
+      - name: Générer le projet Android (non commité, #210)
+        run: flutter create . --platforms=android --project-name kahwetne --org com.kahwetne
+
       - name: Captures sur émulateur
         uses: reactivecircus/android-emulator-runner@v2
         with:
