@@ -37,7 +37,7 @@ Future<bool?> showLeaveDialog(BuildContext context, {required String title, requ
   return showDialog<bool>(
     context: context,
     builder: (ctx) => Dialog(
-      backgroundColor: Colors.transparent,
+      backgroundColor: ComicPalette.paper.withAlpha(0),
       insetPadding: const EdgeInsets.all(24),
       child: ComicPanel(
         color: ComicPalette.paper,
