@@ -579,7 +579,7 @@ class _Footer extends StatelessWidget {
                 child: Pressable(
                 semanticLabel: game.boneyard.isEmpty ? '$label, ${Strings.dominoDrawUnavailable}' : label,
                 onTap: () => _onDraw(context),
-                child: Container(
+                child: kComicDomino ? _comicDrawChip(label) : Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(colors: [Color(0xFFFF5A3C), Color(0xFFD71920)]),
@@ -843,6 +843,20 @@ Widget _comicMenuPill(double unit) {
         SizedBox(width: unit * 0.4),
         Text(Strings.menuLabel, style: TextStyle(fontFamily: 'Bangers', fontSize: unit * 0.95, letterSpacing: 1, color: ComicPalette.ink)),
       ],
+    ),
+  );
+}
+
+/// Bouton « Piocher / Passer » en case BD (#146) : rouge, contour encre, libellé en Bangers.
+Widget _comicDrawChip(String label) {
+  return ComicPanel(
+    color: ComicPalette.red,
+    radius: 8,
+    shadowOffset: const Offset(3, 3),
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: Text(
+      label,
+      style: const TextStyle(fontFamily: 'Bangers', fontSize: 20, letterSpacing: 1, color: ComicPalette.paper),
     ),
   );
 }
