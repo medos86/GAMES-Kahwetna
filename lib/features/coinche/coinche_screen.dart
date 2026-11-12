@@ -14,6 +14,8 @@ import '../menu/menu_models.dart';
 import 'coinche_card_view.dart';
 import 'coinche_controller.dart';
 import '../../core/services/ad_free_service.dart';
+import '../../core/theme/comic_palette.dart';
+import '../../widgets/comic/comic_panel.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
 const _feltColor = Color(0xFF10B981);
@@ -683,6 +685,37 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kComicCoinche) {
+      // Bouton BD (#146) : case papier, rouge pour le danger, jaune pour l'action principale.
+      final fill = danger ? ComicPalette.red : (primary ? ComicPalette.yellow : ComicPalette.paper);
+      final ink = danger ? ComicPalette.paper : ComicPalette.ink;
+      return Opacity(
+        opacity: enabled ? 1 : 0.4,
+        child: Semantics(
+          button: true,
+          enabled: enabled,
+          label: label,
+          child: GestureDetector(
+            onTap: enabled ? onTap : null,
+            child: ComicPanel(
+              color: fill,
+              radius: 12,
+              shadowOffset: const Offset(3, 3),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 24, minWidth: 86),
+                child: Center(
+                  child: Text(
+                    label,
+                    style: TextStyle(fontFamily: 'Bangers', fontSize: 18, letterSpacing: 1, color: ink),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     final Color background = danger
         ? const Color(0xFFD71920)
         : primary
