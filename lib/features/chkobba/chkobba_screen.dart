@@ -21,6 +21,7 @@ import '../../widgets/exit_guard.dart';
 import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
+import '../../widgets/difficulty_chip.dart';
 
 /// Écran de jeu de la Chkobba, fidèle à GameScreen.tsx : scores, pioche, tapis, mains,
 /// bannière de tour, Haya, choix de prise et récapitulatif de manche.
@@ -158,6 +159,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                     onTap: () => Navigator.of(context).pop(),
                   ),
                   const Spacer(),
+                  DifficultyChip(difficulty: widget.difficulty),
+                  const SizedBox(width: 8),
                   _PillButton(
                     label: t('chkobbaRules'),
                     icon: Icons.menu_book,

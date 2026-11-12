@@ -17,6 +17,7 @@ import '../../widgets/exit_guard.dart';
 import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
+import '../../widgets/difficulty_chip.dart';
 
 /// Facteur d'agrandissement des cartes Rami (lisibilité sur téléphone).
 const double _ramiCardScale = 1.35;
@@ -364,9 +365,17 @@ class _RamiScreenState extends State<RamiScreen> {
                   fontSize: 13,
                 ),
               ),
-              Text(
-                tf('round', {'n': '${g.round}'}),
-                style: const TextStyle(fontWeight: FontWeight.w800),
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 6,
+                children: [
+                  Text(
+                    tf('round', {'n': '${g.round}'}),
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  DifficultyChip(difficulty: widget.difficulty),
+                ],
               ),
             ],
           ),
