@@ -14,6 +14,7 @@ import 'ludo_controller.dart';
 import 'ludo_layout.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
+import '../../widgets/exit_guard.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
 const _ink = Color(0xFF20284B);
@@ -108,7 +109,9 @@ class _LudoScreenState extends State<LudoScreen> {
     final size = MediaQuery.sizeOf(context);
     final landscapeShort = size.width > size.height && size.height <= 520;
 
-    return Scaffold(
+    return ExitGuard(
+      active: !_controller.roundOver,
+      child: Scaffold(
       body: DecoratedBox(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -180,6 +183,7 @@ class _LudoScreenState extends State<LudoScreen> {
           },
         ),
       ),
+    ),
     );
   }
 }

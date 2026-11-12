@@ -16,6 +16,7 @@ import 'coinche_controller.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../widgets/comic/comic_panel.dart';
+import '../../widgets/exit_guard.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
 const _feltColor = Color(0xFF10B981);
@@ -73,7 +74,9 @@ class _CoincheScreenState extends State<CoincheScreen> {
     final size = MediaQuery.sizeOf(context);
     final metrics = DeviceMetrics(width: size.width, height: size.height);
 
-    return Scaffold(
+    return ExitGuard(
+      active: _controller.match.winner == null,
+      child: Scaffold(
       backgroundColor: const Color(0xFF8B4513),
       body: ListenableBuilder(
         listenable: _controller,
@@ -110,6 +113,7 @@ class _CoincheScreenState extends State<CoincheScreen> {
           );
         },
       ),
+    ),
     );
   }
 }

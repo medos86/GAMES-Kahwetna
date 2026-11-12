@@ -3,11 +3,13 @@ import 'dart:ui' show ImageFilter;
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../core/theme/comic_palette.dart';
 import '../../core/theme/game_style.dart';
 import '../../widgets/comic/comic_panel.dart';
+import '../../widgets/exit_guard.dart';
 import '../../widgets/comic/halftone_overlay.dart';
 import '../../widgets/fade_slide_in.dart';
 import '../settings/settings_screen.dart';
@@ -119,7 +121,26 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     final sm = vw >= 640; // breakpoint sm de Tailwind
     final md = vw >= 768;
 
-    return Scaffold(
+    return PopScope(
+      // Retour système : d'abord revenir de l'écran de difficulté, puis demander confirmation avant de fermer l'app (#117).
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        if (_screen == _MenuScreen.difficulty) {
+          setState(() {
+            _difficulty = Difficulty.facile;
+            _screen = _MenuScreen.menu;
+          });
+          return;
+        }
+        final leave = await showLeaveDialog(
+          context,
+          title: Strings.exitAppTitle,
+          body: Strings.exitAppBody,
+        );
+        if (leave == true) SystemNavigator.pop();
+      },
+      child: Scaffold(
       backgroundColor: const Color(0xFF2BB8EA),
       body: Stack(
         children: [
@@ -168,6 +189,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

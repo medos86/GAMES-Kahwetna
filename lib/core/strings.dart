@@ -41,6 +41,12 @@ abstract final class Strings {
   static String get adSeeSemantic => t('adSeeSemantic');
   static String get adSee => t('adSee');
   static String get adDemoToast => t('adDemoToast');
+  static String get exitGameTitle => t('exitGameTitle');
+  static String get exitGameBody => t('exitGameBody');
+  static String get exitStay => t('exitStay');
+  static String get exitLeave => t('exitLeave');
+  static String get exitAppTitle => t('exitAppTitle');
+  static String get exitAppBody => t('exitAppBody');
   static String get suitCarreau => t('suitCarreau');
   static String get suitCoeur => t('suitCoeur');
   static String get suitPique => t('suitPique');

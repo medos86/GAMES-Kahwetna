@@ -14,6 +14,7 @@ import '../../core/strings.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/theme/game_style.dart';
 import '../../core/services/ad_free_service.dart';
+import '../../widgets/exit_guard.dart';
 
 /// Facteur d'agrandissement des cartes Rami (lisibilité sur téléphone).
 const double _ramiCardScale = 1.35;
@@ -234,7 +235,9 @@ class _RamiScreenState extends State<RamiScreen> {
     // Cartes agrandies sur l'écran Rami (la formule de DeviceMetrics reste celle du source).
     final handWidth = metrics.ramiHandCardWidth * _ramiCardScale;
 
-    return Scaffold(
+    return ExitGuard(
+      active: _c.game.matchWinner == null,
+      child: Scaffold(
       backgroundColor: _woodColor,
       body: ListenableBuilder(
         listenable: _c,
@@ -267,6 +270,7 @@ class _RamiScreenState extends State<RamiScreen> {
           );
         },
       ),
+    ),
     );
   }
 
