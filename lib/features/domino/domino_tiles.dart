@@ -24,7 +24,14 @@ const _pipLayouts = <int, List<String>>{
   3: ['top-left', 'center', 'bottom-right'],
   4: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
   5: ['top-left', 'top-right', 'center', 'bottom-left', 'bottom-right'],
-  6: ['top-left', 'top-right', 'middle-left', 'middle-right', 'bottom-left', 'bottom-right'],
+  6: [
+    'top-left',
+    'top-right',
+    'middle-left',
+    'middle-right',
+    'bottom-left',
+    'bottom-right',
+  ],
 };
 
 /// Une moitié de domino : des points à 18 % du bord, comme le CSS source.
@@ -114,50 +121,69 @@ class DominoFace extends StatelessWidget {
   Widget build(BuildContext context) {
     final halves = [
       // SizedBox.expand : sans cela, CustomPaint garde une taille nulle dans l'axe libre et rien ne s'affiche.
-      Expanded(child: SizedBox.expand(child: CustomPaint(painter: _HalfPainter(first, rotated: horizontal)))),
+      Expanded(
+        child: SizedBox.expand(
+          child: CustomPaint(painter: _HalfPainter(first, rotated: horizontal)),
+        ),
+      ),
       horizontal
-          ? Container(width: 2, margin: const EdgeInsets.symmetric(vertical: 3), color: _edgeColor.withValues(alpha: 0.5))
-          : Container(height: 2, margin: const EdgeInsets.symmetric(horizontal: 3), color: _edgeColor.withValues(alpha: 0.5)),
-      Expanded(child: SizedBox.expand(child: CustomPaint(painter: _HalfPainter(second, rotated: horizontal)))),
+          ? Container(
+              width: 2,
+              margin: const EdgeInsets.symmetric(vertical: 3),
+              color: _edgeColor.withValues(alpha: 0.5),
+            )
+          : Container(
+              height: 2,
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              color: _edgeColor.withValues(alpha: 0.5),
+            ),
+      Expanded(
+        child: SizedBox.expand(
+          child: CustomPaint(
+            painter: _HalfPainter(second, rotated: horizontal),
+          ),
+        ),
+      ),
     ];
     return Semantics(
       label: tf('sTile', {'a': '$first', 'b': '$second'}),
       child: Container(
-      width: width,
-      height: height,
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: _faceColor,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: _outlineColor, width: 3),
-        boxShadow: [
-          const BoxShadow(color: _shadowColor, offset: Offset(0, 4)),
-          if (highlight) const BoxShadow(color: Color(0xFFFDE047), spreadRadius: 3),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(7),
-        child: Stack(
-          children: [
-            horizontal ? Row(children: halves) : Column(children: halves),
-            // Reflet cartoon : bande claire en haut à gauche, sans bloquer le toucher.
-            const Positioned.fill(
-              child: IgnorePointer(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment(0.3, 0.3),
-                      colors: [Color(0x66FFFFFF), Color(0x00FFFFFF)],
+        width: width,
+        height: height,
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(
+          color: _faceColor,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: _outlineColor, width: 3),
+          boxShadow: [
+            const BoxShadow(color: _shadowColor, offset: Offset(0, 4)),
+            if (highlight)
+              const BoxShadow(color: Color(0xFFFDE047), spreadRadius: 3),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(7),
+          child: Stack(
+            children: [
+              horizontal ? Row(children: halves) : Column(children: halves),
+              // Reflet cartoon : bande claire en haut à gauche, sans bloquer le toucher.
+              const Positioned.fill(
+                child: IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment(0.3, 0.3),
+                        colors: [Color(0x66FFFFFF), Color(0x00FFFFFF)],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 }
@@ -230,10 +256,16 @@ class DominoChain extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
-        final columns = math.max(3, (availableWidth / (availableWidth < 420 ? 56 : 68)).floor());
+        final columns = math.max(
+          3,
+          (availableWidth / (availableWidth < 420 ? 56 : 68)).floor(),
+        );
         final perRow = columns - 1;
         // Largeur utile = perRow tuiles horizontales + une épaisseur pour le domino vertical de fin de ligne.
-        final length = math.min(72.0, ((availableWidth / (perRow + 0.5) / 2).floor() * 2).toDouble());
+        final length = math.min(
+          72.0,
+          ((availableWidth / (perRow + 0.5) / 2).floor() * 2).toDouble(),
+        );
         final thickness = length / 2;
         final totalWidth = perRow * length + thickness;
 
@@ -271,7 +303,11 @@ class DominoChain extends StatelessWidget {
                   onEndTap(sides.first);
                 } else {
                   final tileWidth = isTurn ? length / 2 : length;
-                  onEndTap(details.localPosition.dx < tileWidth / 2 ? DominoSide.left : DominoSide.right);
+                  onEndTap(
+                    details.localPosition.dx < tileWidth / 2
+                        ? DominoSide.left
+                        : DominoSide.right,
+                  );
                 }
               };
             }
@@ -293,22 +329,30 @@ class DominoChain extends StatelessWidget {
               tileHeight = length;
             } else {
               // Horizontal : sens inverse sur les rangées impaires, en partant du bord du vertical.
-              left = reverse ? totalWidth - (index + 1) * length : index * length;
+              left = reverse
+                  ? totalWidth - (index + 1) * length
+                  : index * length;
               tileWidth = length;
               tileHeight = thickness;
             }
-            tiles.add(AnimatedPositioned(
-              key: ValueKey(group[index].id),
-              duration: const Duration(milliseconds: 350),
-              curve: Curves.easeOutCubic,
-              left: left,
-              top: top,
-              width: tileWidth,
-              height: tileHeight,
-              child: sides.isNotEmpty
-                  ? Semantics(button: true, label: Strings.dominoPlaceHere, child: tile)
-                  : tile,
-            ));
+            tiles.add(
+              AnimatedPositioned(
+                key: ValueKey(group[index].id),
+                duration: const Duration(milliseconds: 350),
+                curve: Curves.easeOutCubic,
+                left: left,
+                top: top,
+                width: tileWidth,
+                height: tileHeight,
+                child: sides.isNotEmpty
+                    ? Semantics(
+                        button: true,
+                        label: Strings.dominoPlaceHere,
+                        child: tile,
+                      )
+                    : tile,
+              ),
+            );
           }
           // Pas entre rangées = longueur du vertical (le domino horizontal suivant se pose dessous).
           top += hasTurn ? length : thickness;

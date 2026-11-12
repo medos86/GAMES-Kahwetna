@@ -29,40 +29,61 @@ void main() {
 
   for (final raw in scenarios) {
     final scenario = raw as Map<String, dynamic>;
-    test('partie seed ${scenario['seed']} (cible ${scenario['targetScore']})', () {
-      final randoms = scenario['randoms'] as List<dynamic>;
-      final replay = _Replay(randoms);
-      var state = newDominoRound(
-        targetScore: scenario['targetScore'] as int,
-        random: replay.next,
-      );
-      expect(state.toJson(), equals(scenario['initial']), reason: 'donne initiale');
+    test(
+      'partie seed ${scenario['seed']} (cible ${scenario['targetScore']})',
+      () {
+        final randoms = scenario['randoms'] as List<dynamic>;
+        final replay = _Replay(randoms);
+        var state = newDominoRound(
+          targetScore: scenario['targetScore'] as int,
+          random: replay.next,
+        );
+        expect(
+          state.toJson(),
+          equals(scenario['initial']),
+          reason: 'donne initiale',
+        );
 
-      final steps = scenario['steps'] as List<dynamic>;
-      for (var i = 0; i < steps.length; i++) {
-        final step = steps[i] as Map<String, dynamic>;
-        final player = Player.values.byName(step['player'] as String);
-        final kind = step['kind'] as String;
-        final DominoState next;
-        switch (kind) {
-          case 'play':
-            final side = (step['side'] as String) == 'left' ? DominoSide.left : DominoSide.right;
-            next = playDomino(state, player, step['tileId'] as String, side);
-          case 'draw':
-            next = drawDomino(state, player);
-          case 'pass':
-            next = passDomino(state, player);
-          default:
-            fail('type d\'action inconnu : $kind');
+        final steps = scenario['steps'] as List<dynamic>;
+        for (var i = 0; i < steps.length; i++) {
+          final step = steps[i] as Map<String, dynamic>;
+          final player = Player.values.byName(step['player'] as String);
+          final kind = step['kind'] as String;
+          final DominoState next;
+          switch (kind) {
+            case 'play':
+              final side = (step['side'] as String) == 'left'
+                  ? DominoSide.left
+                  : DominoSide.right;
+              next = playDomino(state, player, step['tileId'] as String, side);
+            case 'draw':
+              next = drawDomino(state, player);
+            case 'pass':
+              next = passDomino(state, player);
+            default:
+              fail('type d\'action inconnu : $kind');
+          }
+
+          expect(
+            identical(next, state),
+            step['same'] as bool,
+            reason: 'étape $i ($kind) : identité',
+          );
+          expect(
+            next.toJson(),
+            equals(step['state']),
+            reason: 'étape $i ($kind) : état',
+          );
+          state = next;
         }
 
-        expect(identical(next, state), step['same'] as bool, reason: 'étape $i ($kind) : identité');
-        expect(next.toJson(), equals(step['state']), reason: 'étape $i ($kind) : état');
-        state = next;
-      }
-
-      expect(replay.consumed, randoms.length, reason: 'tous les tirages utilisés');
-    });
+        expect(
+          replay.consumed,
+          randoms.length,
+          reason: 'tous les tirages utilisés',
+        );
+      },
+    );
   }
 
   group('règles de base', () {

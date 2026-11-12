@@ -1,7 +1,7 @@
 import '../../core/services/persistent_game_controller.dart';
 import '../../core/services/saved_game_store.dart';
-import 'dart:async';
 
+import 'dart:async';
 
 import '../../core/audio/sounds.dart';
 import '../../game/common.dart';
@@ -17,9 +17,9 @@ class DominoController extends PersistentGameController {
     required this.difficulty,
     RandomDouble? random,
     SavedGameStore? store,
-  })  : _random = random,
-        _game = newDominoRound(targetScore: targetScore, random: random),
-        super(store: store, gameKey: 'domino');
+  }) : _random = random,
+       _game = newDominoRound(targetScore: targetScore, random: random),
+       super(store: store, gameKey: 'domino');
 
   final int targetScore;
   final Difficulty difficulty;
@@ -44,15 +44,22 @@ class DominoController extends PersistentGameController {
 
   /// Le joueur ne peut rien poser : il doit piocher (ou passer).
   bool get mustDraw =>
-      _game.turn == Player.player && _game.roundWinner == null && playable.isEmpty;
+      _game.turn == Player.player &&
+      _game.roundWinner == null &&
+      playable.isEmpty;
 
   bool get isAiTurn =>
-      _game.turn == Player.opponent && _game.roundWinner == null && _game.matchWinner == null;
+      _game.turn == Player.opponent &&
+      _game.roundWinner == null &&
+      _game.matchWinner == null;
 
   /// Extrémités où la tuile sélectionnée peut se poser (null si rien à proposer).
   ({bool left, bool right})? get chainEnds {
     final tile = selectedTile;
-    if (tile == null || _game.turn != Player.player || _game.roundWinner != null) return null;
+    if (tile == null ||
+        _game.turn != Player.player ||
+        _game.roundWinner != null)
+      return null;
     return (
       left: canPlace(tile, _game, DominoSide.left),
       right: canPlace(tile, _game, DominoSide.right),
@@ -61,10 +68,10 @@ class DominoController extends PersistentGameController {
 
   /// Délai de l'IA selon le niveau (valeurs du source : 1250 / 950 / 650 ms).
   Duration get aiDelay => switch (difficulty) {
-        Difficulty.difficile => const Duration(milliseconds: 650),
-        Difficulty.moyen => const Duration(milliseconds: 950),
-        Difficulty.facile => const Duration(milliseconds: 1250),
-      };
+    Difficulty.difficile => const Duration(milliseconds: 650),
+    Difficulty.moyen => const Duration(milliseconds: 950),
+    Difficulty.facile => const Duration(milliseconds: 1250),
+  };
 
   /// Touche une tuile : la pose directement, ou demande le choix de l'extrémité si les deux conviennent.
   void tapTile(DominoTile tile) {
@@ -75,13 +82,23 @@ class DominoController extends PersistentGameController {
     }
     final fitsLeft = canPlace(tile, _game, DominoSide.left);
     final fitsRight = canPlace(tile, _game, DominoSide.right);
-    if (_game.chain.isNotEmpty && fitsLeft && fitsRight && _game.leftEnd != _game.rightEnd) {
+    if (_game.chain.isNotEmpty &&
+        fitsLeft &&
+        fitsRight &&
+        _game.leftEnd != _game.rightEnd) {
       _selectedTileId = _selectedTileId == tile.id ? null : tile.id;
       notifyListeners();
       return;
     }
     _selectedTileId = null;
-    _update(playDomino(_game, Player.player, tile.id, fitsRight ? DominoSide.right : DominoSide.left));
+    _update(
+      playDomino(
+        _game,
+        Player.player,
+        tile.id,
+        fitsRight ? DominoSide.right : DominoSide.left,
+      ),
+    );
   }
 
   /// Pose la tuile sélectionnée à l'extrémité choisie.
@@ -95,20 +112,24 @@ class DominoController extends PersistentGameController {
   /// Pioche si aucun coup n'est possible, sinon ne fait rien ; sans pioche disponible, passe.
   void drawOrPass() {
     if (playable.isNotEmpty) return;
-    _update(_game.boneyard.isNotEmpty
-        ? drawDomino(_game, Player.player)
-        : passDomino(_game, Player.player));
+    _update(
+      _game.boneyard.isNotEmpty
+          ? drawDomino(_game, Player.player)
+          : passDomino(_game, Player.player),
+    );
   }
 
   void startNextRound() {
     _selectedTileId = null;
-    _update(newDominoRound(
-      targetScore: targetScore,
-      scores: _game.scores,
-      round: _game.round + 1,
-      starter: _game.roundWinner ?? Player.player,
-      random: _random,
-    ));
+    _update(
+      newDominoRound(
+        targetScore: targetScore,
+        scores: _game.scores,
+        round: _game.round + 1,
+        starter: _game.roundWinner ?? Player.player,
+        random: _random,
+      ),
+    );
   }
 
   void restart() {
@@ -148,7 +169,8 @@ class DominoController extends PersistentGameController {
       Sounds.play(next.matchWinner == Player.player ? Sfx.win : Sfx.lose);
     } else if (next.roundWinner != null && prev.roundWinner == null) {
       Sounds.play(next.roundWinner == Player.player ? Sfx.win : Sfx.lose);
-    } else if (next.round != prev.round || (prev.roundWinner != null && next.roundWinner == null)) {
+    } else if (next.round != prev.round ||
+        (prev.roundWinner != null && next.roundWinner == null)) {
       // Nouvelle manche : distribution des dominos.
       Sounds.play(Sfx.draw);
     } else if (next.chain.length > prev.chain.length) {
@@ -183,10 +205,12 @@ class DominoController extends PersistentGameController {
   }
 
   @override
-  Map<String, dynamic>? snapshot() => _game.matchWinner != null ? null : _game.toJson();
+  Map<String, dynamic>? snapshot() =>
+      _game.matchWinner != null ? null : _game.toJson();
 
   @override
-  void applySnapshot(Map<String, dynamic> json) => _game = DominoState.fromJson(json);
+  void applySnapshot(Map<String, dynamic> json) =>
+      _game = DominoState.fromJson(json);
 
   @override
   void startFresh() => _scheduleAi();

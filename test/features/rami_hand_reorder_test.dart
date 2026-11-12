@@ -67,7 +67,10 @@ void main() {
         difficulty: rules.RamiAiLevel.facile,
         random: () => 0.0,
       );
-      c.dropCard(c.displayed.first.id, RamiDropHand(c.displayed.last.id, after: true));
+      c.dropCard(
+        c.displayed.first.id,
+        RamiDropHand(c.displayed.last.id, after: true),
+      );
       c.sortBy(RamiSortMode.rank);
       final sorted = ids(c);
       expect(sorted.toSet().length, sorted.length);

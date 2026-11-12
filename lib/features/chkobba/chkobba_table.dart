@@ -10,7 +10,12 @@ const double _zelligeBand = 6;
 /// Tapis de Chkobba : cadre, feutre, coins noirs, bordure zellige (si activée), cartes en grille.
 /// `cards` contient un élément par emplacement ; null = emplacement vide.
 class ChkobbaTable extends StatelessWidget {
-  const ChkobbaTable({super.key, required this.cards, required this.columns, this.emptyLabel});
+  const ChkobbaTable({
+    super.key,
+    required this.cards,
+    required this.columns,
+    this.emptyLabel,
+  });
 
   final List<Widget?> cards;
   final int columns;
@@ -34,7 +39,9 @@ class ChkobbaTable extends StatelessWidget {
           color: style.frame,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(color: style.outline, width: 3),
-          boxShadow: [BoxShadow(color: style.outline, offset: const Offset(0, 8))],
+          boxShadow: [
+            BoxShadow(color: style.outline, offset: const Offset(0, 8)),
+          ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(6),
@@ -45,12 +52,29 @@ class ChkobbaTable extends StatelessWidget {
               children: [
                 DecoratedBox(decoration: BoxDecoration(color: style.felt)),
                 CustomPaint(painter: _DotsPainter()),
-                if (style.showZellige) CustomPaint(painter: _ComicBorderPainter(style)),
+                if (style.showZellige)
+                  CustomPaint(painter: _ComicBorderPainter(style)),
                 // Coins noirs épais, comme les décorations du source React.
-                const Positioned(left: 8, top: 8, child: _Corner(top: true, left: true)),
-                const Positioned(right: 8, top: 8, child: _Corner(top: true, left: false)),
-                const Positioned(left: 8, bottom: 8, child: _Corner(top: false, left: true)),
-                const Positioned(right: 8, bottom: 8, child: _Corner(top: false, left: false)),
+                const Positioned(
+                  left: 8,
+                  top: 8,
+                  child: _Corner(top: true, left: true),
+                ),
+                const Positioned(
+                  right: 8,
+                  top: 8,
+                  child: _Corner(top: true, left: false),
+                ),
+                const Positioned(
+                  left: 8,
+                  bottom: 8,
+                  child: _Corner(top: false, left: true),
+                ),
+                const Positioned(
+                  right: 8,
+                  bottom: 8,
+                  child: _Corner(top: false, left: false),
+                ),
                 Padding(
                   padding: EdgeInsets.all(inset),
                   child: LayoutBuilder(
@@ -92,7 +116,12 @@ class ChkobbaTable extends StatelessWidget {
 
 /// Bannière comic (texte contouré, dégradé, légèrement penchée) : « Chkobba ! », « 7AYA ! ».
 class ChkobbaBanner extends StatelessWidget {
-  const ChkobbaBanner({super.key, required this.text, required this.colors, this.angle = -0.1});
+  const ChkobbaBanner({
+    super.key,
+    required this.text,
+    required this.colors,
+    this.angle = -0.1,
+  });
 
   final String text;
   final List<Color> colors;
@@ -103,7 +132,11 @@ class ChkobbaBanner extends StatelessWidget {
     // Style BD (issue #97) : éclat d'impact au lieu de la bannière dégradée.
     if (kComicChkobba) return ActionBurst(text: text, size: 150);
     final style = GameStyle.current;
-    const base = TextStyle(fontSize: 24, fontWeight: FontWeight.w900, height: 1.1);
+    const base = TextStyle(
+      fontSize: 24,
+      fontWeight: FontWeight.w900,
+      height: 1.1,
+    );
     return Transform.rotate(
       angle: angle,
       child: Container(
@@ -116,7 +149,9 @@ class ChkobbaBanner extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: style.outline, width: 4),
-          boxShadow: const [BoxShadow(color: Color(0xFF000000), offset: Offset(0, 6))],
+          boxShadow: const [
+            BoxShadow(color: Color(0xFF000000), offset: Offset(0, 6)),
+          ],
         ),
         child: Stack(
           alignment: Alignment.center,
@@ -214,5 +249,6 @@ class _ComicBorderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _ComicBorderPainter oldDelegate) => oldDelegate.style != style;
+  bool shouldRepaint(covariant _ComicBorderPainter oldDelegate) =>
+      oldDelegate.style != style;
 }

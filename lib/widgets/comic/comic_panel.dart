@@ -28,10 +28,7 @@ class ComicPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final body = Padding(
-      padding: padding,
-      child: child,
-    );
+    final body = Padding(padding: padding, child: child);
     // La place de l'ombre est réservée à droite et en bas.
     return Padding(
       padding: EdgeInsets.only(right: shadowOffset.dx, bottom: shadowOffset.dy),

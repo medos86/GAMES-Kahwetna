@@ -58,7 +58,8 @@ final _chkobbaRules = <_RuleSection>[
   ),
   (
     title: '💎 Valeurs des Cartes',
-    paragraph: 'As = 1, 2-7 = valeur nominale, Valet = 8, Cavalier = 9, Roi = 10',
+    paragraph:
+        'As = 1, 2-7 = valeur nominale, Valet = 8, Cavalier = 9, Roi = 10',
     items: [],
   ),
 ];
@@ -73,10 +74,15 @@ class ChkobbaRulesScreen extends StatelessWidget {
       backgroundColor: _woodColor,
       body: Stack(
         children: [
-          const Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(color: _woodColor))),
+          const Positioned.fill(
+            child: DecoratedBox(decoration: BoxDecoration(color: _woodColor)),
+          ),
           const Positioned.fill(
             child: IgnorePointer(
-              child: Opacity(opacity: 0.2, child: DotPattern(spacing: 4, radius: 1, color: Colors.black)),
+              child: Opacity(
+                opacity: 0.2,
+                child: DotPattern(spacing: 4, radius: 1, color: Colors.black),
+              ),
             ),
           ),
           SafeArea(
@@ -90,7 +96,9 @@ class ChkobbaRulesScreen extends StatelessWidget {
                     children: [
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: _BackButton(onTap: () => Navigator.of(context).pop()),
+                        child: _BackButton(
+                          onTap: () => Navigator.of(context).pop(),
+                        ),
                       ),
                       const SizedBox(height: 12),
                       const _TitleCard(),
@@ -136,7 +144,10 @@ class _BackButton extends StatelessWidget {
                 SizedBox(width: 8),
                 Text(
                   Strings.backToMenuChkobba,
-                  style: TextStyle(color: _purpleColor, fontWeight: FontWeight.w900),
+                  style: TextStyle(
+                    color: _purpleColor,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ],
             ),
@@ -170,7 +181,9 @@ class _TitleCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.black, width: 6),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 10))],
+        boxShadow: const [
+          BoxShadow(color: Colors.black, offset: Offset(0, 10)),
+        ],
       ),
       child: Text(
         Strings.rulesTitleChkobba,
@@ -227,7 +240,11 @@ class _Section extends StatelessWidget {
       children: [
         Text(
           section.title,
-          style: const TextStyle(color: _inkColor, fontSize: 21, fontWeight: FontWeight.w900),
+          style: const TextStyle(
+            color: _inkColor,
+            fontSize: 21,
+            fontWeight: FontWeight.w900,
+          ),
         ),
         const SizedBox(height: 6),
         if (section.paragraph != null) Text(section.paragraph!, style: body),
@@ -241,7 +258,9 @@ class _Section extends StatelessWidget {
                   padding: EdgeInsets.only(left: 4, right: 8),
                   child: Text('•', style: body),
                 ),
-                Expanded(child: _RichLine(text: item, style: body)),
+                Expanded(
+                  child: _RichLine(text: item, style: body),
+                ),
               ],
             ),
           ),
@@ -267,7 +286,9 @@ class _RichLine extends StatelessWidget {
           for (var i = 0; i < parts.length; i++)
             TextSpan(
               text: parts[i],
-              style: i.isOdd ? const TextStyle(fontWeight: FontWeight.w900) : null,
+              style: i.isOdd
+                  ? const TextStyle(fontWeight: FontWeight.w900)
+                  : null,
             ),
         ],
       ),

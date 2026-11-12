@@ -34,11 +34,18 @@ class GameHeader extends StatelessWidget {
               label: Strings.menuLabel,
               child: TextButton.icon(
                 onPressed: onMenu,
-                icon: const Icon(Icons.arrow_back, size: 18, color: Color(0xFFFFF1BD)),
+                icon: const Icon(
+                  Icons.arrow_back,
+                  size: 18,
+                  color: Color(0xFFFFF1BD),
+                ),
                 label: showLabel
                     ? Text(
                         Strings.menuLabel,
-                        style: TextStyle(color: Color(0xFFFFF1BD), fontWeight: FontWeight.w800),
+                        style: TextStyle(
+                          color: Color(0xFFFFF1BD),
+                          fontWeight: FontWeight.w800,
+                        ),
                       )
                     : const SizedBox.shrink(),
                 style: TextButton.styleFrom(minimumSize: const Size(44, 44)),
@@ -58,13 +65,19 @@ class GameHeader extends StatelessWidget {
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFFFFF1BD),
-                      shadows: [Shadow(offset: Offset(1, 2), color: Color(0xFF4A2A10))],
+                      shadows: [
+                        Shadow(offset: Offset(1, 2), color: Color(0xFF4A2A10)),
+                      ],
                     ),
                   ),
                   if (subtitle != null)
                     Text(
                       subtitle!,
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xCCFFF8E7)),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xCCFFF8E7),
+                      ),
                     ),
                 ],
               ),

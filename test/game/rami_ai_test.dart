@@ -18,11 +18,17 @@ void main() {
         final before = state;
         state = aiStep(state, RamiAiLevel.difficile, rng);
         // Un coup refusé renvoie la même instance : l'IA doit alors pouvoir progresser ailleurs.
-        if (identical(state, before) && state.phase == RamiPhase.play && state.staged.isEmpty) {
+        if (identical(state, before) &&
+            state.phase == RamiPhase.play &&
+            state.staged.isEmpty) {
           break;
         }
       }
-      expect(steps, lessThan(maxSteps), reason: 'la partie doit avancer (seed $seed)');
+      expect(
+        steps,
+        lessThan(maxSteps),
+        reason: 'la partie doit avancer (seed $seed)',
+      );
     }
   });
 }

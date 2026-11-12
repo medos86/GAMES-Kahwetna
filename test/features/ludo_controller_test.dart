@@ -8,7 +8,11 @@ void main() {
   test('un tour humain sans coup possible passe au joueur suivant, puis l\'IA joue après 1100 ms', () {
     fakeAsync((async) {
       // Tirage constant 0.0 : dé = 1, aucun pion ne sort : le bleu passe.
-      final c = LudoController(playerCount: 1, difficulty: LudoAiLevel.facile, random: () => 0.0);
+      final c = LudoController(
+        playerCount: 1,
+        difficulty: LudoAiLevel.facile,
+        random: () => 0.0,
+      );
       expect(c.humanTurn, isTrue);
       expect(async.pendingTimers, isEmpty);
 
@@ -27,7 +31,11 @@ void main() {
 
   test('dispose annule le minuteur de l\'IA', () {
     fakeAsync((async) {
-      final c = LudoController(playerCount: 1, difficulty: LudoAiLevel.moyen, random: () => 0.0);
+      final c = LudoController(
+        playerCount: 1,
+        difficulty: LudoAiLevel.moyen,
+        random: () => 0.0,
+      );
       c.roll();
       expect(async.pendingTimers, isNotEmpty);
       c.dispose();
@@ -43,8 +51,14 @@ void main() {
   });
 
   test('ludoRollDelay suit le niveau : 1100 / 850 / 600 ms', () {
-    expect(ludoRollDelay(LudoAiLevel.facile), const Duration(milliseconds: 1100));
+    expect(
+      ludoRollDelay(LudoAiLevel.facile),
+      const Duration(milliseconds: 1100),
+    );
     expect(ludoRollDelay(LudoAiLevel.moyen), const Duration(milliseconds: 850));
-    expect(ludoRollDelay(LudoAiLevel.difficile), const Duration(milliseconds: 600));
+    expect(
+      ludoRollDelay(LudoAiLevel.difficile),
+      const Duration(milliseconds: 600),
+    );
   });
 }

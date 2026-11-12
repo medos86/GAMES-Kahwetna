@@ -28,7 +28,8 @@ GameEntry? gameForRoute(String path) {
 }
 
 /// Niveau de l'IA ; valeur inconnue ou absente : facile.
-Difficulty parseDifficulty(String? raw) => Difficulty.values.asNameMap()[raw] ?? Difficulty.facile;
+Difficulty parseDifficulty(String? raw) =>
+    Difficulty.values.asNameMap()[raw] ?? Difficulty.facile;
 
 /// Objectif de partie ; doit faire partie des valeurs du jeu, sinon la première.
 int parseTarget(String? raw, List<int> allowed) {
@@ -57,13 +58,16 @@ Route<void>? buildGameRoute(String? name) {
 
   final Widget? screen = switch (entry.name) {
     'Chkobba' => ChkobbaScreen(
-        difficulty: difficulty,
-        targetScore: target,
-        demoChoice: query['demo'] == 'choice',
-      ),
+      difficulty: difficulty,
+      targetScore: target,
+      demoChoice: query['demo'] == 'choice',
+    ),
     'Domino' => DominoScreen(difficulty: difficulty, targetScore: target),
     'Belote' => CoincheScreen(difficulty: difficulty, targetScore: target),
-    'Ludo' => LudoScreen(difficulty: difficulty, players: parsePlayers(query['players'])),
+    'Ludo' => LudoScreen(
+      difficulty: difficulty,
+      players: parsePlayers(query['players']),
+    ),
     'Rami' => RamiScreen(difficulty: difficulty, targetScore: target),
     _ => null,
   };

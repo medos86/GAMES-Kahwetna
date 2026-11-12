@@ -1,7 +1,7 @@
 import '../../core/services/persistent_game_controller.dart';
 import '../../core/services/saved_game_store.dart';
-import 'dart:async';
 
+import 'dart:async';
 
 import '../../game/coinche.dart';
 import '../../core/audio/sounds.dart';
@@ -19,10 +19,10 @@ class CoincheController extends PersistentGameController {
     required this.difficulty,
     RandomDouble? random,
     SavedGameStore? store,
-  })  : _random = random,
-        _match = newMatch(target),
-        _round = dealRound(firstDealer, random),
-        super(store: store, gameKey: 'coinche') {
+  }) : _random = random,
+       _match = newMatch(target),
+       _round = dealRound(firstDealer, random),
+       super(store: store, gameKey: 'coinche') {
     if (store == null) _reschedule();
   }
 
@@ -52,9 +52,11 @@ class CoincheController extends PersistentGameController {
 
   CoincheAiLevel get aiLevel => CoincheAiLevel.values.byName(difficulty.name);
 
-  bool get isBiddingTurn => _round.phase == CoinchePhase.bidding && _round.turn == Seat.south;
+  bool get isBiddingTurn =>
+      _round.phase == CoinchePhase.bidding && _round.turn == Seat.south;
 
-  bool get isHumanPlayTurn => _round.phase == CoinchePhase.playing && _round.turn == Seat.south;
+  bool get isHumanPlayTurn =>
+      _round.phase == CoinchePhase.playing && _round.turn == Seat.south;
 
   /// Main du joueur, triée comme le source.
   List<CoincheCard> get hand => sortHand(_round.hands[Seat.south]!);
@@ -68,12 +70,16 @@ class CoincheController extends PersistentGameController {
 
   bool get canContre {
     final contract = _round.contract;
-    return contract != null && contract.multiplier == 1 && teamOf(contract.seat) == Team.ew;
+    return contract != null &&
+        contract.multiplier == 1 &&
+        teamOf(contract.seat) == Team.ew;
   }
 
   bool get canSurcoinche {
     final contract = _round.contract;
-    return contract != null && contract.multiplier == 2 && teamOf(contract.seat) == Team.ns;
+    return contract != null &&
+        contract.multiplier == 2 &&
+        teamOf(contract.seat) == Team.ns;
   }
 
   void setChoiceMode(CoincheSuit mode) {
@@ -155,7 +161,13 @@ class CoincheController extends PersistentGameController {
         final turn = round.turn;
         if (turn == null || turn == Seat.south) return;
         _timer = Timer(const Duration(milliseconds: 900), () {
-          _setRound(playCard(_round, turn, chooseCard(_round, turn, randomPlay, _random, aiLevel)));
+          _setRound(
+            playCard(
+              _round,
+              turn,
+              chooseCard(_round, turn, randomPlay, _random, aiLevel),
+            ),
+          );
         });
         break;
       case CoinchePhase.done:
@@ -177,8 +189,9 @@ class CoincheController extends PersistentGameController {
   }
 
   @override
-  Map<String, dynamic>? snapshot() =>
-      _match.winner != null ? null : {'match': _match.toJson(), 'round': _round.toJson()};
+  Map<String, dynamic>? snapshot() => _match.winner != null
+      ? null
+      : {'match': _match.toJson(), 'round': _round.toJson()};
 
   @override
   void applySnapshot(Map<String, dynamic> json) {

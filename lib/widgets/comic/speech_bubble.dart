@@ -59,10 +59,12 @@ class _BubblePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final bodyBottom = size.height - tailHeight;
     final body = Path()
-      ..addRRect(RRect.fromRectAndRadius(
-        Rect.fromLTRB(0, 0, size.width, bodyBottom),
-        const Radius.circular(_radius),
-      ));
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTRB(0, 0, size.width, bodyBottom),
+          const Radius.circular(_radius),
+        ),
+      );
 
     final baseLeft = tailOnLeft ? _inset : size.width - _inset - tailWidth;
     final tailPath = Path()

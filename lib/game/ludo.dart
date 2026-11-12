@@ -26,7 +26,8 @@ class Cell {
   final int col;
 
   @override
-  bool operator ==(Object other) => other is Cell && other.row == row && other.col == col;
+  bool operator ==(Object other) =>
+      other is Cell && other.row == row && other.col == col;
 
   @override
   int get hashCode => Object.hash(row, col);
@@ -39,41 +40,106 @@ const ludoGoal = Cell(7, 7);
 
 /// Piste extérieure de 52 cases, indexée dans le sens des tours (coordonnées du source).
 const ludoTrack = <Cell>[
-  Cell(6, 0), Cell(6, 1), Cell(6, 2), Cell(6, 3), Cell(6, 4), Cell(6, 5),
-  Cell(5, 6), Cell(4, 6), Cell(3, 6), Cell(2, 6), Cell(1, 6), Cell(0, 6),
+  Cell(6, 0),
+  Cell(6, 1),
+  Cell(6, 2),
+  Cell(6, 3),
+  Cell(6, 4),
+  Cell(6, 5),
+  Cell(5, 6),
+  Cell(4, 6),
+  Cell(3, 6),
+  Cell(2, 6),
+  Cell(1, 6),
+  Cell(0, 6),
   Cell(0, 7),
-  Cell(0, 8), Cell(1, 8), Cell(2, 8), Cell(3, 8), Cell(4, 8), Cell(5, 8),
-  Cell(6, 9), Cell(6, 10), Cell(6, 11), Cell(6, 12), Cell(6, 13), Cell(6, 14),
+  Cell(0, 8),
+  Cell(1, 8),
+  Cell(2, 8),
+  Cell(3, 8),
+  Cell(4, 8),
+  Cell(5, 8),
+  Cell(6, 9),
+  Cell(6, 10),
+  Cell(6, 11),
+  Cell(6, 12),
+  Cell(6, 13),
+  Cell(6, 14),
   Cell(7, 14),
-  Cell(8, 14), Cell(8, 13), Cell(8, 12), Cell(8, 11), Cell(8, 10), Cell(8, 9),
-  Cell(9, 8), Cell(10, 8), Cell(11, 8), Cell(12, 8), Cell(13, 8), Cell(14, 8),
+  Cell(8, 14),
+  Cell(8, 13),
+  Cell(8, 12),
+  Cell(8, 11),
+  Cell(8, 10),
+  Cell(8, 9),
+  Cell(9, 8),
+  Cell(10, 8),
+  Cell(11, 8),
+  Cell(12, 8),
+  Cell(13, 8),
+  Cell(14, 8),
   Cell(14, 7),
-  Cell(14, 6), Cell(13, 6), Cell(12, 6), Cell(11, 6), Cell(10, 6), Cell(9, 6),
-  Cell(8, 5), Cell(8, 4), Cell(8, 3), Cell(8, 2), Cell(8, 1), Cell(8, 0),
+  Cell(14, 6),
+  Cell(13, 6),
+  Cell(12, 6),
+  Cell(11, 6),
+  Cell(10, 6),
+  Cell(9, 6),
+  Cell(8, 5),
+  Cell(8, 4),
+  Cell(8, 3),
+  Cell(8, 2),
+  Cell(8, 1),
+  Cell(8, 0),
   Cell(7, 0),
 ];
 
 /// Indice de la case de départ de chaque couleur sur la piste.
 int ludoStartIndex(LudoColor color) => switch (color) {
-      LudoColor.red => 1,
-      LudoColor.green => 14,
-      LudoColor.yellow => 27,
-      LudoColor.blue => 40,
-    };
+  LudoColor.red => 1,
+  LudoColor.green => 14,
+  LudoColor.yellow => 27,
+  LudoColor.blue => 40,
+};
 
 /// Cases de départ et étoiles (+8) : aucune capture possible.
 final Set<int> ludoSafeIndexes = {
   for (final color in LudoColor.values) ludoStartIndex(color),
-  for (final color in LudoColor.values) (ludoStartIndex(color) + 8) % ludoTrackLength,
+  for (final color in LudoColor.values)
+    (ludoStartIndex(color) + 8) % ludoTrackLength,
 };
 
 /// Colonne d'arrivée de chaque couleur (progressions 52..56).
 List<Cell> ludoHomeColumn(LudoColor color) => switch (color) {
-      LudoColor.red => const [Cell(7, 1), Cell(7, 2), Cell(7, 3), Cell(7, 4), Cell(7, 5)],
-      LudoColor.green => const [Cell(1, 7), Cell(2, 7), Cell(3, 7), Cell(4, 7), Cell(5, 7)],
-      LudoColor.yellow => const [Cell(7, 13), Cell(7, 12), Cell(7, 11), Cell(7, 10), Cell(7, 9)],
-      LudoColor.blue => const [Cell(13, 7), Cell(12, 7), Cell(11, 7), Cell(10, 7), Cell(9, 7)],
-    };
+  LudoColor.red => const [
+    Cell(7, 1),
+    Cell(7, 2),
+    Cell(7, 3),
+    Cell(7, 4),
+    Cell(7, 5),
+  ],
+  LudoColor.green => const [
+    Cell(1, 7),
+    Cell(2, 7),
+    Cell(3, 7),
+    Cell(4, 7),
+    Cell(5, 7),
+  ],
+  LudoColor.yellow => const [
+    Cell(7, 13),
+    Cell(7, 12),
+    Cell(7, 11),
+    Cell(7, 10),
+    Cell(7, 9),
+  ],
+  LudoColor.blue => const [
+    Cell(13, 7),
+    Cell(12, 7),
+    Cell(11, 7),
+    Cell(10, 7),
+    Cell(9, 7),
+  ],
+};
 
 final _defaultRandom = math.Random();
 
@@ -85,10 +151,10 @@ class Token {
   const Token({required this.id, required this.color, required this.progress});
 
   factory Token.fromJson(Map<String, dynamic> json) => Token(
-        id: json['id'] as String,
-        color: LudoColor.values.byName(json['color'] as String),
-        progress: json['progress'] as int,
-      );
+    id: json['id'] as String,
+    color: LudoColor.values.byName(json['color'] as String),
+    progress: json['progress'] as int,
+  );
 
   final String id;
   final LudoColor color;
@@ -97,7 +163,11 @@ class Token {
   Token copyWith({int? progress}) =>
       Token(id: id, color: color, progress: progress ?? this.progress);
 
-  Map<String, dynamic> toJson() => {'id': id, 'color': color.name, 'progress': progress};
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'color': color.name,
+    'progress': progress,
+  };
 }
 
 /// Note affichée après une action (sealed : une variante par cas du source).
@@ -110,8 +180,9 @@ sealed class LudoNote {
       'noMove' => NoMoveNote(color),
       'threeSixes' => ThreeSixesNote(color),
       'captured' => CapturedNote(color, [
-          for (final v in json['victims'] as List) LudoColor.values.byName(v as String),
-        ]),
+        for (final v in json['victims'] as List)
+          LudoColor.values.byName(v as String),
+      ]),
       'finished' => FinishedNote(color, json['place'] as int),
       _ => throw FormatException('Note Ludo inconnue : ${json['kind']}'),
     };
@@ -143,10 +214,10 @@ final class CapturedNote extends LudoNote {
 
   @override
   Map<String, dynamic> toJson() => {
-        'kind': 'captured',
-        'color': color.name,
-        'victims': [for (final v in victims) v.name],
-      };
+    'kind': 'captured',
+    'color': color.name,
+    'victims': [for (final v in victims) v.name],
+  };
 }
 
 final class FinishedNote extends LudoNote {
@@ -155,7 +226,11 @@ final class FinishedNote extends LudoNote {
   final int place;
 
   @override
-  Map<String, dynamic> toJson() => {'kind': 'finished', 'color': color.name, 'place': place};
+  Map<String, dynamic> toJson() => {
+    'kind': 'finished',
+    'color': color.name,
+    'place': place,
+  };
 }
 
 const Object _unset = Object();
@@ -174,20 +249,26 @@ class LudoState {
   });
 
   factory LudoState.fromJson(Map<String, dynamic> json) => LudoState(
-        tokens: [for (final t in json['tokens'] as List) Token.fromJson(t as Map<String, dynamic>)],
-        turn: LudoColor.values.byName(json['turn'] as String),
-        phase: LudoPhase.values.byName(json['phase'] as String),
-        dice: json['dice'] as int?,
-        sixes: json['sixes'] as int,
-        rankings: [for (final c in json['rankings'] as List) LudoColor.values.byName(c as String)],
-        rollId: json['rollId'] as int,
-        diceOwner: json['diceOwner'] == null
-            ? null
-            : LudoColor.values.byName(json['diceOwner'] as String),
-        note: json['note'] == null
-            ? null
-            : LudoNote.fromJson(json['note'] as Map<String, dynamic>),
-      );
+    tokens: [
+      for (final t in json['tokens'] as List)
+        Token.fromJson(t as Map<String, dynamic>),
+    ],
+    turn: LudoColor.values.byName(json['turn'] as String),
+    phase: LudoPhase.values.byName(json['phase'] as String),
+    dice: json['dice'] as int?,
+    sixes: json['sixes'] as int,
+    rankings: [
+      for (final c in json['rankings'] as List)
+        LudoColor.values.byName(c as String),
+    ],
+    rollId: json['rollId'] as int,
+    diceOwner: json['diceOwner'] == null
+        ? null
+        : LudoColor.values.byName(json['diceOwner'] as String),
+    note: json['note'] == null
+        ? null
+        : LudoNote.fromJson(json['note'] as Map<String, dynamic>),
+  );
 
   final List<Token> tokens;
   final LudoColor turn;
@@ -219,22 +300,24 @@ class LudoState {
       sixes: sixes ?? this.sixes,
       rankings: rankings ?? this.rankings,
       rollId: rollId ?? this.rollId,
-      diceOwner: identical(diceOwner, _unset) ? this.diceOwner : diceOwner as LudoColor?,
+      diceOwner: identical(diceOwner, _unset)
+          ? this.diceOwner
+          : diceOwner as LudoColor?,
       note: identical(note, _unset) ? this.note : note as LudoNote?,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'tokens': [for (final t in tokens) t.toJson()],
-        'turn': turn.name,
-        'phase': phase.name,
-        'dice': dice,
-        'sixes': sixes,
-        'rankings': [for (final c in rankings) c.name],
-        'rollId': rollId,
-        'diceOwner': diceOwner?.name,
-        'note': note?.toJson(),
-      };
+    'tokens': [for (final t in tokens) t.toJson()],
+    'turn': turn.name,
+    'phase': phase.name,
+    'dice': dice,
+    'sixes': sixes,
+    'rankings': [for (final c in rankings) c.name],
+    'rollId': rollId,
+    'diceOwner': diceOwner?.name,
+    'note': note?.toJson(),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -242,20 +325,20 @@ class LudoState {
 // ---------------------------------------------------------------------------
 
 LudoState newLudoGame([LudoColor starter = LudoColor.blue]) => LudoState(
-      tokens: [
-        for (final color in LudoColor.values)
-          for (var slot = 0; slot < 4; slot++)
-            Token(id: '${color.name}-$slot', color: color, progress: 0),
-      ],
-      turn: starter,
-      phase: LudoPhase.roll,
-      dice: null,
-      sixes: 0,
-      rankings: const [],
-      rollId: 0,
-      diceOwner: null,
-      note: null,
-    );
+  tokens: [
+    for (final color in LudoColor.values)
+      for (var slot = 0; slot < 4; slot++)
+        Token(id: '${color.name}-$slot', color: color, progress: 0),
+  ],
+  turn: starter,
+  phase: LudoPhase.roll,
+  dice: null,
+  sixes: 0,
+  rankings: const [],
+  rollId: 0,
+  diceOwner: null,
+  note: null,
+);
 
 /// Indice sur la piste d'une progression de 1 à 51 ; null pour la base et la colonne d'arrivée.
 int? trackIndex(LudoColor color, int progress) {
@@ -266,7 +349,8 @@ int? trackIndex(LudoColor color, int progress) {
 Cell? cellOf(Token token) {
   if (token.progress == 0) return null;
   if (token.progress == ludoFinish) return ludoGoal;
-  if (token.progress >= 52) return ludoHomeColumn(token.color)[token.progress - 52];
+  if (token.progress >= 52)
+    return ludoHomeColumn(token.color)[token.progress - 52];
   return ludoTrack[trackIndex(token.color, token.progress) ?? 0];
 }
 
@@ -278,7 +362,10 @@ int? _advance(int progress, int dice) {
 }
 
 List<Token> _availableTokens(LudoState state, int dice) => state.tokens
-    .where((token) => token.color == state.turn && _advance(token.progress, dice) != null)
+    .where(
+      (token) =>
+          token.color == state.turn && _advance(token.progress, dice) != null,
+    )
     .toList();
 
 List<String> legalTokenIds(LudoState state) {
@@ -296,11 +383,8 @@ LudoColor _nextActive(LudoState state) {
   return state.turn;
 }
 
-LudoState _passTurn(LudoState state) => state.copyWith(
-      turn: _nextActive(state),
-      phase: LudoPhase.roll,
-      sixes: 0,
-    );
+LudoState _passTurn(LudoState state) =>
+    state.copyWith(turn: _nextActive(state), phase: LudoPhase.roll, sixes: 0);
 
 LudoState rollDice(LudoState state, [RandomDouble? random]) {
   if (state.phase != LudoPhase.roll) return state;
@@ -328,7 +412,10 @@ LudoState moveToken(LudoState state, String tokenId) {
   if (index < 0) return state;
   final token = state.tokens[index];
   final dice = state.dice;
-  if (token.color != state.turn || state.phase != LudoPhase.move || dice == null) return state;
+  if (token.color != state.turn ||
+      state.phase != LudoPhase.move ||
+      dice == null)
+    return state;
   final progress = _advance(token.progress, dice);
   if (progress == null) return state;
 
@@ -340,7 +427,8 @@ LudoState moveToken(LudoState state, String tokenId) {
       tokens.add(item.copyWith(progress: progress));
       continue;
     }
-    final isVictim = landing != null &&
+    final isVictim =
+        landing != null &&
         !ludoSafeIndexes.contains(landing) &&
         item.color != token.color &&
         trackIndex(item.color, item.progress) == landing;
@@ -371,7 +459,11 @@ LudoState moveToken(LudoState state, String tokenId) {
         (color) => !rankings.contains(color),
         orElse: () => token.color,
       );
-      return next.copyWith(rankings: [...rankings, last], phase: LudoPhase.end, sixes: 0);
+      return next.copyWith(
+        rankings: [...rankings, last],
+        phase: LudoPhase.end,
+        sixes: 0,
+      );
     }
   }
 
@@ -379,7 +471,8 @@ LudoState moveToken(LudoState state, String tokenId) {
   return _passTurn(next);
 }
 
-bool _isThreatened(LudoState state, LudoColor color, int index) => state.tokens.any((item) {
+bool _isThreatened(LudoState state, LudoColor color, int index) =>
+    state.tokens.any((item) {
       if (item.color == color) return false;
       final from = trackIndex(item.color, item.progress);
       if (from == null) return false;
@@ -400,7 +493,11 @@ double _scoreMove(LudoState state, Token token, int dice) {
       score += 3;
     } else {
       final victims = state.tokens
-          .where((item) => item.color != token.color && trackIndex(item.color, item.progress) == index)
+          .where(
+            (item) =>
+                item.color != token.color &&
+                trackIndex(item.color, item.progress) == index,
+          )
           .length;
       score += victims * 8;
     }
@@ -422,7 +519,9 @@ double _scoreHard(LudoState state, Token token, int dice) {
   final index = trackIndex(token.color, progress);
   if (index != null) {
     for (final item in state.tokens) {
-      if (item.color == token.color || trackIndex(item.color, item.progress) != index) continue;
+      if (item.color == token.color ||
+          trackIndex(item.color, item.progress) != index)
+        continue;
       if (ludoSafeIndexes.contains(index)) break;
       score += 8 + item.progress / 4;
     }
@@ -434,7 +533,9 @@ double _scoreHard(LudoState state, Token token, int dice) {
   }
 
   final from = trackIndex(token.color, token.progress);
-  if (from != null && _isThreatened(state, token.color, from) && (index == null || !_isThreatened(state, token.color, index))) {
+  if (from != null &&
+      _isThreatened(state, token.color, from) &&
+      (index == null || !_isThreatened(state, token.color, index))) {
     score += 2;
   }
 

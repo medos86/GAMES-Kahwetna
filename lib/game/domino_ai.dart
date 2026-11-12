@@ -11,7 +11,8 @@ enum DominoAction { play, draw, pass }
 class DominoAiMove {
   const DominoAiMove._(this.action, this.tile, this.side);
 
-  const DominoAiMove.play(DominoTile tile, DominoSide side) : this._(DominoAction.play, tile, side);
+  const DominoAiMove.play(DominoTile tile, DominoSide side)
+    : this._(DominoAction.play, tile, side);
   const DominoAiMove.draw() : this._(DominoAction.draw, null, null);
   const DominoAiMove.pass() : this._(DominoAction.pass, null, null);
 
@@ -27,7 +28,9 @@ enum DominoAiLevel { facile, moyen, difficile }
 
 /// Côté d'un coup : le droit si la tuile s'y pose, sinon le gauche (comportement du source).
 DominoSide _preferredSide(DominoTile tile, DominoState state) =>
-    state.chain.isNotEmpty && canPlace(tile, state, DominoSide.right) ? DominoSide.right : DominoSide.left;
+    state.chain.isNotEmpty && canPlace(tile, state, DominoSide.right)
+    ? DominoSide.right
+    : DominoSide.left;
 
 /// Coup de l'IA.
 /// - Facile : tuile légale au hasard, côté au hasard parmi les côtés possibles.
@@ -72,9 +75,9 @@ int _score(DominoTile tile, DominoAiLevel level) => _pips(tile);
 
 /// Toutes les tuiles du jeu (28), sans doublon.
 List<DominoTile> _allTiles() => [
-      for (var a = 0; a <= 6; a++)
-        for (var b = a; b <= 6; b++) DominoTile(id: '$a-$b', a: a, b: b),
-    ];
+  for (var a = 0; a <= 6; a++)
+    for (var b = a; b <= 6; b++) DominoTile(id: '$a-$b', a: a, b: b),
+];
 
 /// Extrémités (gauche, droite) après avoir posé `tile` du côté `side`.
 List<int> _endsAfter(DominoTile tile, DominoState state, DominoSide side) {
@@ -106,13 +109,20 @@ DominoAiMove _difficileMove(DominoState state, List<DominoTile> moves) {
   for (final tile in moves) {
     final sides = state.chain.isEmpty
         ? const [DominoSide.left]
-        : [for (final side in DominoSide.values) if (canPlace(tile, state, side)) side];
+        : [
+            for (final side in DominoSide.values)
+              if (canPlace(tile, state, side)) side,
+          ];
     for (final side in sides) {
       final ends = _endsAfter(tile, state, side);
       final playerOptions = unseen
-          .where((u) => u.id != tile.id && (ends.contains(u.a) || ends.contains(u.b)))
+          .where(
+            (u) =>
+                u.id != tile.id && (ends.contains(u.a) || ends.contains(u.b)),
+          )
           .length;
-      final value = _pips(tile) - (tile.a == tile.b ? 3 : 0) - 0.5 * playerOptions;
+      final value =
+          _pips(tile) - (tile.a == tile.b ? 3 : 0) - 0.5 * playerOptions;
       if (value > bestValue) {
         bestValue = value;
         bestTile = tile;

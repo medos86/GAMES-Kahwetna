@@ -22,10 +22,15 @@ void main() {
       for (final raw in data['scenarios'] as List<dynamic>) {
         final scenario = raw as Map<String, dynamic>;
         final initial = scenario['initial'] as Map<String, dynamic>;
-        expect(DominoState.fromJson(initial).toJson(), equals(initial), reason: 'donne initiale');
+        expect(
+          DominoState.fromJson(initial).toJson(),
+          equals(initial),
+          reason: 'donne initiale',
+        );
         checked++;
         for (final step in scenario['steps'] as List<dynamic>) {
-          final json = (step as Map<String, dynamic>)['state'] as Map<String, dynamic>;
+          final json =
+              (step as Map<String, dynamic>)['state'] as Map<String, dynamic>;
           expect(DominoState.fromJson(json).toJson(), equals(json));
           checked++;
         }
@@ -34,13 +39,26 @@ void main() {
     });
 
     test('une donne survit à une chaîne JSON et reste jouable', () {
-      final state = newDominoRound(targetScore: 50, random: math.Random(7).nextDouble);
+      final state = newDominoRound(
+        targetScore: 50,
+        random: math.Random(7).nextDouble,
+      );
       final restored = DominoState.fromJson(_viaJsonString(state.toJson()));
       expect(restored.toJson(), equals(state.toJson()));
 
       final tile = state.hands[state.turn]!.first;
-      final fromOriginal = playDomino(state, state.turn, tile.id, DominoSide.left);
-      final fromRestored = playDomino(restored, restored.turn, tile.id, DominoSide.left);
+      final fromOriginal = playDomino(
+        state,
+        state.turn,
+        tile.id,
+        DominoSide.left,
+      );
+      final fromRestored = playDomino(
+        restored,
+        restored.turn,
+        tile.id,
+        DominoSide.left,
+      );
       expect(fromRestored.toJson(), equals(fromOriginal.toJson()));
     });
 
@@ -54,10 +72,22 @@ void main() {
     });
 
     test('un domino posé garde son orientation', () {
-      final placed = PlacedTile.fromJson({'id': '2-5', 'a': 2, 'b': 5, 'left': 5, 'right': 2});
+      final placed = PlacedTile.fromJson({
+        'id': '2-5',
+        'a': 2,
+        'b': 5,
+        'left': 5,
+        'right': 2,
+      });
       expect(placed.left, 5);
       expect(placed.right, 2);
-      expect(placed.toJson(), {'id': '2-5', 'a': 2, 'b': 5, 'left': 5, 'right': 2});
+      expect(placed.toJson(), {
+        'id': '2-5',
+        'a': 2,
+        'b': 5,
+        'left': 5,
+        'right': 2,
+      });
     });
 
     test('accepte les entiers écrits 1.0 par certains encodeurs', () {
@@ -69,7 +99,11 @@ void main() {
 
   group('Chkobba : toJson / fromJson', () {
     test('carte : aller-retour', () {
-      const card = ChkobbaCard(suit: ChkobbaSuit.deniers, rank: 7, id: 'deniers-7');
+      const card = ChkobbaCard(
+        suit: ChkobbaSuit.deniers,
+        rank: 7,
+        id: 'deniers-7',
+      );
       final restored = ChkobbaCard.fromJson(card.toJson());
       expect(restored.suit, ChkobbaSuit.deniers);
       expect(restored.rank, 7);
@@ -90,23 +124,20 @@ void main() {
 
     test('toutes les clés de l\'état sont présentes', () {
       final json = newMatch(random: () => 0.5).toJson();
-      expect(
-        json.keys.toSet(),
-        {
-          'targetScore',
-          'deck',
-          'hands',
-          'table',
-          'won',
-          'chkobbas',
-          'scores',
-          'lastCapturer',
-          'turn',
-          'starter',
-          'round',
-          'winner',
-        },
-      );
+      expect(json.keys.toSet(), {
+        'targetScore',
+        'deck',
+        'hands',
+        'table',
+        'won',
+        'chkobbas',
+        'scores',
+        'lastCapturer',
+        'turn',
+        'starter',
+        'round',
+        'winner',
+      });
     });
 
     test('après un coup : l\'état restauré joue comme l\'original', () {
@@ -123,7 +154,10 @@ void main() {
 
       // L'état obtenu après le coup se sérialise lui aussi sans perte.
       final after = fromOriginal.state.toJson();
-      expect(ChkobbaState.fromJson(_viaJsonString(after)).toJson(), equals(after));
+      expect(
+        ChkobbaState.fromJson(_viaJsonString(after)).toJson(),
+        equals(after),
+      );
     });
 
     test('lastCapturer et winner renseignés sont restaurés', () {

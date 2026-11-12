@@ -7,7 +7,10 @@ import 'exit_guard.dart';
 
 /// Si une partie sauvegardée attend : propose Reprendre (action principale) ou Nouvelle partie
 /// (secondaire, avec confirmation). Ne se ferme pas sans choix (#112).
-Future<void> offerResume(BuildContext context, PersistentGameController controller) async {
+Future<void> offerResume(
+  BuildContext context,
+  PersistentGameController controller,
+) async {
   if (!controller.awaitingResume) return;
   while (true) {
     final resume = await showConfirmDialog(

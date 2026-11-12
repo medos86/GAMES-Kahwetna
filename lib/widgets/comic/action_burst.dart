@@ -27,7 +27,8 @@ class ActionBurst extends StatefulWidget {
   State<ActionBurst> createState() => _ActionBurstState();
 }
 
-class _ActionBurstState extends State<ActionBurst> with SingleTickerProviderStateMixin {
+class _ActionBurstState extends State<ActionBurst>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 450),
@@ -63,7 +64,8 @@ class _ActionBurstState extends State<ActionBurst> with SingleTickerProviderStat
           builder: (context, _) {
             final t = _controller.value;
             final scale = 0.2 + 0.8 * Curves.elasticOut.transform(t);
-            final angle = (-8 * math.pi / 180) * (1 - Curves.easeOut.transform(t));
+            final angle =
+                (-8 * math.pi / 180) * (1 - Curves.easeOut.transform(t));
             return Transform.rotate(
               angle: angle,
               child: Transform.scale(

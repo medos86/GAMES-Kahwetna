@@ -13,7 +13,9 @@ bool _isStill(Transform t) {
 }
 
 void main() {
-  testWidgets('#120 : un seul dé anime quand deux joueurs sont affichés', (tester) async {
+  testWidgets('#120 : un seul dé anime quand deux joueurs sont affichés', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
@@ -34,10 +36,20 @@ void main() {
     );
     // Premier frame : le dé animé est encore tourné, le dé inactif est déjà à plat.
     final actif = tester.widget<Transform>(
-      find.descendant(of: find.byKey(const ValueKey('actif')), matching: find.byType(Transform)).first,
+      find
+          .descendant(
+            of: find.byKey(const ValueKey('actif')),
+            matching: find.byType(Transform),
+          )
+          .first,
     );
     final inactif = tester.widget<Transform>(
-      find.descendant(of: find.byKey(const ValueKey('inactif')), matching: find.byType(Transform)).first,
+      find
+          .descendant(
+            of: find.byKey(const ValueKey('inactif')),
+            matching: find.byType(Transform),
+          )
+          .first,
     );
     expect(_isStill(actif), isFalse);
     expect(_isStill(inactif), isTrue);

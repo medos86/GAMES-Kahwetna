@@ -61,7 +61,9 @@ class ResultDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isGreen = style == ResultDialogStyle.comicGreen;
-    final background = isGreen ? const Color(0xFF059669) : const Color(0xFF0B3F7A);
+    final background = isGreen
+        ? const Color(0xFF059669)
+        : const Color(0xFF0B3F7A);
     final border = isGreen ? const Color(0xFF000000) : const Color(0xFFFFD653);
     final titleColor = isGreen ? Colors.white : const Color(0xFFFFE681);
 
@@ -75,7 +77,9 @@ class ResultDialog extends StatelessWidget {
           color: background,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: border, width: 4),
-          boxShadow: isGreen ? const [BoxShadow(color: Colors.black, offset: Offset(0, 7))] : null,
+          boxShadow: isGreen
+              ? const [BoxShadow(color: Colors.black, offset: Offset(0, 7))]
+              : null,
         ),
         child: SingleChildScrollView(
           child: Column(
@@ -97,7 +101,10 @@ class ResultDialog extends StatelessWidget {
               ...children,
               if (actions.isNotEmpty) ...[
                 const SizedBox(height: 16),
-                ...actions.expand((w) => [w, const SizedBox(height: 10)]).toList()..removeLast(),
+                ...actions
+                    .expand((w) => [w, const SizedBox(height: 10)])
+                    .toList()
+                  ..removeLast(),
               ],
             ],
           ),

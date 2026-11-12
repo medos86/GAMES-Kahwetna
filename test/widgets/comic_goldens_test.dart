@@ -19,7 +19,10 @@ void main() {
     await setSize(tester);
     await tester.pumpWidget(const MaterialApp(home: ComicDemoScreen()));
     await tester.pumpAndSettle();
-    await expectLater(find.byType(MaterialApp), matchesGoldenFile('goldens/comic_demo_fr.png'));
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('goldens/comic_demo_fr.png'),
+    );
   });
 
   testWidgets('golden : page de démo BD en arabe', (tester) async {
@@ -28,49 +31,70 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('AR'));
     await tester.pumpAndSettle();
-    await expectLater(find.byType(MaterialApp), matchesGoldenFile('goldens/comic_demo_ar.png'));
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('goldens/comic_demo_ar.png'),
+    );
   });
 
   testWidgets('golden : case BD', (tester) async {
     await setSize(tester);
-    await tester.pumpWidget(const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: ComicPanel(color: Color(0xFFFFFFFF), child: Text('Case', style: TextStyle(fontSize: 24))),
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: ComicPanel(
+              color: Color(0xFFFFFFFF),
+              child: Text('Case', style: TextStyle(fontSize: 24)),
+            ),
+          ),
         ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
-    await expectLater(find.byType(ComicPanel), matchesGoldenFile('goldens/comic_panel.png'));
+    await expectLater(
+      find.byType(ComicPanel),
+      matchesGoldenFile('goldens/comic_panel.png'),
+    );
   });
 
   testWidgets('golden : bulle BD', (tester) async {
     await setSize(tester);
-    await tester.pumpWidget(const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: SpeechBubble(
-            fill: Color(0xFFFFFFFF),
-            tailOnLeft: true,
-            tailHeight: 16,
-            tailWidth: 24,
-            child: Text('Bonjour !', style: TextStyle(fontSize: 22)),
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SpeechBubble(
+              fill: Color(0xFFFFFFFF),
+              tailOnLeft: true,
+              tailHeight: 16,
+              tailWidth: 24,
+              child: Text('Bonjour !', style: TextStyle(fontSize: 22)),
+            ),
           ),
         ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
-    await expectLater(find.byType(SpeechBubble), matchesGoldenFile('goldens/speech_bubble.png'));
+    await expectLater(
+      find.byType(SpeechBubble),
+      matchesGoldenFile('goldens/speech_bubble.png'),
+    );
   });
 
   testWidgets('golden : onomatopée BD', (tester) async {
     await setSize(tester);
-    await tester.pumpWidget(const MaterialApp(
-      home: Scaffold(
-        body: Center(child: ActionBurst(text: 'PAFF !', size: 140)),
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: Center(child: ActionBurst(text: 'PAFF !', size: 140)),
+        ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
-    await expectLater(find.byType(ActionBurst), matchesGoldenFile('goldens/action_burst.png'));
+    await expectLater(
+      find.byType(ActionBurst),
+      matchesGoldenFile('goldens/action_burst.png'),
+    );
   });
 }

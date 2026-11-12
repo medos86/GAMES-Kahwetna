@@ -23,7 +23,10 @@ class SettingsScreen extends StatelessWidget {
             elevation: 0,
             title: Text(
               t('settingsTitle'),
-              style: const TextStyle(fontWeight: FontWeight.w900, color: ComicPalette.ink),
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                color: ComicPalette.ink,
+              ),
             ),
           ),
           body: SafeArea(
@@ -32,7 +35,11 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 Text(
                   t('settingsDisplay').toUpperCase(),
-                  style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, color: ComicPalette.ink),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1,
+                    color: ComicPalette.ink,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 // Ligne de réglage : au moins 48 px de haut, valeur à droite (règles UI de #116).
@@ -43,7 +50,10 @@ class SettingsScreen extends StatelessWidget {
                       Expanded(
                         child: Text(
                           t('settingsLanguage'),
-                          style: const TextStyle(fontWeight: FontWeight.w700, color: ComicPalette.ink),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: ComicPalette.ink,
+                          ),
                         ),
                       ),
                       SegmentedButton<AppLanguage>(
@@ -53,15 +63,27 @@ class SettingsScreen extends StatelessWidget {
                           foregroundColor: ComicPalette.ink,
                           selectedBackgroundColor: ComicPalette.yellow,
                           selectedForegroundColor: ComicPalette.ink,
-                          side: const BorderSide(color: ComicPalette.ink, width: 2),
-                          textStyle: const TextStyle(fontWeight: FontWeight.w900),
+                          side: const BorderSide(
+                            color: ComicPalette.ink,
+                            width: 2,
+                          ),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
                         segments: [
-                          ButtonSegment(value: AppLanguage.fr, label: Text(t('langFrench'))),
-                          ButtonSegment(value: AppLanguage.ar, label: Text(t('langArabic'))),
+                          ButtonSegment(
+                            value: AppLanguage.fr,
+                            label: Text(t('langFrench')),
+                          ),
+                          ButtonSegment(
+                            value: AppLanguage.ar,
+                            label: Text(t('langArabic')),
+                          ),
                         ],
                         selected: {language},
-                        onSelectionChanged: (selection) => setLanguage(selection.first),
+                        onSelectionChanged: (selection) =>
+                            setLanguage(selection.first),
                       ),
                     ],
                   ),

@@ -35,7 +35,8 @@ class DeviceMetrics {
   double get ramiHandCardWidth => math.min(3.4 * rem, 0.135 * width);
 
   /// `--card-width` de la Coinche : `min(4.5rem, calc((100vw - 3.75rem) / 5.6))`.
-  double get coincheCardWidth => math.min(4.5 * rem, (width - 3.75 * rem) / 5.6);
+  double get coincheCardWidth =>
+      math.min(4.5 * rem, (width - 3.75 * rem) / 5.6);
 
   static double _clamp(double low, double value, double high) =>
       math.max(low, math.min(value, high));

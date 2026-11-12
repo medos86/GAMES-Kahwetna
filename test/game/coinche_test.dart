@@ -49,7 +49,10 @@ void main() {
       }
       final ids = round.hands.values.expand((h) => h).map((c) => c.id).toSet();
       expect(ids, hasLength(32));
-      expect(round.turn, Seat.south); // premier annonceur = siège après le donneur
+      expect(
+        round.turn,
+        Seat.south,
+      ); // premier annonceur = siège après le donneur
     });
 
     test('teamOf : sud et nord forment une équipe, ouest et est l\'autre', () {
@@ -63,14 +66,35 @@ void main() {
   group('enchères', () {
     test('une enchère invalide renvoie l\'instance reçue', () {
       final round = makeRound(); // donneur est : premier annonceur sud
-      expect(identical(placeBid(round, Seat.south, const ValueBid(70, CoincheSuit.deniers)), round), isTrue);
-      expect(identical(placeBid(round, Seat.south, const ValueBid(85, CoincheSuit.deniers)), round), isTrue);
-      expect(identical(placeBid(round, Seat.south, const ValueBid(170, CoincheSuit.deniers)), round), isTrue);
+      expect(
+        identical(
+          placeBid(round, Seat.south, const ValueBid(70, CoincheSuit.deniers)),
+          round,
+        ),
+        isTrue,
+      );
+      expect(
+        identical(
+          placeBid(round, Seat.south, const ValueBid(85, CoincheSuit.deniers)),
+          round,
+        ),
+        isTrue,
+      );
+      expect(
+        identical(
+          placeBid(round, Seat.south, const ValueBid(170, CoincheSuit.deniers)),
+          round,
+        ),
+        isTrue,
+      );
     });
 
     test('jouer hors de son tour renvoie l\'instance reçue', () {
       final round = makeRound();
-      expect(identical(placeBid(round, Seat.west, const PassBid()), round), isTrue);
+      expect(
+        identical(placeBid(round, Seat.west, const PassBid()), round),
+        isTrue,
+      );
     });
 
     test('quatre passes sans contrat : nouvelle donne (redeal)', () {
@@ -86,7 +110,11 @@ void main() {
 
     test('trois passes après un contrat : phase de jeu, premier joueur = siège après le donneur', () {
       var round = makeRound();
-      round = placeBid(round, Seat.south, const ValueBid(80, CoincheSuit.deniers));
+      round = placeBid(
+        round,
+        Seat.south,
+        const ValueBid(80, CoincheSuit.deniers),
+      );
       round = placeBid(round, Seat.west, const PassBid());
       round = placeBid(round, Seat.north, const PassBid());
       round = placeBid(round, Seat.east, const PassBid());
@@ -95,21 +123,34 @@ void main() {
       expect(round.contract?.seat, Seat.south);
     });
 
-    test('un coéquipier du preneur ne peut pas contrer ; un adversaire le peut', () {
-      var round = makeRound();
-      round = placeBid(round, Seat.south, const ValueBid(80, CoincheSuit.deniers));
-      round = placeBid(round, Seat.west, const PassBid());
-      // Nord est dans l'équipe du preneur : contre refusé.
-      expect(identical(placeBid(round, Seat.north, const ContreBid()), round), isTrue);
-      // Est est dans l'autre équipe : contre accepté.
-      final next = placeBid(round, Seat.north, const PassBid());
-      final contred = placeBid(next, Seat.east, const ContreBid());
-      expect(contred.contract?.multiplier, 2);
-      expect(contred.turn, Seat.south);
-    });
+    test(
+      'un coéquipier du preneur ne peut pas contrer ; un adversaire le peut',
+      () {
+        var round = makeRound();
+        round = placeBid(
+          round,
+          Seat.south,
+          const ValueBid(80, CoincheSuit.deniers),
+        );
+        round = placeBid(round, Seat.west, const PassBid());
+        // Nord est dans l'équipe du preneur : contre refusé.
+        expect(
+          identical(placeBid(round, Seat.north, const ContreBid()), round),
+          isTrue,
+        );
+        // Est est dans l'autre équipe : contre accepté.
+        final next = placeBid(round, Seat.north, const PassBid());
+        final contred = placeBid(next, Seat.east, const ContreBid());
+        expect(contred.contract?.multiplier, 2);
+        expect(contred.turn, Seat.south);
+      },
+    );
 
     test('chooseBid passe avec une main sans force', () {
-      final weak = [for (final r in [CoincheRank.seven, CoincheRank.eight]) card(CoincheSuit.epees, r)];
+      final weak = [
+        for (final r in [CoincheRank.seven, CoincheRank.eight])
+          card(CoincheSuit.epees, r),
+      ];
       final round = makeRound(hands: {Seat.south: weak});
       expect(chooseBid(round, Seat.south), isA<PassBid>());
     });
@@ -134,9 +175,13 @@ void main() {
         turn: Seat.south,
         contract: playingContract,
         hands: {Seat.south: south},
-        trick: [Play(seat: Seat.west, card: card(CoincheSuit.epees, CoincheRank.ten))],
+        trick: [
+          Play(seat: Seat.west, card: card(CoincheSuit.epees, CoincheRank.ten)),
+        ],
       );
-      expect(legalCards(round, Seat.south).map((c) => c.id).toList(), ['epees-7']);
+      expect(legalCards(round, Seat.south).map((c) => c.id).toList(), [
+        'epees-7',
+      ]);
     });
 
     test('sans la couleur, il faut couper avec un atout', () {
@@ -149,9 +194,13 @@ void main() {
         turn: Seat.south,
         contract: playingContract,
         hands: {Seat.south: south},
-        trick: [Play(seat: Seat.west, card: card(CoincheSuit.epees, CoincheRank.ace))],
+        trick: [
+          Play(seat: Seat.west, card: card(CoincheSuit.epees, CoincheRank.ace)),
+        ],
       );
-      expect(legalCards(round, Seat.south).map((c) => c.id).toList(), ['coupes-7']);
+      expect(legalCards(round, Seat.south).map((c) => c.id).toList(), [
+        'coupes-7',
+      ]);
     });
 
     test('si le partenaire est maître, aucune obligation de couper', () {
@@ -165,11 +214,20 @@ void main() {
         contract: playingContract,
         hands: {Seat.south: south},
         trick: [
-          Play(seat: Seat.west, card: card(CoincheSuit.epees, CoincheRank.seven)),
-          Play(seat: Seat.north, card: card(CoincheSuit.epees, CoincheRank.ace)),
+          Play(
+            seat: Seat.west,
+            card: card(CoincheSuit.epees, CoincheRank.seven),
+          ),
+          Play(
+            seat: Seat.north,
+            card: card(CoincheSuit.epees, CoincheRank.ace),
+          ),
         ],
       );
-      expect(legalCards(round, Seat.south).map((c) => c.id).toList(), ['coupes-7', 'batons-A']);
+      expect(legalCards(round, Seat.south).map((c) => c.id).toList(), [
+        'coupes-7',
+        'batons-A',
+      ]);
     });
 
     test('à l\'atout, il faut monter si possible', () {
@@ -183,11 +241,19 @@ void main() {
         contract: playingContract,
         hands: {Seat.south: south},
         trick: [
-          Play(seat: Seat.west, card: card(CoincheSuit.coupes, CoincheRank.eight)),
-          Play(seat: Seat.east, card: card(CoincheSuit.coupes, CoincheRank.seven)),
+          Play(
+            seat: Seat.west,
+            card: card(CoincheSuit.coupes, CoincheRank.eight),
+          ),
+          Play(
+            seat: Seat.east,
+            card: card(CoincheSuit.coupes, CoincheRank.seven),
+          ),
         ],
       );
-      expect(legalCards(round, Seat.south).map((c) => c.id).toList(), ['coupes-9']);
+      expect(legalCards(round, Seat.south).map((c) => c.id).toList(), [
+        'coupes-9',
+      ]);
     });
 
     test('roi et dame d\'atout dans la même main : belote pour l\'équipe', () {
@@ -199,7 +265,12 @@ void main() {
       final round = makeRound(
         phase: CoinchePhase.playing,
         turn: Seat.south,
-        contract: const Contract(seat: Seat.west, value: 80, mode: CoincheSuit.coupes, multiplier: 1),
+        contract: const Contract(
+          seat: Seat.west,
+          value: 80,
+          mode: CoincheSuit.coupes,
+          multiplier: 1,
+        ),
         hands: {Seat.south: south},
       );
       final next = playCard(round, Seat.south, 'coupes-R');
@@ -215,7 +286,12 @@ void main() {
     test('capot : 250 points pour l\'attaque (dix de der compris)', () {
       final round = makeRound(
         phase: CoinchePhase.done,
-        contract: const Contract(seat: Seat.south, value: 80, mode: CoincheSuit.deniers, multiplier: 1),
+        contract: const Contract(
+          seat: Seat.south,
+          value: 80,
+          mode: CoincheSuit.deniers,
+          multiplier: 1,
+        ),
         tricksPlayed: handSize,
         tricksWon: {Team.ns: handSize, Team.ew: 0},
         lastWinner: Seat.south,
@@ -228,27 +304,40 @@ void main() {
       expect(result.awarded[Team.ew], 0);
     });
 
-    test('chute contrée avec belote : la défense reçoit 162 + belote + valeur × 2', () {
-      final round = makeRound(
-        phase: CoinchePhase.done,
-        contract: const Contract(seat: Seat.south, value: 100, mode: CoincheSuit.deniers, multiplier: 2),
-        tricksPlayed: handSize,
-        tricksWon: {Team.ns: 3, Team.ew: 5},
-        pointsWon: {Team.ns: 40, Team.ew: 122},
-        lastWinner: Seat.east,
-        belote: Team.ew,
-      );
-      final result = scoreRound(round)!;
-      expect(result.made, isFalse);
-      expect(result.capot, isFalse);
-      expect(result.awarded[Team.ew], totalCardPoints + belotePoints + 200);
-      expect(result.awarded[Team.ns], 0);
-    });
+    test(
+      'chute contrée avec belote : la défense reçoit 162 + belote + valeur × 2',
+      () {
+        final round = makeRound(
+          phase: CoinchePhase.done,
+          contract: const Contract(
+            seat: Seat.south,
+            value: 100,
+            mode: CoincheSuit.deniers,
+            multiplier: 2,
+          ),
+          tricksPlayed: handSize,
+          tricksWon: {Team.ns: 3, Team.ew: 5},
+          pointsWon: {Team.ns: 40, Team.ew: 122},
+          lastWinner: Seat.east,
+          belote: Team.ew,
+        );
+        final result = scoreRound(round)!;
+        expect(result.made, isFalse);
+        expect(result.capot, isFalse);
+        expect(result.awarded[Team.ew], totalCardPoints + belotePoints + 200);
+        expect(result.awarded[Team.ns], 0);
+      },
+    );
 
     test('scoreRound renvoie null tant que la manche n\'est pas finie', () {
       final round = makeRound(
         phase: CoinchePhase.playing,
-        contract: const Contract(seat: Seat.south, value: 80, mode: CoincheSuit.deniers, multiplier: 1),
+        contract: const Contract(
+          seat: Seat.south,
+          value: 80,
+          mode: CoincheSuit.deniers,
+          multiplier: 1,
+        ),
       );
       expect(scoreRound(round), isNull);
     });
@@ -256,7 +345,12 @@ void main() {
     test('applyRound ajoute les points et passe à la manche suivante', () {
       final match = newMatch(1000);
       final result = CoincheRoundResult(
-        contract: const Contract(seat: Seat.south, value: 80, mode: CoincheSuit.deniers, multiplier: 1),
+        contract: const Contract(
+          seat: Seat.south,
+          value: 80,
+          mode: CoincheSuit.deniers,
+          multiplier: 1,
+        ),
         made: true,
         capot: false,
         points: {Team.ns: 90, Team.ew: 72},
@@ -280,7 +374,12 @@ void main() {
   });
 
   group('niveaux de l\'IA', () {
-    final contract = const Contract(seat: Seat.north, value: 80, mode: CoincheSuit.coupes, multiplier: 1);
+    final contract = const Contract(
+      seat: Seat.north,
+      value: 80,
+      mode: CoincheSuit.coupes,
+      multiplier: 1,
+    );
     // Le partenaire (nord) tient le pli avec l'as de bâton, sud doit jouer.
     final partnerWinning = [
       Play(seat: Seat.west, card: card(CoincheSuit.batons, CoincheRank.seven)),
@@ -318,8 +417,14 @@ void main() {
         card(CoincheSuit.coupes, CoincheRank.ten),
       ];
       final round = makeRound(hands: {Seat.south: hand});
-      expect(chooseBid(round, Seat.south, CoincheAiLevel.moyen), isA<ValueBid>());
-      expect(chooseBid(round, Seat.south, CoincheAiLevel.facile), isA<PassBid>());
+      expect(
+        chooseBid(round, Seat.south, CoincheAiLevel.moyen),
+        isA<ValueBid>(),
+      );
+      expect(
+        chooseBid(round, Seat.south, CoincheAiLevel.facile),
+        isA<PassBid>(),
+      );
     });
   });
 }

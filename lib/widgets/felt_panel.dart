@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 
 /// Tapis vert émeraude à cadre brun (guide §8 : FeltPanel).
 class FeltPanel extends StatelessWidget {
-  const FeltPanel({super.key, required this.child, this.padding = EdgeInsets.zero});
+  const FeltPanel({
+    super.key,
+    required this.child,
+    this.padding = EdgeInsets.zero,
+  });
 
   final Widget child;
   final EdgeInsetsGeometry padding;

@@ -67,7 +67,8 @@ const Map<String, String> frTexts = {
   'headerRami': 'KAHWETNE · RAMI',
   'rulesTitleRami': 'Règles du Rami',
   'ramiYourDraw': 'À toi : touche la pioche ou la défausse',
-  'ramiSlideThenDiscard': 'Glisse un paquet sur la table, puis une carte sur la défausse',
+  'ramiSlideThenDiscard':
+      'Glisse un paquet sur la table, puis une carte sur la défausse',
   'ramiDropHint': 'Glisse un paquet ici pour le poser',
   'ramiNoMeld': 'Aucune combinaison posée',
   'sortSuit': 'Couleur',
@@ -126,7 +127,8 @@ const Map<String, String> frTexts = {
   'ramiCannotLayOff': 'Cette carte ne peut pas être ajoutée ici',
   'ramiSelectCardThenMeld': 'Sélectionne une carte, puis la combinaison',
   'ramiSelectDiscard': 'Sélectionne la carte à défausser',
-  'ramiCannotDiscardTaken': 'Tu ne peux pas défausser la carte prise à la défausse',
+  'ramiCannotDiscardTaken':
+      'Tu ne peux pas défausser la carte prise à la défausse',
   'ramiDiscardRefused': 'Défausse impossible',
   'ramiFinishOrCancel': 'Valide ou annule ton ouverture d\'abord',
   'notAMeld': 'Ce n\'est pas une combinaison valide',
@@ -139,11 +141,13 @@ const Map<String, String> frTexts = {
   'dominoDrawUnavailable': 'Pioche indisponible',
   'dominoPlaceHere': 'Poser ici',
   'menuAdFreeToastTitle': 'Mode tranquille activé',
-  'menuAdFreeToastBody': 'Profite de Kahwetne sans publicité pendant 30 minutes.',
+  'menuAdFreeToastBody':
+      'Profite de Kahwetne sans publicité pendant 30 minutes.',
   'menuDifficultyTitle': 'Niveau de difficulté',
   'menuHumanPlayersCount': 'Nombre de joueurs humains',
   'menuComingSoonBody': 'On prépare la table. Encore un petit café ☕',
-  'menuBackgroundAlt': 'Ruelle tunisienne colorée aux portes bleues et bougainvilliers',
+  'menuBackgroundAlt':
+      'Ruelle tunisienne colorée aux portes bleues et bougainvilliers',
   'chkobbaRuleHaya': '**7 de deniers (Haya) :** à garder dans vos cartes ramassées pour marquer 1 point (voir Points)',
   'gameChkobba': 'Chkobba',
   'gameDomino': 'Domino',

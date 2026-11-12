@@ -34,8 +34,8 @@ class SharedPreferencesAdFreeStore implements AdFreeStore {
 /// - [load] relit l'échéance conservée ; à appeler une fois au démarrage de l'application.
 class AdFreeService {
   AdFreeService({AdFreeStore? store, DateTime Function()? now})
-      : _store = store ?? const SharedPreferencesAdFreeStore(),
-        _now = now ?? DateTime.now;
+    : _store = store ?? const SharedPreferencesAdFreeStore(),
+      _now = now ?? DateTime.now;
 
   /// Instance partagée par toute l'application.
   static final AdFreeService instance = AdFreeService();
@@ -66,7 +66,9 @@ class AdFreeService {
   /// Relit l'échéance conservée. Une échéance déjà passée laisse le mode inactif.
   Future<void> load() async {
     final millis = await _store.readExpiry();
-    _setExpiry(millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis));
+    _setExpiry(
+      millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis),
+    );
   }
 
   /// Active (ou prolonge à 30 minutes pleines) le mode sans pub.

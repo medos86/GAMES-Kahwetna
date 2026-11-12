@@ -42,7 +42,12 @@ class ComicPill extends StatelessWidget {
               ],
               Text(
                 label,
-                style: TextStyle(fontFamily: 'Bangers', fontSize: 18, letterSpacing: 1, color: foreground),
+                style: TextStyle(
+                  fontFamily: 'Bangers',
+                  fontSize: 18,
+                  letterSpacing: 1,
+                  color: foreground,
+                ),
               ),
             ],
           ),

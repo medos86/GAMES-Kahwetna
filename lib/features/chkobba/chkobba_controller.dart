@@ -1,7 +1,7 @@
 import '../../core/services/persistent_game_controller.dart';
 import '../../core/services/saved_game_store.dart';
-import 'dart:async';
 
+import 'dart:async';
 
 import '../../core/audio/sounds.dart';
 import '../../game/chkobba.dart';
@@ -45,9 +45,10 @@ class ChkobbaController extends PersistentGameController {
     RandomDouble? random,
     ChkobbaState? initialState,
     SavedGameStore? store,
-  })  : _random = random,
-        _game = initialState ?? newMatch(targetScore: targetScore, random: random),
-        super(store: store, gameKey: 'chkobba');
+  }) : _random = random,
+       _game =
+           initialState ?? newMatch(targetScore: targetScore, random: random),
+       super(store: store, gameKey: 'chkobba');
 
   final int targetScore;
   final ChkobbaAiLevel level;
@@ -57,6 +58,7 @@ class ChkobbaController extends PersistentGameController {
   ChkobbaRoundScore? _roundSummary;
   Player? _hayaBy;
   String? _opponentChoice;
+
   /// Décision de l'adversaire : prend-il une prise s'il en a une (facile seulement).
   bool _opponentCaptures = true;
   PendingCapture? _pendingCapture;
@@ -70,9 +72,12 @@ class ChkobbaController extends PersistentGameController {
 
   /// Emplacements des cartes du tapis, stables d'un coup à l'autre.
   Map<String, int> tableSlots() {
-    _tableSlots = assignTableSlots(_tableSlots, [for (final card in _game.table) card.id]);
+    _tableSlots = assignTableSlots(_tableSlots, [
+      for (final card in _game.table) card.id,
+    ]);
     return Map.unmodifiable(_tableSlots);
   }
+
   ChkobbaRoundScore? get roundSummary => _roundSummary;
   Player? get hayaBy => _hayaBy;
   PendingCapture? get pendingCapture => _pendingCapture;
@@ -85,7 +90,9 @@ class ChkobbaController extends PersistentGameController {
   }
 
   bool get isOpponentThinking =>
-      _game.winner == null && _game.turn == Player.opponent && _game.hands[Player.opponent]!.isNotEmpty;
+      _game.winner == null &&
+      _game.turn == Player.opponent &&
+      _game.hands[Player.opponent]!.isNotEmpty;
 
   /// Le joueur clique sur une de ses cartes.
   void tapPlayerCard(String cardId) {
@@ -103,7 +110,10 @@ class ChkobbaController extends PersistentGameController {
   void choosePendingCapture(List<ChkobbaCard> option) {
     final pending = _pendingCapture;
     if (pending == null) return;
-    _playPlayerCard(pending.cardId, chosenIds: option.map((c) => c.id).toList());
+    _playPlayerCard(
+      pending.cardId,
+      chosenIds: option.map((c) => c.id).toList(),
+    );
   }
 
   void cancelPendingCapture() {
@@ -115,7 +125,11 @@ class ChkobbaController extends PersistentGameController {
   void _playPlayerCard(String cardId, {List<String>? chosenIds}) {
     final result = playCard(_game, Player.player, cardId, chosenIds: chosenIds);
     _pendingCapture = null;
-    _apply(result.state, haya: result.haya ? Player.player : null, sfx: Sfx.place);
+    _apply(
+      result.state,
+      haya: result.haya ? Player.player : null,
+      sfx: Sfx.place,
+    );
   }
 
   /// Fin de manche confirmée : nouvelle manche (le donneur alterne), sauf si la partie est finie.
@@ -173,7 +187,8 @@ class ChkobbaController extends PersistentGameController {
     if (_roundSummary != null || state.winner != null) return;
 
     // Manche épuisée : on redistribue tant que le paquet n'est pas vide, sinon on compte les points.
-    if (state.hands[Player.player]!.isEmpty && state.hands[Player.opponent]!.isEmpty) {
+    if (state.hands[Player.player]!.isEmpty &&
+        state.hands[Player.opponent]!.isEmpty) {
       if (state.deck.isNotEmpty) {
         _timer = Timer(const Duration(milliseconds: 1000), () {
           _game = dealHands(_game);
@@ -186,7 +201,9 @@ class ChkobbaController extends PersistentGameController {
           _game = result.state;
           _roundSummary = result;
           if (result.state.winner != null) {
-            Sounds.play(result.state.winner == Player.player ? Sfx.win : Sfx.lose);
+            Sounds.play(
+              result.state.winner == Player.player ? Sfx.win : Sfx.lose,
+            );
           }
           _update();
         });
@@ -208,17 +225,28 @@ class ChkobbaController extends PersistentGameController {
     } else {
       // Phase 2 : il joue la carte montrée.
       _timer = Timer(const Duration(milliseconds: 1200), () {
-        final result = playCard(_game, Player.opponent, revealed, discardOnly: !_opponentCaptures);
-        _apply(result.state, haya: result.haya ? Player.opponent : null, sfx: Sfx.place);
+        final result = playCard(
+          _game,
+          Player.opponent,
+          revealed,
+          discardOnly: !_opponentCaptures,
+        );
+        _apply(
+          result.state,
+          haya: result.haya ? Player.opponent : null,
+          sfx: Sfx.place,
+        );
       });
     }
   }
 
   @override
-  Map<String, dynamic>? snapshot() => _game.winner != null ? null : _game.toJson();
+  Map<String, dynamic>? snapshot() =>
+      _game.winner != null ? null : _game.toJson();
 
   @override
-  void applySnapshot(Map<String, dynamic> json) => _game = ChkobbaState.fromJson(json);
+  void applySnapshot(Map<String, dynamic> json) =>
+      _game = ChkobbaState.fromJson(json);
 
   @override
   void startFresh() => _schedule();

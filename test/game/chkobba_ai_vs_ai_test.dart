@@ -27,10 +27,16 @@ ChkobbaState playMatch(ChkobbaAiLevel level, int seed) {
   var steps = 0;
   while (state.winner == null) {
     steps++;
-    if (steps > 20000) fail('partie non terminée (graine $seed, niveau ${level.name})');
-    expect(cardCount(state), 40, reason: 'cartes perdues ou dupliquées (graine $seed)');
+    if (steps > 20000)
+      fail('partie non terminée (graine $seed, niveau ${level.name})');
+    expect(
+      cardCount(state),
+      40,
+      reason: 'cartes perdues ou dupliquées (graine $seed)',
+    );
 
-    if (state.hands[Player.player]!.isEmpty && state.hands[Player.opponent]!.isEmpty) {
+    if (state.hands[Player.player]!.isEmpty &&
+        state.hands[Player.opponent]!.isEmpty) {
       if (state.deck.isNotEmpty) {
         state = dealHands(state);
         continue;
@@ -48,10 +54,16 @@ ChkobbaState playMatch(ChkobbaAiLevel level, int seed) {
     }
 
     final who = state.turn;
-    if (state.hands[who]!.isEmpty) fail('tour sans carte en main (graine $seed)');
+    if (state.hands[who]!.isEmpty)
+      fail('tour sans carte en main (graine $seed)');
     if (who == Player.opponent) {
       final move = chooseOpponentMove(state, level, random: rnd);
-      state = playCard(state, who, move.cardId, discardOnly: !move.capture).state;
+      state = playCard(
+        state,
+        who,
+        move.cardId,
+        discardOnly: !move.capture,
+      ).state;
     } else {
       state = playCard(state, who, state.hands[who]!.first.id).state;
     }
@@ -62,13 +74,16 @@ ChkobbaState playMatch(ChkobbaAiLevel level, int seed) {
 void main() {
   group('Chkobba : parties IA contre joueur, sans exception (issue #20)', () {
     for (final level in ChkobbaAiLevel.values) {
-      test('niveau ${level.name} : cinq parties complètes, sans carte perdue', () {
-        for (var seed = 1; seed <= 5; seed++) {
-          final end = playMatch(level, seed);
-          expect(end.winner, isNotNull);
-          expect(cardCount(end), 40);
-        }
-      });
+      test(
+        'niveau ${level.name} : cinq parties complètes, sans carte perdue',
+        () {
+          for (var seed = 1; seed <= 5; seed++) {
+            final end = playMatch(level, seed);
+            expect(end.winner, isNotNull);
+            expect(cardCount(end), 40);
+          }
+        },
+      );
     }
   });
 }

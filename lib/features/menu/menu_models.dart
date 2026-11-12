@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/strings.dart';
 
 /// Données du menu, reprises de src/app/components/MainMenu.tsx.

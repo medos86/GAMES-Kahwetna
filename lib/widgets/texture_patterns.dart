@@ -4,7 +4,12 @@ import 'package:flutter/material.dart';
 /// répété tous les `spacing` px. La couleur porte l'opacité du CSS source.
 /// Utiliser dans un `Positioned.fill` (il n'a pas de taille propre).
 class DotPattern extends StatelessWidget {
-  const DotPattern({super.key, required this.spacing, required this.radius, required this.color});
+  const DotPattern({
+    super.key,
+    required this.spacing,
+    required this.radius,
+    required this.color,
+  });
 
   final double spacing;
   final double radius;
@@ -86,5 +91,8 @@ class _StripePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _StripePainter old) =>
-      old.period != period || old.width != width || old.color != color || old.vertical != vertical;
+      old.period != period ||
+      old.width != width ||
+      old.color != color ||
+      old.vertical != vertical;
 }

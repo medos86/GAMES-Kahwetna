@@ -5,34 +5,50 @@ import '../../core/strings.dart';
 
 /// Symbole de chaque couleur (suitSymbols du source).
 String coincheSuitSymbol(CoincheSuit suit) => switch (suit) {
-      CoincheSuit.deniers => '♦',
-      CoincheSuit.coupes => '♥',
-      CoincheSuit.epees => '♠',
-      CoincheSuit.batons => '♣',
-    };
+  CoincheSuit.deniers => '♦',
+  CoincheSuit.coupes => '♥',
+  CoincheSuit.epees => '♠',
+  CoincheSuit.batons => '♣',
+};
 
 /// Couleur de chaque couleur (suitColors du source : yellow-600, red-600, gray-800, amber-800).
 Color coincheSuitColor(CoincheSuit suit) => switch (suit) {
-      CoincheSuit.deniers => const Color(0xFFCA8A04),
-      CoincheSuit.coupes => const Color(0xFFDC2626),
-      CoincheSuit.epees => const Color(0xFF1F2937),
-      CoincheSuit.batons => const Color(0xFF92400E),
-    };
+  CoincheSuit.deniers => const Color(0xFFCA8A04),
+  CoincheSuit.coupes => const Color(0xFFDC2626),
+  CoincheSuit.epees => const Color(0xFF1F2937),
+  CoincheSuit.batons => const Color(0xFF92400E),
+};
 
 /// Nom de couleur en français (suitNames du source, utilisé pour les accessibilités).
 String coincheSuitName(CoincheSuit suit) => switch (suit) {
-      CoincheSuit.deniers => Strings.suitCarreau,
-      CoincheSuit.coupes => Strings.suitCoeur,
-      CoincheSuit.epees => Strings.suitPique,
-      CoincheSuit.batons => Strings.suitTrefle,
-    };
+  CoincheSuit.deniers => Strings.suitCarreau,
+  CoincheSuit.coupes => Strings.suitCoeur,
+  CoincheSuit.epees => Strings.suitPique,
+  CoincheSuit.batons => Strings.suitTrefle,
+};
 
 /// Matrice couleur : luminosité 0.75 et saturation 0.5 (style « jouée / illégale » du source).
 const List<double> _dimMatrix = [
-  0.75 * (0.2126 * 0.5 + 0.5), 0.75 * (0.7152 * 0.5), 0.75 * (0.0722 * 0.5), 0, 0,
-  0.75 * (0.2126 * 0.5), 0.75 * (0.7152 * 0.5 + 0.5), 0.75 * (0.0722 * 0.5), 0, 0,
-  0.75 * (0.2126 * 0.5), 0.75 * (0.7152 * 0.5), 0.75 * (0.0722 * 0.5 + 0.5), 0, 0,
-  0, 0, 0, 1, 0,
+  0.75 * (0.2126 * 0.5 + 0.5),
+  0.75 * (0.7152 * 0.5),
+  0.75 * (0.0722 * 0.5),
+  0,
+  0,
+  0.75 * (0.2126 * 0.5),
+  0.75 * (0.7152 * 0.5 + 0.5),
+  0.75 * (0.0722 * 0.5),
+  0,
+  0,
+  0.75 * (0.2126 * 0.5),
+  0.75 * (0.7152 * 0.5),
+  0.75 * (0.0722 * 0.5 + 0.5),
+  0,
+  0,
+  0,
+  0,
+  0,
+  1,
+  0,
 ];
 
 /// Carte Coinche : face (rang + couleur) ou dos. Hauteur = 1,4 × largeur, comme le source.
@@ -64,7 +80,10 @@ class CoincheCardView extends StatelessWidget {
       child: shown == null ? _back(width) : _front(shown, width, height),
     );
     if (dimmed) {
-      face = ColorFiltered(colorFilter: const ColorFilter.matrix(_dimMatrix), child: face);
+      face = ColorFiltered(
+        colorFilter: const ColorFilter.matrix(_dimMatrix),
+        child: face,
+      );
     }
     if (onTap == null) return face;
     return GestureDetector(onTap: onTap, child: face);
@@ -93,11 +112,20 @@ class CoincheCardView extends StatelessWidget {
               children: [
                 Text(
                   c.rank.label,
-                  style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: height * 0.2, height: 1),
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w900,
+                    fontSize: height * 0.2,
+                    height: 1,
+                  ),
                 ),
                 Text(
                   symbol,
-                  style: TextStyle(color: color, fontSize: height * 0.16, height: 1),
+                  style: TextStyle(
+                    color: color,
+                    fontSize: height * 0.16,
+                    height: 1,
+                  ),
                 ),
               ],
             ),

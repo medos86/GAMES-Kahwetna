@@ -8,8 +8,14 @@ void main() {
 
   test('sauvegarde puis relecture à l\'identique', () async {
     const store = SharedPreferencesSavedGameStore();
-    await store.save('chkobba', {'a': 1, 'b': [1, 2]});
-    expect(await store.load('chkobba'), {'a': 1, 'b': [1, 2]});
+    await store.save('chkobba', {
+      'a': 1,
+      'b': [1, 2],
+    });
+    expect(await store.load('chkobba'), {
+      'a': 1,
+      'b': [1, 2],
+    });
   });
 
   test('rien sauvegardé : null', () async {
@@ -27,7 +33,9 @@ void main() {
   });
 
   test('une sauvegarde abîmée est ignorée et supprimée', () async {
-    SharedPreferences.setMockInitialValues({SharedPreferencesSavedGameStore.keyFor('rami'): '{pas du json'});
+    SharedPreferences.setMockInitialValues({
+      SharedPreferencesSavedGameStore.keyFor('rami'): '{pas du json',
+    });
     const store = SharedPreferencesSavedGameStore();
     expect(await store.load('rami'), isNull);
     expect(await store.load('rami'), isNull);

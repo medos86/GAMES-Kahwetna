@@ -38,7 +38,10 @@ void main() {
   test('activate : actif 30 minutes, puis expire tout seul', () {
     fakeAsync((async) {
       final store = _MemoryStore();
-      final service = AdFreeService(store: store, now: () => _start.add(async.elapsed));
+      final service = AdFreeService(
+        store: store,
+        now: () => _start.add(async.elapsed),
+      );
       final events = <bool>[];
       service.active.addListener(() => events.add(service.active.value));
 
@@ -46,7 +49,10 @@ void main() {
       async.flushMicrotasks();
       expect(service.active.value, isTrue);
       expect(service.remaining, AdFreeService.duration);
-      expect(store.value, _start.add(AdFreeService.duration).millisecondsSinceEpoch);
+      expect(
+        store.value,
+        _start.add(AdFreeService.duration).millisecondsSinceEpoch,
+      );
 
       async.elapse(const Duration(minutes: 29, seconds: 59));
       expect(service.active.value, isTrue, reason: 'encore une seconde');
@@ -55,7 +61,10 @@ void main() {
       async.elapse(const Duration(seconds: 1));
       expect(service.active.value, isFalse, reason: 'expiration automatique');
       expect(service.remaining, Duration.zero);
-      expect(events, [true, false], reason: 'une notification à l\'activation, une à l\'expiration');
+      expect(events, [
+        true,
+        false,
+      ], reason: 'une notification à l\'activation, une à l\'expiration');
 
       service.dispose();
     });
@@ -63,7 +72,10 @@ void main() {
 
   test('remaining diminue avec le temps', () {
     fakeAsync((async) {
-      final service = AdFreeService(store: _MemoryStore(), now: () => _start.add(async.elapsed));
+      final service = AdFreeService(
+        store: _MemoryStore(),
+        now: () => _start.add(async.elapsed),
+      );
       service.activate();
       async.flushMicrotasks();
 
@@ -73,34 +85,45 @@ void main() {
     });
   });
 
-  test('activer à nouveau repart pour 30 minutes pleines (sans double expiration)', () {
-    fakeAsync((async) {
-      final service = AdFreeService(store: _MemoryStore(), now: () => _start.add(async.elapsed));
-      final events = <bool>[];
-      service.active.addListener(() => events.add(service.active.value));
+  test(
+    'activer à nouveau repart pour 30 minutes pleines (sans double expiration)',
+    () {
+      fakeAsync((async) {
+        final service = AdFreeService(
+          store: _MemoryStore(),
+          now: () => _start.add(async.elapsed),
+        );
+        final events = <bool>[];
+        service.active.addListener(() => events.add(service.active.value));
 
-      service.activate();
-      async.flushMicrotasks();
-      async.elapse(const Duration(minutes: 20));
-      service.activate();
-      async.flushMicrotasks();
-      expect(service.remaining, AdFreeService.duration);
+        service.activate();
+        async.flushMicrotasks();
+        async.elapse(const Duration(minutes: 20));
+        service.activate();
+        async.flushMicrotasks();
+        expect(service.remaining, AdFreeService.duration);
 
-      // L'ancienne échéance (à 30 min) est passée sans effet.
-      async.elapse(const Duration(minutes: 29, seconds: 59));
-      expect(service.active.value, isTrue);
-      async.elapse(const Duration(seconds: 1));
-      expect(service.active.value, isFalse);
-      expect(events, [true, false]);
+        // L'ancienne échéance (à 30 min) est passée sans effet.
+        async.elapse(const Duration(minutes: 29, seconds: 59));
+        expect(service.active.value, isTrue);
+        async.elapse(const Duration(seconds: 1));
+        expect(service.active.value, isFalse);
+        expect(events, [true, false]);
 
-      service.dispose();
-    });
-  });
+        service.dispose();
+      });
+    },
+  );
 
   test('load : une échéance déjà passée laisse le mode inactif', () {
     fakeAsync((async) {
-      final store = _MemoryStore(_start.subtract(const Duration(minutes: 1)).millisecondsSinceEpoch);
-      final service = AdFreeService(store: store, now: () => _start.add(async.elapsed));
+      final store = _MemoryStore(
+        _start.subtract(const Duration(minutes: 1)).millisecondsSinceEpoch,
+      );
+      final service = AdFreeService(
+        store: store,
+        now: () => _start.add(async.elapsed),
+      );
 
       service.load();
       async.flushMicrotasks();
@@ -112,8 +135,13 @@ void main() {
 
   test('load : une échéance future active le mode et expire à l\'heure', () {
     fakeAsync((async) {
-      final store = _MemoryStore(_start.add(const Duration(minutes: 10)).millisecondsSinceEpoch);
-      final service = AdFreeService(store: store, now: () => _start.add(async.elapsed));
+      final store = _MemoryStore(
+        _start.add(const Duration(minutes: 10)).millisecondsSinceEpoch,
+      );
+      final service = AdFreeService(
+        store: store,
+        now: () => _start.add(async.elapsed),
+      );
 
       service.load();
       async.flushMicrotasks();
@@ -128,7 +156,10 @@ void main() {
 
   test('load : rien de conservé laisse le mode inactif', () {
     fakeAsync((async) {
-      final service = AdFreeService(store: _MemoryStore(), now: () => _start.add(async.elapsed));
+      final service = AdFreeService(
+        store: _MemoryStore(),
+        now: () => _start.add(async.elapsed),
+      );
       service.load();
       async.flushMicrotasks();
       expect(service.active.value, isFalse);
@@ -136,30 +167,33 @@ void main() {
     });
   });
 
-  test('persistance : un nouveau service (redémarrage simulé) retrouve le mode', () {
-    fakeAsync((async) {
-      final store = _MemoryStore();
-      DateTime now() => _start.add(async.elapsed);
+  test(
+    'persistance : un nouveau service (redémarrage simulé) retrouve le mode',
+    () {
+      fakeAsync((async) {
+        final store = _MemoryStore();
+        DateTime now() => _start.add(async.elapsed);
 
-      final first = AdFreeService(store: store, now: now);
-      first.activate();
-      async.flushMicrotasks();
-      first.dispose();
+        final first = AdFreeService(store: store, now: now);
+        first.activate();
+        async.flushMicrotasks();
+        first.dispose();
 
-      async.elapse(const Duration(minutes: 5));
+        async.elapse(const Duration(minutes: 5));
 
-      final second = AdFreeService(store: store, now: now);
-      expect(second.active.value, isFalse, reason: 'avant load()');
-      second.load();
-      async.flushMicrotasks();
-      expect(second.active.value, isTrue);
-      expect(second.remaining, const Duration(minutes: 25));
+        final second = AdFreeService(store: store, now: now);
+        expect(second.active.value, isFalse, reason: 'avant load()');
+        second.load();
+        async.flushMicrotasks();
+        expect(second.active.value, isTrue);
+        expect(second.remaining, const Duration(minutes: 25));
 
-      async.elapse(const Duration(minutes: 25));
-      expect(second.active.value, isFalse);
-      second.dispose();
-    });
-  });
+        async.elapse(const Duration(minutes: 25));
+        expect(second.active.value, isFalse);
+        second.dispose();
+      });
+    },
+  );
 
   test('SharedPreferences : valeur écrite sous la bonne clé et relue après redémarrage', () async {
     SharedPreferences.setMockInitialValues({});
@@ -168,7 +202,10 @@ void main() {
     final first = AdFreeService(now: () => now);
     await first.activate();
     final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getInt('kahwetne-ad-free-until'), _start.add(AdFreeService.duration).millisecondsSinceEpoch);
+    expect(
+      prefs.getInt('kahwetne-ad-free-until'),
+      _start.add(AdFreeService.duration).millisecondsSinceEpoch,
+    );
     first.dispose();
 
     now = _start.add(const Duration(minutes: 10));
@@ -181,7 +218,11 @@ void main() {
     now = _start.add(const Duration(minutes: 31));
     final third = AdFreeService(now: () => now);
     await third.load();
-    expect(third.active.value, isFalse, reason: 'redémarrage après l\'échéance');
+    expect(
+      third.active.value,
+      isFalse,
+      reason: 'redémarrage après l\'échéance',
+    );
     third.dispose();
   });
 }

@@ -1,11 +1,13 @@
 import 'dart:math' as math;
 
 import '../../core/audio/sounds.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/comic_palette.dart';
 import '../../core/theme/game_style.dart';
 import '../../widgets/comic/comic_panel.dart';
+
 import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../../core/layout/device_metrics.dart';
@@ -26,7 +28,11 @@ import '../../widgets/resume_game.dart';
 
 /// Écran de jeu Domino (DominoGameScreen.tsx).
 class DominoScreen extends StatefulWidget {
-  const DominoScreen({super.key, required this.difficulty, required this.targetScore});
+  const DominoScreen({
+    super.key,
+    required this.difficulty,
+    required this.targetScore,
+  });
 
   final Difficulty difficulty;
   final int targetScore;
@@ -74,55 +80,108 @@ class _DominoScreenState extends State<DominoScreen> {
     return ExitGuard(
       active: _controller.game.matchWinner == null,
       child: Scaffold(
-      backgroundColor: const Color(0xFF8B4513),
-      body: ListenableBuilder(
-        listenable: _controller,
-        builder: (context, _) {
-          final game = _controller.game;
-          return Stack(
-            children: [
-              const _WoodBackground(),
-              // Trames du fond : points 4px (opacité 0.2) et rayures verticales 11px (opacité 0.1 × 0.2).
-              const Positioned.fill(child: DotPattern(spacing: 4, radius: 1, color: Color(0x33000000))),
-              const Positioned.fill(child: StripePattern(period: 11, width: 1, color: Color(0x05000000), vertical: true)),
-              SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(12, 12, 12, _adFree.value ? 12 : 88),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1100),
-                      child: Column(
-                        children: [
-                          _Header(unit: unit, round: game.round, target: game.targetScore, onMenu: () => Navigator.of(context).maybePop()),
-                          SizedBox(height: unit),
-                          _ScoreStrip(unit: unit, game: game, turnIsPlayer: game.turn == Player.player && game.roundWinner == null, turnIsOpponent: game.turn == Player.opponent && game.roundWinner == null, onDrawTap: _controller.drawOrPass, mustDraw: _controller.mustDraw),
-                          SizedBox(height: unit * 0.6),
-                          _OpponentHand(unit: unit, count: game.hands[Player.opponent]!.length),
-                          SizedBox(height: unit * 0.6),
-                          Expanded(child: _Table(unit: unit, sm: sm, controller: _controller)),
-                          SizedBox(height: unit * 0.6),
-                          _Footer(unit: unit, sm: sm, controller: _controller),
-                        ],
+        backgroundColor: const Color(0xFF8B4513),
+        body: ListenableBuilder(
+          listenable: _controller,
+          builder: (context, _) {
+            final game = _controller.game;
+            return Stack(
+              children: [
+                const _WoodBackground(),
+                // Trames du fond : points 4px (opacité 0.2) et rayures verticales 11px (opacité 0.1 × 0.2).
+                const Positioned.fill(
+                  child: DotPattern(
+                    spacing: 4,
+                    radius: 1,
+                    color: Color(0x33000000),
+                  ),
+                ),
+                const Positioned.fill(
+                  child: StripePattern(
+                    period: 11,
+                    width: 1,
+                    color: Color(0x05000000),
+                    vertical: true,
+                  ),
+                ),
+                SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      12,
+                      12,
+                      12,
+                      _adFree.value ? 12 : 88,
+                    ),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1100),
+                        child: Column(
+                          children: [
+                            _Header(
+                              unit: unit,
+                              round: game.round,
+                              target: game.targetScore,
+                              onMenu: () => Navigator.of(context).maybePop(),
+                            ),
+                            SizedBox(height: unit),
+                            _ScoreStrip(
+                              unit: unit,
+                              game: game,
+                              turnIsPlayer:
+                                  game.turn == Player.player &&
+                                  game.roundWinner == null,
+                              turnIsOpponent:
+                                  game.turn == Player.opponent &&
+                                  game.roundWinner == null,
+                              onDrawTap: _controller.drawOrPass,
+                              mustDraw: _controller.mustDraw,
+                            ),
+                            SizedBox(height: unit * 0.6),
+                            _OpponentHand(
+                              unit: unit,
+                              count: game.hands[Player.opponent]!.length,
+                            ),
+                            SizedBox(height: unit * 0.6),
+                            Expanded(
+                              child: _Table(
+                                unit: unit,
+                                sm: sm,
+                                controller: _controller,
+                              ),
+                            ),
+                            SizedBox(height: unit * 0.6),
+                            _Footer(
+                              unit: unit,
+                              sm: sm,
+                              controller: _controller,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              if (!_adFree.value) const Positioned(left: 8, right: 8, bottom: 8, child: AdBanner()),
-              if (game.roundWinner != null || game.matchWinner != null)
-                Positioned.fill(
-                  child: _RoundOverlay(
-                    game: game,
-                    onNext: _controller.startNextRound,
-                    onRestart: _controller.restart,
-                    onMenu: () => Navigator.of(context).maybePop(),
+                if (!_adFree.value)
+                  const Positioned(
+                    left: 8,
+                    right: 8,
+                    bottom: 8,
+                    child: AdBanner(),
                   ),
-                ),
-            ],
-          );
-        },
+                if (game.roundWinner != null || game.matchWinner != null)
+                  Positioned.fill(
+                    child: _RoundOverlay(
+                      game: game,
+                      onNext: _controller.startNextRound,
+                      onRestart: _controller.restart,
+                      onMenu: () => Navigator.of(context).maybePop(),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
       ),
-    ),
     );
   }
 }
@@ -147,7 +206,12 @@ class _WoodBackground extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.unit, required this.round, required this.target, required this.onMenu});
+  const _Header({
+    required this.unit,
+    required this.round,
+    required this.target,
+    required this.onMenu,
+  });
 
   final double unit;
   final int round;
@@ -157,31 +221,48 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // text-[calc(var(--game-unit)*0.75)], et 0.9 à partir du seuil sm (640 px) comme dans le source.
-    final titleSize = unit * (MediaQuery.sizeOf(context).width >= 640 ? 0.9 : 0.75);
+    final titleSize =
+        unit * (MediaQuery.sizeOf(context).width >= 640 ? 0.9 : 0.75);
     return Row(
       children: [
         Pressable(
           semanticLabel: Strings.menuLabel,
           onTap: onMenu,
-          child: kComicDomino ? _comicMenuPill(unit) : Container(
-            padding: EdgeInsets.symmetric(horizontal: unit, vertical: unit * 0.55),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
-                BoxShadow(color: Color(0xFF4A2A10), spreadRadius: 3),
-                BoxShadow(color: Color(0xFF4A2A10), offset: Offset(0, 5)),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.arrow_back, size: unit, color: const Color(0xFF7E22CE)),
-                SizedBox(width: unit * 0.4),
-                Text(Strings.menuLabel, style: TextStyle(fontWeight: FontWeight.w900, fontSize: unit * 0.85, color: const Color(0xFF7E22CE))),
-              ],
-            ),
-          ),
+          child: kComicDomino
+              ? _comicMenuPill(unit)
+              : Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: unit,
+                    vertical: unit * 0.55,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      BoxShadow(color: Color(0xFF4A2A10), spreadRadius: 3),
+                      BoxShadow(color: Color(0xFF4A2A10), offset: Offset(0, 5)),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.arrow_back,
+                        size: unit,
+                        color: const Color(0xFF7E22CE),
+                      ),
+                      SizedBox(width: unit * 0.4),
+                      Text(
+                        Strings.menuLabel,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: unit * 0.85,
+                          color: const Color(0xFF7E22CE),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
         ),
         Expanded(
           child: Padding(
@@ -197,7 +278,9 @@ class _Header extends StatelessWidget {
                     fontWeight: FontWeight.w900,
                     letterSpacing: titleSize * 0.16,
                     color: const Color(0xFFFFF1BD),
-                    shadows: const [Shadow(offset: Offset(1, 2), color: Color(0xFF4A2A10))],
+                    shadows: const [
+                      Shadow(offset: Offset(1, 2), color: Color(0xFF4A2A10)),
+                    ],
                   ),
                 ),
                 Text(
@@ -206,7 +289,9 @@ class _Header extends StatelessWidget {
                     fontSize: unit * 0.8,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
-                    shadows: const [Shadow(offset: Offset(1, 2), color: Color(0xFF4A2A10))],
+                    shadows: const [
+                      Shadow(offset: Offset(1, 2), color: Color(0xFF4A2A10)),
+                    ],
                   ),
                 ),
               ],
@@ -219,12 +304,20 @@ class _Header extends StatelessWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Icon(Icons.emoji_events, size: unit * 3, color: const Color(0xFFFBBF24)),
+              Icon(
+                Icons.emoji_events,
+                size: unit * 3,
+                color: const Color(0xFFFBBF24),
+              ),
               Positioned(
                 top: unit * 0.4,
                 child: Text(
                   '$target',
-                  style: TextStyle(fontSize: unit * 0.8, fontWeight: FontWeight.w900, color: const Color(0xFF20284B)),
+                  style: TextStyle(
+                    fontSize: unit * 0.8,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF20284B),
+                  ),
                 ),
               ),
             ],
@@ -265,7 +358,11 @@ class _ScoreStrip extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(color: Color(0xFF4A2A10), spreadRadius: 3),
-          BoxShadow(color: Color(0xFF4A2A10), offset: Offset(0, 4), spreadRadius: 3),
+          BoxShadow(
+            color: Color(0xFF4A2A10),
+            offset: Offset(0, 4),
+            spreadRadius: 3,
+          ),
         ],
       ),
       child: Stack(
@@ -274,29 +371,37 @@ class _ScoreStrip extends StatelessWidget {
           Positioned.fill(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: const DotPattern(spacing: 6, radius: 1, color: Color(0x1A000000)),
+              child: const DotPattern(
+                spacing: 6,
+                radius: 1,
+                color: Color(0x1A000000),
+              ),
             ),
           ),
           Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _ScoreBox(
-            label: t('you'),
-            value: game.scores[Player.player]!,
-            color: const Color(0xFF047857),
-            active: turnIsPlayer,
-            unit: unit,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _ScoreBox(
+                label: t('you'),
+                value: game.scores[Player.player]!,
+                color: const Color(0xFF047857),
+                active: turnIsPlayer,
+                unit: unit,
+              ),
+              _Pile(
+                unit: unit,
+                count: game.boneyard.length,
+                bounce: mustDraw && game.boneyard.isNotEmpty,
+              ),
+              _ScoreBox(
+                label: t('opponentShort'),
+                value: game.scores[Player.opponent]!,
+                color: const Color(0xFFB91C1C),
+                active: turnIsOpponent,
+                unit: unit,
+              ),
+            ],
           ),
-          _Pile(unit: unit, count: game.boneyard.length, bounce: mustDraw && game.boneyard.isNotEmpty),
-          _ScoreBox(
-            label: t('opponentShort'),
-            value: game.scores[Player.opponent]!,
-            color: const Color(0xFFB91C1C),
-            active: turnIsOpponent,
-            unit: unit,
-          ),
-        ],
-      ),
         ],
       ),
     );
@@ -304,7 +409,13 @@ class _ScoreStrip extends StatelessWidget {
 }
 
 class _ScoreBox extends StatelessWidget {
-  const _ScoreBox({required this.label, required this.value, required this.color, required this.active, required this.unit});
+  const _ScoreBox({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.active,
+    required this.unit,
+  });
 
   final String label;
   final int value;
@@ -315,33 +426,59 @@ class _ScoreBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: tf('sScoreOf', {'who': label == t('you') ? t('youLower') : t('opponent'), 'v': '$value'}),
+      label: tf('sScoreOf', {
+        'who': label == t('you') ? t('youLower') : t('opponent'),
+        'v': '$value',
+      }),
       excludeSemantics: true,
       child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (label == 'Adv.') ...[
-          Text(label.toUpperCase(), style: TextStyle(fontSize: unit * 0.7, fontWeight: FontWeight.w900, color: color)),
-          SizedBox(width: unit * 0.3),
-        ],
-        Container(
-          constraints: BoxConstraints(minWidth: unit * 3.2),
-          height: unit * 2.8,
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color, width: 2),
-            boxShadow: active ? const [BoxShadow(color: Color(0xFFFFF1BD), spreadRadius: 3)] : null,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (label == 'Adv.') ...[
+            Text(
+              label.toUpperCase(),
+              style: TextStyle(
+                fontSize: unit * 0.7,
+                fontWeight: FontWeight.w900,
+                color: color,
+              ),
+            ),
+            SizedBox(width: unit * 0.3),
+          ],
+          Container(
+            constraints: BoxConstraints(minWidth: unit * 3.2),
+            height: unit * 2.8,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: color, width: 2),
+              boxShadow: active
+                  ? const [BoxShadow(color: Color(0xFFFFF1BD), spreadRadius: 3)]
+                  : null,
+            ),
+            child: Text(
+              '$value',
+              style: TextStyle(
+                fontSize: unit * 1.4,
+                fontWeight: FontWeight.w900,
+                color: color,
+              ),
+            ),
           ),
-          child: Text('$value', style: TextStyle(fontSize: unit * 1.4, fontWeight: FontWeight.w900, color: color)),
-        ),
-        if (label == t('you')) ...[
-          SizedBox(width: unit * 0.3),
-          Text(label.toUpperCase(), style: TextStyle(fontSize: unit * 0.7, fontWeight: FontWeight.w900, color: color)),
+          if (label == t('you')) ...[
+            SizedBox(width: unit * 0.3),
+            Text(
+              label.toUpperCase(),
+              style: TextStyle(
+                fontSize: unit * 0.7,
+                fontWeight: FontWeight.w900,
+                color: color,
+              ),
+            ),
+          ],
         ],
-      ],
       ),
     );
   }
@@ -360,40 +497,58 @@ class _Pile extends StatelessWidget {
       label: tf('sBoneyard', {'n': '$count'}),
       excludeSemantics: true,
       child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          width: unit * 2,
-          height: unit * 2,
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: unit,
-                height: unit * 1.5,
-                decoration: BoxDecoration(color: const Color(0xFFC63D55), border: Border.all(color: Colors.black, width: 2)),
-              ),
-              Positioned(
-                right: -unit * 0.2,
-                top: -unit * 0.2,
-                child: Container(
-                  constraints: BoxConstraints(minWidth: unit * 0.9),
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: unit * 2,
+            height: unit * 2,
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: unit,
+                  height: unit * 1.5,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFFDF5),
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: Colors.black),
+                    color: const Color(0xFFC63D55),
+                    border: Border.all(color: Colors.black, width: 2),
                   ),
-                  child: Text('$count', style: TextStyle(fontSize: unit * 0.55, fontWeight: FontWeight.w900, color: const Color(0xFF20284B))),
                 ),
-              ),
-            ],
+                Positioned(
+                  right: -unit * 0.2,
+                  top: -unit * 0.2,
+                  child: Container(
+                    constraints: BoxConstraints(minWidth: unit * 0.9),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFFDF5),
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: Colors.black),
+                    ),
+                    child: Text(
+                      '$count',
+                      style: TextStyle(
+                        fontSize: unit * 0.55,
+                        fontWeight: FontWeight.w900,
+                        color: const Color(0xFF20284B),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        Text(t('draw'), style: TextStyle(fontSize: unit * 0.55, fontWeight: FontWeight.w900, letterSpacing: 1, color: const Color(0xFF17213D))),
-      ],
+          Text(
+            t('draw'),
+            style: TextStyle(
+              fontSize: unit * 0.55,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1,
+              color: const Color(0xFF17213D),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -427,7 +582,9 @@ class _OpponentHand extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(3),
                   border: Border.all(color: _edge, width: 2),
-                  boxShadow: const [BoxShadow(color: Color(0xFF4A1022), offset: Offset(0, 3))],
+                  boxShadow: const [
+                    BoxShadow(color: Color(0xFF4A1022), offset: Offset(0, 3)),
+                  ],
                 ),
                 child: FractionallySizedBox(
                   widthFactor: 0.6,
@@ -444,7 +601,11 @@ class _OpponentHand extends StatelessWidget {
 const _edge = Color(0xFF24364B);
 
 class _Table extends StatelessWidget {
-  const _Table({required this.unit, required this.sm, required this.controller});
+  const _Table({
+    required this.unit,
+    required this.sm,
+    required this.controller,
+  });
 
   final double unit;
   final bool sm;
@@ -457,14 +618,22 @@ class _Table extends StatelessWidget {
     final ends = controller.chainEnds;
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: sm ? 20 : 8, vertical: sm ? 16 : 12),
+      padding: EdgeInsets.symmetric(
+        horizontal: sm ? 20 : 8,
+        vertical: sm ? 16 : 12,
+      ),
       decoration: BoxDecoration(
         color: const Color(0xFF10B981),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: const Color(0xFF4A2A10), width: 6),
         boxShadow: const [
           BoxShadow(color: Color(0xFF4A2A10), spreadRadius: 3),
-          BoxShadow(color: Color(0x59281405), offset: Offset(0, 8), blurRadius: 20, spreadRadius: 3),
+          BoxShadow(
+            color: Color(0x59281405),
+            offset: Offset(0, 8),
+            blurRadius: 20,
+            spreadRadius: 3,
+          ),
         ],
       ),
       child: ClipRRect(
@@ -472,45 +641,70 @@ class _Table extends StatelessWidget {
         child: Stack(
           children: [
             // Tapis : rayures blanches 4px (opacité 0.08 × 0.08), points noirs 8px (opacité 0.1).
-            const Positioned.fill(child: StripePattern(period: 4, width: 2, color: Color(0x02FFFFFF))),
-            const Positioned.fill(child: StripePattern(period: 4, width: 2, color: Color(0x02FFFFFF), vertical: true)),
-            const Positioned.fill(child: DotPattern(spacing: 8, radius: 1, color: Color(0x1A000000))),
+            const Positioned.fill(
+              child: StripePattern(
+                period: 4,
+                width: 2,
+                color: Color(0x02FFFFFF),
+              ),
+            ),
+            const Positioned.fill(
+              child: StripePattern(
+                period: 4,
+                width: 2,
+                color: Color(0x02FFFFFF),
+                vertical: true,
+              ),
+            ),
+            const Positioned.fill(
+              child: DotPattern(
+                spacing: 8,
+                radius: 1,
+                color: Color(0x1A000000),
+              ),
+            ),
             Column(
-        children: [
-          Semantics(
-            liveRegion: true,
-            child: Text(
-            status,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: sm ? 14 : 11,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-              shadows: const [Shadow(offset: Offset(1, 1), color: Color(0xFF123B2B))],
-            ),
-            ),
-          ),
-          SizedBox(height: sm ? 12 : 8),
-          Expanded(
-            child: game.chain.isEmpty
-                ? Center(
-                    child: Text(
-                      'La première pierre ouvre la partie',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.45)),
+              children: [
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    status,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: sm ? 14 : 11,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      shadows: const [
+                        Shadow(offset: Offset(1, 1), color: Color(0xFF123B2B)),
+                      ],
                     ),
-                  )
-                : DominoChain(
-                    chain: game.chain,
-                    leftOpen: ends?.left ?? false,
-                    rightOpen: ends?.right ?? false,
-                    onEndTap: controller.playSelected,
                   ),
-          ),
-        ],
-      ),
+                ),
+                SizedBox(height: sm ? 12 : 8),
+                Expanded(
+                  child: game.chain.isEmpty
+                      ? Center(
+                          child: Text(
+                            'La première pierre ouvre la partie',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white.withValues(alpha: 0.45),
+                            ),
+                          ),
+                        )
+                      : DominoChain(
+                          chain: game.chain,
+                          leftOpen: ends?.left ?? false,
+                          rightOpen: ends?.right ?? false,
+                          onEndTap: controller.playSelected,
+                        ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -522,23 +716,36 @@ class _Table extends StatelessWidget {
     if (game.roundWinner != null) return 'Manche terminée';
     final playerTurn = game.turn == Player.player;
     if (game.chain.isEmpty) {
-      return playerTurn ? 'À toi d’ouvrir la chaîne' : 'Le voisin ouvre la chaîne…';
+      return playerTurn
+          ? 'À toi d’ouvrir la chaîne'
+          : 'Le voisin ouvre la chaîne…';
     }
     if (!playerTurn) return 'Le voisin réfléchit…';
     if (c.selectedTile != null) return 'Touche l’extrémité où poser la pierre';
     if (c.playable.isNotEmpty) return 'Touche une pierre pour jouer';
-    return game.boneyard.isNotEmpty ? 'Aucun coup possible : pioche' : 'Aucun coup possible : passe';
+    return game.boneyard.isNotEmpty
+        ? 'Aucun coup possible : pioche'
+        : 'Aucun coup possible : passe';
   }
 }
 
 class _Footer extends StatelessWidget {
-  const _Footer({required this.unit, required this.sm, required this.controller});
+  const _Footer({
+    required this.unit,
+    required this.sm,
+    required this.controller,
+  });
 
   final double unit;
   final bool sm;
   final DominoController controller;
 
-  void _onTile(BuildContext context, DominoTile tile, bool playable, bool canAct) {
+  void _onTile(
+    BuildContext context,
+    DominoTile tile,
+    bool playable,
+    bool canAct,
+  ) {
     if (canAct && playable) {
       controller.tapTile(tile);
       return;
@@ -571,7 +778,9 @@ class _Footer extends StatelessWidget {
         color: const Color(0xFFFFF8E7),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFF4A2A10), width: 3),
-        boxShadow: const [BoxShadow(color: Color(0xFF4A2A10), offset: Offset(0, 5))],
+        boxShadow: const [
+          BoxShadow(color: Color(0xFF4A2A10), offset: Offset(0, 5)),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -581,28 +790,54 @@ class _Footer extends StatelessWidget {
               Expanded(
                 child: Text(
                   'TA MAIN · ${game.hands[Player.player]!.length} PIERRES',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 2, color: Color(0xFF20284B)),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 2,
+                    color: Color(0xFF20284B),
+                  ),
                 ),
               ),
               _ShakeOnTrigger(
                 trigger: controller.drawInvalidCount,
                 child: Pressable(
-                semanticLabel: game.boneyard.isEmpty ? '$label, ${Strings.dominoDrawUnavailable}' : label,
-                onTap: () => _onDraw(context),
-                child: kComicDomino ? _comicDrawChip(label) : Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: [Color(0xFFFF5A3C), Color(0xFFD71920)]),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF4A0A0A), width: 2),
-                    boxShadow: const [BoxShadow(color: Color(0xFFFF8A4C), spreadRadius: 3)],
-                  ),
-                  child: Text(
-                    label,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white),
-                  ),
+                  semanticLabel: game.boneyard.isEmpty
+                      ? '$label, ${Strings.dominoDrawUnavailable}'
+                      : label,
+                  onTap: () => _onDraw(context),
+                  child: kComicDomino
+                      ? _comicDrawChip(label)
+                      : Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFFF5A3C), Color(0xFFD71920)],
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: const Color(0xFF4A0A0A),
+                              width: 2,
+                            ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0xFFFF8A4C),
+                                spreadRadius: 3,
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            label,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                 ),
-              ),
               ),
             ],
           ),
@@ -611,7 +846,13 @@ class _Footer extends StatelessWidget {
             height: sm ? 96 : 76,
             child: game.hands[Player.player]!.isEmpty
                 ? Center(
-                    child: Text(t('emptyHand'), style: TextStyle(fontWeight: FontWeight.w700, color: Color(0x9920284B))),
+                    child: Text(
+                      t('emptyHand'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: Color(0x9920284B),
+                      ),
+                    ),
                   )
                 : _HandScroller(
                     children: [
@@ -619,13 +860,20 @@ class _Footer extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: _ShakeOnTrigger(
-                            trigger: controller.invalidTileId == tile.id ? controller.invalidCount : 0,
+                            trigger: controller.invalidTileId == tile.id
+                                ? controller.invalidCount
+                                : 0,
                             child: _HandTile(
                               tile: tile,
                               sm: sm,
                               selected: controller.selectedTileId == tile.id,
                               enabled: canAct && playable.contains(tile.id),
-                              onTap: () => _onTile(context, tile, playable.contains(tile.id), canAct),
+                              onTap: () => _onTile(
+                                context,
+                                tile,
+                                playable.contains(tile.id),
+                                canAct,
+                              ),
                             ),
                           ),
                         ),
@@ -706,7 +954,13 @@ class _ShakeOnTrigger extends StatelessWidget {
 }
 
 class _HandTile extends StatelessWidget {
-  const _HandTile({required this.tile, required this.sm, required this.selected, required this.enabled, required this.onTap});
+  const _HandTile({
+    required this.tile,
+    required this.sm,
+    required this.selected,
+    required this.enabled,
+    required this.onTap,
+  });
 
   final DominoTile tile;
   final bool sm;
@@ -717,7 +971,9 @@ class _HandTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Pressable(
-      semanticLabel: tf('sTile', {'a': '${tile.a}', 'b': '${tile.b}'}) + (enabled ? t('sPlayable') : t('sNotPlayable')),
+      semanticLabel:
+          tf('sTile', {'a': '${tile.a}', 'b': '${tile.b}'}) +
+          (enabled ? t('sPlayable') : t('sNotPlayable')),
       onTap: onTap,
       pressedScale: 0.97,
       child: AnimatedContainer(
@@ -739,7 +995,12 @@ class _HandTile extends StatelessWidget {
 }
 
 class _RoundOverlay extends StatelessWidget {
-  const _RoundOverlay({required this.game, required this.onNext, required this.onRestart, required this.onMenu});
+  const _RoundOverlay({
+    required this.game,
+    required this.onNext,
+    required this.onRestart,
+    required this.onMenu,
+  });
 
   final DominoState game;
   final VoidCallback onNext;
@@ -756,59 +1017,94 @@ class _RoundOverlay extends StatelessWidget {
     final canContinue = game.roundWinner != null && game.matchWinner == null;
 
     return ColoredBox(
-        color: const Color(0xB3071B20),
-        child: Center(
-          child: Container(
-            margin: const EdgeInsets.all(20),
-            padding: const EdgeInsets.all(28),
-            constraints: const BoxConstraints(maxWidth: 384),
-            decoration: BoxDecoration(
-              color: const Color(0xFF11343A),
-              borderRadius: BorderRadius.circular(32),
-              border: Border.all(color: const Color(0xFFF4D28A), width: 2),
-              boxShadow: const [BoxShadow(color: Color(0x80000000), offset: Offset(0, 20), blurRadius: 70)],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(color: const Color(0xFFF4D28A), borderRadius: BorderRadius.circular(16)),
-                  child: Icon(matchOver ? Icons.emoji_events : Icons.radio_button_checked, size: 32, color: const Color(0xFF694B13)),
+      color: const Color(0xB3071B20),
+      child: Center(
+        child: Container(
+          margin: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(28),
+          constraints: const BoxConstraints(maxWidth: 384),
+          decoration: BoxDecoration(
+            color: const Color(0xFF11343A),
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(color: const Color(0xFFF4D28A), width: 2),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x80000000),
+                offset: Offset(0, 20),
+                blurRadius: 70,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF4D28A),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  matchOver ? Strings.dominoMatchOver.toUpperCase() : 'MANCHE ${game.round} TERMINÉE',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 2.6, color: Color(0xFFF4D28A)),
+                child: Icon(
+                  matchOver ? Icons.emoji_events : Icons.radio_button_checked,
+                  size: 32,
+                  color: const Color(0xFF694B13),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontFamily: 'RobotoSlab', fontSize: 30, fontWeight: FontWeight.w900, color: Colors.white),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                matchOver
+                    ? Strings.dominoMatchOver.toUpperCase()
+                    : 'MANCHE ${game.round} TERMINÉE',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2.6,
+                  color: Color(0xFFF4D28A),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Score ${game.scores[Player.player]} – ${game.scores[Player.opponent]} · +$points point${points == 1 ? '' : 's'}',
-                  style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xB3FFFFFF)),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'RobotoSlab',
+                  fontSize: 30,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
                 ),
-                const SizedBox(height: 24),
-                _OverlayButton(
-                  label: canContinue ? t('nextRound') : t('replay'),
-                  onTap: canContinue ? onNext : onRestart,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Score ${game.scores[Player.player]} – ${game.scores[Player.opponent]} · +$points point${points == 1 ? '' : 's'}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xB3FFFFFF),
                 ),
-                const SizedBox(height: 16),
-                Pressable(
-                  semanticLabel: t('backToMenu'),
-                  onTap: onMenu,
-                  child: Text(t('backToMenu'), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0x99FFFFFF))),
+              ),
+              const SizedBox(height: 24),
+              _OverlayButton(
+                label: canContinue ? t('nextRound') : t('replay'),
+                onTap: canContinue ? onNext : onRestart,
+              ),
+              const SizedBox(height: 16),
+              Pressable(
+                semanticLabel: t('backToMenu'),
+                onTap: onMenu,
+                child: Text(
+                  t('backToMenu'),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0x99FFFFFF),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
   }
 }
 
@@ -828,11 +1124,22 @@ class _OverlayButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [Color(0xFFFFE17B), Color(0xFFF2B74E)]),
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFFE17B), Color(0xFFF2B74E)],
+          ),
           borderRadius: BorderRadius.circular(16),
-          boxShadow: const [BoxShadow(color: Color(0xFFAE7131), offset: Offset(0, 5))],
+          boxShadow: const [
+            BoxShadow(color: Color(0xFFAE7131), offset: Offset(0, 5)),
+          ],
         ),
-        child: Text(label, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF3D351F))),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w900,
+            fontSize: 16,
+            color: Color(0xFF3D351F),
+          ),
+        ),
       ),
     );
   }
@@ -851,7 +1158,15 @@ Widget _comicMenuPill(double unit) {
       children: [
         Icon(Icons.arrow_back, size: unit, color: ComicPalette.ink),
         SizedBox(width: unit * 0.4),
-        Text(Strings.menuLabel, style: TextStyle(fontFamily: 'Bangers', fontSize: unit * 0.95, letterSpacing: 1, color: ComicPalette.ink)),
+        Text(
+          Strings.menuLabel,
+          style: TextStyle(
+            fontFamily: 'Bangers',
+            fontSize: unit * 0.95,
+            letterSpacing: 1,
+            color: ComicPalette.ink,
+          ),
+        ),
       ],
     ),
   );
@@ -866,7 +1181,12 @@ Widget _comicDrawChip(String label) {
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     child: Text(
       label,
-      style: const TextStyle(fontFamily: 'Bangers', fontSize: 20, letterSpacing: 1, color: ComicPalette.paper),
+      style: const TextStyle(
+        fontFamily: 'Bangers',
+        fontSize: 20,
+        letterSpacing: 1,
+        color: ComicPalette.paper,
+      ),
     ),
   );
 }

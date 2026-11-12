@@ -57,25 +57,28 @@ void main() {
       expect(move.side, DominoSide.right);
     });
 
-    test('difficile garde les doubles pour la fin, le moyen joue le plus fort', () {
-      final state = _state(
-        hands: {
-          Player.player: [_t(id: '0-1', a: 0, b: 1)],
-          Player.opponent: [
-            _t(id: '5-5', a: 5, b: 5), // total 10, double
-            _t(id: '4-5', a: 4, b: 5), // total 9, pose à droite (5)
-          ],
-        },
-        chain: [const PlacedTile(id: '3-5', a: 3, b: 5, left: 3, right: 5)],
-        leftEnd: 3,
-        rightEnd: 5,
-        turn: Player.opponent,
-      );
-      expect(chooseOpponentMove(state).tile!.id, '5-5');
-      final hard = chooseOpponentMove(state, level: DominoAiLevel.difficile);
-      expect(hard.tile!.id, '4-5');
-      expect(hard.side, DominoSide.right);
-    });
+    test(
+      'difficile garde les doubles pour la fin, le moyen joue le plus fort',
+      () {
+        final state = _state(
+          hands: {
+            Player.player: [_t(id: '0-1', a: 0, b: 1)],
+            Player.opponent: [
+              _t(id: '5-5', a: 5, b: 5), // total 10, double
+              _t(id: '4-5', a: 4, b: 5), // total 9, pose à droite (5)
+            ],
+          },
+          chain: [const PlacedTile(id: '3-5', a: 3, b: 5, left: 3, right: 5)],
+          leftEnd: 3,
+          rightEnd: 5,
+          turn: Player.opponent,
+        );
+        expect(chooseOpponentMove(state).tile!.id, '5-5');
+        final hard = chooseOpponentMove(state, level: DominoAiLevel.difficile);
+        expect(hard.tile!.id, '4-5');
+        expect(hard.side, DominoSide.right);
+      },
+    );
 
     test('facile : tirage à 0 joue la première tuile légale, sur le seul côté possible', () {
       final state = _state(
@@ -91,25 +94,32 @@ void main() {
         rightEnd: 5,
         turn: Player.opponent,
       );
-      final move = chooseOpponentMove(state, level: DominoAiLevel.facile, random: () => 0.0);
+      final move = chooseOpponentMove(
+        state,
+        level: DominoAiLevel.facile,
+        random: () => 0.0,
+      );
       expect(move.tile!.id, '1-3');
       expect(move.side, DominoSide.left);
     });
 
-    test('pioche quand aucune tuile ne se pose et que la pioche n\'est pas vide', () {
-      final state = _state(
-        hands: {
-          Player.player: [_t(id: '0-0', a: 0, b: 0)],
-          Player.opponent: [_t(id: '4-6', a: 4, b: 6)],
-        },
-        chain: [const PlacedTile(id: '1-1', a: 1, b: 1, left: 1, right: 1)],
-        leftEnd: 1,
-        rightEnd: 1,
-        turn: Player.opponent,
-        boneyard: [_t(id: '2-2', a: 2, b: 2)],
-      );
-      expect(chooseOpponentMove(state).action, DominoAction.draw);
-    });
+    test(
+      'pioche quand aucune tuile ne se pose et que la pioche n\'est pas vide',
+      () {
+        final state = _state(
+          hands: {
+            Player.player: [_t(id: '0-0', a: 0, b: 0)],
+            Player.opponent: [_t(id: '4-6', a: 4, b: 6)],
+          },
+          chain: [const PlacedTile(id: '1-1', a: 1, b: 1, left: 1, right: 1)],
+          leftEnd: 1,
+          rightEnd: 1,
+          turn: Player.opponent,
+          boneyard: [_t(id: '2-2', a: 2, b: 2)],
+        );
+        expect(chooseOpponentMove(state).action, DominoAction.draw);
+      },
+    );
 
     test('passe quand rien ne se pose et la pioche est vide', () {
       final state = _state(
@@ -140,10 +150,18 @@ void main() {
         final afterPlayer = controller.game.toJson();
 
         async.elapse(const Duration(milliseconds: 1249));
-        expect(controller.game.toJson(), equals(afterPlayer), reason: 'pas encore de coup de l\'IA');
+        expect(
+          controller.game.toJson(),
+          equals(afterPlayer),
+          reason: 'pas encore de coup de l\'IA',
+        );
 
         async.elapse(const Duration(milliseconds: 1));
-        expect(controller.game.toJson(), isNot(equals(afterPlayer)), reason: 'l\'IA a agi à 1250 ms');
+        expect(
+          controller.game.toJson(),
+          isNot(equals(afterPlayer)),
+          reason: 'l\'IA a agi à 1250 ms',
+        );
         controller.dispose();
       });
     });

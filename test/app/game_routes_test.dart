@@ -32,11 +32,14 @@ void main() {
     expect(parsePlayers(null), 1);
   });
 
-  test('buildGameRoute garde le nom de la route et ignore les chemins inconnus', () {
-    final route = buildGameRoute('/game?difficulty=moyen&target=21');
-    expect(route, isNotNull);
-    expect(route!.settings.name, '/game?difficulty=moyen&target=21');
-    expect(buildGameRoute('/inconnu?difficulty=facile'), isNull);
-    expect(buildGameRoute(null), isNull);
-  });
+  test(
+    'buildGameRoute garde le nom de la route et ignore les chemins inconnus',
+    () {
+      final route = buildGameRoute('/game?difficulty=moyen&target=21');
+      expect(route, isNotNull);
+      expect(route!.settings.name, '/game?difficulty=moyen&target=21');
+      expect(buildGameRoute('/inconnu?difficulty=facile'), isNull);
+      expect(buildGameRoute(null), isNull);
+    },
+  );
 }

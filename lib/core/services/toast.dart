@@ -18,8 +18,12 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showToast(
   String message, {
   String? description,
   ToastType type = ToastType.info,
-}) =>
-    showToastOn(ScaffoldMessenger.of(context), message, description: description, type: type);
+}) => showToastOn(
+  ScaffoldMessenger.of(context),
+  message,
+  description: description,
+  type: type,
+);
 
 /// Variante pour du code sans [BuildContext] (par exemple une `GlobalKey<ScaffoldMessengerState>`).
 ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showToastOn(
@@ -52,14 +56,22 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showToastOn(
               children: [
                 Text(
                   message,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
                 ),
                 if (description != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(
                       description,
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xB3FFFFFF)),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xB3FFFFFF),
+                      ),
                     ),
                   ),
               ],
@@ -72,13 +84,13 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showToastOn(
 }
 
 Color _accentOf(ToastType type) => switch (type) {
-      ToastType.info => const Color(0xFF60A5FA),
-      ToastType.success => const Color(0xFF4ADE80),
-      ToastType.error => const Color(0xFFF87171),
-    };
+  ToastType.info => const Color(0xFF60A5FA),
+  ToastType.success => const Color(0xFF4ADE80),
+  ToastType.error => const Color(0xFFF87171),
+};
 
 IconData _iconOf(ToastType type) => switch (type) {
-      ToastType.info => Icons.info_outline,
-      ToastType.success => Icons.check_circle_outline,
-      ToastType.error => Icons.error_outline,
-    };
+  ToastType.info => Icons.info_outline,
+  ToastType.success => Icons.check_circle_outline,
+  ToastType.error => Icons.error_outline,
+};

@@ -26,14 +26,19 @@ const ludoBaseSlots = <List<double>>[
 
 /// Coin de la maison de chaque couleur (ligne, colonne).
 Cell ludoCorner(LudoColor color) => switch (color) {
-      LudoColor.red => const Cell(0, 0),
-      LudoColor.green => const Cell(0, 9),
-      LudoColor.yellow => const Cell(9, 9),
-      LudoColor.blue => const Cell(9, 0),
-    };
+  LudoColor.red => const Cell(0, 0),
+  LudoColor.green => const Cell(0, 9),
+  LudoColor.yellow => const Cell(9, 9),
+  LudoColor.blue => const Cell(9, 0),
+};
 
 class PlacedToken {
-  const PlacedToken({required this.token, required this.x, required this.y, required this.size});
+  const PlacedToken({
+    required this.token,
+    required this.x,
+    required this.y,
+    required this.size,
+  });
 
   final Token token;
 
@@ -47,7 +52,9 @@ class PlacedToken {
 
 /// Calcule le centre et la taille de chaque pion.
 List<PlacedToken> layoutTokens(List<Token> tokens) {
-  final positions = [for (final token in tokens) (token: token, cell: cellOf(token))];
+  final positions = [
+    for (final token in tokens) (token: token, cell: cellOf(token)),
+  ];
 
   final counts = <String, int>{};
   for (final p in positions) {
@@ -81,7 +88,12 @@ PlacedToken _basePlacement(Token token, Map<LudoColor, int> baseSlot) {
   );
 }
 
-PlacedToken _trackPlacement(Token token, Cell cell, Map<String, int> counts, Map<String, int> seen) {
+PlacedToken _trackPlacement(
+  Token token,
+  Cell cell,
+  Map<String, int> counts,
+  Map<String, int> seen,
+) {
   final key = '${cell.row}:${cell.col}';
   final count = counts[key] ?? 1;
   final order = seen[key] ?? 0;

@@ -27,9 +27,9 @@ class _ComicDemoScreenState extends State<ComicDemoScreen> {
   Map<String, String> get _texts => _arabic ? arTexts : frTexts;
 
   void _burst(String text) => setState(() {
-        _burstText = text;
-        _burstKey++;
-      });
+    _burstText = text;
+    _burstKey++;
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,11 +42,20 @@ class _ComicDemoScreenState extends State<ComicDemoScreen> {
         appBar: AppBar(
           backgroundColor: ComicPalette.yellow,
           foregroundColor: ComicPalette.ink,
-          title: const Text('Démo BD', style: TextStyle(fontFamily: 'Bangers', fontSize: 26)),
+          title: const Text(
+            'Démo BD',
+            style: TextStyle(fontFamily: 'Bangers', fontSize: 26),
+          ),
           actions: [
             TextButton(
               onPressed: () => setState(() => _arabic = !_arabic),
-              child: Text(_arabic ? 'FR' : 'AR', style: const TextStyle(color: ComicPalette.ink, fontWeight: FontWeight.w900)),
+              child: Text(
+                _arabic ? 'FR' : 'AR',
+                style: const TextStyle(
+                  color: ComicPalette.ink,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
             ),
           ],
         ),
@@ -72,7 +81,11 @@ class _ComicDemoScreenState extends State<ComicDemoScreen> {
                 child: Text(
                   _texts['menuChooseLevelNote'] ?? '',
                   textAlign: _arabic ? TextAlign.right : TextAlign.left,
-                  style: TextStyle(fontFamily: family, fontSize: 16, color: ComicPalette.ink),
+                  style: TextStyle(
+                    fontFamily: family,
+                    fontSize: 16,
+                    color: ComicPalette.ink,
+                  ),
                 ),
               ),
             ),
@@ -81,7 +94,11 @@ class _ComicDemoScreenState extends State<ComicDemoScreen> {
               tailOnLeft: !_arabic,
               child: Text(
                 _texts['menuComingSoonBody'] ?? '',
-                style: TextStyle(fontFamily: family, fontSize: 16, color: ComicPalette.ink),
+                style: TextStyle(
+                  fontFamily: family,
+                  fontSize: 16,
+                  color: ComicPalette.ink,
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -92,7 +109,11 @@ class _ComicDemoScreenState extends State<ComicDemoScreen> {
                 fill: ComicPalette.yellow,
                 child: Text(
                   _texts['menuStart'] ?? '',
-                  style: TextStyle(fontFamily: family, fontSize: 18, color: ComicPalette.ink),
+                  style: TextStyle(
+                    fontFamily: family,
+                    fontSize: 18,
+                    color: ComicPalette.ink,
+                  ),
                 ),
               ),
             ),
@@ -106,28 +127,54 @@ class _ComicDemoScreenState extends State<ComicDemoScreen> {
                     onTap: () => _burst(word),
                     child: ComicPanel(
                       color: ComicPalette.paper,
-                      child: Text(word, style: const TextStyle(fontFamily: 'Bangers', fontSize: 22, color: ComicPalette.ink)),
+                      child: Text(
+                        word,
+                        style: const TextStyle(
+                          fontFamily: 'Bangers',
+                          fontSize: 22,
+                          color: ComicPalette.ink,
+                        ),
+                      ),
                     ),
                   ),
               ],
             ),
             const SizedBox(height: 16),
             Center(
-              child: ActionBurst(key: ValueKey(_burstKey), text: _burstText, size: 140),
+              child: ActionBurst(
+                key: ValueKey(_burstKey),
+                text: _burstText,
+                size: 140,
+              ),
             ),
             _section('Titres et textes'),
             Text(
               _texts['menuTagline'] ?? '',
-              style: TextStyle(fontFamily: family, fontSize: 28, color: ComicPalette.ink),
+              style: TextStyle(
+                fontFamily: family,
+                fontSize: 28,
+                color: ComicPalette.ink,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               _texts['levelHard'] ?? '',
-              style: TextStyle(fontFamily: family, fontSize: 18, color: ComicPalette.red),
+              style: TextStyle(
+                fontFamily: family,
+                fontSize: 18,
+                color: ComicPalette.red,
+              ),
             ),
             const SizedBox(height: 8),
             // Le texte de l'app (Strings) reste en français ici : la démo ne change pas la langue.
-            Text(Strings.menuStart, style: const TextStyle(fontFamily: 'Bangers', fontSize: 20, color: ComicPalette.ink)),
+            Text(
+              Strings.menuStart,
+              style: const TextStyle(
+                fontFamily: 'Bangers',
+                fontSize: 20,
+                color: ComicPalette.ink,
+              ),
+            ),
             const SizedBox(height: 24),
           ],
         ),
@@ -136,9 +183,16 @@ class _ComicDemoScreenState extends State<ComicDemoScreen> {
   }
 
   Widget _section(String title) => Padding(
-        padding: const EdgeInsets.only(top: 20, bottom: 8),
-        child: Text(title, style: const TextStyle(fontFamily: 'Bangers', fontSize: 20, color: ComicPalette.tunisBlue)),
-      );
+    padding: const EdgeInsets.only(top: 20, bottom: 8),
+    child: Text(
+      title,
+      style: const TextStyle(
+        fontFamily: 'Bangers',
+        fontSize: 20,
+        color: ComicPalette.tunisBlue,
+      ),
+    ),
+  );
 }
 
 class _Swatch extends StatelessWidget {
@@ -162,7 +216,9 @@ class _Swatch extends StatelessWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w800,
-          color: color.computeLuminance() > 0.5 ? ComicPalette.ink : ComicPalette.paper,
+          color: color.computeLuminance() > 0.5
+              ? ComicPalette.ink
+              : ComicPalette.paper,
         ),
       ),
     );

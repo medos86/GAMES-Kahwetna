@@ -1,7 +1,7 @@
 import '../../core/services/persistent_game_controller.dart';
 import '../../core/services/saved_game_store.dart';
-import 'dart:async';
 
+import 'dart:async';
 
 import '../../game/common.dart';
 import '../../game/rami.dart' as rules;
@@ -42,7 +42,10 @@ final class RamiDropDiscard extends RamiDropTarget {
 }
 
 /// Tri stable par couleur ou par valeur, jokers à la fin (comme sortHand du source).
-List<rules.RamiCard> sortRamiHand(List<rules.RamiCard> hand, RamiSortMode mode) {
+List<rules.RamiCard> sortRamiHand(
+  List<rules.RamiCard> hand,
+  RamiSortMode mode,
+) {
   int suitOrder(rules.RamiCard card) => card.isJoker ? 4 : card.suit!.index;
   int rankKey(rules.RamiCard card) => card.isJoker ? 99 : card.rank;
   int compare(rules.RamiCard a, rules.RamiCard b) {
@@ -54,7 +57,9 @@ List<rules.RamiCard> sortRamiHand(List<rules.RamiCard> hand, RamiSortMode mode) 
     return byRank != 0 ? byRank : bySuit;
   }
 
-  final indexed = [for (var i = 0; i < hand.length; i++) (index: i, card: hand[i])];
+  final indexed = [
+    for (var i = 0; i < hand.length; i++) (index: i, card: hand[i]),
+  ];
   indexed.sort((x, y) {
     final c = compare(x.card, y.card);
     return c != 0 ? c : x.index.compareTo(y.index);
@@ -72,9 +77,9 @@ class RamiController extends PersistentGameController {
     this.onMessage,
     RandomDouble? random,
     SavedGameStore? store,
-  })  : _random = random,
-        _game = rules.newMatch(targetScore, random),
-        super(store: store, gameKey: 'rami') {
+  }) : _random = random,
+       _game = rules.newMatch(targetScore, random),
+       super(store: store, gameKey: 'rami') {
     if (store == null) _reschedule();
   }
 
@@ -110,10 +115,17 @@ class RamiController extends PersistentGameController {
   /// Main affichée : l'ordre choisi par le joueur, les nouvelles cartes à la fin.
   List<rules.RamiCard> get displayed {
     final byId = {for (final card in hand) card.id: card};
-    final known = [for (final id in _order) if (byId[id] != null) byId[id]!];
+    final known = [
+      for (final id in _order)
+        if (byId[id] != null) byId[id]!,
+    ];
     if (known.isEmpty) return sortRamiHand(hand, RamiSortMode.suit);
     final seen = {for (final card in known) card.id};
-    return [...known, for (final card in hand) if (!seen.contains(card.id)) card];
+    return [
+      ...known,
+      for (final card in hand)
+        if (!seen.contains(card.id)) card,
+    ];
   }
 
   /// Paquets valides formés par des cartes voisines dans la main affichée.
@@ -131,22 +143,27 @@ class RamiController extends PersistentGameController {
     return map;
   }
 
-  int get readyPoints => groups.fold(0, (sum, group) => sum + rules.pointsOf(group));
+  int get readyPoints =>
+      groups.fold(0, (sum, group) => sum + rules.pointsOf(group));
 
-  int get stagedPoints => _game.staged.fold(0, (sum, cards) => sum + rules.pointsOf(cards));
+  int get stagedPoints =>
+      _game.staged.fold(0, (sum, cards) => sum + rules.pointsOf(cards));
 
   List<rules.RamiCard> get selectedCards => [
-        for (final card in displayed)
-          if (_selected.contains(card.id)) card,
-      ];
+    for (final card in displayed)
+      if (_selected.contains(card.id)) card,
+  ];
 
-  bool get selectionIsMeld => selectedCards.length >= 3 && rules.isValidMeld(selectedCards);
+  bool get selectionIsMeld =>
+      selectedCards.length >= 3 && rules.isValidMeld(selectedCards);
 
   bool get layEligible => canPlay && opened && _selected.length == 1;
 
   /// Paquet à poser pour une carte glissée : la sélection si elle est valide, sinon le paquet voisin.
   List<rules.RamiCard> groupFor(String id) {
-    if (_selected.contains(id) && selectedCards.length >= 3 && rules.isValidMeld(selectedCards)) {
+    if (_selected.contains(id) &&
+        selectedCards.length >= 3 &&
+        rules.isValidMeld(selectedCards)) {
       return selectedCards;
     }
     for (final group in groups) {
@@ -186,13 +203,14 @@ class RamiController extends PersistentGameController {
   }
 
   /// Pose la sélection comme combinaison.
-  void pose() => _apply(rules.poseMeld(_game, List.of(_selected)), Strings.notAMeld);
+  void pose() =>
+      _apply(rules.poseMeld(_game, List.of(_selected)), Strings.notAMeld);
 
   /// Valide l'ouverture (51 points minimum).
   void commit() => _apply(
-        rules.commitOpening(_game),
-        'Il faut au moins ${rules.ramiOpenMin} points pour ouvrir',
-      );
+    rules.commitOpening(_game),
+    'Il faut au moins ${rules.ramiOpenMin} points pour ouvrir',
+  );
 
   void cancel() => _apply(rules.cancelStaged(_game));
 
@@ -245,7 +263,10 @@ class RamiController extends PersistentGameController {
   /// Relâcher une carte de la main devant une autre la déplace à cet endroit.
   void _moveCard(String id, String targetId, bool after) {
     if (id == targetId) return;
-    final ids = [for (final card in displayed) if (card.id != id) card.id];
+    final ids = [
+      for (final card in displayed)
+        if (card.id != id) card.id,
+    ];
     final at = ids.indexOf(targetId);
     if (at < 0) return;
     ids.insert(after ? at + 1 : at, id);
@@ -314,7 +335,8 @@ class RamiController extends PersistentGameController {
   void _reschedule() {
     _timer?.cancel();
     _timer = null;
-    if (_disposed || _game.phase == rules.RamiPhase.end || _game.turn == 0) return;
+    if (_disposed || _game.phase == rules.RamiPhase.end || _game.turn == 0)
+      return;
     _timer = Timer(ramiAiDelay, _aiStep);
   }
 
@@ -329,10 +351,12 @@ class RamiController extends PersistentGameController {
   }
 
   @override
-  Map<String, dynamic>? snapshot() => _game.matchWinner != null ? null : _game.toJson();
+  Map<String, dynamic>? snapshot() =>
+      _game.matchWinner != null ? null : _game.toJson();
 
   @override
-  void applySnapshot(Map<String, dynamic> json) => _game = rules.RamiState.fromJson(json);
+  void applySnapshot(Map<String, dynamic> json) =>
+      _game = rules.RamiState.fromJson(json);
 
   @override
   void startFresh() => _reschedule();
