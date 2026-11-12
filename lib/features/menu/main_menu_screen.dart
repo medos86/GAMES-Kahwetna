@@ -672,9 +672,13 @@ class _GlassButton extends StatelessWidget {
             radius: 14,
             shadowOffset: const Offset(3, 3),
             padding: square ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: DefaultTextStyle.merge(
-              style: const TextStyle(color: _ceramic),
-              child: child,
+            // Icônes en papier sur la case sombre (#152) et centrées dans la case.
+            child: IconTheme.merge(
+              data: const IconThemeData(color: _ceramic, size: 20),
+              child: DefaultTextStyle.merge(
+                style: const TextStyle(color: _ceramic),
+                child: square ? Center(child: child) : child,
+              ),
             ),
           ),
         ),
