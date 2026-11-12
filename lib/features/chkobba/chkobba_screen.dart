@@ -416,7 +416,7 @@ class _Scoreboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      label: 'Score : vous ${game.scores[Player.player]}, adversaire ${game.scores[Player.opponent]}',
+      label: tf('sChkScore', {'a': '${game.scores[Player.player]}', 'b': '${game.scores[Player.opponent]}'}),
       child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
@@ -438,7 +438,7 @@ class _Scoreboard extends StatelessWidget {
             color: const Color(0xFF047857),
           ),
           Semantics(
-            label: 'Pioche : ${game.deck.length} cartes non distribuées',
+            label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
             child: _DeckPile(count: game.deck.length),
           ),
           _ScoreSide(

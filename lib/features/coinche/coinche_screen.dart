@@ -170,7 +170,7 @@ class _Header extends StatelessWidget {
           ),
         ),
         Semantics(
-          label: 'Partie en ${controller.match.target} points',
+          label: tf('sMatchTarget', {'n': '${controller.match.target}'}),
           child: SizedBox(
             width: 48,
             height: 48,
@@ -208,7 +208,7 @@ class _ScoreBar extends StatelessWidget {
     final match = controller.match;
     final contract = controller.round.contract;
     return Semantics(
-      label: 'Score : nous ${match.scores[Team.ns]}, eux ${match.scores[Team.ew]}',
+      label: tf('sScoreUsThem', {'a': '${match.scores[Team.ns]}', 'b': '${match.scores[Team.ew]}'}),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(

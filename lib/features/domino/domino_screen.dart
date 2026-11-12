@@ -305,7 +305,7 @@ class _ScoreBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Score ${label == t('you') ? 'vous' : 'adversaire'} : $value',
+      label: tf('sScoreOf', {'who': label == t('you') ? t('youLower') : t('opponent'), 'v': '$value'}),
       excludeSemantics: true,
       child: Row(
       mainAxisSize: MainAxisSize.min,
@@ -347,7 +347,7 @@ class _Pile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Pioche : $count ${count == 1 ? 'pierre' : 'pierres'}',
+      label: tf('sBoneyard', {'n': '$count'}),
       excludeSemantics: true,
       child: Column(
       mainAxisSize: MainAxisSize.min,
@@ -707,7 +707,7 @@ class _HandTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Pressable(
-      semanticLabel: 'Domino ${tile.a} et ${tile.b}${enabled ? ', jouable' : ', non jouable'}',
+      semanticLabel: tf('sTile', {'a': '${tile.a}', 'b': '${tile.b}'}) + (enabled ? t('sPlayable') : t('sNotPlayable')),
       onTap: onTap,
       pressedScale: 0.97,
       child: AnimatedContainer(
@@ -785,12 +785,12 @@ class _RoundOverlay extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 _OverlayButton(
-                  label: canContinue ? 'Manche suivante' : 'Rejouer',
+                  label: canContinue ? t('nextRound') : t('replay'),
                   onTap: canContinue ? onNext : onRestart,
                 ),
                 const SizedBox(height: 16),
                 Pressable(
-                  semanticLabel: 'Retour au menu',
+                  semanticLabel: t('backToMenu'),
                   onTap: onMenu,
                   child: Text(t('backToMenu'), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0x99FFFFFF))),
                 ),

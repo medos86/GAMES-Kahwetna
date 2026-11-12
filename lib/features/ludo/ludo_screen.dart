@@ -447,7 +447,7 @@ class _RollableDieState extends State<_RollableDie> with SingleTickerProviderSta
     final clickable = widget.onTap != null;
     return Semantics(
       button: clickable,
-      label: clickable ? 'Lancer le dé' : 'Dé',
+      label: clickable ? t('sRollDice') : t('sDie'),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: widget.onTap,
@@ -671,7 +671,7 @@ class _TokenButton extends StatelessWidget {
     final tone = _toneOf(token.color);
     return Semantics(
       button: clickable,
-      label: 'Pion ${tone.name}${clickable ? ', à déplacer' : ''}',
+      label: tf('sPawn', {'c': tone.name}) + (clickable ? t('sToMove') : ''),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: clickable ? onTap : null,
@@ -789,7 +789,7 @@ class LudoDie extends StatelessWidget {
         child: Transform.scale(scale: 0.6 + 0.4 * t, child: child),
       ),
       child: Semantics(
-        label: value != null ? 'Dé : $value' : 'Dé',
+        label: value != null ? tf('sDieValue', {'v': '$value'}) : t('sDie'),
         child: Container(
           width: size,
           height: size,
