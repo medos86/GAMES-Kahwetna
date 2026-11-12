@@ -17,6 +17,7 @@ import 'chkobba_card_face.dart';
 import 'chkobba_controller.dart';
 import 'chkobba_rules_screen.dart';
 import 'chkobba_table.dart';
+import '../../widgets/exit_guard.dart';
 
 
 /// Écran de jeu de la Chkobba, fidèle à GameScreen.tsx : scores, pioche, tapis, mains,
@@ -86,7 +87,9 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     final cardHeight = math.min(math.max(size.height * 0.11, 56.0), 92.0);
     final style = GameStyle.current;
 
-    return Scaffold(
+    return ExitGuard(
+      active: _controller.game.winner == null,
+      child: Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -101,6 +104,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

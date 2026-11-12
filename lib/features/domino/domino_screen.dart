@@ -20,6 +20,7 @@ import '../menu/menu_models.dart';
 import 'domino_controller.dart';
 import 'domino_tiles.dart';
 import '../../core/services/ad_free_service.dart';
+import '../../widgets/exit_guard.dart';
 
 /// Écran de jeu Domino (DominoGameScreen.tsx).
 class DominoScreen extends StatefulWidget {
@@ -64,7 +65,9 @@ class _DominoScreenState extends State<DominoScreen> {
     final unit = metrics.gameUnit;
     final sm = size.width >= 640;
 
-    return Scaffold(
+    return ExitGuard(
+      active: _controller.game.matchWinner == null,
+      child: Scaffold(
       backgroundColor: const Color(0xFF8B4513),
       body: ListenableBuilder(
         listenable: _controller,
@@ -113,6 +116,7 @@ class _DominoScreenState extends State<DominoScreen> {
           );
         },
       ),
+    ),
     );
   }
 }
