@@ -23,6 +23,7 @@ import 'domino_controller.dart';
 import 'domino_tiles.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../widgets/exit_guard.dart';
+import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 
@@ -104,7 +105,7 @@ class _DominoScreenState extends State<DominoScreen> {
                     vertical: true,
                   ),
                 ),
-                SafeArea(
+                GameSafeArea(
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(
                       12,

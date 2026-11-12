@@ -15,6 +15,7 @@ import 'ludo_layout.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../widgets/exit_guard.dart';
+import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 
@@ -157,7 +158,7 @@ class _LudoScreenState extends State<LudoScreen> {
               final c = _controller;
               return Stack(
                 children: [
-                  SafeArea(
+                  GameSafeArea(
                     bottom: false,
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
