@@ -13,7 +13,7 @@ permissions:
 jobs:
   captures:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -43,6 +43,8 @@ jobs:
           target: google_apis
           profile: pixel_6
           disable-animations: true
+          # Rendu logiciel de l'émulateur : sans cette option, chaque image prend plusieurs secondes (#204).
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           script: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/captures_ecrans_test.dart -d emulator-5554
 
       - uses: actions/upload-artifact@v4
