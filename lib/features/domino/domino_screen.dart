@@ -26,6 +26,7 @@ import '../../widgets/exit_guard.dart';
 import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
+import '../../widgets/difficulty_chip.dart';
 
 /// Écran de jeu Domino (DominoGameScreen.tsx).
 class DominoScreen extends StatefulWidget {
@@ -119,6 +120,7 @@ class _DominoScreenState extends State<DominoScreen> {
                         child: Column(
                           children: [
                             _Header(
+                              difficulty: widget.difficulty,
                               unit: unit,
                               round: game.round,
                               target: game.targetScore,
@@ -206,12 +208,14 @@ class _WoodBackground extends StatelessWidget {
 
 class _Header extends StatelessWidget {
   const _Header({
+    required this.difficulty,
     required this.unit,
     required this.round,
     required this.target,
     required this.onMenu,
   });
 
+  final Difficulty difficulty;
   final double unit;
   final int round;
   final int target;
@@ -282,16 +286,27 @@ class _Header extends StatelessWidget {
                     ],
                   ),
                 ),
-                Text(
-                  'Manche $round',
-                  style: TextStyle(
-                    fontSize: unit * 0.8,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    shadows: const [
-                      Shadow(offset: Offset(1, 2), color: Color(0xFF4A2A10)),
-                    ],
-                  ),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 6,
+                  children: [
+                    Text(
+                      'Manche $round',
+                      style: TextStyle(
+                        fontSize: unit * 0.8,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        shadows: const [
+                          Shadow(
+                            offset: Offset(1, 2),
+                            color: Color(0xFF4A2A10),
+                          ),
+                        ],
+                      ),
+                    ),
+                    DifficultyChip(difficulty: difficulty),
+                  ],
                 ),
               ],
             ),

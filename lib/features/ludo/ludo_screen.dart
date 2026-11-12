@@ -18,6 +18,7 @@ import '../../widgets/exit_guard.dart';
 import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
+import '../../widgets/difficulty_chip.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
 const _ink = Color(0xFF20284B);
@@ -169,7 +170,7 @@ class _LudoScreenState extends State<LudoScreen> {
                       ),
                       child: Column(
                         children: [
-                          _Header(controller: c),
+                          _Header(controller: c, difficulty: widget.difficulty),
                           const SizedBox(height: 8),
                           Expanded(
                             child: landscapeShort
@@ -246,9 +247,10 @@ class _LudoScreenState extends State<LudoScreen> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.controller});
+  const _Header({required this.controller, required this.difficulty});
 
   final LudoController controller;
+  final Difficulty difficulty;
 
   @override
   Widget build(BuildContext context) {
@@ -302,11 +304,19 @@ class _Header extends StatelessWidget {
                   fontSize: 13,
                 ),
               ),
-              Text(
-                count == 1
-                    ? t('ludoPlayerOne')
-                    : tf('ludoPlayers', {'n': '$count'}),
-                style: const TextStyle(fontWeight: FontWeight.w800),
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 6,
+                children: [
+                  Text(
+                    count == 1
+                        ? t('ludoPlayerOne')
+                        : tf('ludoPlayers', {'n': '$count'}),
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  DifficultyChip(difficulty: difficulty),
+                ],
               ),
             ],
           ),

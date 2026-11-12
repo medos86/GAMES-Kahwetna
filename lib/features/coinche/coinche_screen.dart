@@ -19,6 +19,7 @@ import '../../widgets/exit_guard.dart';
 import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
+import '../../widgets/difficulty_chip.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
 const _feltColor = Color(0xFF10B981);
@@ -109,7 +110,7 @@ class _CoincheScreenState extends State<CoincheScreen> {
                     ),
                     child: Column(
                       children: [
-                        _Header(controller: c),
+                        _Header(controller: c, difficulty: widget.difficulty),
                         const SizedBox(height: 8),
                         _ScoreBar(controller: c),
                         const SizedBox(height: 8),
@@ -156,9 +157,10 @@ class _CoincheScreenState extends State<CoincheScreen> {
 // ---------------------------------------------------------------------------
 
 class _Header extends StatelessWidget {
-  const _Header({required this.controller});
+  const _Header({required this.controller, required this.difficulty});
 
   final CoincheController controller;
+  final Difficulty difficulty;
 
   @override
   Widget build(BuildContext context) {
@@ -211,9 +213,17 @@ class _Header extends StatelessWidget {
                   fontSize: 13,
                 ),
               ),
-              Text(
-                'Manche ${controller.match.round}',
-                style: const TextStyle(fontWeight: FontWeight.w800),
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 6,
+                children: [
+                  Text(
+                    'Manche ${controller.match.round}',
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  DifficultyChip(difficulty: difficulty),
+                ],
               ),
             ],
           ),
