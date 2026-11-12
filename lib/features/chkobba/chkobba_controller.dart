@@ -1,6 +1,7 @@
+import '../../core/services/persistent_game_controller.dart';
+import '../../core/services/saved_game_store.dart';
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 
 import '../../core/audio/sounds.dart';
 import '../../game/chkobba.dart';
@@ -37,14 +38,16 @@ Map<String, int> assignTableSlots(Map<String, int> previous, List<String> ids) {
   return slots;
 }
 
-class ChkobbaController extends ChangeNotifier {
+class ChkobbaController extends PersistentGameController {
   ChkobbaController({
     required this.targetScore,
     required this.level,
     RandomDouble? random,
     ChkobbaState? initialState,
+    SavedGameStore? store,
   })  : _random = random,
-        _game = initialState ?? newMatch(targetScore: targetScore, random: random);
+        _game = initialState ?? newMatch(targetScore: targetScore, random: random),
+        super(store: store, gameKey: 'chkobba');
 
   final int targetScore;
   final ChkobbaAiLevel level;
@@ -210,6 +213,18 @@ class ChkobbaController extends ChangeNotifier {
       });
     }
   }
+
+  @override
+  Map<String, dynamic>? snapshot() => _game.winner != null ? null : _game.toJson();
+
+  @override
+  void applySnapshot(Map<String, dynamic> json) => _game = ChkobbaState.fromJson(json);
+
+  @override
+  void startFresh() => _schedule();
+
+  @override
+  void newGame() => startNewGame();
 
   @override
   void dispose() {

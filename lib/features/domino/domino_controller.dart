@@ -1,6 +1,7 @@
+import '../../core/services/persistent_game_controller.dart';
+import '../../core/services/saved_game_store.dart';
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 
 import '../../core/audio/sounds.dart';
 import '../../game/common.dart';
@@ -10,13 +11,15 @@ import '../menu/menu_models.dart';
 
 /// État et actions d'une partie de Domino (logique de DominoGameScreen.tsx).
 /// Les règles restent dans lib/game/ ; ce contrôleur gère le tour de l'IA et la sélection.
-class DominoController extends ChangeNotifier {
+class DominoController extends PersistentGameController {
   DominoController({
     required this.targetScore,
     required this.difficulty,
     RandomDouble? random,
+    SavedGameStore? store,
   })  : _random = random,
-        _game = newDominoRound(targetScore: targetScore, random: random);
+        _game = newDominoRound(targetScore: targetScore, random: random),
+        super(store: store, gameKey: 'domino');
 
   final int targetScore;
   final Difficulty difficulty;
@@ -178,6 +181,18 @@ class DominoController extends ChangeNotifier {
         _update(passDomino(_game, Player.opponent));
     }
   }
+
+  @override
+  Map<String, dynamic>? snapshot() => _game.matchWinner != null ? null : _game.toJson();
+
+  @override
+  void applySnapshot(Map<String, dynamic> json) => _game = DominoState.fromJson(json);
+
+  @override
+  void startFresh() => _scheduleAi();
+
+  @override
+  void newGame() => restart();
 
   @override
   void dispose() {

@@ -15,6 +15,8 @@ import 'ludo_layout.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../widgets/exit_guard.dart';
+import '../../core/services/saved_game_store.dart';
+import '../../widgets/resume_game.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
 const _ink = Color(0xFF20284B);
@@ -76,6 +78,7 @@ class LudoScreen extends StatefulWidget {
 
 class _LudoScreenState extends State<LudoScreen> {
   late final LudoController _controller = LudoController(
+    store: const SharedPreferencesSavedGameStore(),
     playerCount: widget.players,
     difficulty: _aiLevel(widget.difficulty),
   );
@@ -90,6 +93,9 @@ class _LudoScreenState extends State<LudoScreen> {
   @override
   void initState() {
     super.initState();
+    _controller.restore().then((_) {
+      if (mounted) offerResume(context, _controller);
+    });
     _adFree.addListener(_onAdFreeChanged);
   }
 

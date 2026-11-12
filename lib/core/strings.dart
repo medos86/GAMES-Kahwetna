@@ -47,6 +47,12 @@ abstract final class Strings {
   static String get exitLeave => t('exitLeave');
   static String get exitAppTitle => t('exitAppTitle');
   static String get exitAppBody => t('exitAppBody');
+  static String get resumeTitle => t('resumeTitle');
+  static String get resumeBody => t('resumeBody');
+  static String get resumeContinue => t('resumeContinue');
+  static String get resumeNew => t('resumeNew');
+  static String get resumeNewTitle => t('resumeNewTitle');
+  static String get resumeNewBody => t('resumeNewBody');
   static String get suitCarreau => t('suitCarreau');
   static String get suitCoeur => t('suitCoeur');
   static String get suitPique => t('suitPique');

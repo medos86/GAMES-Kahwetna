@@ -17,6 +17,8 @@ import '../../core/services/ad_free_service.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../widgets/comic/comic_panel.dart';
 import '../../widgets/exit_guard.dart';
+import '../../core/services/saved_game_store.dart';
+import '../../widgets/resume_game.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
 const _feltColor = Color(0xFF10B981);
@@ -47,6 +49,7 @@ class CoincheScreen extends StatefulWidget {
 
 class _CoincheScreenState extends State<CoincheScreen> {
   late final CoincheController _controller = CoincheController(
+    store: const SharedPreferencesSavedGameStore(),
     target: widget.targetScore,
     difficulty: widget.difficulty,
   );
@@ -55,6 +58,9 @@ class _CoincheScreenState extends State<CoincheScreen> {
   @override
   void initState() {
     super.initState();
+    _controller.restore().then((_) {
+      if (mounted) offerResume(context, _controller);
+    });
     _adFree.addListener(_onAdFreeChanged);
   }
 

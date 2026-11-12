@@ -18,6 +18,8 @@ import 'chkobba_controller.dart';
 import 'chkobba_rules_screen.dart';
 import 'chkobba_table.dart';
 import '../../widgets/exit_guard.dart';
+import '../../core/services/saved_game_store.dart';
+import '../../widgets/resume_game.dart';
 
 
 /// Écran de jeu de la Chkobba, fidèle à GameScreen.tsx : scores, pioche, tapis, mains,
@@ -42,12 +44,16 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
   void initState() {
     super.initState();
     _controller = ChkobbaController(
+      store: const SharedPreferencesSavedGameStore(),
       targetScore: widget.targetScore,
       level: _levelFor(widget.difficulty),
       initialState: kDebugMode && widget.demoChoice
           ? chkobbaDemoChoiceState(targetScore: widget.targetScore)
           : null,
     );
+    _controller.restore().then((_) {
+      if (mounted) offerResume(context, _controller);
+    });
   }
 
   @override

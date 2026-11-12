@@ -1,6 +1,7 @@
+import '../../core/services/persistent_game_controller.dart';
+import '../../core/services/saved_game_store.dart';
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 
 import '../../game/coinche.dart';
 import '../../core/audio/sounds.dart';
@@ -12,15 +13,17 @@ import '../menu/menu_models.dart';
 /// Les règles restent dans lib/game/coinche.dart. Ce contrôleur ne fait que
 /// programmer les tours de l'IA et les transitions (ramassage, fin de manche, donne),
 /// avec les mêmes délais que les useEffect du source.
-class CoincheController extends ChangeNotifier {
+class CoincheController extends PersistentGameController {
   CoincheController({
     required this.target,
     required this.difficulty,
     RandomDouble? random,
+    SavedGameStore? store,
   })  : _random = random,
         _match = newMatch(target),
-        _round = dealRound(firstDealer, random) {
-    _reschedule();
+        _round = dealRound(firstDealer, random),
+        super(store: store, gameKey: 'coinche') {
+    if (store == null) _reschedule();
   }
 
   final int target;
@@ -172,6 +175,22 @@ class CoincheController extends ChangeNotifier {
         break;
     }
   }
+
+  @override
+  Map<String, dynamic>? snapshot() =>
+      _match.winner != null ? null : {'match': _match.toJson(), 'round': _round.toJson()};
+
+  @override
+  void applySnapshot(Map<String, dynamic> json) {
+    _match = CoincheMatch.fromJson(json['match'] as Map<String, dynamic>);
+    _round = RoundState.fromJson(json['round'] as Map<String, dynamic>);
+  }
+
+  @override
+  void startFresh() => _reschedule();
+
+  @override
+  void newGame() => restart();
 
   @override
   void dispose() {
