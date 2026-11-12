@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'translations.dart';
 
@@ -7,6 +8,33 @@ enum AppLanguage { fr, ar }
 
 /// Langue courante. Modifier `appLanguage.value` pour changer de langue.
 final ValueNotifier<AppLanguage> appLanguage = ValueNotifier(AppLanguage.fr);
+
+/// Clé de sauvegarde de la langue choisie (#116).
+const String languagePrefsKey = 'kahwetne.language';
+
+/// Relit la langue sauvegardée. À appeler une fois au démarrage ; sans sauvegarde, reste en français.
+Future<void> loadLanguage() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString(languagePrefsKey);
+    for (final language in AppLanguage.values) {
+      if (language.name == saved) appLanguage.value = language;
+    }
+  } catch (_) {
+    // Stockage indisponible : on garde le français par défaut.
+  }
+}
+
+/// Change la langue et la sauvegarde. L'interface se met à jour immédiatement.
+Future<void> setLanguage(AppLanguage language) async {
+  appLanguage.value = language;
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(languagePrefsKey, language.name);
+  } catch (_) {
+    // Échec d'écriture : la langue reste active pour la session.
+  }
+}
 
 /// Vrai en arabe : la mise en page passe en RTL.
 bool isRtl(AppLanguage language) => language == AppLanguage.ar;
