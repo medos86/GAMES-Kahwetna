@@ -1,0 +1,37 @@
+# Ponctuel (issue #169) : formate tout le code Dart avec la même version de Flutter que la CI,
+# puis versionne le résultat sur la branche. À supprimer une fois le formatage fait.
+name: Formatage initial
+
+on:
+  push:
+    branches: ["quality/169-dart-format"]
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+
+      - name: Formater le code
+        run: dart format .
+
+      - name: Versionner le formatage
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Déjà formaté"
+          else
+            git commit -m "Formatage Dart (dart format) : #169"
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi
