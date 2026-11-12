@@ -21,6 +21,8 @@ import 'domino_controller.dart';
 import 'domino_tiles.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../widgets/exit_guard.dart';
+import '../../core/services/saved_game_store.dart';
+import '../../widgets/resume_game.dart';
 
 /// Écran de jeu Domino (DominoGameScreen.tsx).
 class DominoScreen extends StatefulWidget {
@@ -35,6 +37,7 @@ class DominoScreen extends StatefulWidget {
 
 class _DominoScreenState extends State<DominoScreen> {
   late final DominoController _controller = DominoController(
+    store: const SharedPreferencesSavedGameStore(),
     targetScore: widget.targetScore,
     difficulty: widget.difficulty,
   );
@@ -43,6 +46,9 @@ class _DominoScreenState extends State<DominoScreen> {
   @override
   void initState() {
     super.initState();
+    _controller.restore().then((_) {
+      if (mounted) offerResume(context, _controller);
+    });
     Sounds.preload().then((_) => Sounds.play(Sfx.draw));
     _adFree.addListener(_onAdFreeChanged);
   }

@@ -33,9 +33,28 @@ Future<bool?> showLeaveGameDialog(BuildContext context) =>
     showLeaveDialog(context, title: Strings.exitGameTitle, body: Strings.exitGameBody);
 
 /// Dialogue de confirmation de sortie, générique (partie ou application).
-Future<bool?> showLeaveDialog(BuildContext context, {required String title, required String body}) {
+Future<bool?> showLeaveDialog(BuildContext context, {required String title, required String body}) =>
+    showConfirmDialog(
+      context,
+      title: title,
+      body: body,
+      cancelLabel: Strings.exitStay,
+      confirmLabel: Strings.exitLeave,
+    );
+
+/// Dialogue à deux choix. Renvoie true si le bouton de confirmation est pressé.
+Future<bool?> showConfirmDialog(
+  BuildContext context, {
+  required String title,
+  required String body,
+  required String cancelLabel,
+  required String confirmLabel,
+  ComicButtonVariant confirmVariant = ComicButtonVariant.danger,
+  bool dismissible = true,
+}) {
   return showDialog<bool>(
     context: context,
+    barrierDismissible: dismissible,
     builder: (ctx) => Dialog(
       backgroundColor: ComicPalette.paper.withAlpha(0),
       insetPadding: const EdgeInsets.all(24),
@@ -58,14 +77,14 @@ Future<bool?> showLeaveDialog(BuildContext context, {required String title, requ
             ),
             const SizedBox(height: 16),
             ComicButton(
-              label: Strings.exitStay,
+              label: cancelLabel,
               variant: ComicButtonVariant.neutral,
               onPressed: () => Navigator.of(ctx).pop(false),
             ),
             const SizedBox(height: 8),
             ComicButton(
-              label: Strings.exitLeave,
-              variant: ComicButtonVariant.danger,
+              label: confirmLabel,
+              variant: confirmVariant,
               onPressed: () => Navigator.of(ctx).pop(true),
             ),
           ],

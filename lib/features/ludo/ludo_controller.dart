@@ -1,6 +1,7 @@
+import '../../core/services/persistent_game_controller.dart';
+import '../../core/services/saved_game_store.dart';
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 
 import '../../core/audio/sounds.dart';
 import '../../game/common.dart';
@@ -19,13 +20,15 @@ Duration ludoRollDelay(LudoAiLevel level) => switch (level) {
 /// État et actions d'une partie de Ludo (logique de LudoGameScreen.tsx).
 /// Les règles restent dans lib/game/ludo.dart ; ce contrôleur ne fait que
 /// programmer les tours de l'IA, comme le useEffect du source.
-class LudoController extends ChangeNotifier {
+class LudoController extends PersistentGameController {
   LudoController({
     required this.playerCount,
     required this.difficulty,
     RandomDouble? random,
+    SavedGameStore? store,
   })  : _random = random,
-        _game = newLudoGame();
+        _game = newLudoGame(),
+        super(store: store, gameKey: 'ludo');
 
   /// Nombre de joueurs humains (1 à 4).
   final int playerCount;
@@ -93,6 +96,18 @@ class LudoController extends ChangeNotifier {
       if (tokenId != null) _setGame(moveToken(_game, tokenId));
     });
   }
+
+  @override
+  Map<String, dynamic>? snapshot() => _game.phase == LudoPhase.end ? null : _game.toJson();
+
+  @override
+  void applySnapshot(Map<String, dynamic> json) => _game = LudoState.fromJson(json);
+
+  @override
+  void startFresh() => _reschedule();
+
+  @override
+  void newGame() => restart();
 
   @override
   void dispose() {

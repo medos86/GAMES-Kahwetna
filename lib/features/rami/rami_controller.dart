@@ -1,6 +1,7 @@
+import '../../core/services/persistent_game_controller.dart';
+import '../../core/services/saved_game_store.dart';
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 
 import '../../game/common.dart';
 import '../../game/rami.dart' as rules;
@@ -64,15 +65,17 @@ List<rules.RamiCard> sortRamiHand(List<rules.RamiCard> hand, RamiSortMode mode) 
 /// État et actions d'une partie de Rami (logique de RamiGameScreen.tsx).
 /// Les règles restent dans lib/game/rami.dart ; ce contrôleur gère la sélection,
 /// l'ordre de la main et le tour de l'IA, comme les useState et useEffect du source.
-class RamiController extends ChangeNotifier {
+class RamiController extends PersistentGameController {
   RamiController({
     required this.targetScore,
     required this.difficulty,
     this.onMessage,
     RandomDouble? random,
+    SavedGameStore? store,
   })  : _random = random,
-        _game = rules.newMatch(targetScore, random) {
-    _reschedule();
+        _game = rules.newMatch(targetScore, random),
+        super(store: store, gameKey: 'rami') {
+    if (store == null) _reschedule();
   }
 
   final int targetScore;
@@ -324,6 +327,18 @@ class RamiController extends ChangeNotifier {
     _reschedule();
     notifyListeners();
   }
+
+  @override
+  Map<String, dynamic>? snapshot() => _game.matchWinner != null ? null : _game.toJson();
+
+  @override
+  void applySnapshot(Map<String, dynamic> json) => _game = rules.RamiState.fromJson(json);
+
+  @override
+  void startFresh() => _reschedule();
+
+  @override
+  void newGame() => restart();
 
   @override
   void dispose() {

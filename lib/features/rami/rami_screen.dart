@@ -15,6 +15,8 @@ import '../../core/i18n/app_language.dart';
 import '../../core/theme/game_style.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../widgets/exit_guard.dart';
+import '../../core/services/saved_game_store.dart';
+import '../../widgets/resume_game.dart';
 
 /// Facteur d'agrandissement des cartes Rami (lisibilité sur téléphone).
 const double _ramiCardScale = 1.35;
@@ -121,6 +123,7 @@ class _Drag {
 
 class _RamiScreenState extends State<RamiScreen> {
   late final RamiController _c = RamiController(
+    store: const SharedPreferencesSavedGameStore(),
     targetScore: widget.targetScore,
     difficulty: rules.RamiAiLevel.values.byName(widget.difficulty.name),
     onMessage: _showMessage,
@@ -136,6 +139,9 @@ class _RamiScreenState extends State<RamiScreen> {
   @override
   void initState() {
     super.initState();
+    _c.restore().then((_) {
+      if (mounted) offerResume(context, _c);
+    });
     _adFree.addListener(_onAdFreeChanged);
   }
 
