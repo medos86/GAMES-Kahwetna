@@ -106,10 +106,10 @@ void main() {
           body: ResultDialog(
             style: ResultDialogStyle.dark,
             title: 'Victoire !',
-            children: const [Text('X – Y')],
             actions: [
               ElevatedButton(onPressed: () {}, child: const Text('Rejouer')),
             ],
+            children: const [Text('X – Y')],
           ),
         ),
       ),
