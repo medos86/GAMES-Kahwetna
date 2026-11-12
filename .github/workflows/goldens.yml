@@ -1,0 +1,40 @@
+# Génère les goldens du thème BD sur le runner Ubuntu (même plateforme que la CI),
+# puis les versionne sur la branche. Se lance à chaque push sur la branche de #98.
+name: Goldens BD
+
+on:
+  push:
+    branches: ["feature/comic-98-demo-goldens"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  goldens:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Dépendances
+        run: flutter pub get
+
+      - name: Générer les goldens
+        run: flutter test --update-goldens test/widgets/comic_goldens_test.dart
+
+      - name: Versionner les goldens sur la branche
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add test/widgets/goldens
+          if git diff --cached --quiet; then
+            echo "Aucun changement de golden"
+          else
+            git commit -m "Goldens BD : régénération par la CI"
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi
