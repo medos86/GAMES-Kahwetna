@@ -80,6 +80,12 @@
       "languageVersion": "3.13"
     },
     {
+      "name": "flutter_driver",
+      "rootUri": "file:///opt/hostedtoolcache/flutter/stable-3.50.0-x64/flutter/packages/flutter_driver",
+      "packageUri": "lib/",
+      "languageVersion": "3.13"
+    },
+    {
       "name": "flutter_lints",
       "rootUri": "file:///home/runner/.pub-cache/hosted/pub.dev/flutter_lints-6.0.0",
       "packageUri": "lib/",
@@ -110,6 +116,12 @@
       "languageVersion": "3.13"
     },
     {
+      "name": "fuchsia_remote_debug_protocol",
+      "rootUri": "file:///opt/hostedtoolcache/flutter/stable-3.50.0-x64/flutter/packages/fuchsia_remote_debug_protocol",
+      "packageUri": "lib/",
+      "languageVersion": "3.13"
+    },
+    {
       "name": "glob",
       "rootUri": "file:///home/runner/.pub-cache/hosted/pub.dev/glob-2.2.0",
       "packageUri": "lib/",
@@ -132,6 +144,12 @@
       "rootUri": "file:///home/runner/.pub-cache/hosted/pub.dev/http_parser-4.1.2",
       "packageUri": "lib/",
       "languageVersion": "3.4"
+    },
+    {
+      "name": "integration_test",
+      "rootUri": "file:///opt/hostedtoolcache/flutter/stable-3.50.0-x64/flutter/packages/integration_test",
+      "packageUri": "lib/",
+      "languageVersion": "3.13"
     },
     {
       "name": "jni",
@@ -380,6 +398,12 @@
       "languageVersion": "3.1"
     },
     {
+      "name": "sync_http",
+      "rootUri": "file:///home/runner/.pub-cache/hosted/pub.dev/sync_http-0.3.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "term_glyph",
       "rootUri": "file:///home/runner/.pub-cache/hosted/pub.dev/term_glyph-1.2.2",
       "packageUri": "lib/",
@@ -432,6 +456,12 @@
       "rootUri": "file:///home/runner/.pub-cache/hosted/pub.dev/web-1.1.2",
       "packageUri": "lib/",
       "languageVersion": "3.13"
+    },
+    {
+      "name": "webdriver",
+      "rootUri": "file:///home/runner/.pub-cache/hosted/pub.dev/webdriver-3.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
     },
     {
       "name": "xdg_directories",

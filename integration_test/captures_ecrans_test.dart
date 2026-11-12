@@ -35,7 +35,8 @@ void main() {
     'menu': () => const MainMenuScreen(),
     'parametres': () => const SettingsScreen(),
     'chkobba_regles': () => const ChkobbaRulesScreen(),
-    'chkobba': () => const ChkobbaScreen(difficulty: Difficulty.facile, targetScore: 11),
+    'chkobba': () =>
+        const ChkobbaScreen(difficulty: Difficulty.facile, targetScore: 11),
   };
 
   for (final entry in ecrans.entries) {
