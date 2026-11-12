@@ -1,12 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import '../../core/strings.dart';
 
 /// Écran d'ouverture : fond du village, titre et message, puis passage au widget `next`.
 /// Un appui sur l'écran passe directement à la suite.
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key, required this.next, this.duration = const Duration(milliseconds: 2400)});
+  const SplashScreen({
+    super.key,
+    required this.next,
+    this.duration = const Duration(milliseconds: 2400),
+  });
 
   final Widget next;
   final Duration duration;
@@ -39,7 +44,8 @@ class _SplashScreenState extends State<SplashScreen> {
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 500),
         pageBuilder: (_, __, ___) => widget.next,
-        transitionsBuilder: (_, animation, __, child) => FadeTransition(opacity: animation, child: child),
+        transitionsBuilder: (_, animation, __, child) =>
+            FadeTransition(opacity: animation, child: child),
       ),
     );
   }
@@ -79,7 +85,11 @@ class _SplashScreenState extends State<SplashScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0x33063A6B), Color(0x00000000), Color(0x99101638)],
+                  colors: [
+                    Color(0x33063A6B),
+                    Color(0x00000000),
+                    Color(0x99101638),
+                  ],
                 ),
               ),
             ),
@@ -97,7 +107,11 @@ class _SplashScreenState extends State<SplashScreen> {
                       color: Color(0xFFFFF8E7),
                       shadows: [
                         Shadow(offset: Offset(0, 5), color: Color(0xFF173A79)),
-                        Shadow(offset: Offset(0, 9), blurRadius: 18, color: Color(0x610B1C44)),
+                        Shadow(
+                          offset: Offset(0, 9),
+                          blurRadius: 18,
+                          color: Color(0x610B1C44),
+                        ),
                       ],
                     ),
                   ),
@@ -109,7 +123,13 @@ class _SplashScreenState extends State<SplashScreen> {
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
                       color: Color(0xF2FFFFFF),
-                      shadows: [Shadow(offset: Offset(0, 2), blurRadius: 7, color: Color(0xBF07193C))],
+                      shadows: [
+                        Shadow(
+                          offset: Offset(0, 2),
+                          blurRadius: 7,
+                          color: Color(0xBF07193C),
+                        ),
+                      ],
                     ),
                   ),
                   const Spacer(),
@@ -117,7 +137,11 @@ class _SplashScreenState extends State<SplashScreen> {
                     padding: EdgeInsets.only(bottom: 48),
                     child: Text(
                       Strings.splashTap,
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xCCFFFFFF)),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xCCFFFFFF),
+                      ),
                     ),
                   ),
                 ],

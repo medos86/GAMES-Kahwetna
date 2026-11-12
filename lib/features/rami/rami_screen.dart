@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 
@@ -42,7 +41,8 @@ const _groupColors = [
 final _ramiRules = <({String title, String text})>[
   (
     title: 'Le jeu',
-    text: '4 joueurs chacun pour soi : toi contre 3 IA. 2 jeux de 52 cartes + 2 jokers, 13 cartes chacun.',
+    text:
+        '4 joueurs chacun pour soi : toi contre 3 IA. 2 jeux de 52 cartes + 2 jokers, 13 cartes chacun.',
   ),
   (
     title: 'Combinaisons',
@@ -51,12 +51,14 @@ final _ramiRules = <({String title, String text})>[
   ),
   (
     title: Strings.jokerLabel,
-    text: "Remplace n'importe quelle carte dans une combinaison, avec au moins 2 vraies cartes.",
+    text:
+        "Remplace n'importe quelle carte dans une combinaison, avec au moins 2 vraies cartes.",
   ),
   (
     title: 'Ouverture',
-    text: 'Ta première pose doit totaliser ${rules.ramiOpenMin} points minimum, en une seule fois. '
-        'As = 1, figures = 10, joker = 20.',
+    text:
+        'Ta première pose doit totaliser ${rules.ramiOpenMin} points minimum, en une seule fois. '
+            'As = 1, figures = 10, joker = 20.',
   ),
   (
     title: 'Ton tour',
@@ -72,12 +74,14 @@ final _ramiRules = <({String title, String text})>[
   ),
   (
     title: 'Fin de manche',
-    text: 'Le premier qui vide sa main gagne la manche. Les autres comptent les points des cartes qui '
-        'leur restent.',
+    text:
+        'Le premier qui vide sa main gagne la manche. Les autres comptent les points des cartes qui '
+            'leur restent.',
   ),
   (
     title: 'Partie',
-    text: "Les points de pénalité s'additionnent jusqu'à 100 ou 200. Le plus petit total gagne.",
+    text:
+        "Les points de pénalité s'additionnent jusqu'à 100 ou 200. Le plus petit total gagne.",
   ),
 ];
 
@@ -94,7 +98,11 @@ String _statusText(rules.RamiState g, int stagedPoints) {
 
 /// Écran du Rami. Logique dans RamiController et lib/game/rami.dart.
 class RamiScreen extends StatefulWidget {
-  const RamiScreen({super.key, required this.difficulty, required this.targetScore});
+  const RamiScreen({
+    super.key,
+    required this.difficulty,
+    required this.targetScore,
+  });
 
   final Difficulty difficulty;
   final int targetScore;
@@ -187,7 +195,10 @@ class _RamiScreenState extends State<RamiScreen> {
       } else if (name.startsWith('meld:')) {
         return RamiDropMeld(name.substring(5));
       } else if (name.startsWith('hand:')) {
-        return RamiDropHand(name.substring(5), after: point.dx > rect.center.dx);
+        return RamiDropHand(
+          name.substring(5),
+          after: point.dx > rect.center.dx,
+        );
       }
     }
     return table;
@@ -210,7 +221,13 @@ class _RamiScreenState extends State<RamiScreen> {
       if ((event.position - press.start).distance < _dragThreshold) return;
       press.active = true;
     }
-    setState(() => _drag = _Drag(press.id, _toLocal(event.position), _targetAt(event.position)));
+    setState(
+      () => _drag = _Drag(
+        press.id,
+        _toLocal(event.position),
+        _targetAt(event.position),
+      ),
+    );
   }
 
   void _onPointerUp(PointerUpEvent event) {
@@ -244,39 +261,55 @@ class _RamiScreenState extends State<RamiScreen> {
     return ExitGuard(
       active: _c.game.matchWinner == null,
       child: Scaffold(
-      backgroundColor: _woodColor,
-      body: ListenableBuilder(
-        listenable: _c,
-        builder: (context, _) {
-          final g = _c.game;
-          return Stack(
-            key: _bodyKey,
-            children: [
-              const Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(color: _woodColor))),
-              SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(8, 8, 8, _adFree.value ? 8 : 80),
-                  child: Column(
-                    children: [
-                      _header(g),
-                      const SizedBox(height: 6),
-                      _scores(g),
-                      const SizedBox(height: 6),
-                      Expanded(child: _tableSection(handWidth, g)),
-                      const SizedBox(height: 6),
-                      _footer(handWidth),
-                    ],
+        backgroundColor: _woodColor,
+        body: ListenableBuilder(
+          listenable: _c,
+          builder: (context, _) {
+            final g = _c.game;
+            return Stack(
+              key: _bodyKey,
+              children: [
+                const Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(color: _woodColor),
                   ),
                 ),
-              ),
-              if (!_adFree.value) const Positioned(left: 8, right: 8, bottom: 8, child: AdBanner()),
-              if (_drag != null) _dragOverlay(handWidth),
-              if (g.phase == rules.RamiPhase.end && g.roundResult != null) Positioned.fill(child: _summary(g)),
-            ],
-          );
-        },
+                SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      8,
+                      8,
+                      8,
+                      _adFree.value ? 8 : 80,
+                    ),
+                    child: Column(
+                      children: [
+                        _header(g),
+                        const SizedBox(height: 6),
+                        _scores(g),
+                        const SizedBox(height: 6),
+                        Expanded(child: _tableSection(handWidth, g)),
+                        const SizedBox(height: 6),
+                        _footer(handWidth),
+                      ],
+                    ),
+                  ),
+                ),
+                if (!_adFree.value)
+                  const Positioned(
+                    left: 8,
+                    right: 8,
+                    bottom: 8,
+                    child: AdBanner(),
+                  ),
+                if (_drag != null) _dragOverlay(handWidth),
+                if (g.phase == rules.RamiPhase.end && g.roundResult != null)
+                  Positioned.fill(child: _summary(g)),
+              ],
+            );
+          },
+        ),
       ),
-    ),
     );
   }
 
@@ -290,24 +323,34 @@ class _RamiScreenState extends State<RamiScreen> {
                 onTap: () => Navigator.of(context).maybePop(),
               )
             : Material(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () => Navigator.of(context).maybePop(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.arrow_back, size: 18, color: Color(0xFF7E22CE)),
-                  SizedBox(width: 4),
-                  Text(Strings.menuLabel, style: TextStyle(color: Color(0xFF7E22CE), fontWeight: FontWeight.w900)),
-                ],
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => Navigator.of(context).maybePop(),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.arrow_back,
+                          size: 18,
+                          color: Color(0xFF7E22CE),
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          Strings.menuLabel,
+                          style: TextStyle(
+                            color: Color(0xFF7E22CE),
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
         Expanded(
           child: Column(
             children: [
@@ -320,7 +363,10 @@ class _RamiScreenState extends State<RamiScreen> {
                   fontSize: 13,
                 ),
               ),
-              Text(tf('round', {'n': '${g.round}'}), style: const TextStyle(fontWeight: FontWeight.w800)),
+              Text(
+                tf('round', {'n': '${g.round}'}),
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
             ],
           ),
         ),
@@ -337,12 +383,20 @@ class _RamiScreenState extends State<RamiScreen> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                const Icon(Icons.emoji_events, size: 44, color: Color(0xFFFBBF24)),
+                const Icon(
+                  Icons.emoji_events,
+                  size: 44,
+                  color: Color(0xFFFBBF24),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 6),
                   child: Text(
                     '${g.targetScore}',
-                    style: const TextStyle(color: _inkColor, fontWeight: FontWeight.w900, fontSize: 11),
+                    style: const TextStyle(
+                      color: _inkColor,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 11,
+                    ),
                   ),
                 ),
               ],
@@ -358,7 +412,10 @@ class _RamiScreenState extends State<RamiScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: _creamColor,
-        title: Text(Strings.rulesTitleRami, style: TextStyle(color: _inkColor, fontWeight: FontWeight.w900)),
+        title: Text(
+          Strings.rulesTitleRami,
+          style: TextStyle(color: _inkColor, fontWeight: FontWeight.w900),
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -370,10 +427,19 @@ class _RamiScreenState extends State<RamiScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(rule.title, style: const TextStyle(color: _inkColor, fontWeight: FontWeight.w900)),
+                      Text(
+                        rule.title,
+                        style: const TextStyle(
+                          color: _inkColor,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
                       Text(
                         rule.text,
-                        style: TextStyle(color: _inkColor.withValues(alpha: 0.8), fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          color: _inkColor.withValues(alpha: 0.8),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
@@ -382,7 +448,10 @@ class _RamiScreenState extends State<RamiScreen> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(Strings.close)),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(Strings.close),
+          ),
         ],
       ),
     );
@@ -409,7 +478,9 @@ class _RamiScreenState extends State<RamiScreen> {
         color: _feltColor,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: _frameColor, width: 6),
-        boxShadow: const [BoxShadow(color: _frameColor, spreadRadius: 3, offset: Offset(0, 8))],
+        boxShadow: const [
+          BoxShadow(color: _frameColor, spreadRadius: 3, offset: Offset(0, 8)),
+        ],
       ),
       child: Column(
         children: [
@@ -461,7 +532,9 @@ class _RamiScreenState extends State<RamiScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(width * 0.14),
-                  border: c.canDraw ? Border.all(color: _goldColor, width: 3) : null,
+                  border: c.canDraw
+                      ? Border.all(color: _goldColor, width: 3)
+                      : null,
                 ),
                 child: RamiBackView(width: width),
               ),
@@ -480,7 +553,9 @@ class _RamiScreenState extends State<RamiScreen> {
               key: _key('discard'),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(width * 0.14),
-                border: discardHover || c.canDraw ? Border.all(color: _goldColor, width: 3) : null,
+                border: discardHover || c.canDraw
+                    ? Border.all(color: _goldColor, width: 3)
+                    : null,
               ),
               child: top == null
                   ? Container(
@@ -541,10 +616,13 @@ class _RamiScreenState extends State<RamiScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: hover ? _goldColor.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.1),
+        color: hover
+            ? _goldColor.withValues(alpha: 0.2)
+            : Colors.black.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: hover ? _goldColor : (dropping ? Colors.white70 : Colors.white24),
+          color:
+              hover ? _goldColor : (dropping ? Colors.white70 : Colors.white24),
           width: 2,
         ),
       ),
@@ -559,7 +637,11 @@ class _RamiScreenState extends State<RamiScreen> {
                 child: Text(
                   c.canPlay ? Strings.ramiDropHint : Strings.ramiNoMeld,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             for (final meld in g.table)
@@ -567,11 +649,13 @@ class _RamiScreenState extends State<RamiScreen> {
                 key: _key('meld:${meld.id}'),
                 cards: meld.cards,
                 cardWidth: meldWidth,
-                hot: c.canPlay && target is RamiDropMeld && target.id == meld.id,
+                hot:
+                    c.canPlay && target is RamiDropMeld && target.id == meld.id,
                 eligible: c.layEligible,
                 onTap: c.layEligible ? () => c.layOffSelected(meld.id) : null,
               ),
-            for (final cards in g.staged) _MeldView(cards: cards, cardWidth: meldWidth, staged: true),
+            for (final cards in g.staged)
+              _MeldView(cards: cards, cardWidth: meldWidth, staged: true),
           ],
         ),
       ),
@@ -595,10 +679,18 @@ class _RamiScreenState extends State<RamiScreen> {
     final c = _c;
     return [
       if (!staged)
-        _ActionButton(label: Strings.actPose, onTap: c.pose, enabled: c.selectionIsMeld, primary: true)
+        _ActionButton(
+          label: Strings.actPose,
+          onTap: c.pose,
+          enabled: c.selectionIsMeld,
+          primary: true,
+        )
       else ...[
         _ActionButton(
-          label: tf('validate', {'cur': '${c.stagedPoints}', 'min': '${rules.ramiOpenMin}'}),
+          label: tf('validate', {
+            'cur': '${c.stagedPoints}',
+            'min': '${rules.ramiOpenMin}',
+          }),
           onTap: c.commit,
           enabled: c.stagedPoints >= rules.ramiOpenMin,
           primary: true,
@@ -671,11 +763,18 @@ class _RamiScreenState extends State<RamiScreen> {
     );
   }
 
-  Widget _handCard(rules.RamiCard card, double width, {required bool selected, required int? group}) {
+  Widget _handCard(
+    rules.RamiCard card,
+    double width, {
+    required bool selected,
+    required int? group,
+  }) {
     final drag = _drag;
     final target = drag?.target;
     final dragged = drag?.id == card.id;
-    final insert = target is RamiDropHand && target.id == card.id && !dragged ? target : null;
+    final insert = target is RamiDropHand && target.id == card.id && !dragged
+        ? target
+        : null;
 
     return Listener(
       key: _key('hand:${card.id}'),
@@ -694,7 +793,11 @@ class _RamiScreenState extends State<RamiScreen> {
               children: [
                 Opacity(
                   opacity: dragged ? 0.3 : 1,
-                  child: RamiCardView(card: card, width: width, selected: selected),
+                  child: RamiCardView(
+                    card: card,
+                    width: width,
+                    selected: selected,
+                  ),
                 ),
                 if (insert != null)
                   Positioned(
@@ -709,7 +812,9 @@ class _RamiScreenState extends State<RamiScreen> {
             Container(
               margin: const EdgeInsets.only(top: 3),
               height: 5,
-              color: group == null ? Colors.transparent : _groupColors[group % _groupColors.length],
+              color: group == null
+                  ? Colors.transparent
+                  : _groupColors[group % _groupColors.length],
             ),
           ],
         ),
@@ -742,7 +847,10 @@ class _RamiScreenState extends State<RamiScreen> {
                   right: -8,
                   top: -8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: _goldColor,
                       shape: BoxShape.circle,
@@ -750,7 +858,11 @@ class _RamiScreenState extends State<RamiScreen> {
                     ),
                     child: Text(
                       '×$groupSize',
-                      style: const TextStyle(color: _inkColor, fontSize: 11, fontWeight: FontWeight.w900),
+                      style: const TextStyle(
+                        color: _inkColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                 ),
@@ -787,28 +899,43 @@ class _RamiScreenState extends State<RamiScreen> {
                 color: const Color(0xFF059669),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: Colors.black, width: 4),
-                boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 7))],
+                boxShadow: const [
+                  BoxShadow(color: Colors.black, offset: Offset(0, 7)),
+                ],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: _goldColor,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: Colors.black, width: 2),
                     ),
                     child: Text(
-                      matchWinner != null ? Strings.matchOver : 'MANCHE ${g.round}',
-                      style: const TextStyle(color: Color(0xFF17213D), fontSize: 11, fontWeight: FontWeight.w900),
+                      matchWinner != null
+                          ? Strings.matchOver
+                          : 'MANCHE ${g.round}',
+                      style: const TextStyle(
+                        color: Color(0xFF17213D),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
                   Text(
                     title,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w900),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -826,15 +953,26 @@ class _RamiScreenState extends State<RamiScreen> {
                               children: [
                                 Text(
                                   _seatNames[seat].toUpperCase(),
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 11),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 11,
+                                  ),
                                 ),
                                 Text(
                                   '+${result.penalties[seat]}',
-                                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w900,
+                                  ),
                                 ),
                                 Text(
                                   'Total ${g.scores[seat]}',
-                                  style: const TextStyle(color: Colors.white70, fontSize: 10),
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 10,
+                                  ),
                                 ),
                               ],
                             ),
@@ -847,10 +985,16 @@ class _RamiScreenState extends State<RamiScreen> {
                     _DialogButton(label: Strings.replay, onTap: _c.restart),
                     TextButton(
                       onPressed: () => Navigator.of(context).maybePop(),
-                      child: Text(Strings.backToMenu, style: TextStyle(color: Colors.white70)),
+                      child: Text(
+                        Strings.backToMenu,
+                        style: TextStyle(color: Colors.white70),
+                      ),
                     ),
                   ] else
-                    _DialogButton(label: Strings.nextRoundButton, onTap: _c.nextRound),
+                    _DialogButton(
+                      label: Strings.nextRoundButton,
+                      onTap: _c.nextRound,
+                    ),
                 ],
               ),
             ),
@@ -883,7 +1027,10 @@ class _PlayerChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: active ? _goldColor : _creamColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: _frameColor.withValues(alpha: active ? 1 : 0.6), width: 2),
+          border: Border.all(
+            color: _frameColor.withValues(alpha: active ? 1 : 0.6),
+            width: 2,
+          ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -895,7 +1042,11 @@ class _PlayerChip extends StatelessWidget {
                   child: Text(
                     _seatNames[seat].toUpperCase(),
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: ink, fontSize: 11, fontWeight: FontWeight.w900),
+                    style: TextStyle(
+                      color: ink,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
                 if (game.dealer == seat) ...[
@@ -905,7 +1056,11 @@ class _PlayerChip extends StatelessWidget {
                     backgroundColor: _inkColor,
                     child: Text(
                       'D',
-                      style: TextStyle(fontSize: 9, color: Colors.white, fontWeight: FontWeight.w900),
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                 ],
@@ -913,11 +1068,19 @@ class _PlayerChip extends StatelessWidget {
             ),
             Text(
               '${game.scores[seat]}',
-              style: TextStyle(color: ink, fontSize: 18, fontWeight: FontWeight.w900),
+              style: TextStyle(
+                color: ink,
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+              ),
             ),
             Text(
               seat == 0 ? opened : '×${game.hands[seat].length} · $opened',
-              style: TextStyle(color: ink.withValues(alpha: 0.75), fontSize: 10, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                color: ink.withValues(alpha: 0.75),
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ],
         ),
@@ -961,7 +1124,9 @@ class _MeldView extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: hot ? _goldColor.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.2),
+          color: hot
+              ? _goldColor.withValues(alpha: 0.3)
+              : Colors.black.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: border, width: 2),
         ),
@@ -1021,7 +1186,11 @@ class _ActionButton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text(
               label,
-              style: TextStyle(color: foreground, fontWeight: FontWeight.w900, fontSize: 13),
+              style: TextStyle(
+                color: foreground,
+                fontWeight: FontWeight.w900,
+                fontSize: 13,
+              ),
             ),
           ),
         ),

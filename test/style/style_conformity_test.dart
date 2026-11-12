@@ -12,20 +12,26 @@ void main() {
   test('pas de nouvelle couleur écrite en dur hors de lib/core/theme', () {
     var count = 0;
     final offenders = <String, int>{};
-    for (final file in Directory('lib').listSync(recursive: true).whereType<File>()) {
+    for (final file in Directory(
+      'lib',
+    ).listSync(recursive: true).whereType<File>()) {
       final path = file.path.replaceAll('\\', '/');
-      if (!path.endsWith('.dart') || path.startsWith('lib/core/theme/')) continue;
+      if (!path.endsWith('.dart') || path.startsWith('lib/core/theme/'))
+        continue;
       final n = _rawColor.allMatches(file.readAsStringSync()).length;
       if (n > 0) {
         count += n;
         offenders[path] = n;
       }
     }
-    final baseline = int.parse(File('test/style/style_baseline.txt').readAsStringSync().trim());
+    final baseline = int.parse(
+      File('test/style/style_baseline.txt').readAsStringSync().trim(),
+    );
     expect(
       count,
       lessThanOrEqualTo(baseline),
-      reason: 'Couleurs en dur : $count (référence $baseline). Utiliser lib/core/theme. Détail : $offenders',
+      reason:
+          'Couleurs en dur : $count (référence $baseline). Utiliser lib/core/theme. Détail : $offenders',
     );
   });
 }

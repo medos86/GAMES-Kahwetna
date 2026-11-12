@@ -21,28 +21,34 @@ void main() {
     expect(find.byType(SnackBar), findsNothing);
   });
 
-  testWidgets('Voir affiche le toast « Espace publicitaire de démonstration »', (tester) async {
-    await pumpBanner(tester);
+  testWidgets(
+    'Voir affiche le toast « Espace publicitaire de démonstration »',
+    (tester) async {
+      await pumpBanner(tester);
 
-    await tester.tap(find.text(Strings.adSee));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.text(Strings.adSee));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.byType(SnackBar), findsOneWidget);
-    expect(find.text('Espace publicitaire de démonstration'), findsOneWidget);
-  });
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('Espace publicitaire de démonstration'), findsOneWidget);
+    },
+  );
 
-  testWidgets('un second appui remplace le toast au lieu d\'en empiler un autre', (tester) async {
-    await pumpBanner(tester);
+  testWidgets(
+    'un second appui remplace le toast au lieu d\'en empiler un autre',
+    (tester) async {
+      await pumpBanner(tester);
 
-    await tester.tap(find.text(Strings.adSee));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester.tap(find.text(Strings.adSee));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 600));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text(Strings.adSee));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.text(Strings.adSee));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pumpAndSettle();
 
-    expect(find.text(Strings.adDemoToast), findsOneWidget);
-  });
+      expect(find.text(Strings.adDemoToast), findsOneWidget);
+    },
+  );
 }

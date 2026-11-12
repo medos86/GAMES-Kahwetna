@@ -59,7 +59,9 @@ class GameScaffold extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.only(bottom: bottomInset),
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: (width - 16).clamp(0, 624).toDouble()),
+                  constraints: BoxConstraints(
+                    maxWidth: (width - 16).clamp(0, 624).toDouble(),
+                  ),
                   child: const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8),
                     child: AdBanner(),

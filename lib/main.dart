@@ -60,34 +60,35 @@ class KahwetneApp extends StatelessWidget {
     return ValueListenableBuilder<AppLanguage>(
       valueListenable: appLanguage,
       builder: (context, language, _) => MaterialApp(
-      locale: localeOf(language),
-      // Arabe : mise en page en RTL. Les cartes et le plateau restent gérés par leurs écrans.
-      builder: (context, child) => Directionality(
-        textDirection: isRtl(language) ? TextDirection.rtl : TextDirection.ltr,
-        child: child!,
-      ),
-      navigatorKey: _navigatorKey,
-      scaffoldMessengerKey: _messengerKey,
-      onGenerateRoute: (settings) => buildGameRoute(settings.name),
-      debugShowCheckedModeBanner: false,
-      title: 'Kahwetne',
-      theme: kComicStyle
-          ? buildComicTheme()
-          : ThemeData(
-              brightness: Brightness.dark,
-              scaffoldBackgroundColor: AppColors.background,
-              colorScheme: const ColorScheme.dark(
-                primary: AppColors.primary,
-                secondary: AppColors.secondary,
-                error: AppColors.destructive,
+        locale: localeOf(language),
+        // Arabe : mise en page en RTL. Les cartes et le plateau restent gérés par leurs écrans.
+        builder: (context, child) => Directionality(
+          textDirection:
+              isRtl(language) ? TextDirection.rtl : TextDirection.ltr,
+          child: child!,
+        ),
+        navigatorKey: _navigatorKey,
+        scaffoldMessengerKey: _messengerKey,
+        onGenerateRoute: (settings) => buildGameRoute(settings.name),
+        debugShowCheckedModeBanner: false,
+        title: 'Kahwetne',
+        theme: kComicStyle
+            ? buildComicTheme()
+            : ThemeData(
+                brightness: Brightness.dark,
+                scaffoldBackgroundColor: AppColors.background,
+                colorScheme: const ColorScheme.dark(
+                  primary: AppColors.primary,
+                  secondary: AppColors.secondary,
+                  error: AppColors.destructive,
+                ),
               ),
-            ),
-      home: kComicDemo
-          ? const ComicDemoScreen()
-          : kSizeProbe
-              ? const SizeProbeScreen()
-          : const SplashScreen(next: MainMenuScreen(onPlay: _onPlay)),
-    ),
+        home: kComicDemo
+            ? const ComicDemoScreen()
+            : kSizeProbe
+                ? const SizeProbeScreen()
+                : const SplashScreen(next: MainMenuScreen(onPlay: _onPlay)),
+      ),
     );
   }
 }
@@ -110,7 +111,11 @@ class SizeProbeScreen extends StatelessWidget {
             'carte Rami : ${m.ramiHandCardWidth.toStringAsFixed(1)}\n'
             'carte Coinche : ${m.coincheCardWidth.toStringAsFixed(1)}',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.foreground, fontSize: 18, height: 1.5),
+            style: const TextStyle(
+              color: AppColors.foreground,
+              fontSize: 18,
+              height: 1.5,
+            ),
           ),
         ),
       ),

@@ -58,7 +58,10 @@ void main() {
   group('prises', () {
     test('une carte de même valeur sur la table se prend seule', () {
       final s = makeState(
-        hands: {Player.player: [card(5)], Player.opponent: [card(9)]},
+        hands: {
+          Player.player: [card(5)],
+          Player.opponent: [card(9)],
+        },
         table: [card(5, ChkobbaSuit.coupes), card(2), card(3)],
         deck: [card(1)],
       );
@@ -70,7 +73,10 @@ void main() {
 
     test('un 7 prend 3 + 4 quand c\'est la seule combinaison', () {
       final s = makeState(
-        hands: {Player.player: [card(7)], Player.opponent: [card(9)]},
+        hands: {
+          Player.player: [card(7)],
+          Player.opponent: [card(9)],
+        },
         table: [card(3), card(4)],
         deck: [card(1)],
       );
@@ -79,29 +85,41 @@ void main() {
       expect(r.state.table, isEmpty);
     });
 
-    test('ramasser toute la table fait une Chkobba, sauf avec la dernière carte', () {
-      final avecPaquet = makeState(
-        hands: {Player.player: [card(5)], Player.opponent: [card(9)]},
-        table: [card(5)],
-        deck: [card(1)],
-      );
-      final chkobba = playCard(avecPaquet, Player.player, 'batons-5');
-      expect(chkobba.chkobba, isTrue);
-      expect(chkobba.state.chkobbas[Player.player], 1);
+    test(
+      'ramasser toute la table fait une Chkobba, sauf avec la dernière carte',
+      () {
+        final avecPaquet = makeState(
+          hands: {
+            Player.player: [card(5)],
+            Player.opponent: [card(9)],
+          },
+          table: [card(5)],
+          deck: [card(1)],
+        );
+        final chkobba = playCard(avecPaquet, Player.player, 'batons-5');
+        expect(chkobba.chkobba, isTrue);
+        expect(chkobba.state.chkobbas[Player.player], 1);
 
-      final derniere = makeState(
-        hands: {Player.player: [card(5)], Player.opponent: []},
-        table: [card(5)],
-        deck: [],
-      );
-      final sansPoint = playCard(derniere, Player.player, 'batons-5');
-      expect(sansPoint.chkobba, isFalse);
-      expect(sansPoint.state.chkobbas[Player.player], 0);
-    });
+        final derniere = makeState(
+          hands: {
+            Player.player: [card(5)],
+            Player.opponent: [],
+          },
+          table: [card(5)],
+          deck: [],
+        );
+        final sansPoint = playCard(derniere, Player.player, 'batons-5');
+        expect(sansPoint.chkobba, isFalse);
+        expect(sansPoint.state.chkobbas[Player.player], 0);
+      },
+    );
 
     test('une carte sans prise pose sur la table et passe la main', () {
       final s = makeState(
-        hands: {Player.player: [card(8)], Player.opponent: [card(9)]},
+        hands: {
+          Player.player: [card(8)],
+          Player.opponent: [card(9)],
+        },
         table: [card(2)],
         deck: [card(1)],
       );
@@ -113,7 +131,10 @@ void main() {
 
     test('le 7 de deniers ramassé déclenche la Haya', () {
       final s = makeState(
-        hands: {Player.player: [card(7, ChkobbaSuit.deniers)], Player.opponent: [card(9)]},
+        hands: {
+          Player.player: [card(7, ChkobbaSuit.deniers)],
+          Player.opponent: [card(9)],
+        },
         table: [card(7, ChkobbaSuit.coupes)],
         deck: [card(1)],
       );
@@ -146,7 +167,10 @@ void main() {
       );
       final r = scoreRound(s);
       expect(r.state.table, isEmpty);
-      expect(r.points[Player.opponent]!.map((p) => p.label), contains('Cartes'));
+      expect(
+        r.points[Player.opponent]!.map((p) => p.label),
+        contains('Cartes'),
+      );
     });
 
     test('atteindre le score cible désigne le gagnant', () {
@@ -172,7 +196,11 @@ void main() {
         },
         table: [card(6)],
       );
-      final id = chooseOpponentCard(s, ChkobbaAiLevel.facile, random: () => 0.99);
+      final id = chooseOpponentCard(
+        s,
+        ChkobbaAiLevel.facile,
+        random: () => 0.99,
+      );
       expect(s.hands[Player.opponent]!.map((c) => c.id), contains(id));
     });
 
@@ -190,29 +218,47 @@ void main() {
       }
     });
 
-    test('facile : sans prise quand r() est bas, la carte reste sur le tapis', () {
-      final s = makeState(
-        hands: {
-          Player.player: [card(1)],
-          Player.opponent: [card(6)],
-        },
-        table: [card(6, ChkobbaSuit.coupes)],
-      );
-      // Tirages à 0 : carte 0, et décision « ne pas prendre » (0 < 0,4).
-      final move = chooseOpponentMove(s, ChkobbaAiLevel.facile, random: () => 0.0);
-      expect(move.cardId, 'batons-6');
-      expect(move.capture, isFalse);
+    test(
+      'facile : sans prise quand r() est bas, la carte reste sur le tapis',
+      () {
+        final s = makeState(
+          hands: {
+            Player.player: [card(1)],
+            Player.opponent: [card(6)],
+          },
+          table: [card(6, ChkobbaSuit.coupes)],
+        );
+        // Tirages à 0 : carte 0, et décision « ne pas prendre » (0 < 0,4).
+        final move = chooseOpponentMove(
+          s,
+          ChkobbaAiLevel.facile,
+          random: () => 0.0,
+        );
+        expect(move.cardId, 'batons-6');
+        expect(move.capture, isFalse);
 
-      final result = playCard(s, Player.opponent, move.cardId, discardOnly: true);
-      expect(result.captured, isEmpty);
-      expect(result.state.table.map((c) => c.id), containsAll(['coupes-6', 'batons-6']));
-    });
+        final result = playCard(
+          s,
+          Player.opponent,
+          move.cardId,
+          discardOnly: true,
+        );
+        expect(result.captured, isEmpty);
+        expect(
+          result.state.table.map((c) => c.id),
+          containsAll(['coupes-6', 'batons-6']),
+        );
+      },
+    );
 
     test('moyen : priorité au 7 de carreau capturé', () {
       final s = makeState(
         hands: {
           Player.player: [card(1)],
-          Player.opponent: [card(2, ChkobbaSuit.epees), card(7, ChkobbaSuit.coupes)],
+          Player.opponent: [
+            card(2, ChkobbaSuit.epees),
+            card(7, ChkobbaSuit.coupes),
+          ],
         },
         table: [card(7, ChkobbaSuit.deniers)],
       );
@@ -221,13 +267,18 @@ void main() {
       expect(move.capture, isTrue);
     });
 
-    test('difficile lit la main du joueur : ne laisse pas une table qu\'il ramasse d\'un coup', () {
+    test(
+        'difficile lit la main du joueur : ne laisse pas une table qu\'il ramasse d\'un coup',
+        () {
       // Table 5 + 2 (somme 7). Le joueur a un 7 pour tout ramasser. L'IA ne doit pas
       // ajouter une carte qui laisse la table à ramasser d'un coup, quand une autre carte est sûre.
       final s = makeState(
         hands: {
           Player.player: [card(7, ChkobbaSuit.coupes)],
-          Player.opponent: [card(4, ChkobbaSuit.epees), card(9, ChkobbaSuit.batons)],
+          Player.opponent: [
+            card(4, ChkobbaSuit.epees),
+            card(9, ChkobbaSuit.batons),
+          ],
         },
         table: [card(5, ChkobbaSuit.deniers), card(2, ChkobbaSuit.coupes)],
       );
@@ -235,17 +286,28 @@ void main() {
       expect(s.hands[Player.opponent]!.map((c) => c.id), contains(id));
     });
 
-    test('difficile ne lit pas la main du joueur : même coup quelle que soit sa main', () {
+    test(
+        'difficile ne lit pas la main du joueur : même coup quelle que soit sa main',
+        () {
       final base = {
-        Player.opponent: [card(4, ChkobbaSuit.epees), card(9, ChkobbaSuit.batons)],
+        Player.opponent: [
+          card(4, ChkobbaSuit.epees),
+          card(9, ChkobbaSuit.batons),
+        ],
       };
       final table = [card(5, ChkobbaSuit.deniers), card(2, ChkobbaSuit.coupes)];
       final withSeven = makeState(
-        hands: {...base, Player.player: [card(7, ChkobbaSuit.coupes)]},
+        hands: {
+          ...base,
+          Player.player: [card(7, ChkobbaSuit.coupes)],
+        },
         table: table,
       );
       final withOne = makeState(
-        hands: {...base, Player.player: [card(1, ChkobbaSuit.batons)]},
+        hands: {
+          ...base,
+          Player.player: [card(1, ChkobbaSuit.batons)],
+        },
         table: table,
       );
       expect(

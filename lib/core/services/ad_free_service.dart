@@ -66,7 +66,9 @@ class AdFreeService {
   /// Relit l'échéance conservée. Une échéance déjà passée laisse le mode inactif.
   Future<void> load() async {
     final millis = await _store.readExpiry();
-    _setExpiry(millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis));
+    _setExpiry(
+      millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis),
+    );
   }
 
   /// Active (ou prolonge à 30 minutes pleines) le mode sans pub.

@@ -46,7 +46,12 @@ String chkobbaCardAsset(ChkobbaCard card) {
 
 /// Face d'une carte : image cartoon de la carte.
 class ChkobbaCardFace extends StatelessWidget {
-  const ChkobbaCardFace({super.key, required this.card, this.onTap, this.highlight = false});
+  const ChkobbaCardFace({
+    super.key,
+    required this.card,
+    this.onTap,
+    this.highlight = false,
+  });
 
   final ChkobbaCard card;
   final VoidCallback? onTap;
@@ -61,8 +66,12 @@ class ChkobbaCardFace extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          border: highlight ? Border.all(color: const Color(0xFFFACC15), width: 3) : null,
-          boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 3))],
+          border: highlight
+              ? Border.all(color: const Color(0xFFFACC15), width: 3)
+              : null,
+          boxShadow: const [
+            BoxShadow(color: Colors.black, offset: Offset(0, 3)),
+          ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
@@ -70,7 +79,8 @@ class ChkobbaCardFace extends StatelessWidget {
             chkobbaCardAsset(card),
             fit: BoxFit.fill,
             gaplessPlayback: true,
-            semanticLabel: '${chkobbaRankLabel(card.rank)} ${chkobbaSuitSymbol(card.suit)}',
+            semanticLabel:
+                '${chkobbaRankLabel(card.rank)} ${chkobbaSuitSymbol(card.suit)}',
           ),
         ),
       ),
@@ -96,11 +106,17 @@ class ChkobbaCardBack extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 3))],
+          boxShadow: const [
+            BoxShadow(color: Colors.black, offset: Offset(0, 3)),
+          ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: Image.asset(cardBackAsset, fit: BoxFit.fill, gaplessPlayback: true),
+          child: Image.asset(
+            cardBackAsset,
+            fit: BoxFit.fill,
+            gaplessPlayback: true,
+          ),
         ),
       ),
     );

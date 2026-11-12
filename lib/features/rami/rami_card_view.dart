@@ -31,7 +31,12 @@ Color ramiSuitColor(rules.RamiSuit suit) => switch (suit) {
 /// Carte Rami dessinée en texte. Seul le coin haut-gauche (valeur et couleur) est visible,
 /// comme TopCard du source : les cartes qui se chevauchent restent lisibles.
 class RamiCardView extends StatelessWidget {
-  const RamiCardView({super.key, required this.card, required this.width, this.selected = false});
+  const RamiCardView({
+    super.key,
+    required this.card,
+    required this.width,
+    this.selected = false,
+  });
 
   final rules.RamiCard card;
   final double width;
@@ -43,7 +48,9 @@ class RamiCardView extends StatelessWidget {
     final fontSize = height * 0.25;
     final joker = card.isJoker;
     final rules.RamiSuit? suit = card.suit;
-    final semanticsLabel = joker ? Strings.jokerLabel : '${ramiRankLabel(card.rank)} ${ramiSuitSymbol(suit!)}';
+    final semanticsLabel = joker
+        ? Strings.jokerLabel
+        : '${ramiRankLabel(card.rank)} ${ramiSuitSymbol(suit!)}';
 
     return Semantics(
       label: semanticsLabel,
@@ -58,7 +65,11 @@ class RamiCardView extends StatelessWidget {
             color: joker ? null : const Color(0xFFFFFBEB),
             gradient: joker
                 ? const LinearGradient(
-                    colors: [Color(0xFFC026D3), Color(0xFF7E22CE), Color(0xFF312E81)],
+                    colors: [
+                      Color(0xFFC026D3),
+                      Color(0xFF7E22CE),
+                      Color(0xFF312E81),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   )
@@ -68,7 +79,9 @@ class RamiCardView extends StatelessWidget {
               color: selected ? const Color(0xFFFFE16B) : Colors.black,
               width: selected ? 3 : 2,
             ),
-            boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 2))],
+            boxShadow: const [
+              BoxShadow(color: Colors.black, offset: Offset(0, 2)),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +90,11 @@ class RamiCardView extends StatelessWidget {
                 ? <Widget>[
                     Text(
                       '★',
-                      style: TextStyle(color: const Color(0xFFFFE16B), fontSize: fontSize, height: 1.05),
+                      style: TextStyle(
+                        color: const Color(0xFFFFE16B),
+                        fontSize: fontSize,
+                        height: 1.05,
+                      ),
                     ),
                     Text(
                       'J',
@@ -101,7 +118,11 @@ class RamiCardView extends StatelessWidget {
                     ),
                     Text(
                       ramiSuitSymbol(suit),
-                      style: TextStyle(color: ramiSuitColor(suit), fontSize: fontSize, height: 1.05),
+                      style: TextStyle(
+                        color: ramiSuitColor(suit),
+                        fontSize: fontSize,
+                        height: 1.05,
+                      ),
                     ),
                   ],
           ),

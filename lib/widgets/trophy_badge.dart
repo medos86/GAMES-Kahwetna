@@ -12,7 +12,8 @@ class TrophyBadge extends StatefulWidget {
   State<TrophyBadge> createState() => _TrophyBadgeState();
 }
 
-class _TrophyBadgeState extends State<TrophyBadge> with SingleTickerProviderStateMixin {
+class _TrophyBadgeState extends State<TrophyBadge>
+    with SingleTickerProviderStateMixin {
   AnimationController? _pulse;
 
   @override
@@ -23,8 +24,10 @@ class _TrophyBadgeState extends State<TrophyBadge> with SingleTickerProviderStat
       _pulse?.dispose();
       _pulse = null;
     } else if (_pulse == null) {
-      _pulse = AnimationController(vsync: this, duration: const Duration(milliseconds: 2400))
-        ..repeat(reverse: true);
+      _pulse = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 2400),
+      )..repeat(reverse: true);
     }
   }
 
@@ -94,7 +97,11 @@ class _TrophyBadgeState extends State<TrophyBadge> with SingleTickerProviderStat
 
     return Semantics(
       label: 'Partie en ${widget.target} points',
-      child: SizedBox(width: size * 1.3, height: size * 1.3, child: Center(child: content)),
+      child: SizedBox(
+        width: size * 1.3,
+        height: size * 1.3,
+        child: Center(child: content),
+      ),
     );
   }
 }

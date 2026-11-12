@@ -19,7 +19,8 @@ void main() {
           t.id == 'red-0' ? t.copyWith(progress: 1) : t,
       ],
     );
-    final placed = layoutTokens(state.tokens).firstWhere((p) => p.token.id == 'red-0');
+    final placed =
+        layoutTokens(state.tokens).firstWhere((p) => p.token.id == 'red-0');
     final cell = ludoTrack[ludoStartIndex(LudoColor.red)];
     expect(placed.x, cell.col + 0.5);
     expect(placed.y, cell.row + 0.5);
@@ -31,7 +32,12 @@ void main() {
     final base = newLudoGame();
     final tokens = [
       for (final t in base.tokens)
-        if (t.id == 'red-0') t.copyWith(progress: 40) else if (t.id == 'blue-0') t.copyWith(progress: 1) else t,
+        if (t.id == 'red-0')
+          t.copyWith(progress: 40)
+        else if (t.id == 'blue-0')
+          t.copyWith(progress: 1)
+        else
+          t,
     ];
     final placed = layoutTokens(tokens);
     final a = placed.firstWhere((p) => p.token.id == 'red-0');

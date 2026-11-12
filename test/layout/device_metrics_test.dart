@@ -20,11 +20,14 @@ void main() {
       expect(m.ramiHandCardWidth, closeTo(53.06, 0.01));
     });
 
-    test('iPhone Pro Max 430x932 : la taille de base monte jusqu\'à 1.125rem', () {
-      const m = DeviceMetrics(width: 430, height: 932);
-      expect(m.isCompact, isTrue);
-      expect(m.gameUnit, closeTo(15.05, 0.01));
-    });
+    test(
+      'iPhone Pro Max 430x932 : la taille de base monte jusqu\'à 1.125rem',
+      () {
+        const m = DeviceMetrics(width: 430, height: 932);
+        expect(m.isCompact, isTrue);
+        expect(m.gameUnit, closeTo(15.05, 0.01));
+      },
+    );
   });
 
   group('Paysage ou grand écran (pas compact)', () {

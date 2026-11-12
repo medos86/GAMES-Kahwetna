@@ -60,14 +60,19 @@ void main() {
     });
   });
 
-  test('après un tri, l\'ordre choisi à la main reste valide (même cartes, pas de doublon)', () {
+  test(
+      'après un tri, l\'ordre choisi à la main reste valide (même cartes, pas de doublon)',
+      () {
     fakeAsync((async) {
       final c = RamiController(
         targetScore: 100,
         difficulty: rules.RamiAiLevel.facile,
         random: () => 0.0,
       );
-      c.dropCard(c.displayed.first.id, RamiDropHand(c.displayed.last.id, after: true));
+      c.dropCard(
+        c.displayed.first.id,
+        RamiDropHand(c.displayed.last.id, after: true),
+      );
       c.sortBy(RamiSortMode.rank);
       final sorted = ids(c);
       expect(sorted.toSet().length, sorted.length);

@@ -68,8 +68,10 @@ class ChkobbaState {
 
   /// Relit un état produit par [toJson] (mêmes clés que les champs du source TypeScript).
   factory ChkobbaState.fromJson(Map<String, dynamic> json) {
-    List<ChkobbaCard> cards(Object? raw) =>
-        [for (final c in raw as List<dynamic>) ChkobbaCard.fromJson(c as Map<String, dynamic>)];
+    List<ChkobbaCard> cards(Object? raw) => [
+          for (final c in raw as List<dynamic>)
+            ChkobbaCard.fromJson(c as Map<String, dynamic>),
+        ];
     final hands = json['hands'] as Map<String, dynamic>;
     final won = json['won'] as Map<String, dynamic>;
     final chkobbas = json['chkobbas'] as Map<String, dynamic>;
@@ -80,7 +82,9 @@ class ChkobbaState {
       hands: {for (final p in Player.values) p: cards(hands[p.name])},
       table: cards(json['table']),
       won: {for (final p in Player.values) p: cards(won[p.name])},
-      chkobbas: {for (final p in Player.values) p: intFromJson(chkobbas[p.name])},
+      chkobbas: {
+        for (final p in Player.values) p: intFromJson(chkobbas[p.name]),
+      },
       scores: {for (final p in Player.values) p: intFromJson(scores[p.name])},
       lastCapturer: playerFromJson(json['lastCapturer']),
       turn: Player.values.byName(json['turn'] as String),
@@ -93,9 +97,15 @@ class ChkobbaState {
   Map<String, dynamic> toJson() => {
         'targetScore': targetScore,
         'deck': [for (final c in deck) c.toJson()],
-        'hands': {for (final p in Player.values) p.name: [for (final c in hands[p]!) c.toJson()]},
+        'hands': {
+          for (final p in Player.values)
+            p.name: [for (final c in hands[p]!) c.toJson()],
+        },
         'table': [for (final c in table) c.toJson()],
-        'won': {for (final p in Player.values) p.name: [for (final c in won[p]!) c.toJson()]},
+        'won': {
+          for (final p in Player.values)
+            p.name: [for (final c in won[p]!) c.toJson()],
+        },
         'chkobbas': {for (final p in Player.values) p.name: chkobbas[p]},
         'scores': {for (final p in Player.values) p.name: scores[p]},
         'lastCapturer': lastCapturer?.name,
@@ -207,7 +217,11 @@ ChkobbaState dealRound({
   );
 }
 
-ChkobbaState newMatch({int targetScore = chkobbaDefaultTarget, RandomDouble? random}) => dealRound(
+ChkobbaState newMatch({
+  int targetScore = chkobbaDefaultTarget,
+  RandomDouble? random,
+}) =>
+    dealRound(
       scores: {Player.player: 0, Player.opponent: 0},
       starter: Player.player,
       round: 1,
@@ -238,11 +252,16 @@ ChkobbaState chkobbaDemoChoiceState({int targetScore = chkobbaDefaultTarget}) {
     ChkobbaCard(suit: ChkobbaSuit.epees, rank: 1, id: 'epees-1'),
     ChkobbaCard(suit: ChkobbaSuit.coupes, rank: 6, id: 'coupes-6'),
   ];
-  final used = {...playerHand, ...opponentHand, ...table}.map((c) => c.id).toSet();
+  final used = {
+    ...playerHand,
+    ...opponentHand,
+    ...table,
+  }.map((c) => c.id).toSet();
   final deck = [
     for (final suit in ChkobbaSuit.values)
       for (var rank = 1; rank <= 10; rank++)
-        if (!used.contains('${suit.name}-$rank')) ChkobbaCard(suit: suit, rank: rank, id: '${suit.name}-$rank'),
+        if (!used.contains('${suit.name}-$rank'))
+          ChkobbaCard(suit: suit, rank: rank, id: '${suit.name}-$rank'),
   ];
   return ChkobbaState(
     targetScore: targetScore,
@@ -272,7 +291,10 @@ ChkobbaState dealHands(ChkobbaState state) => state.copyWith(
 // Une carte de même valeur sur la table se prend seule, avant toute combinaison de somme.
 List<List<ChkobbaCard>> _captureOptions(List<ChkobbaCard> table, int rank) {
   final same = table.where((c) => c.rank == rank).toList();
-  if (same.isNotEmpty) return [for (final c in same) [c]];
+  if (same.isNotEmpty)
+    return [
+      for (final c in same) [c],
+    ];
 
   final options = <List<ChkobbaCard>>[];
   void search(int index, int total, List<ChkobbaCard> current) {
@@ -294,14 +316,19 @@ int _cardsValue(List<ChkobbaCard> cards) {
   for (final c in cards) {
     sum += 1 +
         (c.suit == ChkobbaSuit.deniers ? 1 : 0) +
-        (c.rank == 7 ? 2 : c.rank == 6 ? 1 : 0) +
+        (c.rank == 7
+            ? 2
+            : c.rank == 6
+                ? 1
+                : 0) +
         (c.isHaya ? 10 : 0);
   }
   return sum;
 }
 
 List<ChkobbaCard> _bestCapture(List<ChkobbaCard> table, int rank) {
-  int score(List<ChkobbaCard> o) => _cardsValue(o) + (o.length == table.length ? 20 : 0);
+  int score(List<ChkobbaCard> o) =>
+      _cardsValue(o) + (o.length == table.length ? 20 : 0);
   var best = <ChkobbaCard>[];
   for (final o in _captureOptions(table, rank)) {
     if (score(o) > score(best)) best = o;
@@ -317,7 +344,11 @@ ChkobbaCard? _findCard(List<ChkobbaCard> cards, String id) {
 }
 
 /// Toutes les prises possibles pour la carte donnée (vide si la carte n'est pas en main).
-List<List<ChkobbaCard>> getCaptureOptions(ChkobbaState state, Player who, String cardId) {
+List<List<ChkobbaCard>> getCaptureOptions(
+  ChkobbaState state,
+  Player who,
+  String cardId,
+) {
   final card = _findCard(state.hands[who]!, cardId);
   return card == null ? [] : _captureOptions(state.table, card.rank);
 }
@@ -332,7 +363,12 @@ ChkobbaMoveResult playCard(
 }) {
   final card = _findCard(state.hands[who]!, cardId);
   if (card == null) {
-    return ChkobbaMoveResult(state: state, captured: const [], chkobba: false, haya: false);
+    return ChkobbaMoveResult(
+      state: state,
+      captured: const [],
+      chkobba: false,
+      haya: false,
+    );
   }
 
   final hands = {
@@ -343,14 +379,17 @@ ChkobbaMoveResult playCard(
   List<ChkobbaCard>? chosen;
   if (chosenIds != null) {
     for (final o in _captureOptions(state.table, card.rank)) {
-      if (o.length == chosenIds.length && o.every((c) => chosenIds.contains(c.id))) {
+      if (o.length == chosenIds.length &&
+          o.every((c) => chosenIds.contains(c.id))) {
         chosen = o;
         break;
       }
     }
   }
   // discardOnly : l'adversaire facile pose sa carte sans prendre, même quand il le pourrait.
-  final captured = discardOnly ? <ChkobbaCard>[] : (chosen ?? _bestCapture(state.table, card.rank));
+  final captured = discardOnly
+      ? <ChkobbaCard>[]
+      : (chosen ?? _bestCapture(state.table, card.rank));
 
   if (captured.isEmpty) {
     return ChkobbaMoveResult(
@@ -413,7 +452,9 @@ ChkobbaRoundScore scoreRound(ChkobbaState state) {
     final p = count(won[Player.player]!);
     final o = count(won[Player.opponent]!);
     if (p != o) {
-      points[p > o ? Player.player : Player.opponent]!.add(RoundPoint(label, 1));
+      points[p > o ? Player.player : Player.opponent]!.add(
+        RoundPoint(label, 1),
+      );
     }
     return p != o;
   }
@@ -421,10 +462,14 @@ ChkobbaRoundScore scoreRound(ChkobbaState state) {
   for (final p in [Player.player, Player.opponent]) {
     final n = state.chkobbas[p]!;
     if (n > 0) points[p]!.add(RoundPoint('Chkobba ×$n', n));
-    if (won[p]!.any((c) => c.isHaya)) points[p]!.add(const RoundPoint('Haya (7♦)', 1));
+    if (won[p]!.any((c) => c.isHaya))
+      points[p]!.add(const RoundPoint('Haya (7♦)', 1));
   }
   majority('Cartes', (cards) => cards.length);
-  majority('Deniers', (cards) => cards.where((c) => c.suit == ChkobbaSuit.deniers).length);
+  majority(
+    'Deniers',
+    (cards) => cards.where((c) => c.suit == ChkobbaSuit.deniers).length,
+  );
   if (!majority('Bermila', (cards) => cards.where((c) => c.rank == 7).length)) {
     majority('Bermila', (cards) => cards.where((c) => c.rank == 6).length);
   }
@@ -458,7 +503,8 @@ ChkobbaRoundScore scoreRound(ChkobbaState state) {
     return (score: -_cardsValue([card]), table: [...table, card]);
   }
   final remaining = table.where((c) => !captured.contains(c)).toList();
-  var score = 100 + _cardsValue([...captured, card]) + (remaining.isEmpty ? 50 : 0);
+  var score =
+      100 + _cardsValue([...captured, card]) + (remaining.isEmpty ? 50 : 0);
   if (priority) score += _pointsPriority(captured);
   return (score: score, table: remaining);
 }
@@ -532,7 +578,9 @@ ChkobbaAiMove chooseOpponentMove(
     final mine = _simulateMove(state.table, card, priority: true);
     var reply = 0;
     if (unseen.isNotEmpty) {
-      reply = unseen.map((c) => _simulateMove(mine.table, c).score).reduce((a, b) => a > b ? a : b);
+      reply = unseen
+          .map((c) => _simulateMove(mine.table, c).score)
+          .reduce((a, b) => a > b ? a : b);
     }
     final total = mine.score - reply;
     if (first || total > bestTotal) {

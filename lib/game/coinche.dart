@@ -33,7 +33,8 @@ enum CoincheRank {
   final String label;
 }
 
-CoincheRank rankFromLabel(String label) => CoincheRank.values.firstWhere((r) => r.label == label);
+CoincheRank rankFromLabel(String label) =>
+    CoincheRank.values.firstWhere((r) => r.label == label);
 
 const Object _unset = Object();
 
@@ -108,7 +109,11 @@ class CoincheCard {
   final CoincheRank rank;
   final String id;
 
-  Map<String, dynamic> toJson() => {'suit': suit.name, 'rank': rank.label, 'id': id};
+  Map<String, dynamic> toJson() => {
+        'suit': suit.name,
+        'rank': rank.label,
+        'id': id,
+      };
 
   @override
   bool operator ==(Object other) => other is CoincheCard && other.id == id;
@@ -168,9 +173,13 @@ class Contract {
 sealed class BidAction {
   const BidAction();
 
-  factory BidAction.fromJson(Map<String, dynamic> json) => switch (json['type']) {
+  factory BidAction.fromJson(Map<String, dynamic> json) =>
+      switch (json['type']) {
         'pass' => const PassBid(),
-        'bid' => ValueBid(json['value'] as int, CoincheSuit.values.byName(json['mode'] as String)),
+        'bid' => ValueBid(
+            json['value'] as int,
+            CoincheSuit.values.byName(json['mode'] as String),
+          ),
         'contre' => const ContreBid(),
         'surcoinche' => const SurcoincheBid(),
         _ => throw FormatException('Enchère inconnue : ${json['type']}'),
@@ -193,7 +202,11 @@ final class ValueBid extends BidAction {
   final CoincheSuit mode;
 
   @override
-  Map<String, dynamic> toJson() => {'type': 'bid', 'value': value, 'mode': mode.name};
+  Map<String, dynamic> toJson() => {
+        'type': 'bid',
+        'value': value,
+        'mode': mode.name,
+      };
 }
 
 final class ContreBid extends BidAction {
@@ -237,13 +250,18 @@ class RoundState {
         turn: _seatOrNull(json['turn']),
         calls: {
           for (final e in (json['calls'] as Map<String, dynamic>).entries)
-            Seat.values.byName(e.key): BidAction.fromJson(e.value as Map<String, dynamic>),
+            Seat.values.byName(e.key): BidAction.fromJson(
+              e.value as Map<String, dynamic>,
+            ),
         },
         contract: json['contract'] == null
             ? null
             : Contract.fromJson(json['contract'] as Map<String, dynamic>),
         passes: json['passes'] as int,
-        trick: [for (final p in json['trick'] as List) Play.fromJson(p as Map<String, dynamic>)],
+        trick: [
+          for (final p in json['trick'] as List)
+            Play.fromJson(p as Map<String, dynamic>),
+        ],
         tricksPlayed: json['tricksPlayed'] as int,
         tricksWon: _teamCountsFromJson(json['tricksWon']),
         pointsWon: _teamCountsFromJson(json['pointsWon']),
@@ -287,13 +305,15 @@ class RoundState {
       hands: hands ?? this.hands,
       turn: identical(turn, _unset) ? this.turn : turn as Seat?,
       calls: calls ?? this.calls,
-      contract: identical(contract, _unset) ? this.contract : contract as Contract?,
+      contract:
+          identical(contract, _unset) ? this.contract : contract as Contract?,
       passes: passes ?? this.passes,
       trick: trick ?? this.trick,
       tricksPlayed: tricksPlayed ?? this.tricksPlayed,
       tricksWon: tricksWon ?? this.tricksWon,
       pointsWon: pointsWon ?? this.pointsWon,
-      lastWinner: identical(lastWinner, _unset) ? this.lastWinner : lastWinner as Seat?,
+      lastWinner:
+          identical(lastWinner, _unset) ? this.lastWinner : lastWinner as Seat?,
       belote: identical(belote, _unset) ? this.belote : belote as Team?,
     );
   }
@@ -301,7 +321,10 @@ class RoundState {
   Map<String, dynamic> toJson() => {
         'dealer': dealer.name,
         'phase': phase.name,
-        'hands': {for (final e in hands.entries) e.key.name: [for (final c in e.value) c.toJson()]},
+        'hands': {
+          for (final e in hands.entries)
+            e.key.name: [for (final c in e.value) c.toJson()],
+        },
         'turn': turn?.name,
         'calls': {for (final e in calls.entries) e.key.name: e.value.toJson()},
         'contract': contract?.toJson(),
@@ -324,7 +347,8 @@ class CoincheRoundResult {
     required this.awarded,
   });
 
-  factory CoincheRoundResult.fromJson(Map<String, dynamic> json) => CoincheRoundResult(
+  factory CoincheRoundResult.fromJson(Map<String, dynamic> json) =>
+      CoincheRoundResult(
         contract: Contract.fromJson(json['contract'] as Map<String, dynamic>),
         made: json['made'] as bool,
         capot: json['capot'] as bool,
@@ -380,12 +404,15 @@ class CoincheMatch {
 // ---------------------------------------------------------------------------
 
 List<CoincheCard> _cardsFromJson(Object? raw) => [
-      for (final c in raw as List) CoincheCard.fromJson(c as Map<String, dynamic>),
+      for (final c in raw as List)
+        CoincheCard.fromJson(c as Map<String, dynamic>),
     ];
 
-Seat? _seatOrNull(Object? raw) => raw == null ? null : Seat.values.byName(raw as String);
+Seat? _seatOrNull(Object? raw) =>
+    raw == null ? null : Seat.values.byName(raw as String);
 
-Team? _teamOrNull(Object? raw) => raw == null ? null : Team.values.byName(raw as String);
+Team? _teamOrNull(Object? raw) =>
+    raw == null ? null : Team.values.byName(raw as String);
 
 Map<String, dynamic> _teamCountsToJson(Map<Team, int> counts) => {
       for (final t in Team.values) t.name: counts[t],
@@ -405,7 +432,8 @@ final _ranks = CoincheRank.values;
 
 Seat nextSeat(Seat seat) => Seat.values[(seat.index + 1) % Seat.values.length];
 
-Team teamOf(Seat seat) => seat == Seat.south || seat == Seat.north ? Team.ns : Team.ew;
+Team teamOf(Seat seat) =>
+    seat == Seat.south || seat == Seat.north ? Team.ns : Team.ew;
 
 Team _otherTeam(Team team) => team == Team.ns ? Team.ew : Team.ns;
 
@@ -417,15 +445,19 @@ int _power(CoincheCard card, CoincheSuit mode) =>
 int cardPoints(CoincheCard card, CoincheSuit mode) =>
     isTrump(card, mode) ? _trumpValue(card.rank) : _plainValue(card.rank);
 
-List<CoincheCard> sortHand(List<CoincheCard> cards) => sortedStable(cards, (a, b) {
+List<CoincheCard> sortHand(List<CoincheCard> cards) =>
+    sortedStable(cards, (a, b) {
       final bySuit = a.suit.index - b.suit.index;
-      return bySuit != 0 ? bySuit : plainOrder.indexOf(a.rank) - plainOrder.indexOf(b.rank);
+      return bySuit != 0
+          ? bySuit
+          : plainOrder.indexOf(a.rank) - plainOrder.indexOf(b.rank);
     });
 
 List<CoincheCard> _createDeck(RandomDouble random) {
   final deck = [
     for (final suit in _suits)
-      for (final rank in _ranks) CoincheCard(suit: suit, rank: rank, id: '${suit.name}-${rank.label}'),
+      for (final rank in _ranks)
+        CoincheCard(suit: suit, rank: rank, id: '${suit.name}-${rank.label}'),
   ];
   for (var i = deck.length - 1; i > 0; i--) {
     final j = (random() * (i + 1)).floor();
@@ -492,11 +524,16 @@ RoundState placeBid(RoundState round, Seat seat, BidAction action) {
         return _startPlay(round.copyWith(calls: calls, passes: passes));
       }
       if (contract == null && passes >= 4) {
-        return round.copyWith(calls: calls, phase: CoinchePhase.redeal, turn: null);
+        return round.copyWith(
+          calls: calls,
+          phase: CoinchePhase.redeal,
+          turn: null,
+        );
       }
       return round.copyWith(calls: calls, passes: passes, turn: nextSeat(seat));
     case ValueBid(:final value, :final mode):
-      if (value < minBidValue(round) || value > maxBid || value % 10 != 0) return round;
+      if (value < minBidValue(round) || value > maxBid || value % 10 != 0)
+        return round;
       return round.copyWith(
         calls: calls,
         contract: Contract(seat: seat, value: value, mode: mode, multiplier: 1),
@@ -504,7 +541,9 @@ RoundState placeBid(RoundState round, Seat seat, BidAction action) {
         turn: nextSeat(seat),
       );
     case ContreBid():
-      if (contract == null || contract.multiplier != 1 || teamOf(contract.seat) == teamOf(seat)) {
+      if (contract == null ||
+          contract.multiplier != 1 ||
+          teamOf(contract.seat) == teamOf(seat)) {
         return round;
       }
       return round.copyWith(
@@ -514,16 +553,27 @@ RoundState placeBid(RoundState round, Seat seat, BidAction action) {
         turn: nextSeat(seat),
       );
     case SurcoincheBid():
-      if (contract == null || contract.multiplier != 2 || teamOf(contract.seat) != teamOf(seat)) {
+      if (contract == null ||
+          contract.multiplier != 2 ||
+          teamOf(contract.seat) != teamOf(seat)) {
         return round;
       }
       return _startPlay(
-        round.copyWith(calls: calls, contract: contract.withMultiplier(4), passes: 0),
+        round.copyWith(
+          calls: calls,
+          contract: contract.withMultiplier(4),
+          passes: 0,
+        ),
       );
   }
 }
 
-bool beats(CoincheCard card, CoincheCard current, CoincheSuit ledSuit, CoincheSuit mode) {
+bool beats(
+  CoincheCard card,
+  CoincheCard current,
+  CoincheSuit ledSuit,
+  CoincheSuit mode,
+) {
   final cardTrump = isTrump(card, mode);
   if (cardTrump != isTrump(current, mode)) return cardTrump;
   if (cardTrump) return _power(card, mode) > _power(current, mode);
@@ -557,7 +607,8 @@ List<CoincheCard> legalCards(RoundState round, Seat seat) {
   }
 
   final sameSuit = hand.where((c) => c.suit == ledCard.suit).toList();
-  if (sameSuit.isNotEmpty) return isTrump(ledCard, mode) ? overtrump(sameSuit) : sameSuit;
+  if (sameSuit.isNotEmpty)
+    return isTrump(ledCard, mode) ? overtrump(sameSuit) : sameSuit;
   if (teamOf(winner.seat) == teamOf(seat)) return hand;
 
   final trumps = hand.where((c) => isTrump(c, mode)).toList();
@@ -566,7 +617,9 @@ List<CoincheCard> legalCards(RoundState round, Seat seat) {
 
 RoundState playCard(RoundState round, Seat seat, String cardId) {
   final contract = round.contract;
-  if (round.phase != CoinchePhase.playing || round.turn != seat || contract == null) return round;
+  if (round.phase != CoinchePhase.playing ||
+      round.turn != seat ||
+      contract == null) return round;
 
   final hand = round.hands[seat]!;
   final index = hand.indexWhere((c) => c.id == cardId);
@@ -576,11 +629,12 @@ RoundState playCard(RoundState round, Seat seat, String cardId) {
 
   final mode = contract.mode;
   final remaining = hand.where((c) => c.id != cardId).toList();
-  final beloteCard =
-      card.suit == mode && (card.rank == CoincheRank.roi || card.rank == CoincheRank.dame);
-  final partnerRank = card.rank == CoincheRank.roi ? CoincheRank.dame : CoincheRank.roi;
-  final holdsPair =
-      beloteCard && remaining.any((c) => c.suit == card.suit && c.rank == partnerRank);
+  final beloteCard = card.suit == mode &&
+      (card.rank == CoincheRank.roi || card.rank == CoincheRank.dame);
+  final partnerRank =
+      card.rank == CoincheRank.roi ? CoincheRank.dame : CoincheRank.roi;
+  final holdsPair = beloteCard &&
+      remaining.any((c) => c.suit == card.suit && c.rank == partnerRank);
   final trick = [...round.trick, Play(seat: seat, card: card)];
 
   return round.copyWith(
@@ -593,14 +647,19 @@ RoundState playCard(RoundState round, Seat seat, String cardId) {
 
 RoundState collectTrick(RoundState round) {
   final contract = round.contract;
-  if (round.phase != CoinchePhase.playing || round.trick.length != 4 || contract == null) {
+  if (round.phase != CoinchePhase.playing ||
+      round.trick.length != 4 ||
+      contract == null) {
     return round;
   }
 
   final mode = contract.mode;
   final winner = winningPlay(round.trick, mode);
   final team = teamOf(winner.seat);
-  final points = round.trick.fold<int>(0, (sum, play) => sum + cardPoints(play.card, mode));
+  final points = round.trick.fold<int>(
+    0,
+    (sum, play) => sum + cardPoints(play.card, mode),
+  );
   final tricksPlayed = round.tricksPlayed + 1;
   final done = tricksPlayed == handSize;
 
@@ -624,7 +683,10 @@ CoincheRoundResult? scoreRound(RoundState round) {
   int beloteOf(Team team) => round.belote == team ? belotePoints : 0;
   final capot = round.tricksWon[attack] == handSize;
 
-  final points = <Team, int>{Team.ns: round.pointsWon[Team.ns]!, Team.ew: round.pointsWon[Team.ew]!};
+  final points = <Team, int>{
+    Team.ns: round.pointsWon[Team.ns]!,
+    Team.ew: round.pointsWon[Team.ew]!,
+  };
   final last = round.lastWinner;
   if (last != null) {
     points[teamOf(last)] = points[teamOf(last)]! + dixDeDerPoints;
@@ -676,9 +738,14 @@ CoincheMatch applyRound(CoincheMatch match, CoincheRoundResult result) {
 enum CoincheAiLevel { facile, moyen, difficile }
 
 /// Enchères. Facile : seuil de force relevé (annonce plus rarement). Moyen et difficile : même règle.
-BidAction chooseBid(RoundState round, Seat seat, [CoincheAiLevel level = CoincheAiLevel.moyen]) {
+BidAction chooseBid(
+  RoundState round,
+  Seat seat, [
+  CoincheAiLevel level = CoincheAiLevel.moyen,
+]) {
   final contract = round.contract;
-  if (contract != null && teamOf(contract.seat) == teamOf(seat)) return const PassBid();
+  if (contract != null && teamOf(contract.seat) == teamOf(seat))
+    return const PassBid();
 
   final hand = round.hands[seat]!;
   CoincheSuit? bestSuit;
@@ -692,7 +759,8 @@ BidAction chooseBid(RoundState round, Seat seat, [CoincheAiLevel level = Coinche
       bestSuit = suit;
     }
   }
-  final threshold = level == CoincheAiLevel.facile ? bidThreshold + 10 : bidThreshold;
+  final threshold =
+      level == CoincheAiLevel.facile ? bidThreshold + 10 : bidThreshold;
   if (bestSuit == null || bestStrength < threshold) return const PassBid();
   // Difficile : annonce seulement avec au moins trois atouts (maîtrise), pour ne pas surenchérir à tort.
   if (level == CoincheAiLevel.difficile &&
@@ -731,8 +799,10 @@ String chooseCard(
     return byPoints != 0 ? byPoints : _power(a, mode) - _power(b, mode);
   }
 
-  CoincheCard cheapest(List<CoincheCard> cards) => sortedStable(cards, compare).first;
-  CoincheCard priciest(List<CoincheCard> cards) => sortedStable(cards, compare).last;
+  CoincheCard cheapest(List<CoincheCard> cards) =>
+      sortedStable(cards, compare).first;
+  CoincheCard priciest(List<CoincheCard> cards) =>
+      sortedStable(cards, compare).last;
 
   if (round.trick.isEmpty) {
     final plain = moves.where((c) => !isTrump(c, mode)).toList();
@@ -745,9 +815,12 @@ String chooseCard(
 
   final winner = winningPlay(round.trick, mode);
   // Difficile : dernier pli (dix de der, 10 points) : prendre avec la carte la plus chère qui gagne.
-  if (level == CoincheAiLevel.difficile && round.tricksPlayed == 7 && teamOf(winner.seat) != teamOf(seat)) {
+  if (level == CoincheAiLevel.difficile &&
+      round.tricksPlayed == 7 &&
+      teamOf(winner.seat) != teamOf(seat)) {
     final ledSuit = round.trick.first.card.suit;
-    final winning = moves.where((c) => beats(c, winner.card, ledSuit, mode)).toList();
+    final winning =
+        moves.where((c) => beats(c, winner.card, ledSuit, mode)).toList();
     if (winning.isNotEmpty) return priciest(winning).id;
   }
   if (teamOf(winner.seat) == teamOf(seat)) {
@@ -759,6 +832,7 @@ String chooseCard(
   }
 
   final ledSuit = round.trick.first.card.suit;
-  final winners = moves.where((c) => beats(c, winner.card, ledSuit, mode)).toList();
+  final winners =
+      moves.where((c) => beats(c, winner.card, ledSuit, mode)).toList();
   return (winners.isNotEmpty ? cheapest(winners) : cheapest(moves)).id;
 }

@@ -30,14 +30,16 @@ class _PressableState extends State<Pressable> {
       label: widget.semanticLabel,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTapDown: onTap == null ? null : (_) => setState(() => _pressed = true),
+        onTapDown:
+            onTap == null ? null : (_) => setState(() => _pressed = true),
         onTapUp: onTap == null
             ? null
             : (_) {
                 setState(() => _pressed = false);
                 onTap();
               },
-        onTapCancel: onTap == null ? null : () => setState(() => _pressed = false),
+        onTapCancel:
+            onTap == null ? null : () => setState(() => _pressed = false),
         child: AnimatedScale(
           scale: _pressed ? widget.pressedScale : 1,
           duration: const Duration(milliseconds: 120),

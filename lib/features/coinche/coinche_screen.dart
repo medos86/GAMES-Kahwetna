@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import 'package:flutter/foundation.dart' show ValueListenable;
@@ -38,7 +37,11 @@ final _suitNames = CoincheSuit.values;
 
 /// Écran de la Coinche (Belote au menu). Logique dans CoincheController et lib/game/coinche.dart.
 class CoincheScreen extends StatefulWidget {
-  const CoincheScreen({super.key, required this.difficulty, required this.targetScore});
+  const CoincheScreen({
+    super.key,
+    required this.difficulty,
+    required this.targetScore,
+  });
 
   final Difficulty difficulty;
   final int targetScore;
@@ -83,43 +86,66 @@ class _CoincheScreenState extends State<CoincheScreen> {
     return ExitGuard(
       active: _controller.match.winner == null,
       child: Scaffold(
-      backgroundColor: const Color(0xFF8B4513),
-      body: ListenableBuilder(
-        listenable: _controller,
-        builder: (context, _) {
-          final c = _controller;
-          return Stack(
-            children: [
-              const Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(color: Color(0xFF8B4513)))),
-              SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(12, 12, 12, _adFree.value ? 12 : 88),
-                  child: Column(
-                    children: [
-                      _Header(controller: c),
-                      const SizedBox(height: 8),
-                      _ScoreBar(controller: c),
-                      const SizedBox(height: 8),
-                      Expanded(child: _Table(controller: c, cardWidth: metrics.coincheCardWidth * 0.8)),
-                      const SizedBox(height: 8),
-                      _HandFooter(controller: c, cardWidth: metrics.coincheCardWidth),
-                    ],
+        backgroundColor: const Color(0xFF8B4513),
+        body: ListenableBuilder(
+          listenable: _controller,
+          builder: (context, _) {
+            final c = _controller;
+            return Stack(
+              children: [
+                const Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(color: Color(0xFF8B4513)),
                   ),
                 ),
-              ),
-              if (!_adFree.value) const Positioned(left: 8, right: 8, bottom: 8, child: AdBanner()),
-              if (c.summary != null)
-                Positioned.fill(
-                  child: _SummaryDialog(
-                    controller: c,
-                    onMenu: () => Navigator.of(context).maybePop(),
+                SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      12,
+                      12,
+                      12,
+                      _adFree.value ? 12 : 88,
+                    ),
+                    child: Column(
+                      children: [
+                        _Header(controller: c),
+                        const SizedBox(height: 8),
+                        _ScoreBar(controller: c),
+                        const SizedBox(height: 8),
+                        Expanded(
+                          child: _Table(
+                            controller: c,
+                            cardWidth: metrics.coincheCardWidth * 0.8,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _HandFooter(
+                          controller: c,
+                          cardWidth: metrics.coincheCardWidth,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-            ],
-          );
-        },
+                if (!_adFree.value)
+                  const Positioned(
+                    left: 8,
+                    right: 8,
+                    bottom: 8,
+                    child: AdBanner(),
+                  ),
+                if (c.summary != null)
+                  Positioned.fill(
+                    child: _SummaryDialog(
+                      controller: c,
+                      onMenu: () => Navigator.of(context).maybePop(),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
       ),
-    ),
     );
   }
 }
@@ -144,24 +170,34 @@ class _Header extends StatelessWidget {
                 onTap: () => Navigator.of(context).maybePop(),
               )
             : Material(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () => Navigator.of(context).maybePop(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.arrow_back, size: 18, color: Color(0xFF7E22CE)),
-                  SizedBox(width: 4),
-                  Text(Strings.menuLabel, style: TextStyle(color: Color(0xFF7E22CE), fontWeight: FontWeight.w900)),
-                ],
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => Navigator.of(context).maybePop(),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.arrow_back,
+                          size: 18,
+                          color: Color(0xFF7E22CE),
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          Strings.menuLabel,
+                          style: TextStyle(
+                            color: Color(0xFF7E22CE),
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
         Expanded(
           child: Column(
             children: [
@@ -189,12 +225,20 @@ class _Header extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                const Icon(Icons.emoji_events, size: 48, color: Color(0xFFFBBF24)),
+                const Icon(
+                  Icons.emoji_events,
+                  size: 48,
+                  color: Color(0xFFFBBF24),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 6),
                   child: Text(
                     '${controller.match.target}',
-                    style: const TextStyle(color: _inkColor, fontWeight: FontWeight.w900, fontSize: 11),
+                    style: const TextStyle(
+                      color: _inkColor,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 11,
+                    ),
                   ),
                 ),
               ],
@@ -220,27 +264,43 @@ class _ScoreBar extends StatelessWidget {
     final match = controller.match;
     final contract = controller.round.contract;
     return Semantics(
-      label: tf('sScoreUsThem', {'a': '${match.scores[Team.ns]}', 'b': '${match.scores[Team.ew]}'}),
+      label: tf('sScoreUsThem', {
+        'a': '${match.scores[Team.ns]}',
+        'b': '${match.scores[Team.ew]}',
+      }),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [Color(0xFFFACC15), Color(0xFFFBBF24), Color(0xFFFB923C)]),
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFACC15), Color(0xFFFBBF24), Color(0xFFFB923C)],
+          ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: _frameColor, width: 3),
         ),
         child: Row(
           children: [
-            _TeamScore(label: _teamLabel[Team.ns]!, score: match.scores[Team.ns]!, color: const Color(0xFF047857)),
+            _TeamScore(
+              label: _teamLabel[Team.ns]!,
+              score: match.scores[Team.ns]!,
+              color: const Color(0xFF047857),
+            ),
             Expanded(
               child: Column(
                 children: [
                   const Text(
                     'CONTRAT',
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF17213D)),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF17213D),
+                    ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 2),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
@@ -254,13 +314,20 @@ class _ScoreBar extends StatelessWidget {
                               ' · ${_teamLabel[teamOf(contract.seat)]}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            _TeamScore(label: _teamLabel[Team.ew]!, score: match.scores[Team.ew]!, color: const Color(0xFFB91C1C)),
+            _TeamScore(
+              label: _teamLabel[Team.ew]!,
+              score: match.scores[Team.ew]!,
+              color: const Color(0xFFB91C1C),
+            ),
           ],
         ),
       ),
@@ -269,7 +336,11 @@ class _ScoreBar extends StatelessWidget {
 }
 
 class _TeamScore extends StatelessWidget {
-  const _TeamScore({required this.label, required this.score, required this.color});
+  const _TeamScore({
+    required this.label,
+    required this.score,
+    required this.color,
+  });
 
   final String label;
   final int score;
@@ -290,11 +361,22 @@ class _TeamScore extends StatelessWidget {
           child: Text(
             '$score',
             textAlign: TextAlign.center,
-            style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 22),
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w900,
+              fontSize: 22,
+            ),
           ),
         ),
         const SizedBox(width: 4),
-        Text(label.toUpperCase(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: _inkColor)),
+        Text(
+          label.toUpperCase(),
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            color: _inkColor,
+          ),
+        ),
       ],
     );
   }
@@ -322,7 +404,12 @@ class _Table extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: _frameColor, width: 6),
         boxShadow: [
-          BoxShadow(color: _frameColor, spreadRadius: 3, blurRadius: 0, offset: const Offset(0, 8)),
+          BoxShadow(
+            color: _frameColor,
+            spreadRadius: 3,
+            blurRadius: 0,
+            offset: const Offset(0, 8),
+          ),
         ],
       ),
       child: Stack(
@@ -331,24 +418,38 @@ class _Table extends StatelessWidget {
             alignment: Alignment.topCenter,
             child: Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: _SeatInfo(seat: Seat.north, round: round, cardWidth: cardWidth * 0.6),
+              child: _SeatInfo(
+                seat: Seat.north,
+                round: round,
+                cardWidth: cardWidth * 0.6,
+              ),
             ),
           ),
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(
               padding: const EdgeInsets.only(left: 6),
-              child: _SeatInfo(seat: Seat.west, round: round, cardWidth: cardWidth * 0.6),
+              child: _SeatInfo(
+                seat: Seat.west,
+                round: round,
+                cardWidth: cardWidth * 0.6,
+              ),
             ),
           ),
           Align(
             alignment: Alignment.centerRight,
             child: Padding(
               padding: const EdgeInsets.only(right: 6),
-              child: _SeatInfo(seat: Seat.east, round: round, cardWidth: cardWidth * 0.6),
+              child: _SeatInfo(
+                seat: Seat.east,
+                round: round,
+                cardWidth: cardWidth * 0.6,
+              ),
             ),
           ),
-          Center(child: _TrickArea(trick: round.trick, cardWidth: cardWidth)),
+          Center(
+            child: _TrickArea(trick: round.trick, cardWidth: cardWidth),
+          ),
           if (status != null)
             Positioned(
               left: 8,
@@ -358,9 +459,13 @@ class _Table extends StatelessWidget {
                 child: Semantics(
                   liveRegion: true,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: yourTurnToPlay ? _goldColor : const Color(0xFFF97316),
+                      color:
+                          yourTurnToPlay ? _goldColor : const Color(0xFFF97316),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.black, width: 2),
                     ),
@@ -369,7 +474,9 @@ class _Table extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
-                        color: yourTurnToPlay ? const Color(0xFF3D351F) : Colors.white,
+                        color: yourTurnToPlay
+                            ? const Color(0xFF3D351F)
+                            : Colors.white,
                       ),
                     ),
                   ),
@@ -382,7 +489,9 @@ class _Table extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 child: Align(
                   alignment: Alignment.bottomCenter,
-                  child: SingleChildScrollView(child: _BidPanel(controller: controller)),
+                  child: SingleChildScrollView(
+                    child: _BidPanel(controller: controller),
+                  ),
                 ),
               ),
             ),
@@ -393,19 +502,26 @@ class _Table extends StatelessWidget {
 }
 
 String? _statusText(RoundState round) {
-  if (round.phase == CoinchePhase.redeal) return 'Tout le monde passe, nouvelle donne…';
+  if (round.phase == CoinchePhase.redeal)
+    return 'Tout le monde passe, nouvelle donne…';
   if (round.phase == CoinchePhase.done) return 'Manche terminée';
   if (round.trick.length == 4) return 'Pli ramassé…';
   final turn = round.turn;
   if (turn == null) return null;
   if (turn == Seat.south) {
-    return round.phase == CoinchePhase.bidding ? 'À toi d’annoncer' : 'À toi de jouer';
+    return round.phase == CoinchePhase.bidding
+        ? 'À toi d’annoncer'
+        : 'À toi de jouer';
   }
   return '${_seatLabel[turn]} réfléchit…';
 }
 
 class _SeatInfo extends StatelessWidget {
-  const _SeatInfo({required this.seat, required this.round, required this.cardWidth});
+  const _SeatInfo({
+    required this.seat,
+    required this.round,
+    required this.cardWidth,
+  });
 
   final Seat seat;
   final RoundState round;
@@ -416,7 +532,8 @@ class _SeatInfo extends StatelessWidget {
     final call = round.phase == CoinchePhase.bidding ? round.calls[seat] : null;
     final count = round.hands[seat]!.length;
     final active = round.turn == seat &&
-        (round.phase == CoinchePhase.bidding || round.phase == CoinchePhase.playing);
+        (round.phase == CoinchePhase.bidding ||
+            round.phase == CoinchePhase.playing);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -426,7 +543,10 @@ class _SeatInfo extends StatelessWidget {
           decoration: BoxDecoration(
             color: active ? _goldColor : Colors.black.withValues(alpha: 0.35),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: active ? _frameColor : Colors.black26, width: 2),
+            border: Border.all(
+              color: active ? _frameColor : Colors.black26,
+              width: 2,
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -444,7 +564,14 @@ class _SeatInfo extends StatelessWidget {
                 const CircleAvatar(
                   radius: 8,
                   backgroundColor: Colors.white,
-                  child: Text('D', style: TextStyle(fontSize: 9, color: _inkColor, fontWeight: FontWeight.w900)),
+                  child: Text(
+                    'D',
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: _inkColor,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
                 ),
               ],
             ],
@@ -462,7 +589,11 @@ class _SeatInfo extends StatelessWidget {
               ),
               child: Text(
                 _callText(call),
-                style: const TextStyle(color: _inkColor, fontWeight: FontWeight.w900, fontSize: 12),
+                style: const TextStyle(
+                  color: _inkColor,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 12,
+                ),
               ),
             ),
           ),
@@ -474,7 +605,13 @@ class _SeatInfo extends StatelessWidget {
               children: [
                 CoincheCardView(width: cardWidth),
                 const SizedBox(width: 4),
-                Text('×$count', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
+                Text(
+                  '×$count',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
+                  ),
+                ),
               ],
             ),
           ),
@@ -487,7 +624,8 @@ String _callText(BidAction call) => switch (call) {
       PassBid() => 'Passe',
       ContreBid() => 'Contre !',
       SurcoincheBid() => 'Surcoinche !',
-      ValueBid(:final value, :final mode) => '$value ${coincheSuitSymbol(mode)}',
+      ValueBid(:final value, :final mode) =>
+        '$value ${coincheSuitSymbol(mode)}',
     };
 
 class _TrickArea extends StatelessWidget {
@@ -532,7 +670,9 @@ class _BidPanel extends StatelessWidget {
     final contract = controller.round.contract;
     final choiceValue = controller.choiceValue;
     final choiceMode = controller.choiceMode;
-    final canAnnounce = choiceMode != null && choiceValue != null && choiceValue >= controller.minValue;
+    final canAnnounce = choiceMode != null &&
+        choiceValue != null &&
+        choiceValue >= controller.minValue;
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 420),
@@ -548,13 +688,24 @@ class _BidPanel extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(t('yourBid'), style: TextStyle(color: _inkColor, fontWeight: FontWeight.w900, fontSize: 16)),
+                child: Text(
+                  t('yourBid'),
+                  style: TextStyle(
+                    color: _inkColor,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 16,
+                  ),
+                ),
               ),
               Text(
                 contract == null
                     ? 'Aucune annonce'
                     : 'Actuel : ${contract.value} ${coincheSuitSymbol(contract.mode)}',
-                style: const TextStyle(color: _inkColor, fontSize: 12, fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                  color: _inkColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),
@@ -601,7 +752,10 @@ class _BidPanel extends StatelessWidget {
             runSpacing: 8,
             alignment: WrapAlignment.center,
             children: [
-              _ActionButton(label: t('pass'), onTap: () => controller.callBid(const PassBid())),
+              _ActionButton(
+                label: t('pass'),
+                onTap: () => controller.callBid(const PassBid()),
+              ),
               _ActionButton(
                 label: t('bid'),
                 primary: true,
@@ -666,7 +820,12 @@ class _ChoiceButton extends StatelessWidget {
               child: Center(
                 child: Text(
                   label,
-                  style: TextStyle(fontFamily: 'Bangers', fontSize: 20, letterSpacing: 1, color: ComicPalette.ink),
+                  style: TextStyle(
+                    fontFamily: 'Bangers',
+                    fontSize: 20,
+                    letterSpacing: 1,
+                    color: ComicPalette.ink,
+                  ),
                 ),
               ),
             ),
@@ -691,11 +850,18 @@ class _ChoiceButton extends StatelessWidget {
               constraints: const BoxConstraints(minHeight: 44),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: selected ? _frameColor : const Color(0x33152646), width: 2),
+                border: Border.all(
+                  color: selected ? _frameColor : const Color(0x33152646),
+                  width: 2,
+                ),
               ),
               child: Text(
                 label,
-                style: TextStyle(color: textColor, fontWeight: FontWeight.w900, fontSize: 18),
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                ),
               ),
             ),
           ),
@@ -724,7 +890,9 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (kComicCoinche) {
       // Bouton BD (#146) : case papier, rouge pour le danger, jaune pour l'action principale.
-      final fill = danger ? ComicPalette.red : (primary ? ComicPalette.yellow : ComicPalette.paper);
+      final fill = danger
+          ? ComicPalette.red
+          : (primary ? ComicPalette.yellow : ComicPalette.paper);
       final ink = danger ? ComicPalette.paper : ComicPalette.ink;
       return Opacity(
         opacity: enabled ? 1 : 0.4,
@@ -744,7 +912,12 @@ class _ActionButton extends StatelessWidget {
                 child: Center(
                   child: Text(
                     label,
-                    style: TextStyle(fontFamily: 'Bangers', fontSize: 18, letterSpacing: 1, color: ink),
+                    style: TextStyle(
+                      fontFamily: 'Bangers',
+                      fontSize: 18,
+                      letterSpacing: 1,
+                      color: ink,
+                    ),
                   ),
                 ),
               ),
@@ -771,7 +944,10 @@ class _ActionButton extends StatelessWidget {
             constraints: const BoxConstraints(minHeight: 44, minWidth: 110),
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(label, style: TextStyle(color: foreground, fontWeight: FontWeight.w900)),
+            child: Text(
+              label,
+              style: TextStyle(color: foreground, fontWeight: FontWeight.w900),
+            ),
           ),
         ),
       ),
@@ -811,13 +987,20 @@ class _HandFooter extends StatelessWidget {
               Expanded(
                 child: Text(
                   'TA MAIN · ${hand.length} cartes',
-                  style: const TextStyle(color: _inkColor, fontWeight: FontWeight.w900, fontSize: 12),
+                  style: const TextStyle(
+                    color: _inkColor,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                  ),
                 ),
               ),
               if (contract != null)
                 Text(
                   'Atout : ${coincheSuitSymbol(contract.mode)}',
-                  style: TextStyle(color: coincheSuitColor(contract.mode), fontWeight: FontWeight.w900),
+                  style: TextStyle(
+                    color: coincheSuitColor(contract.mode),
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
             ],
           ),
@@ -826,10 +1009,12 @@ class _HandFooter extends StatelessWidget {
               final n = hand.length;
               if (n == 0) return SizedBox(height: cardWidth * 1.4 + 12);
               // Chevauchement de 65 % de la largeur, réduit si la main ne tient pas.
-              final overlap = n > 1
-                  ? (constraints.maxWidth - cardWidth) / (n - 1)
-                  : 0.0;
-              final step = [cardWidth * 0.65, overlap].reduce((a, b) => a < b ? a : b);
+              final overlap =
+                  n > 1 ? (constraints.maxWidth - cardWidth) / (n - 1) : 0.0;
+              final step = [
+                cardWidth * 0.65,
+                overlap,
+              ].reduce((a, b) => a < b ? a : b);
               final total = cardWidth + step * (n - 1);
               return SizedBox(
                 height: cardWidth * 1.4 + 12,
@@ -884,101 +1069,143 @@ class _SummaryDialog extends StatelessWidget {
         : summary.made
             ? (summary.capot ? 'Capot !' : 'Contrat réussi')
             : 'Chute';
-    final multiplier = summary.contract.multiplier > 1 ? ' ×${summary.contract.multiplier}' : '';
+    final multiplier = summary.contract.multiplier > 1
+        ? ' ×${summary.contract.multiplier}'
+        : '';
 
     return ColoredBox(
-        color: Colors.black54,
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF059669),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Colors.black, width: 4),
-                  boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 7))],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: _goldColor,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.black, width: 2),
+      color: Colors.black54,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF059669),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.black, width: 4),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black, offset: Offset(0, 7)),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _goldColor,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.black, width: 2),
+                    ),
+                    child: Text(
+                      winner != null
+                          ? 'PARTIE TERMINÉE'
+                          : 'MANCHE ${match.round - 1}',
+                      style: const TextStyle(
+                        color: Color(0xFF17213D),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
                       ),
-                      child: Text(
-                        winner != null ? 'PARTIE TERMINÉE' : 'MANCHE ${match.round - 1}',
-                        style: const TextStyle(color: Color(0xFF17213D), fontSize: 11, fontWeight: FontWeight.w900),
-                      ),
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      title,
-                      style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${summary.contract.value} ${coincheSuitSymbol(summary.contract.mode)}$multiplier'
-                      ' · ${_teamLabel[teamOf(summary.contract.seat)]}',
-                      style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${summary.contract.value} ${coincheSuitSymbol(summary.contract.mode)}$multiplier'
+                    ' · ${_teamLabel[teamOf(summary.contract.seat)]}',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        for (final team in Team.values)
-                          Expanded(
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.black26,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    _teamLabel[team]!.toUpperCase(),
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      for (final team in Team.values)
+                        Expanded(
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.black26,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  _teamLabel[team]!.toUpperCase(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900,
                                   ),
-                                  Text(
-                                    '+${summary.awarded[team]}',
-                                    style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900),
+                                ),
+                                Text(
+                                  '+${summary.awarded[team]}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w900,
                                   ),
-                                  Text(
-                                    'Cartes ${summary.points[team]}',
-                                    style: const TextStyle(color: Colors.white70, fontSize: 11),
+                                ),
+                                Text(
+                                  'Cartes ${summary.points[team]}',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 11,
                                   ),
-                                  Text(
-                                    'Total ${match.scores[team]}',
-                                    style: const TextStyle(color: Colors.white70, fontSize: 11),
+                                ),
+                                Text(
+                                  'Total ${match.scores[team]}',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 11,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
-                      ],
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  if (winner != null) ...[
+                    _DialogButton(
+                      label: t('replay'),
+                      onTap: controller.restart,
                     ),
-                    const SizedBox(height: 20),
-                    if (winner != null) ...[
-                      _DialogButton(label: t('replay'), onTap: controller.restart),
-                      TextButton(
-                        onPressed: onMenu,
-                        child: Text(t('backToMenu'), style: TextStyle(color: Colors.white70)),
+                    TextButton(
+                      onPressed: onMenu,
+                      child: Text(
+                        t('backToMenu'),
+                        style: TextStyle(color: Colors.white70),
                       ),
-                    ] else
-                      _DialogButton(label: t('nextRound'), onTap: controller.nextRound),
-                  ],
-                ),
+                    ),
+                  ] else
+                    _DialogButton(
+                      label: t('nextRound'),
+                      onTap: controller.nextRound,
+                    ),
+                ],
               ),
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 }
 

@@ -25,8 +25,15 @@ class AdBanner extends StatelessWidget {
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(color: const Color(0xFFFFD858), borderRadius: BorderRadius.circular(12)),
-            child: const Icon(Icons.campaign, size: 20, color: Color(0xFF513800)),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFD858),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.campaign,
+              size: 20,
+              color: Color(0xFF513800),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -34,9 +41,35 @@ class AdBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(Strings.adLabel, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 2, color: Color(0xFFFFE681))),
-                Text(Strings.adTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white)),
-                Text(Strings.adSponsored, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0x8CFFFFFF))),
+                Text(
+                  Strings.adLabel,
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 2,
+                    color: Color(0xFFFFE681),
+                  ),
+                ),
+                Text(
+                  Strings.adTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  Strings.adSponsored,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0x8CFFFFFF),
+                  ),
+                ),
               ],
             ),
           ),
@@ -55,7 +88,14 @@ class AdBanner extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(Strings.adSee, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Colors.white)),
+                  Text(
+                    Strings.adSee,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                    ),
+                  ),
                   SizedBox(width: 4),
                   Icon(Icons.open_in_new, size: 14, color: Colors.white),
                 ],

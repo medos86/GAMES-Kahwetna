@@ -123,7 +123,11 @@ class _ComicButtonState extends State<ComicButton> {
 }
 
 class _Look {
-  const _Look({required this.gradient, required this.text, required this.shadow});
+  const _Look({
+    required this.gradient,
+    required this.text,
+    required this.shadow,
+  });
   final List<Color> gradient;
   final Color text;
   final Color shadow;

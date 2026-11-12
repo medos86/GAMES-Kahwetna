@@ -62,12 +62,11 @@ class PlayingCard extends StatelessWidget {
       transform: Matrix4.translationValues(0, selected ? -6 : 0, 0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(_radius),
-        border: selected ? Border.all(color: const Color(0xFFFACC15), width: 3) : null,
+        border: selected
+            ? Border.all(color: const Color(0xFFFACC15), width: 3)
+            : null,
         boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            offset: Offset(0, selected ? 5 : 3),
-          ),
+          BoxShadow(color: Colors.black, offset: Offset(0, selected ? 5 : 3)),
         ],
       ),
       child: ClipRRect(

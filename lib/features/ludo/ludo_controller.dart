@@ -1,14 +1,19 @@
 import '../../core/services/persistent_game_controller.dart';
 import '../../core/services/saved_game_store.dart';
-import 'dart:async';
 
+import 'dart:async';
 
 import '../../core/audio/sounds.dart';
 import '../../game/common.dart';
 import '../../game/ludo.dart';
 
 /// Couleurs humaines dans l'ordre du source : les N premières sont jouées par l'humain.
-const ludoHumanOrder = [LudoColor.blue, LudoColor.yellow, LudoColor.red, LudoColor.green];
+const ludoHumanOrder = [
+  LudoColor.blue,
+  LudoColor.yellow,
+  LudoColor.red,
+  LudoColor.green,
+];
 
 /// Délai d'un tour de l'IA selon le niveau (valeurs du source : 1100 / 850 / 600 ms).
 Duration ludoRollDelay(LudoAiLevel level) => switch (level) {
@@ -51,7 +56,8 @@ class LudoController extends PersistentGameController {
   bool get roundOver => _game.phase == LudoPhase.end;
 
   /// Pions jouables au tour de l'humain.
-  Set<String> get legalIds => humanTurn ? legalTokenIds(_game).toSet() : const <String>{};
+  Set<String> get legalIds =>
+      humanTurn ? legalTokenIds(_game).toSet() : const <String>{};
 
   bool get canRoll => humanTurn && _game.phase == LudoPhase.roll;
 
@@ -84,7 +90,8 @@ class LudoController extends PersistentGameController {
     _timer?.cancel();
     _timer = null;
     if (_disposed) return;
-    final aiTurn = !humanTurn && (_game.phase == LudoPhase.roll || _game.phase == LudoPhase.move);
+    final aiTurn = !humanTurn &&
+        (_game.phase == LudoPhase.roll || _game.phase == LudoPhase.move);
     if (!aiTurn) return;
 
     _timer = Timer(ludoRollDelay(difficulty), () {
@@ -98,10 +105,12 @@ class LudoController extends PersistentGameController {
   }
 
   @override
-  Map<String, dynamic>? snapshot() => _game.phase == LudoPhase.end ? null : _game.toJson();
+  Map<String, dynamic>? snapshot() =>
+      _game.phase == LudoPhase.end ? null : _game.toJson();
 
   @override
-  void applySnapshot(Map<String, dynamic> json) => _game = LudoState.fromJson(json);
+  void applySnapshot(Map<String, dynamic> json) =>
+      _game = LudoState.fromJson(json);
 
   @override
   void startFresh() => _reschedule();

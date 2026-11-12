@@ -21,7 +21,6 @@ import '../../core/strings.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/toast.dart';
 
-
 // Couleurs fixes reprises du source (Tailwind -> hex).
 const _ink = Color(0xFF15264D);
 const _ceramic = Color(0xFFFFF8E7);
@@ -141,55 +140,59 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         if (leave == true) SystemNavigator.pop();
       },
       child: Scaffold(
-      backgroundColor: const Color(0xFF2BB8EA),
-      body: Stack(
-        children: [
-          _Background(difficulty: _difficulty),
-          // Trame de points du menu : radial-gradient(#17203f 1.2px) 7px, opacité 0.07.
-          const Positioned.fill(
-            child: IgnorePointer(
-              child: DotPattern(spacing: 7, radius: 1.2, color: Color(0x1217203F)),
+        backgroundColor: const Color(0xFF2BB8EA),
+        body: Stack(
+          children: [
+            _Background(difficulty: _difficulty),
+            // Trame de points du menu : radial-gradient(#17203f 1.2px) 7px, opacité 0.07.
+            const Positioned.fill(
+              child: IgnorePointer(
+                child: DotPattern(
+                  spacing: 7,
+                  radius: 1.2,
+                  color: Color(0x1217203F),
+                ),
+              ),
             ),
-          ),
-          SafeArea(
-            minimum: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-            child: LayoutBuilder(
-              builder: (context, c) {
-                final contentWidth = math.min(640.0, c.maxWidth);
-                final padding = sm ? 28.0 : 16.0;
-                return Align(
-                  alignment: Alignment.topCenter,
-                  child: SizedBox(
-                    width: contentWidth,
-                    height: c.maxHeight,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: padding),
-                      child: Column(
-                        children: [
-                          _Header(
-                            difficulty: _difficulty,
-                            screen: _screen,
-                            onBack: () => setState(() {
-                              _difficulty = Difficulty.facile;
-                              _screen = _MenuScreen.menu;
-                            }),
-                          ),
-                          Expanded(
-                            child: _screen == _MenuScreen.menu
-                                ? _buildMenu(vw: vw, sm: sm, md: md)
-                                : _buildDifficulty(vw: vw, sm: sm),
-                          ),
-                        ],
+            SafeArea(
+              minimum: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+              child: LayoutBuilder(
+                builder: (context, c) {
+                  final contentWidth = math.min(640.0, c.maxWidth);
+                  final padding = sm ? 28.0 : 16.0;
+                  return Align(
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                      width: contentWidth,
+                      height: c.maxHeight,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: padding),
+                        child: Column(
+                          children: [
+                            _Header(
+                              difficulty: _difficulty,
+                              screen: _screen,
+                              onBack: () => setState(() {
+                                _difficulty = Difficulty.facile;
+                                _screen = _MenuScreen.menu;
+                              }),
+                            ),
+                            Expanded(
+                              child: _screen == _MenuScreen.menu
+                                  ? _buildMenu(vw: vw, sm: sm, md: md)
+                                  : _buildDifficulty(vw: vw, sm: sm),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -207,14 +210,25 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           ),
         ),
         SizedBox(height: sm ? 16 : 12),
-        Expanded(child: _GamesPanel(difficulty: _difficulty, sm: sm, md: md, onSelect: _selectGame)),
+        Expanded(
+          child: _GamesPanel(
+            difficulty: _difficulty,
+            sm: sm,
+            md: md,
+            onSelect: _selectGame,
+          ),
+        ),
         const SizedBox(height: 12),
         _AdFreeButton(
           sm: sm,
           secondsLeft: _adFreeLeft,
           onTap: () {
             _adFree.activate();
-            showToast(context, Strings.menuAdFreeToastTitle, description: Strings.menuAdFreeToastBody);
+            showToast(
+              context,
+              Strings.menuAdFreeToastTitle,
+              description: Strings.menuAdFreeToastBody,
+            );
           },
         ),
       ],
@@ -226,7 +240,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   Widget _buildDifficulty({required double vw, required bool sm}) {
     final wide = vw >= 540;
     final scoreOptions = _selected.targets;
-    final label = difficultyOptions.firstWhere((o) => o.difficulty == _difficulty).label;
+    final label =
+        difficultyOptions.firstWhere((o) => o.difficulty == _difficulty).label;
 
     return LayoutBuilder(
       builder: (context, c) => SingleChildScrollView(
@@ -266,7 +281,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                           Text(
                             Strings.menuAiSeatsNote,
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0x99FFFFFF)),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0x99FFFFFF),
+                            ),
                           ),
                         ],
                         const SizedBox(height: 16),
@@ -285,7 +304,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   }
 
   Widget _difficultyRow({required bool wide}) {
-    final buttons = [for (final o in difficultyOptions) _difficultyButton(o, wide)];
+    final buttons = [
+      for (final o in difficultyOptions) _difficultyButton(o, wide),
+    ];
     if (wide) {
       return Row(
         children: [
@@ -299,20 +320,22 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     return Semantics(
       inMutuallyExclusiveGroup: true,
       child: Column(
-      children: [
-        for (var i = 0; i < buttons.length; i++) ...[
-          if (i > 0) const SizedBox(height: 12),
-          buttons[i],
+        children: [
+          for (var i = 0; i < buttons.length; i++) ...[
+            if (i > 0) const SizedBox(height: 12),
+            buttons[i],
+          ],
         ],
-      ],
       ),
     );
   }
 
   Widget _difficultyButton(DifficultyOption o, bool wide) {
     final active = _difficulty == o.difficulty;
-    final fg = active ? o.activeForeground : const Color(0xA6FFFFFF); // blanc 65 %
-    final bg = active ? o.activeBackground : const Color(0x8C081735); // #081735 à 55 %
+    final fg =
+        active ? o.activeForeground : const Color(0xA6FFFFFF); // blanc 65 %
+    final bg =
+        active ? o.activeBackground : const Color(0x8C081735); // #081735 à 55 %
     final border = active ? const Color(0xB3FFFFFF) : const Color(0x26FFFFFF);
 
     final iconBoxSize = wide ? 48.0 : 40.0;
@@ -326,7 +349,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       child: Icon(o.icon, size: 20, color: fg),
     );
     final texts = Column(
-      crossAxisAlignment: wide ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      crossAxisAlignment:
+          wide ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
@@ -363,16 +387,14 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           color: bg,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: border, width: 2),
-          boxShadow: active ? [BoxShadow(color: o.activeShadow, offset: const Offset(0, 3))] : null,
+          boxShadow: active
+              ? [BoxShadow(color: o.activeShadow, offset: const Offset(0, 3))]
+              : null,
         ),
         child: Stack(
           children: [
             if (active)
-              const Positioned(
-                right: 8,
-                top: 8,
-                child: _Dot(size: 10),
-              ),
+              const Positioned(right: 8, top: 8, child: _Dot(size: 10)),
             wide
                 ? Column(
                     mainAxisSize: MainAxisSize.min,
@@ -380,7 +402,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     children: [icon, const SizedBox(height: 8), texts],
                   )
                 : Row(
-                    children: [icon, const SizedBox(width: 12), Expanded(child: texts)],
+                    children: [
+                      icon,
+                      const SizedBox(width: 12),
+                      Expanded(child: texts),
+                    ],
                   ),
           ],
         ),
@@ -404,11 +430,13 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       children: [
         for (var i = 0; i < scores.length; i++) ...[
           if (i > 0) const SizedBox(width: 12),
-          Expanded(child: _choiceButton(
-            label: '${scores[i]} points',
-            active: _target == scores[i],
-            onTap: () => setState(() => _target = scores[i]),
-          )),
+          Expanded(
+            child: _choiceButton(
+              label: '${scores[i]} points',
+              active: _target == scores[i],
+              onTap: () => setState(() => _target = scores[i]),
+            ),
+          ),
         ],
       ],
     );
@@ -419,17 +447,23 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       children: [
         for (var count = 1; count <= 4; count++) ...[
           if (count > 1) const SizedBox(width: 12),
-          Expanded(child: _choiceButton(
-            label: '$count',
-            active: _playerCount == count,
-            onTap: () => setState(() => _playerCount = count),
-          )),
+          Expanded(
+            child: _choiceButton(
+              label: '$count',
+              active: _playerCount == count,
+              onTap: () => setState(() => _playerCount = count),
+            ),
+          ),
         ],
       ],
     );
   }
 
-  Widget _choiceButton({required String label, required bool active, required VoidCallback onTap}) {
+  Widget _choiceButton({
+    required String label,
+    required bool active,
+    required VoidCallback onTap,
+  }) {
     return Pressable(
       semanticLabel: label,
       onTap: onTap,
@@ -443,7 +477,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             color: active ? const Color(0xB3FFFFFF) : const Color(0x26FFFFFF),
             width: 2,
           ),
-          boxShadow: active ? const [BoxShadow(color: Color(0xFFD99921), offset: Offset(0, 3))] : null,
+          boxShadow: active
+              ? const [
+                  BoxShadow(color: Color(0xFFD99921), offset: Offset(0, 3)),
+                ]
+              : null,
         ),
         child: Text(
           label,
@@ -521,11 +559,17 @@ class _Background extends StatelessWidget {
         ),
         if (kComicMenu)
           const IgnorePointer(child: HalftoneOverlay(child: SizedBox.expand())),
-        IgnorePointer(child: DecoratedBox(decoration: BoxDecoration(gradient: _tint(difficulty)))),
+        IgnorePointer(
+          child: DecoratedBox(
+            decoration: BoxDecoration(gradient: _tint(difficulty)),
+          ),
+        ),
         IgnorePointer(
           child: Opacity(
             opacity: glowOpacity,
-            child: DecoratedBox(decoration: BoxDecoration(gradient: _glow(difficulty))),
+            child: DecoratedBox(
+              decoration: BoxDecoration(gradient: _glow(difficulty)),
+            ),
           ),
         ),
         const IgnorePointer(
@@ -553,7 +597,11 @@ class _Background extends StatelessWidget {
       Difficulty.moyen => moyen,
       Difficulty.difficile => difficile,
     };
-    return LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: colors);
+    return LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: colors,
+    );
   }
 
   static Gradient _glow(Difficulty d) {
@@ -572,20 +620,43 @@ class _Background extends StatelessWidget {
   }
 
   /// Luminosité et saturation approximées par une matrice de couleur (les sépia et rotation de teinte sont omis).
-  static ColorFilter _colorAdjust({required double brightness, required double saturation}) {
+  static ColorFilter _colorAdjust({
+    required double brightness,
+    required double saturation,
+  }) {
     final s = saturation;
     final b = brightness;
     return ColorFilter.matrix([
-      (0.213 + 0.787 * s) * b, (0.715 - 0.715 * s) * b, (0.072 - 0.072 * s) * b, 0, 0,
-      (0.213 - 0.213 * s) * b, (0.715 + 0.285 * s) * b, (0.072 - 0.072 * s) * b, 0, 0,
-      (0.213 - 0.213 * s) * b, (0.715 - 0.715 * s) * b, (0.072 + 0.928 * s) * b, 0, 0,
-      0, 0, 0, 1, 0,
+      (0.213 + 0.787 * s) * b,
+      (0.715 - 0.715 * s) * b,
+      (0.072 - 0.072 * s) * b,
+      0,
+      0,
+      (0.213 - 0.213 * s) * b,
+      (0.715 + 0.285 * s) * b,
+      (0.072 - 0.072 * s) * b,
+      0,
+      0,
+      (0.213 - 0.213 * s) * b,
+      (0.715 - 0.715 * s) * b,
+      (0.072 + 0.928 * s) * b,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
     ]);
   }
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.difficulty, required this.screen, required this.onBack});
+  const _Header({
+    required this.difficulty,
+    required this.screen,
+    required this.onBack,
+  });
 
   final Difficulty difficulty;
   final _MenuScreen screen;
@@ -606,7 +677,10 @@ class _Header extends StatelessWidget {
               children: [
                 Icon(Icons.arrow_back, size: 20),
                 SizedBox(width: 8),
-                Text(Strings.menuBack, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                Text(
+                  Strings.menuBack,
+                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+                ),
               ],
             ),
           ),
@@ -654,11 +728,21 @@ class _CoinsPill extends StatelessWidget {
                 color: Color(0xFFFFD74A),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.monetization_on, size: 16, color: Color(0xFF7C4A00)),
+              child: Icon(
+                Icons.monetization_on,
+                size: 16,
+                color: Color(0xFF7C4A00),
+              ),
             ),
           ),
           SizedBox(width: 8),
-          Text('1 250', style: TextStyle(fontWeight: FontWeight.w900, fontFeatures: [FontFeature.tabularFigures()])),
+          Text(
+            '1 250',
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontFeatures: [FontFeature.tabularFigures()],
+            ),
+          ),
         ],
       ),
     );
@@ -693,7 +777,9 @@ class _GlassButton extends StatelessWidget {
             outlineColor: ComicPalette.tunisBlue,
             radius: 14,
             shadowOffset: const Offset(3, 3),
-            padding: square ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: square
+                ? EdgeInsets.zero
+                : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             // Icônes en papier sur la case sombre (#152) et centrées dans la case.
             child: IconTheme.merge(
               data: const IconThemeData(color: _ceramic, size: 20),
@@ -716,13 +802,21 @@ class _GlassButton extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Container(
             constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-            padding: square ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: square
+                ? EdgeInsets.zero
+                : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: const Color(0xA610254C),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: const Color(0x59FFFFFF)),
-              boxShadow: const [BoxShadow(color: Color(0x4D000000), offset: Offset(0, 4), blurRadius: 12)],
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x4D000000),
+                  offset: Offset(0, 4),
+                  blurRadius: 12,
+                ),
+              ],
             ),
             child: DefaultTextStyle.merge(
               style: const TextStyle(color: _ceramic),
@@ -743,7 +837,12 @@ class _TitleBlock extends StatelessWidget {
 
   /// Titre BD : Bangers jaune avec contour d'encre (issue #96).
   Widget _comicTitle(double size) {
-    final base = TextStyle(fontFamily: 'Bangers', fontSize: size, height: 1, letterSpacing: 1);
+    final base = TextStyle(
+      fontFamily: 'Bangers',
+      fontSize: size,
+      height: 1,
+      letterSpacing: 1,
+    );
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -779,7 +878,11 @@ class _TitleBlock extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.auto_awesome, size: 14, color: Color(0xFFFFE76A)),
+              const Icon(
+                Icons.auto_awesome,
+                size: 14,
+                color: Color(0xFFFFE76A),
+              ),
               const SizedBox(width: 6),
               Text(
                 Strings.menuTagline,
@@ -797,19 +900,23 @@ class _TitleBlock extends StatelessWidget {
         kComicMenu
             ? _comicTitle(titleSize)
             : Text(
-          'Kahwetne',
-          style: TextStyle(
-            fontFamily: 'BowlbyOneSC',
-            fontSize: titleSize,
-            height: 1,
-            letterSpacing: -0.05 * titleSize,
-            color: _ceramic,
-            shadows: const [
-              Shadow(offset: Offset(0, 5), color: Color(0xFF173A79)),
-              Shadow(offset: Offset(0, 9), blurRadius: 18, color: Color(0x610B1C44)),
-            ],
-          ),
-        ),
+                'Kahwetne',
+                style: TextStyle(
+                  fontFamily: 'BowlbyOneSC',
+                  fontSize: titleSize,
+                  height: 1,
+                  letterSpacing: -0.05 * titleSize,
+                  color: _ceramic,
+                  shadows: const [
+                    Shadow(offset: Offset(0, 5), color: Color(0xFF173A79)),
+                    Shadow(
+                      offset: Offset(0, 9),
+                      blurRadius: 18,
+                      color: Color(0x610B1C44),
+                    ),
+                  ],
+                ),
+              ),
         const SizedBox(height: 4),
         Text(
           'لمّـة، ضحكة ولعبة تونسية',
@@ -817,7 +924,13 @@ class _TitleBlock extends StatelessWidget {
             fontSize: sm ? 16 : 14,
             fontWeight: FontWeight.w800,
             color: const Color(0xF2FFFFFF),
-            shadows: const [Shadow(offset: Offset(0, 2), blurRadius: 7, color: Color(0xBF07193C))],
+            shadows: const [
+              Shadow(
+                offset: Offset(0, 2),
+                blurRadius: 7,
+                color: Color(0xBF07193C),
+              ),
+            ],
           ),
         ),
       ],
@@ -826,7 +939,12 @@ class _TitleBlock extends StatelessWidget {
 }
 
 class _GamesPanel extends StatelessWidget {
-  const _GamesPanel({required this.difficulty, required this.sm, required this.md, required this.onSelect});
+  const _GamesPanel({
+    required this.difficulty,
+    required this.sm,
+    required this.md,
+    required this.onSelect,
+  });
 
   final Difficulty difficulty;
   final bool sm;
@@ -875,7 +993,10 @@ class _GamesPanel extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0x1AFFFFFF),
                   borderRadius: BorderRadius.circular(999),
@@ -889,7 +1010,9 @@ class _GamesPanel extends StatelessWidget {
                       decoration: const BoxDecoration(
                         color: Color(0xFF6EE7B7),
                         shape: BoxShape.circle,
-                        boxShadow: [BoxShadow(color: Color(0xFF6EE7B7), blurRadius: 8)],
+                        boxShadow: [
+                          BoxShadow(color: Color(0xFF6EE7B7), blurRadius: 8),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -917,7 +1040,11 @@ class _GamesPanel extends StatelessWidget {
                 return FadeSlideIn(
                   delay: Duration(milliseconds: 220 + i * 70),
                   offset: const Offset(0, 0.1),
-                  child: _GameTile(game: game, sm: sm, onTap: () => onSelect(game)),
+                  child: _GameTile(
+                    game: game,
+                    sm: sm,
+                    onTap: () => onSelect(game),
+                  ),
                 );
               },
             ),
@@ -945,12 +1072,18 @@ class _GameTile extends StatelessWidget {
       child: Container(
         constraints: BoxConstraints(minHeight: sm ? 94 : 82),
         decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [game.gradientFrom, game.gradientTo]),
+          gradient: LinearGradient(
+            colors: [game.gradientFrom, game.gradientTo],
+          ),
           borderRadius: radius,
           border: Border.all(color: _ink, width: 3),
           boxShadow: [
             BoxShadow(color: game.edgeColor, offset: const Offset(0, 6)),
-            const BoxShadow(color: _shadowSoft, offset: Offset(0, 11), blurRadius: 22),
+            const BoxShadow(
+              color: _shadowSoft,
+              offset: Offset(0, 11),
+              blurRadius: 22,
+            ),
           ],
         ),
         child: ClipRRect(
@@ -959,7 +1092,11 @@ class _GameTile extends StatelessWidget {
             children: [
               // Trame de points propre au bouton : radial-gradient(#17203f 1.1px) 6px, opacité 0.09.
               const Positioned.fill(
-                child: DotPattern(spacing: 6, radius: 1.1, color: Color(0x1717203F)),
+                child: DotPattern(
+                  spacing: 6,
+                  radius: 1.1,
+                  color: Color(0x1717203F),
+                ),
               ),
               Positioned(
                 right: -20,
@@ -967,11 +1104,17 @@ class _GameTile extends StatelessWidget {
                 child: Container(
                   width: 112,
                   height: 112,
-                  decoration: const BoxDecoration(color: Color(0x33FFFFFF), shape: BoxShape.circle),
+                  decoration: const BoxDecoration(
+                    color: Color(0x33FFFFFF),
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: sm ? 20 : 12, vertical: 10),
+                padding: EdgeInsets.symmetric(
+                  horizontal: sm ? 20 : 12,
+                  vertical: 10,
+                ),
                 child: Row(
                   children: [
                     Container(
@@ -985,7 +1128,11 @@ class _GameTile extends StatelessWidget {
                       alignment: Alignment.center,
                       child: Transform.scale(
                         scale: sm ? 1 : 0.88,
-                        child: SvgPicture.string(gameIconSvg[game.name]!, width: 56, height: 56),
+                        child: SvgPicture.string(
+                          gameIconSvg[game.name]!,
+                          width: 56,
+                          height: 56,
+                        ),
                       ),
                     ),
                     SizedBox(width: sm ? 16 : 12),
@@ -1003,7 +1150,12 @@ class _GameTile extends StatelessWidget {
                               height: 1,
                               letterSpacing: -0.025 * (sm ? 24 : 20),
                               color: Colors.white,
-                              shadows: const [Shadow(offset: Offset(0, 2), color: Color(0x73132249))],
+                              shadows: const [
+                                Shadow(
+                                  offset: Offset(0, 2),
+                                  color: Color(0x73132249),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -1021,8 +1173,15 @@ class _GameTile extends StatelessWidget {
                     Container(
                       width: 36,
                       height: 36,
-                      decoration: const BoxDecoration(color: Color(0x4015264D), shape: BoxShape.circle),
-                      child: const Icon(Icons.chevron_right, size: 20, color: Colors.white),
+                      decoration: const BoxDecoration(
+                        color: Color(0x4015264D),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.chevron_right,
+                        size: 20,
+                        color: Colors.white,
+                      ),
                     ),
                   ],
                 ),
@@ -1036,7 +1195,11 @@ class _GameTile extends StatelessWidget {
 }
 
 class _AdFreeButton extends StatelessWidget {
-  const _AdFreeButton({required this.sm, required this.secondsLeft, required this.onTap});
+  const _AdFreeButton({
+    required this.sm,
+    required this.secondsLeft,
+    required this.onTap,
+  });
 
   final bool sm;
   final int secondsLeft;
@@ -1047,9 +1210,8 @@ class _AdFreeButton extends StatelessWidget {
     final active = secondsLeft > 0;
     final minutes = secondsLeft ~/ 60;
     final seconds = secondsLeft % 60;
-    final clock = active
-        ? '$minutes:${seconds.toString().padLeft(2, '0')}'
-        : '30:00';
+    final clock =
+        active ? '$minutes:${seconds.toString().padLeft(2, '0')}' : '30:00';
 
     return Pressable(
       semanticLabel: active
@@ -1068,7 +1230,11 @@ class _AdFreeButton extends StatelessWidget {
           border: Border.all(color: _ink, width: 3),
           boxShadow: const [
             BoxShadow(color: _ink, offset: Offset(0, 7)),
-            BoxShadow(color: Color(0x66040B1F), offset: Offset(0, 14), blurRadius: 28),
+            BoxShadow(
+              color: Color(0x66040B1F),
+              offset: Offset(0, 14),
+              blurRadius: 28,
+            ),
           ],
         ),
         child: Row(
@@ -1082,7 +1248,10 @@ class _AdFreeButton extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: const Color(0x8CFFFFFF),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0x3315264D), width: 2),
+                      border: Border.all(
+                        color: const Color(0x3315264D),
+                        width: 2,
+                      ),
                     ),
                     child: Icon(
                       active ? Icons.verified_user : Icons.workspace_premium,
@@ -1101,7 +1270,9 @@ class _AdFreeButton extends StatelessWidget {
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            active ? Strings.menuAdFreeActive : Strings.menuAdFreeOffer,
+                            active
+                                ? Strings.menuAdFreeActive
+                                : Strings.menuAdFreeOffer,
                             maxLines: 1,
                             style: TextStyle(
                               fontFamily: 'RobotoSlab',
@@ -1116,7 +1287,9 @@ class _AdFreeButton extends StatelessWidget {
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            active ? Strings.menuAdFreeActiveNote : Strings.menuAdFreeOfferNote,
+                            active
+                                ? Strings.menuAdFreeActiveNote
+                                : Strings.menuAdFreeOfferNote,
                             maxLines: 1,
                             style: TextStyle(
                               fontSize: sm ? 14 : 11,
@@ -1133,12 +1306,21 @@ class _AdFreeButton extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: sm ? 16 : 8, vertical: sm ? 10 : 6),
+              padding: EdgeInsets.symmetric(
+                horizontal: sm ? 16 : 8,
+                vertical: sm ? 10 : 6,
+              ),
               decoration: BoxDecoration(
                 color: _ink,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: const Color(0x33FFFFFF)),
-                boxShadow: const [BoxShadow(color: Color(0x40000000), offset: Offset(0, 4), blurRadius: 8)],
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x40000000),
+                    offset: Offset(0, 4),
+                    blurRadius: 8,
+                  ),
+                ],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -1186,11 +1368,23 @@ class _DifficultyTitle extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('01', style: TextStyle(color: _gold, fontWeight: FontWeight.w900, fontSize: 12)),
+              const Text(
+                '01',
+                style: TextStyle(
+                  color: _gold,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 12,
+                ),
+              ),
               const SizedBox(width: 8),
               Text(
                 gameName.toUpperCase(),
-                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 2.2, color: Colors.white),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 12,
+                  letterSpacing: 2.2,
+                  color: Colors.white,
+                ),
               ),
             ],
           ),
@@ -1206,7 +1400,11 @@ class _DifficultyTitle extends StatelessWidget {
             color: _ceramic,
             shadows: const [
               Shadow(offset: Offset(0, 5), color: Color(0xFF173A79)),
-              Shadow(offset: Offset(0, 9), blurRadius: 18, color: Color(0x610B1C44)),
+              Shadow(
+                offset: Offset(0, 9),
+                blurRadius: 18,
+                color: Color(0x610B1C44),
+              ),
             ],
           ),
         ),
@@ -1214,7 +1412,11 @@ class _DifficultyTitle extends StatelessWidget {
         Text(
           Strings.menuChooseLevelNote,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xCCFFFFFF)),
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: Color(0xCCFFFFFF),
+          ),
         ),
       ],
     );
@@ -1222,7 +1424,11 @@ class _DifficultyTitle extends StatelessWidget {
 }
 
 class _LaunchButton extends StatelessWidget {
-  const _LaunchButton({required this.label, required this.sm, required this.onTap});
+  const _LaunchButton({
+    required this.label,
+    required this.sm,
+    required this.onTap,
+  });
 
   final String label;
   final bool sm;
@@ -1239,12 +1445,18 @@ class _LaunchButton extends StatelessWidget {
         constraints: BoxConstraints(minHeight: sm ? 64 : 56),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [Color(0xFFFFE16B), Color(0xFFFFB43C)]),
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFFE16B), Color(0xFFFFB43C)],
+          ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: _ink, width: 3),
           boxShadow: const [
             BoxShadow(color: Color(0xFFA64A1D), offset: Offset(0, 6)),
-            BoxShadow(color: _shadowSoft, offset: Offset(0, 11), blurRadius: 22),
+            BoxShadow(
+              color: _shadowSoft,
+              offset: Offset(0, 11),
+              blurRadius: 22,
+            ),
           ],
         ),
         child: Row(
@@ -1302,7 +1514,13 @@ class _GlassPanel extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: borderRadius,
-        boxShadow: const [BoxShadow(color: Color(0x6B071030), offset: Offset(0, 18), blurRadius: 55)],
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x6B071030),
+            offset: Offset(0, 18),
+            blurRadius: 55,
+          ),
+        ],
       ),
       child: ClipRRect(
         borderRadius: borderRadius,

@@ -31,7 +31,11 @@ class HalftoneOverlay extends StatelessWidget {
           child: IgnorePointer(
             child: RepaintBoundary(
               child: CustomPaint(
-                painter: _HalftonePainter(color: dotColor, spacing: spacing, radius: radius),
+                painter: _HalftonePainter(
+                  color: dotColor,
+                  spacing: spacing,
+                  radius: radius,
+                ),
               ),
             ),
           ),
@@ -42,7 +46,11 @@ class HalftoneOverlay extends StatelessWidget {
 }
 
 class _HalftonePainter extends CustomPainter {
-  _HalftonePainter({required this.color, required this.spacing, required this.radius});
+  _HalftonePainter({
+    required this.color,
+    required this.spacing,
+    required this.radius,
+  });
 
   final Color color;
   final double spacing;

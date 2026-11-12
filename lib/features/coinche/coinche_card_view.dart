@@ -29,10 +29,26 @@ String coincheSuitName(CoincheSuit suit) => switch (suit) {
 
 /// Matrice couleur : luminosité 0.75 et saturation 0.5 (style « jouée / illégale » du source).
 const List<double> _dimMatrix = [
-  0.75 * (0.2126 * 0.5 + 0.5), 0.75 * (0.7152 * 0.5), 0.75 * (0.0722 * 0.5), 0, 0,
-  0.75 * (0.2126 * 0.5), 0.75 * (0.7152 * 0.5 + 0.5), 0.75 * (0.0722 * 0.5), 0, 0,
-  0.75 * (0.2126 * 0.5), 0.75 * (0.7152 * 0.5), 0.75 * (0.0722 * 0.5 + 0.5), 0, 0,
-  0, 0, 0, 1, 0,
+  0.75 * (0.2126 * 0.5 + 0.5),
+  0.75 * (0.7152 * 0.5),
+  0.75 * (0.0722 * 0.5),
+  0,
+  0,
+  0.75 * (0.2126 * 0.5),
+  0.75 * (0.7152 * 0.5 + 0.5),
+  0.75 * (0.0722 * 0.5),
+  0,
+  0,
+  0.75 * (0.2126 * 0.5),
+  0.75 * (0.7152 * 0.5),
+  0.75 * (0.0722 * 0.5 + 0.5),
+  0,
+  0,
+  0,
+  0,
+  0,
+  1,
+  0,
 ];
 
 /// Carte Coinche : face (rang + couleur) ou dos. Hauteur = 1,4 × largeur, comme le source.
@@ -64,7 +80,10 @@ class CoincheCardView extends StatelessWidget {
       child: shown == null ? _back(width) : _front(shown, width, height),
     );
     if (dimmed) {
-      face = ColorFiltered(colorFilter: const ColorFilter.matrix(_dimMatrix), child: face);
+      face = ColorFiltered(
+        colorFilter: const ColorFilter.matrix(_dimMatrix),
+        child: face,
+      );
     }
     if (onTap == null) return face;
     return GestureDetector(onTap: onTap, child: face);
@@ -93,11 +112,20 @@ class CoincheCardView extends StatelessWidget {
               children: [
                 Text(
                   c.rank.label,
-                  style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: height * 0.2, height: 1),
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w900,
+                    fontSize: height * 0.2,
+                    height: 1,
+                  ),
                 ),
                 Text(
                   symbol,
-                  style: TextStyle(color: color, fontSize: height * 0.16, height: 1),
+                  style: TextStyle(
+                    color: color,
+                    fontSize: height * 0.16,
+                    height: 1,
+                  ),
                 ),
               ],
             ),

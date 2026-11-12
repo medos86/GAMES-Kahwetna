@@ -21,11 +21,15 @@ import '../../widgets/exit_guard.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 
-
 /// Écran de jeu de la Chkobba, fidèle à GameScreen.tsx : scores, pioche, tapis, mains,
 /// bannière de tour, Haya, choix de prise et récapitulatif de manche.
 class ChkobbaScreen extends StatefulWidget {
-  const ChkobbaScreen({super.key, required this.difficulty, required this.targetScore, this.demoChoice = false});
+  const ChkobbaScreen({
+    super.key,
+    required this.difficulty,
+    required this.targetScore,
+    this.demoChoice = false,
+  });
 
   final Difficulty difficulty;
   final int targetScore;
@@ -96,21 +100,22 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     return ExitGuard(
       active: _controller.game.winner == null,
       child: Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          style.villageBackground
-              ? const _CalmBackground()
-              : const _WoodBackground(),
-          SafeArea(
-            child: ListenableBuilder(
-              listenable: _controller,
-              builder: (context, _) => _buildBoard(context, columns, cardHeight),
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            style.villageBackground
+                ? const _CalmBackground()
+                : const _WoodBackground(),
+            SafeArea(
+              child: ListenableBuilder(
+                listenable: _controller,
+                builder: (context, _) =>
+                    _buildBoard(context, columns, cardHeight),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -128,7 +133,10 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     // Emplacements du tapis : au moins 12, multiple du nombre de colonnes (comme TABLE_MIN_SLOTS).
     // Chaque carte garde son emplacement : les autres ne glissent pas après un jeu.
     final assigned = _controller.tableSlots();
-    final used = assigned.values.fold<int>(0, (max, index) => math.max(max, index + 1));
+    final used = assigned.values.fold<int>(
+      0,
+      (max, index) => math.max(max, index + 1),
+    );
     final slotCount = _roundUp(math.max(12, used), columns);
     final slots = List<Widget?>.filled(slotCount, null);
     for (final card in game.table) {
@@ -153,7 +161,9 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                     label: t('chkobbaRules'),
                     icon: Icons.menu_book,
                     onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(builder: (_) => const ChkobbaRulesScreen()),
+                      MaterialPageRoute<void>(
+                        builder: (_) => const ChkobbaRulesScreen(),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -195,7 +205,11 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 400),
-                        child: ChkobbaTable(cards: slots, columns: columns, emptyLabel: 'Chkobba !'),
+                        child: ChkobbaTable(
+                          cards: slots,
+                          columns: columns,
+                          emptyLabel: 'Chkobba !',
+                        ),
                       ),
                     ),
                   if (hayaBy != null)
@@ -264,7 +278,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     );
   }
 
-  static int _roundUp(int value, int multiple) => ((value + multiple - 1) ~/ multiple) * multiple;
+  static int _roundUp(int value, int multiple) =>
+      ((value + multiple - 1) ~/ multiple) * multiple;
 }
 
 /// Fond bois du jeu React (style d'origine) : bandes brunes verticales.
@@ -279,7 +294,10 @@ class _CalmBackground extends StatelessWidget {
       children: [
         ColorFiltered(
           colorFilter: const ColorFilter.matrix(_saturation40),
-          child: Image.asset('assets/images/background.webp', fit: BoxFit.cover),
+          child: Image.asset(
+            'assets/images/background.webp',
+            fit: BoxFit.cover,
+          ),
         ),
         const DecoratedBox(
           decoration: BoxDecoration(
@@ -297,10 +315,26 @@ class _CalmBackground extends StatelessWidget {
 
 // Matrice de saturation à 40 % (luminance Rec. 709).
 const _saturation40 = <double>[
-  0.52756, 0.42912, 0.04332, 0, 0,
-  0.12756, 0.82912, 0.04332, 0, 0,
-  0.12756, 0.42912, 0.44332, 0, 0,
-  0, 0, 0, 1, 0,
+  0.52756,
+  0.42912,
+  0.04332,
+  0,
+  0,
+  0.12756,
+  0.82912,
+  0.04332,
+  0,
+  0,
+  0.12756,
+  0.42912,
+  0.44332,
+  0,
+  0,
+  0,
+  0,
+  0,
+  1,
+  0,
 ];
 
 class _WoodBackground extends StatelessWidget {
@@ -315,7 +349,10 @@ class _WoodBackground extends StatelessWidget {
 class _WoodPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawRect(Offset.zero & size, Paint()..color = const Color(0xFF8B4513));
+    canvas.drawRect(
+      Offset.zero & size,
+      Paint()..color = const Color(0xFF8B4513),
+    );
     final light = Paint()..color = const Color(0xFFA0522D);
     final dark = Paint()..color = const Color(0xFF654321);
     for (double x = 0; x < size.width; x += 8) {
@@ -330,7 +367,11 @@ class _WoodPainter extends CustomPainter {
 
 /// Bouton blanc à bordure brune, comme le bouton « Menu » du source.
 class _PillButton extends StatelessWidget {
-  const _PillButton({required this.label, required this.icon, required this.onTap});
+  const _PillButton({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
 
   final String label;
   final IconData icon;
@@ -355,7 +396,12 @@ class _PillButton extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: const TextStyle(fontFamily: 'Bangers', fontSize: 18, letterSpacing: 1, color: ComicPalette.ink),
+                style: const TextStyle(
+                  fontFamily: 'Bangers',
+                  fontSize: 18,
+                  letterSpacing: 1,
+                  color: ComicPalette.ink,
+                ),
               ),
             ],
           ),
@@ -370,7 +416,9 @@ class _PillButton extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.black, width: 3),
-          boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 4))],
+          boxShadow: const [
+            BoxShadow(color: Colors.black, offset: Offset(0, 4)),
+          ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -379,7 +427,10 @@ class _PillButton extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF7E22CE)),
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF7E22CE),
+              ),
             ),
           ],
         ),
@@ -407,7 +458,11 @@ class _TargetBadge extends StatelessWidget {
             alignment: const Alignment(0, -0.25),
             child: Text(
               '$target',
-              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Color(0xFF20284B)),
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 15,
+                color: Color(0xFF20284B),
+              ),
             ),
           ),
         ],
@@ -426,40 +481,45 @@ class _Scoreboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      label: tf('sChkScore', {'a': '${game.scores[Player.player]}', 'b': '${game.scores[Player.opponent]}'}),
+      label: tf('sChkScore', {
+        'a': '${game.scores[Player.player]}',
+        'b': '${game.scores[Player.opponent]}',
+      }),
       child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFACC15), Color(0xFFFBBF24), Color(0xFFFB923C)],
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFACC15), Color(0xFFFBBF24), Color(0xFFFB923C)],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.black, width: 3),
+          boxShadow: const [
+            BoxShadow(color: Colors.black, offset: Offset(0, 5)),
+          ],
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.black, width: 3),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 5))],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _ScoreSide(
-            name: t('you'),
-            score: game.scores[Player.player]!,
-            chkobbas: game.chkobbas[Player.player]!,
-            cards: game.won[Player.player]!.length,
-            color: const Color(0xFF047857),
-          ),
-          Semantics(
-            label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
-            child: _DeckPile(count: game.deck.length),
-          ),
-          _ScoreSide(
-            name: t('opponent'),
-            score: game.scores[Player.opponent]!,
-            chkobbas: game.chkobbas[Player.opponent]!,
-            cards: game.won[Player.opponent]!.length,
-            color: const Color(0xFFB91C1C),
-          ),
-        ],
-      ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _ScoreSide(
+              name: t('you'),
+              score: game.scores[Player.player]!,
+              chkobbas: game.chkobbas[Player.player]!,
+              cards: game.won[Player.player]!.length,
+              color: const Color(0xFF047857),
+            ),
+            Semantics(
+              label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
+              child: _DeckPile(count: game.deck.length),
+            ),
+            _ScoreSide(
+              name: t('opponent'),
+              score: game.scores[Player.opponent]!,
+              chkobbas: game.chkobbas[Player.opponent]!,
+              cards: game.won[Player.opponent]!.length,
+              color: const Color(0xFFB91C1C),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -482,7 +542,11 @@ class _ScoreSide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const info = TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xB3451A03));
+    const info = TextStyle(
+      fontSize: 11,
+      fontWeight: FontWeight.w700,
+      color: Color(0xB3451A03),
+    );
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -497,13 +561,22 @@ class _ScoreSide extends StatelessWidget {
           ),
           child: Text(
             '$score',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: color),
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w900,
+              color: color,
+            ),
           ),
         ),
         const SizedBox(height: 2),
         Text(
           name.toUpperCase(),
-          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: color, letterSpacing: 0.5),
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            color: color,
+            letterSpacing: 0.5,
+          ),
         ),
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -549,11 +622,17 @@ class _DeckPile extends StatelessWidget {
             children: [
               Transform.translate(
                 offset: const Offset(-4, 0),
-                child: Transform.rotate(angle: -0.2, child: pile(const Color(0xFFA82D49))),
+                child: Transform.rotate(
+                  angle: -0.2,
+                  child: pile(const Color(0xFFA82D49)),
+                ),
               ),
               Transform.translate(
                 offset: const Offset(4, 0),
-                child: Transform.rotate(angle: 0.2, child: pile(const Color(0xFF8F203D))),
+                child: Transform.rotate(
+                  angle: 0.2,
+                  child: pile(const Color(0xFF8F203D)),
+                ),
               ),
               pile(const Color(0xFFC63D55)),
               const Icon(Icons.layers, size: 14, color: Color(0xFFFFE16B)),
@@ -561,7 +640,10 @@ class _DeckPile extends StatelessWidget {
                 top: -2,
                 right: -2,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFFDF5),
                     borderRadius: BorderRadius.circular(10),
@@ -569,7 +651,11 @@ class _DeckPile extends StatelessWidget {
                   ),
                   child: Text(
                     '$count',
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF20284B)),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF20284B),
+                    ),
                   ),
                 ),
               ),
@@ -578,7 +664,11 @@ class _DeckPile extends StatelessWidget {
         ),
         Text(
           t('draw'),
-          style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Color(0xFF17213D)),
+          style: TextStyle(
+            fontSize: 9,
+            fontWeight: FontWeight.w900,
+            color: Color(0xFF17213D),
+          ),
         ),
       ],
     );
@@ -640,7 +730,9 @@ class _ThinkingBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Color(0xFFF97316), Color(0xFFDC2626)]),
+        gradient: const LinearGradient(
+          colors: [Color(0xFFF97316), Color(0xFFDC2626)],
+        ),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.black, width: 3),
         boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 5))],
@@ -649,7 +741,11 @@ class _ThinkingBadge extends StatelessWidget {
         liveRegion: true,
         child: const Text(
           "⏳ Tour de l'adversaire...",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 15,
+          ),
         ),
       ),
     );
@@ -679,12 +775,19 @@ class _FinalCard extends StatelessWidget {
         children: [
           Text(
             won ? '🏆 Victoire !' : 'Défaite',
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 26),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+              fontSize: 26,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             '${state.scores[Player.player]} – ${state.scores[Player.opponent]} · $rounds manche${rounds > 1 ? 's' : ''}',
-            style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w800),
+            style: const TextStyle(
+              color: Colors.white70,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ],
       ),
@@ -709,15 +812,27 @@ class _RoundCard extends StatelessWidget {
     (key: 'catBermila', matches: (l) => l == 'Bermila'),
   ];
 
-  int _pointsFor(Player p, bool Function(String) matches) =>
-      summary.points[p]!.where((x) => matches(x.label)).fold(0, (sum, x) => sum + x.value);
+  int _pointsFor(Player p, bool Function(String) matches) => summary.points[p]!
+      .where((x) => matches(x.label))
+      .fold(0, (sum, x) => sum + x.value);
 
   int _total(Player p) => summary.points[p]!.fold(0, (sum, x) => sum + x.value);
 
   static String _show(int v) => v == 0 ? '—' : '$v';
 
-  Widget _row(String label, String player, String opponent, {TextStyle? style, double pad = 8}) {
-    final base = style ?? const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF17213D));
+  Widget _row(
+    String label,
+    String player,
+    String opponent, {
+    TextStyle? style,
+    double pad = 8,
+  }) {
+    final base = style ??
+        const TextStyle(
+          fontWeight: FontWeight.w900,
+          fontSize: 14,
+          color: Color(0xFF17213D),
+        );
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: pad),
       child: Row(
@@ -765,13 +880,20 @@ class _RoundCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
               decoration: const BoxDecoration(
-                gradient: LinearGradient(colors: [Color(0xFF10B981), Color(0xFF047857)]),
-                border: Border(bottom: BorderSide(color: Colors.black, width: 4)),
+                gradient: LinearGradient(
+                  colors: [Color(0xFF10B981), Color(0xFF047857)],
+                ),
+                border: Border(
+                  bottom: BorderSide(color: Colors.black, width: 4),
+                ),
               ),
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFE16B),
                       borderRadius: BorderRadius.circular(20),
@@ -779,13 +901,22 @@ class _RoundCard extends StatelessWidget {
                     ),
                     child: const Text(
                       'RÉCAPITULATIF',
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2, color: Color(0xFF17213D)),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2,
+                        color: Color(0xFF17213D),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     'Manche ${state.round}',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 24),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 24,
+                    ),
                   ),
                 ],
               ),
@@ -799,7 +930,11 @@ class _RoundCard extends StatelessWidget {
                     t('roundPoints'),
                     t('you'),
                     t('opponent'),
-                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11, color: Colors.white),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 11,
+                      color: Colors.white,
+                    ),
                     pad: 0,
                   ),
                   const SizedBox(height: 6),
@@ -816,12 +951,27 @@ class _RoundCard extends StatelessWidget {
                             decoration: BoxDecoration(
                               border: i == 0
                                   ? null
-                                  : const Border(top: BorderSide(color: Color(0xFFB8C5AD), width: 2)),
+                                  : const Border(
+                                      top: BorderSide(
+                                        color: Color(0xFFB8C5AD),
+                                        width: 2,
+                                      ),
+                                    ),
                             ),
                             child: _row(
                               t(_categories[i].key),
-                              _show(_pointsFor(Player.player, _categories[i].matches)),
-                              _show(_pointsFor(Player.opponent, _categories[i].matches)),
+                              _show(
+                                _pointsFor(
+                                  Player.player,
+                                  _categories[i].matches,
+                                ),
+                              ),
+                              _show(
+                                _pointsFor(
+                                  Player.opponent,
+                                  _categories[i].matches,
+                                ),
+                              ),
                             ),
                           ),
                       ],
@@ -838,13 +988,19 @@ class _RoundCard extends StatelessWidget {
                       'Score de la manche',
                       '+${_total(Player.player)}',
                       '+${_total(Player.opponent)}',
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.white),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Container(
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [Color(0xFFFFE16B), Color(0xFFFFC24B)]),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFFE16B), Color(0xFFFFC24B)],
+                      ),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.black, width: 3),
                     ),
@@ -852,7 +1008,11 @@ class _RoundCard extends StatelessWidget {
                       'Score total',
                       '${state.scores[Player.player]}',
                       '${state.scores[Player.opponent]}',
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Color(0xFF17213D)),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                        color: Color(0xFF17213D),
+                      ),
                       pad: 10,
                     ),
                   ),
@@ -863,14 +1023,24 @@ class _RoundCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(colors: [Color(0xFFFFE16B), Color(0xFFFFB43C)]),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFFFE16B), Color(0xFFFFB43C)],
+                        ),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.black, width: 3),
-                        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 5))],
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black, offset: Offset(0, 5)),
+                        ],
                       ),
                       child: Text(
-                        winner == null ? 'Manche suivante →' : 'Voir le résultat final',
-                        style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF30264F)),
+                        winner == null
+                            ? 'Manche suivante →'
+                            : 'Voir le résultat final',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          color: Color(0xFF30264F),
+                        ),
                       ),
                     ),
                   ),
@@ -908,7 +1078,11 @@ class _CapturePicker extends StatelessWidget {
               const Text(
                 'Que veux-tu prendre ?',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 20),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 20,
+                ),
               ),
               const SizedBox(height: 12),
               for (final option in options)
@@ -917,7 +1091,10 @@ class _CapturePicker extends StatelessWidget {
                   child: GestureDetector(
                     onTap: () => Navigator.of(context).pop(option),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(16),
@@ -928,7 +1105,9 @@ class _CapturePicker extends StatelessWidget {
                         children: [
                           for (final card in option)
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                              ),
                               child: SizedBox(
                                 width: 52,
                                 height: 74,

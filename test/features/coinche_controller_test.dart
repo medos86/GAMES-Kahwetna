@@ -6,11 +6,8 @@ import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:kahwetne/game/coinche.dart';
 
 /// Tirage constant : donne déterministe, sans dépendre du hasard.
-CoincheController makeController({Difficulty difficulty = Difficulty.moyen}) => CoincheController(
-      target: 1000,
-      difficulty: difficulty,
-      random: () => 0.5,
-    );
+CoincheController makeController({Difficulty difficulty = Difficulty.moyen}) =>
+    CoincheController(target: 1000, difficulty: difficulty, random: () => 0.5);
 
 void main() {
   test('la partie démarre au tour de l\'humain, sans minuteur en attente', () {
@@ -54,7 +51,10 @@ void main() {
   test('le jeu aléatoire n\'est activé qu\'au niveau facile', () {
     expect(makeController(difficulty: Difficulty.facile).randomPlay, isTrue);
     expect(makeController(difficulty: Difficulty.moyen).randomPlay, isFalse);
-    expect(makeController(difficulty: Difficulty.difficile).randomPlay, isFalse);
+    expect(
+      makeController(difficulty: Difficulty.difficile).randomPlay,
+      isFalse,
+    );
   });
 
   test('restart remet la partie à zéro avec la même cible', () {

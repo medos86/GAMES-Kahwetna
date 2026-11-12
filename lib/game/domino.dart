@@ -52,7 +52,11 @@ class PlacedTile extends DominoTile {
       );
 
   @override
-  Map<String, dynamic> toJson() => {...super.toJson(), 'left': left, 'right': right};
+  Map<String, dynamic> toJson() => {
+        ...super.toJson(),
+        'left': left,
+        'right': right,
+      };
 }
 
 const Object _unset = Object();
@@ -90,15 +94,18 @@ class DominoState {
 
   /// Relit un état produit par [toJson] (ou par `JSON.stringify(state)` côté TypeScript).
   factory DominoState.fromJson(Map<String, dynamic> json) {
-    List<DominoTile> tiles(Object? raw) =>
-        [for (final t in raw as List<dynamic>) DominoTile.fromJson(t as Map<String, dynamic>)];
+    List<DominoTile> tiles(Object? raw) => [
+          for (final t in raw as List<dynamic>)
+            DominoTile.fromJson(t as Map<String, dynamic>),
+        ];
     final hands = json['hands'] as Map<String, dynamic>;
     final scores = json['scores'] as Map<String, dynamic>;
     return DominoState(
       hands: {for (final p in Player.values) p: tiles(hands[p.name])},
       boneyard: tiles(json['boneyard']),
       chain: [
-        for (final t in json['chain'] as List<dynamic>) PlacedTile.fromJson(t as Map<String, dynamic>),
+        for (final t in json['chain'] as List<dynamic>)
+          PlacedTile.fromJson(t as Map<String, dynamic>),
       ],
       leftEnd: json['leftEnd'] == null ? null : intFromJson(json['leftEnd']),
       rightEnd: json['rightEnd'] == null ? null : intFromJson(json['rightEnd']),
@@ -136,8 +143,12 @@ class DominoState {
       scores: scores ?? this.scores,
       turn: turn ?? this.turn,
       consecutivePasses: consecutivePasses ?? this.consecutivePasses,
-      roundWinner: identical(roundWinner, _unset) ? this.roundWinner : roundWinner as Player?,
-      matchWinner: identical(matchWinner, _unset) ? this.matchWinner : matchWinner as Player?,
+      roundWinner: identical(roundWinner, _unset)
+          ? this.roundWinner
+          : roundWinner as Player?,
+      matchWinner: identical(matchWinner, _unset)
+          ? this.matchWinner
+          : matchWinner as Player?,
       pointsAwarded: pointsAwarded ?? this.pointsAwarded,
       targetScore: targetScore,
       round: round,
@@ -146,7 +157,10 @@ class DominoState {
 
   /// Même structure et mêmes clés que JSON.stringify(state) côté TypeScript.
   Map<String, dynamic> toJson() => {
-        'hands': {for (final p in Player.values) p.name: [for (final t in hands[p]!) t.toJson()]},
+        'hands': {
+          for (final p in Player.values)
+            p.name: [for (final t in hands[p]!) t.toJson()],
+        },
         'boneyard': [for (final t in boneyard) t.toJson()],
         'chain': [for (final t in chain) t.toJson()],
         'leftEnd': leftEnd,
@@ -239,8 +253,15 @@ DominoTile? _tileById(List<DominoTile> tiles, String id) {
   return null;
 }
 
-DominoState playDomino(DominoState state, Player player, String tileId, DominoSide side) {
-  if (state.turn != player || state.roundWinner != null || state.matchWinner != null) {
+DominoState playDomino(
+  DominoState state,
+  Player player,
+  String tileId,
+  DominoSide side,
+) {
+  if (state.turn != player ||
+      state.roundWinner != null ||
+      state.matchWinner != null) {
     return state;
   }
   final tile = _tileById(state.hands[player]!, tileId);
@@ -250,7 +271,13 @@ DominoState playDomino(DominoState state, Player player, String tileId, DominoSi
   int? leftEnd = state.leftEnd;
   int? rightEnd = state.rightEnd;
   if (state.chain.isEmpty) {
-    placed = PlacedTile(id: tile.id, a: tile.a, b: tile.b, left: tile.a, right: tile.b);
+    placed = PlacedTile(
+      id: tile.id,
+      a: tile.a,
+      b: tile.b,
+      left: tile.a,
+      right: tile.b,
+    );
     leftEnd = tile.a;
     rightEnd = tile.b;
   } else if (side == DominoSide.left) {
@@ -292,7 +319,10 @@ DominoState playDomino(DominoState state, Player player, String tileId, DominoSi
     consecutivePasses: 0,
   );
   if (hands[player]!.isEmpty) {
-    final points = hands[other(player)]!.fold<int>(0, (sum, item) => sum + item.a + item.b);
+    final points = hands[other(player)]!.fold<int>(
+      0,
+      (sum, item) => sum + item.a + item.b,
+    );
     return _finishRound(next, player, points);
   }
   return next;
@@ -311,14 +341,20 @@ DominoState drawDomino(DominoState state, Player player) {
   return state.copyWith(hands: hands, boneyard: state.boneyard.sublist(1));
 }
 
-int _handTotal(List<DominoTile> hand) => hand.fold<int>(0, (sum, tile) => sum + tile.a + tile.b);
+int _handTotal(List<DominoTile> hand) =>
+    hand.fold<int>(0, (sum, tile) => sum + tile.a + tile.b);
 
 DominoState passDomino(DominoState state, Player player) {
-  if (state.turn != player || state.roundWinner != null || state.matchWinner != null) {
+  if (state.turn != player ||
+      state.roundWinner != null ||
+      state.matchWinner != null) {
     return state;
   }
   final consecutivePasses = state.consecutivePasses + 1;
-  final next = state.copyWith(turn: other(player), consecutivePasses: consecutivePasses);
+  final next = state.copyWith(
+    turn: other(player),
+    consecutivePasses: consecutivePasses,
+  );
   if (consecutivePasses < 2) return next;
 
   final playerTotal = _handTotal(state.hands[Player.player]!);

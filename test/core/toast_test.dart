@@ -3,13 +3,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/toast.dart';
 
 void main() {
-  Future<void> pumpHost(WidgetTester tester, void Function(BuildContext) onTap) async {
+  Future<void> pumpHost(
+    WidgetTester tester,
+    void Function(BuildContext) onTap,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: Builder(
             builder: (context) => Center(
-              child: TextButton(onPressed: () => onTap(context), child: const Text('go')),
+              child: TextButton(
+                onPressed: () => onTap(context),
+                child: const Text('go'),
+              ),
             ),
           ),
         ),
@@ -17,25 +23,33 @@ void main() {
     );
   }
 
-  testWidgets('affiche le message en SnackBar flottant, marge basse 96, durée 3 s', (tester) async {
-    await pumpHost(tester, (context) => showToast(context, 'Bien joué'));
-    await tester.tap(find.text('go'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+  testWidgets(
+    'affiche le message en SnackBar flottant, marge basse 96, durée 3 s',
+    (tester) async {
+      await pumpHost(tester, (context) => showToast(context, 'Bien joué'));
+      await tester.tap(find.text('go'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('Bien joué'), findsOneWidget);
-    final bar = tester.widget<SnackBar>(find.byType(SnackBar));
-    expect(bar.behavior, SnackBarBehavior.floating);
-    expect(bar.duration, const Duration(seconds: 3));
-    expect(bar.margin, isNotNull);
-    expect(bar.margin!.resolve(TextDirection.ltr).bottom, 96);
-    expect(kToastBottomMargin, 96);
-  });
+      expect(find.text('Bien joué'), findsOneWidget);
+      final bar = tester.widget<SnackBar>(find.byType(SnackBar));
+      expect(bar.behavior, SnackBarBehavior.floating);
+      expect(bar.duration, const Duration(seconds: 3));
+      expect(bar.margin, isNotNull);
+      expect(bar.margin!.resolve(TextDirection.ltr).bottom, 96);
+      expect(kToastBottomMargin, 96);
+    },
+  );
 
   testWidgets('affiche la description quand elle est fournie', (tester) async {
     await pumpHost(
       tester,
-      (context) => showToast(context, 'Ouverture refusée', description: 'Il faut 51 points', type: ToastType.error),
+      (context) => showToast(
+        context,
+        'Ouverture refusée',
+        description: 'Il faut 51 points',
+        type: ToastType.error,
+      ),
     );
     await tester.tap(find.text('go'));
     await tester.pump();
@@ -52,7 +66,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
 
     final bar = find.byType(SnackBar);
-    expect(find.descendant(of: bar, matching: find.byType(Text)), findsOneWidget);
+    expect(
+      find.descendant(of: bar, matching: find.byType(Text)),
+      findsOneWidget,
+    );
   });
 
   testWidgets('une icône par type (info, success, error)', (tester) async {
@@ -62,12 +79,18 @@ void main() {
       ToastType.error: Icons.error_outline,
     };
     for (final entry in expected.entries) {
-      await pumpHost(tester, (context) => showToast(context, 'msg', type: entry.key));
+      await pumpHost(
+        tester,
+        (context) => showToast(context, 'msg', type: entry.key),
+      );
       await tester.tap(find.text('go'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       expect(
-        find.descendant(of: find.byType(SnackBar), matching: find.byIcon(entry.value)),
+        find.descendant(
+          of: find.byType(SnackBar),
+          matching: find.byIcon(entry.value),
+        ),
         findsOneWidget,
         reason: '${entry.key}',
       );
@@ -79,7 +102,10 @@ void main() {
 
   testWidgets('un nouveau toast remplace le précédent', (tester) async {
     var count = 0;
-    await pumpHost(tester, (context) => showToast(context, 'Message ${++count}'));
+    await pumpHost(
+      tester,
+      (context) => showToast(context, 'Message ${++count}'),
+    );
     await tester.tap(find.text('go'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
@@ -106,18 +132,21 @@ void main() {
     expect(find.text('Éphémère'), findsNothing);
   });
 
-  testWidgets('showToastOn : fonctionne à partir d\'une clé ScaffoldMessenger', (tester) async {
-    final key = GlobalKey<ScaffoldMessengerState>();
-    await tester.pumpWidget(
-      MaterialApp(
-        scaffoldMessengerKey: key,
-        home: const Scaffold(body: SizedBox.expand()),
-      ),
-    );
+  testWidgets(
+    'showToastOn : fonctionne à partir d\'une clé ScaffoldMessenger',
+    (tester) async {
+      final key = GlobalKey<ScaffoldMessengerState>();
+      await tester.pumpWidget(
+        MaterialApp(
+          scaffoldMessengerKey: key,
+          home: const Scaffold(body: SizedBox.expand()),
+        ),
+      );
 
-    showToastOn(key.currentState!, 'Bientôt disponible');
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('Bientôt disponible'), findsOneWidget);
-  });
+      showToastOn(key.currentState!, 'Bientôt disponible');
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('Bientôt disponible'), findsOneWidget);
+    },
+  );
 }
