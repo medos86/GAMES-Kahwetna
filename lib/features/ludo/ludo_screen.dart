@@ -52,7 +52,8 @@ String _colorName(LudoColor color, bool solo) =>
 String _noteText(LudoNote note, bool solo) {
   final label = (LudoColor c) => _colorName(c, solo);
   return switch (note) {
-    NoMoveNote() => '${label(note.color)} : aucun coup possible',
+    // Formulé au passé : la note reste affichée après que le tour a changé (#155).
+    NoMoveNote() => 'Précédent : ${label(note.color)} n\'avait aucun coup possible',
     ThreeSixesNote() => '${label(note.color)} : trois 6 de suite, tour perdu',
     CapturedNote(:final victims) =>
       'Capture : ${victims.map(label).join(', ')} renvoyé(s) à la base',
