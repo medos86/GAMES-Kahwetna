@@ -67,10 +67,10 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
   }
 
   static ChkobbaAiLevel _levelFor(Difficulty d) => switch (d) {
-    Difficulty.facile => ChkobbaAiLevel.facile,
-    Difficulty.moyen => ChkobbaAiLevel.moyen,
-    Difficulty.difficile => ChkobbaAiLevel.difficile,
-  };
+        Difficulty.facile => ChkobbaAiLevel.facile,
+        Difficulty.moyen => ChkobbaAiLevel.moyen,
+        Difficulty.difficile => ChkobbaAiLevel.difficile,
+      };
 
   Future<void> _onPlayerCard(String cardId) async {
     _controller.tapPlayerCard(cardId);
@@ -601,14 +601,14 @@ class _DeckPile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget pile(Color color) => Container(
-      width: 18,
-      height: 26,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(3),
-        border: Border.all(color: Colors.black, width: 2),
-      ),
-    );
+          width: 18,
+          height: 26,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+            border: Border.all(color: Colors.black, width: 2),
+          ),
+        );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -827,8 +827,7 @@ class _RoundCard extends StatelessWidget {
     TextStyle? style,
     double pad = 8,
   }) {
-    final base =
-        style ??
+    final base = style ??
         const TextStyle(
           fontWeight: FontWeight.w900,
           fontSize: 14,

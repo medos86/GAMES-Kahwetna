@@ -27,9 +27,9 @@ class _ComicDemoScreenState extends State<ComicDemoScreen> {
   Map<String, String> get _texts => _arabic ? arTexts : frTexts;
 
   void _burst(String text) => setState(() {
-    _burstText = text;
-    _burstKey++;
-  });
+        _burstText = text;
+        _burstKey++;
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -183,16 +183,16 @@ class _ComicDemoScreenState extends State<ComicDemoScreen> {
   }
 
   Widget _section(String title) => Padding(
-    padding: const EdgeInsets.only(top: 20, bottom: 8),
-    child: Text(
-      title,
-      style: const TextStyle(
-        fontFamily: 'Bangers',
-        fontSize: 20,
-        color: ComicPalette.tunisBlue,
-      ),
-    ),
-  );
+        padding: const EdgeInsets.only(top: 20, bottom: 8),
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontFamily: 'Bangers',
+            fontSize: 20,
+            color: ComicPalette.tunisBlue,
+          ),
+        ),
+      );
 }
 
 class _Swatch extends StatelessWidget {

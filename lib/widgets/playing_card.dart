@@ -33,26 +33,26 @@ class PlayingCard extends StatelessWidget {
 
   /// Dos rouge du source : dégradé #b91c1c → #7f1d1d, cadre intérieur #ca8a04.
   static Widget defaultBack() => DecoratedBox(
-    decoration: const BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [Color(0xFFB91C1C), Color(0xFF7F1D1D)],
-      ),
-    ),
-    child: Center(
-      child: FractionallySizedBox(
-        widthFactor: 0.68,
-        heightFactor: 0.72,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: const Color(0xCCCA8A04), width: 3),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFFB91C1C), Color(0xFF7F1D1D)],
           ),
         ),
-      ),
-    ),
-  );
+        child: Center(
+          child: FractionallySizedBox(
+            widthFactor: 0.68,
+            heightFactor: 0.72,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: const Color(0xCCCA8A04), width: 3),
+              ),
+            ),
+          ),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {

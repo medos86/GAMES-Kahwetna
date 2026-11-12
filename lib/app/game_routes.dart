@@ -58,16 +58,16 @@ Route<void>? buildGameRoute(String? name) {
 
   final Widget? screen = switch (entry.name) {
     'Chkobba' => ChkobbaScreen(
-      difficulty: difficulty,
-      targetScore: target,
-      demoChoice: query['demo'] == 'choice',
-    ),
+        difficulty: difficulty,
+        targetScore: target,
+        demoChoice: query['demo'] == 'choice',
+      ),
     'Domino' => DominoScreen(difficulty: difficulty, targetScore: target),
     'Belote' => CoincheScreen(difficulty: difficulty, targetScore: target),
     'Ludo' => LudoScreen(
-      difficulty: difficulty,
-      players: parsePlayers(query['players']),
-    ),
+        difficulty: difficulty,
+        players: parsePlayers(query['players']),
+      ),
     'Rami' => RamiScreen(difficulty: difficulty, targetScore: target),
     _ => null,
   };

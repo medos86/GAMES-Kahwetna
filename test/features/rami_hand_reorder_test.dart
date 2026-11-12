@@ -60,7 +60,9 @@ void main() {
     });
   });
 
-  test('après un tri, l\'ordre choisi à la main reste valide (même cartes, pas de doublon)', () {
+  test(
+      'après un tri, l\'ordre choisi à la main reste valide (même cartes, pas de doublon)',
+      () {
     fakeAsync((async) {
       final c = RamiController(
         targetScore: 100,

@@ -71,26 +71,26 @@ const plainOrder = [
 ];
 
 int _trumpValue(CoincheRank rank) => switch (rank) {
-  CoincheRank.seven => 0,
-  CoincheRank.eight => 0,
-  CoincheRank.nine => 14,
-  CoincheRank.ten => 10,
-  CoincheRank.valet => 20,
-  CoincheRank.dame => 3,
-  CoincheRank.roi => 4,
-  CoincheRank.ace => 11,
-};
+      CoincheRank.seven => 0,
+      CoincheRank.eight => 0,
+      CoincheRank.nine => 14,
+      CoincheRank.ten => 10,
+      CoincheRank.valet => 20,
+      CoincheRank.dame => 3,
+      CoincheRank.roi => 4,
+      CoincheRank.ace => 11,
+    };
 
 int _plainValue(CoincheRank rank) => switch (rank) {
-  CoincheRank.seven => 0,
-  CoincheRank.eight => 0,
-  CoincheRank.nine => 0,
-  CoincheRank.ten => 10,
-  CoincheRank.valet => 2,
-  CoincheRank.dame => 3,
-  CoincheRank.roi => 4,
-  CoincheRank.ace => 11,
-};
+      CoincheRank.seven => 0,
+      CoincheRank.eight => 0,
+      CoincheRank.nine => 0,
+      CoincheRank.ten => 10,
+      CoincheRank.valet => 2,
+      CoincheRank.dame => 3,
+      CoincheRank.roi => 4,
+      CoincheRank.ace => 11,
+    };
 
 // ---------------------------------------------------------------------------
 // Types
@@ -100,20 +100,20 @@ class CoincheCard {
   const CoincheCard({required this.suit, required this.rank, required this.id});
 
   factory CoincheCard.fromJson(Map<String, dynamic> json) => CoincheCard(
-    suit: CoincheSuit.values.byName(json['suit'] as String),
-    rank: rankFromLabel(json['rank'] as String),
-    id: json['id'] as String,
-  );
+        suit: CoincheSuit.values.byName(json['suit'] as String),
+        rank: rankFromLabel(json['rank'] as String),
+        id: json['id'] as String,
+      );
 
   final CoincheSuit suit;
   final CoincheRank rank;
   final String id;
 
   Map<String, dynamic> toJson() => {
-    'suit': suit.name,
-    'rank': rank.label,
-    'id': id,
-  };
+        'suit': suit.name,
+        'rank': rank.label,
+        'id': id,
+      };
 
   @override
   bool operator ==(Object other) => other is CoincheCard && other.id == id;
@@ -126,9 +126,9 @@ class Play {
   const Play({required this.seat, required this.card});
 
   factory Play.fromJson(Map<String, dynamic> json) => Play(
-    seat: Seat.values.byName(json['seat'] as String),
-    card: CoincheCard.fromJson(json['card'] as Map<String, dynamic>),
-  );
+        seat: Seat.values.byName(json['seat'] as String),
+        card: CoincheCard.fromJson(json['card'] as Map<String, dynamic>),
+      );
 
   final Seat seat;
   final CoincheCard card;
@@ -145,11 +145,11 @@ class Contract {
   });
 
   factory Contract.fromJson(Map<String, dynamic> json) => Contract(
-    seat: Seat.values.byName(json['seat'] as String),
-    value: json['value'] as int,
-    mode: CoincheSuit.values.byName(json['mode'] as String),
-    multiplier: json['multiplier'] as int,
-  );
+        seat: Seat.values.byName(json['seat'] as String),
+        value: json['value'] as int,
+        mode: CoincheSuit.values.byName(json['mode'] as String),
+        multiplier: json['multiplier'] as int,
+      );
 
   final Seat seat;
   final int value;
@@ -162,11 +162,11 @@ class Contract {
       Contract(seat: seat, value: value, mode: mode, multiplier: multiplier);
 
   Map<String, dynamic> toJson() => {
-    'seat': seat.name,
-    'value': value,
-    'mode': mode.name,
-    'multiplier': multiplier,
-  };
+        'seat': seat.name,
+        'value': value,
+        'mode': mode.name,
+        'multiplier': multiplier,
+      };
 }
 
 /// Action d'enchère : union discriminée du source (type "pass" | "bid" | "contre" | "surcoinche").
@@ -177,9 +177,9 @@ sealed class BidAction {
       switch (json['type']) {
         'pass' => const PassBid(),
         'bid' => ValueBid(
-          json['value'] as int,
-          CoincheSuit.values.byName(json['mode'] as String),
-        ),
+            json['value'] as int,
+            CoincheSuit.values.byName(json['mode'] as String),
+          ),
         'contre' => const ContreBid(),
         'surcoinche' => const SurcoincheBid(),
         _ => throw FormatException('Enchère inconnue : ${json['type']}'),
@@ -203,10 +203,10 @@ final class ValueBid extends BidAction {
 
   @override
   Map<String, dynamic> toJson() => {
-    'type': 'bid',
-    'value': value,
-    'mode': mode.name,
-  };
+        'type': 'bid',
+        'value': value,
+        'mode': mode.name,
+      };
 }
 
 final class ContreBid extends BidAction {
@@ -241,33 +241,33 @@ class RoundState {
   });
 
   factory RoundState.fromJson(Map<String, dynamic> json) => RoundState(
-    dealer: Seat.values.byName(json['dealer'] as String),
-    phase: CoinchePhase.values.byName(json['phase'] as String),
-    hands: {
-      for (final e in (json['hands'] as Map<String, dynamic>).entries)
-        Seat.values.byName(e.key): _cardsFromJson(e.value),
-    },
-    turn: _seatOrNull(json['turn']),
-    calls: {
-      for (final e in (json['calls'] as Map<String, dynamic>).entries)
-        Seat.values.byName(e.key): BidAction.fromJson(
-          e.value as Map<String, dynamic>,
-        ),
-    },
-    contract: json['contract'] == null
-        ? null
-        : Contract.fromJson(json['contract'] as Map<String, dynamic>),
-    passes: json['passes'] as int,
-    trick: [
-      for (final p in json['trick'] as List)
-        Play.fromJson(p as Map<String, dynamic>),
-    ],
-    tricksPlayed: json['tricksPlayed'] as int,
-    tricksWon: _teamCountsFromJson(json['tricksWon']),
-    pointsWon: _teamCountsFromJson(json['pointsWon']),
-    lastWinner: _seatOrNull(json['lastWinner']),
-    belote: _teamOrNull(json['belote']),
-  );
+        dealer: Seat.values.byName(json['dealer'] as String),
+        phase: CoinchePhase.values.byName(json['phase'] as String),
+        hands: {
+          for (final e in (json['hands'] as Map<String, dynamic>).entries)
+            Seat.values.byName(e.key): _cardsFromJson(e.value),
+        },
+        turn: _seatOrNull(json['turn']),
+        calls: {
+          for (final e in (json['calls'] as Map<String, dynamic>).entries)
+            Seat.values.byName(e.key): BidAction.fromJson(
+              e.value as Map<String, dynamic>,
+            ),
+        },
+        contract: json['contract'] == null
+            ? null
+            : Contract.fromJson(json['contract'] as Map<String, dynamic>),
+        passes: json['passes'] as int,
+        trick: [
+          for (final p in json['trick'] as List)
+            Play.fromJson(p as Map<String, dynamic>),
+        ],
+        tricksPlayed: json['tricksPlayed'] as int,
+        tricksWon: _teamCountsFromJson(json['tricksWon']),
+        pointsWon: _teamCountsFromJson(json['pointsWon']),
+        lastWinner: _seatOrNull(json['lastWinner']),
+        belote: _teamOrNull(json['belote']),
+      );
 
   final Seat dealer;
   final CoinchePhase phase;
@@ -305,39 +305,37 @@ class RoundState {
       hands: hands ?? this.hands,
       turn: identical(turn, _unset) ? this.turn : turn as Seat?,
       calls: calls ?? this.calls,
-      contract: identical(contract, _unset)
-          ? this.contract
-          : contract as Contract?,
+      contract:
+          identical(contract, _unset) ? this.contract : contract as Contract?,
       passes: passes ?? this.passes,
       trick: trick ?? this.trick,
       tricksPlayed: tricksPlayed ?? this.tricksPlayed,
       tricksWon: tricksWon ?? this.tricksWon,
       pointsWon: pointsWon ?? this.pointsWon,
-      lastWinner: identical(lastWinner, _unset)
-          ? this.lastWinner
-          : lastWinner as Seat?,
+      lastWinner:
+          identical(lastWinner, _unset) ? this.lastWinner : lastWinner as Seat?,
       belote: identical(belote, _unset) ? this.belote : belote as Team?,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'dealer': dealer.name,
-    'phase': phase.name,
-    'hands': {
-      for (final e in hands.entries)
-        e.key.name: [for (final c in e.value) c.toJson()],
-    },
-    'turn': turn?.name,
-    'calls': {for (final e in calls.entries) e.key.name: e.value.toJson()},
-    'contract': contract?.toJson(),
-    'passes': passes,
-    'trick': [for (final p in trick) p.toJson()],
-    'tricksPlayed': tricksPlayed,
-    'tricksWon': _teamCountsToJson(tricksWon),
-    'pointsWon': _teamCountsToJson(pointsWon),
-    'lastWinner': lastWinner?.name,
-    'belote': belote?.name,
-  };
+        'dealer': dealer.name,
+        'phase': phase.name,
+        'hands': {
+          for (final e in hands.entries)
+            e.key.name: [for (final c in e.value) c.toJson()],
+        },
+        'turn': turn?.name,
+        'calls': {for (final e in calls.entries) e.key.name: e.value.toJson()},
+        'contract': contract?.toJson(),
+        'passes': passes,
+        'trick': [for (final p in trick) p.toJson()],
+        'tricksPlayed': tricksPlayed,
+        'tricksWon': _teamCountsToJson(tricksWon),
+        'pointsWon': _teamCountsToJson(pointsWon),
+        'lastWinner': lastWinner?.name,
+        'belote': belote?.name,
+      };
 }
 
 class CoincheRoundResult {
@@ -365,12 +363,12 @@ class CoincheRoundResult {
   final Map<Team, int> awarded;
 
   Map<String, dynamic> toJson() => {
-    'contract': contract.toJson(),
-    'made': made,
-    'capot': capot,
-    'points': _teamCountsToJson(points),
-    'awarded': _teamCountsToJson(awarded),
-  };
+        'contract': contract.toJson(),
+        'made': made,
+        'capot': capot,
+        'points': _teamCountsToJson(points),
+        'awarded': _teamCountsToJson(awarded),
+      };
 }
 
 class CoincheMatch {
@@ -382,11 +380,11 @@ class CoincheMatch {
   });
 
   factory CoincheMatch.fromJson(Map<String, dynamic> json) => CoincheMatch(
-    target: json['target'] as int,
-    scores: _teamCountsFromJson(json['scores']),
-    round: json['round'] as int,
-    winner: _teamOrNull(json['winner']),
-  );
+        target: json['target'] as int,
+        scores: _teamCountsFromJson(json['scores']),
+        round: json['round'] as int,
+        winner: _teamOrNull(json['winner']),
+      );
 
   final int target;
   final Map<Team, int> scores;
@@ -394,11 +392,11 @@ class CoincheMatch {
   final Team? winner;
 
   Map<String, dynamic> toJson() => {
-    'target': target,
-    'scores': _teamCountsToJson(scores),
-    'round': round,
-    'winner': winner?.name,
-  };
+        'target': target,
+        'scores': _teamCountsToJson(scores),
+        'round': round,
+        'winner': winner?.name,
+      };
 }
 
 // ---------------------------------------------------------------------------
@@ -406,8 +404,9 @@ class CoincheMatch {
 // ---------------------------------------------------------------------------
 
 List<CoincheCard> _cardsFromJson(Object? raw) => [
-  for (final c in raw as List) CoincheCard.fromJson(c as Map<String, dynamic>),
-];
+      for (final c in raw as List)
+        CoincheCard.fromJson(c as Map<String, dynamic>),
+    ];
 
 Seat? _seatOrNull(Object? raw) =>
     raw == null ? null : Seat.values.byName(raw as String);
@@ -416,8 +415,8 @@ Team? _teamOrNull(Object? raw) =>
     raw == null ? null : Team.values.byName(raw as String);
 
 Map<String, dynamic> _teamCountsToJson(Map<Team, int> counts) => {
-  for (final t in Team.values) t.name: counts[t],
-};
+      for (final t in Team.values) t.name: counts[t],
+    };
 
 Map<Team, int> _teamCountsFromJson(Object? raw) {
   final json = raw as Map<String, dynamic>;
@@ -496,11 +495,11 @@ RoundState dealRound(Seat dealer, [RandomDouble? random]) {
 }
 
 CoincheMatch newMatch([int target = 1000]) => CoincheMatch(
-  target: target,
-  scores: {Team.ns: 0, Team.ew: 0},
-  round: 1,
-  winner: null,
-);
+      target: target,
+      scores: {Team.ns: 0, Team.ew: 0},
+      round: 1,
+      winner: null,
+    );
 
 int minBidValue(RoundState round) {
   final contract = round.contract;
@@ -508,10 +507,10 @@ int minBidValue(RoundState round) {
 }
 
 RoundState _startPlay(RoundState round) => round.copyWith(
-  phase: CoinchePhase.playing,
-  turn: nextSeat(round.dealer),
-  passes: 0,
-);
+      phase: CoinchePhase.playing,
+      turn: nextSeat(round.dealer),
+      passes: 0,
+    );
 
 RoundState placeBid(RoundState round, Seat seat, BidAction action) {
   if (round.phase != CoinchePhase.bidding || round.turn != seat) return round;
@@ -620,8 +619,7 @@ RoundState playCard(RoundState round, Seat seat, String cardId) {
   final contract = round.contract;
   if (round.phase != CoinchePhase.playing ||
       round.turn != seat ||
-      contract == null)
-    return round;
+      contract == null) return round;
 
   final hand = round.hands[seat]!;
   final index = hand.indexWhere((c) => c.id == cardId);
@@ -631,14 +629,11 @@ RoundState playCard(RoundState round, Seat seat, String cardId) {
 
   final mode = contract.mode;
   final remaining = hand.where((c) => c.id != cardId).toList();
-  final beloteCard =
-      card.suit == mode &&
+  final beloteCard = card.suit == mode &&
       (card.rank == CoincheRank.roi || card.rank == CoincheRank.dame);
-  final partnerRank = card.rank == CoincheRank.roi
-      ? CoincheRank.dame
-      : CoincheRank.roi;
-  final holdsPair =
-      beloteCard &&
+  final partnerRank =
+      card.rank == CoincheRank.roi ? CoincheRank.dame : CoincheRank.roi;
+  final holdsPair = beloteCard &&
       remaining.any((c) => c.suit == card.suit && c.rank == partnerRank);
   final trick = [...round.trick, Play(seat: seat, card: card)];
 
@@ -764,9 +759,8 @@ BidAction chooseBid(
       bestSuit = suit;
     }
   }
-  final threshold = level == CoincheAiLevel.facile
-      ? bidThreshold + 10
-      : bidThreshold;
+  final threshold =
+      level == CoincheAiLevel.facile ? bidThreshold + 10 : bidThreshold;
   if (bestSuit == null || bestStrength < threshold) return const PassBid();
   // Difficile : annonce seulement avec au moins trois atouts (maîtrise), pour ne pas surenchérir à tort.
   if (level == CoincheAiLevel.difficile &&
@@ -825,9 +819,8 @@ String chooseCard(
       round.tricksPlayed == 7 &&
       teamOf(winner.seat) != teamOf(seat)) {
     final ledSuit = round.trick.first.card.suit;
-    final winning = moves
-        .where((c) => beats(c, winner.card, ledSuit, mode))
-        .toList();
+    final winning =
+        moves.where((c) => beats(c, winner.card, ledSuit, mode)).toList();
     if (winning.isNotEmpty) return priciest(winning).id;
   }
   if (teamOf(winner.seat) == teamOf(seat)) {
@@ -839,8 +832,7 @@ String chooseCard(
   }
 
   final ledSuit = round.trick.first.card.suit;
-  final winners = moves
-      .where((c) => beats(c, winner.card, ledSuit, mode))
-      .toList();
+  final winners =
+      moves.where((c) => beats(c, winner.card, ledSuit, mode)).toList();
   return (winners.isNotEmpty ? cheapest(winners) : cheapest(moves)).id;
 }

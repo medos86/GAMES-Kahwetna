@@ -148,7 +148,8 @@ const Map<String, String> frTexts = {
   'menuComingSoonBody': 'On prépare la table. Encore un petit café ☕',
   'menuBackgroundAlt':
       'Ruelle tunisienne colorée aux portes bleues et bougainvilliers',
-  'chkobbaRuleHaya': '**7 de deniers (Haya) :** à garder dans vos cartes ramassées pour marquer 1 point (voir Points)',
+  'chkobbaRuleHaya':
+      '**7 de deniers (Haya) :** à garder dans vos cartes ramassées pour marquer 1 point (voir Points)',
   'gameChkobba': 'Chkobba',
   'gameDomino': 'Domino',
   'gameLudo': 'Ludo',
@@ -299,7 +300,8 @@ const Map<String, String> arTexts = {
   'menuHumanPlayersCount': 'عدد اللاعبين البشر',
   'menuComingSoonBody': 'نجهّز الطاولة. قهوة صغيرة أخرى ☕',
   'menuBackgroundAlt': 'زقاق تونسي ملوّن بأبواب زرقاء وزهر الجهنمية',
-  'chkobbaRuleHaya': '**سبعة الدينار (هيّة):** احتفظ بها مع الأوراق التي جمعتها لتسجيل نقطة واحدة (انظر النقاط)',
+  'chkobbaRuleHaya':
+      '**سبعة الدينار (هيّة):** احتفظ بها مع الأوراق التي جمعتها لتسجيل نقطة واحدة (انظر النقاط)',
   'gameChkobba': 'شكبة',
   'gameDomino': 'دومينو',
   'gameLudo': 'لودو',

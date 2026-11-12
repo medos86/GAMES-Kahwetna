@@ -5,27 +5,27 @@ import '../../core/strings.dart';
 
 /// Symbole de chaque couleur (suitSymbols du source).
 String coincheSuitSymbol(CoincheSuit suit) => switch (suit) {
-  CoincheSuit.deniers => '♦',
-  CoincheSuit.coupes => '♥',
-  CoincheSuit.epees => '♠',
-  CoincheSuit.batons => '♣',
-};
+      CoincheSuit.deniers => '♦',
+      CoincheSuit.coupes => '♥',
+      CoincheSuit.epees => '♠',
+      CoincheSuit.batons => '♣',
+    };
 
 /// Couleur de chaque couleur (suitColors du source : yellow-600, red-600, gray-800, amber-800).
 Color coincheSuitColor(CoincheSuit suit) => switch (suit) {
-  CoincheSuit.deniers => const Color(0xFFCA8A04),
-  CoincheSuit.coupes => const Color(0xFFDC2626),
-  CoincheSuit.epees => const Color(0xFF1F2937),
-  CoincheSuit.batons => const Color(0xFF92400E),
-};
+      CoincheSuit.deniers => const Color(0xFFCA8A04),
+      CoincheSuit.coupes => const Color(0xFFDC2626),
+      CoincheSuit.epees => const Color(0xFF1F2937),
+      CoincheSuit.batons => const Color(0xFF92400E),
+    };
 
 /// Nom de couleur en français (suitNames du source, utilisé pour les accessibilités).
 String coincheSuitName(CoincheSuit suit) => switch (suit) {
-  CoincheSuit.deniers => Strings.suitCarreau,
-  CoincheSuit.coupes => Strings.suitCoeur,
-  CoincheSuit.epees => Strings.suitPique,
-  CoincheSuit.batons => Strings.suitTrefle,
-};
+      CoincheSuit.deniers => Strings.suitCarreau,
+      CoincheSuit.coupes => Strings.suitCoeur,
+      CoincheSuit.epees => Strings.suitPique,
+      CoincheSuit.batons => Strings.suitTrefle,
+    };
 
 /// Matrice couleur : luminosité 0.75 et saturation 0.5 (style « jouée / illégale » du source).
 const List<double> _dimMatrix = [

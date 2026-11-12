@@ -19,10 +19,10 @@ class CoincheController extends PersistentGameController {
     required this.difficulty,
     RandomDouble? random,
     SavedGameStore? store,
-  }) : _random = random,
-       _match = newMatch(target),
-       _round = dealRound(firstDealer, random),
-       super(store: store, gameKey: 'coinche') {
+  })  : _random = random,
+        _match = newMatch(target),
+        _round = dealRound(firstDealer, random),
+        super(store: store, gameKey: 'coinche') {
     if (store == null) _reschedule();
   }
 

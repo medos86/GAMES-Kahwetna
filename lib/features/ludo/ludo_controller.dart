@@ -17,10 +17,10 @@ const ludoHumanOrder = [
 
 /// Délai d'un tour de l'IA selon le niveau (valeurs du source : 1100 / 850 / 600 ms).
 Duration ludoRollDelay(LudoAiLevel level) => switch (level) {
-  LudoAiLevel.facile => const Duration(milliseconds: 1100),
-  LudoAiLevel.moyen => const Duration(milliseconds: 850),
-  LudoAiLevel.difficile => const Duration(milliseconds: 600),
-};
+      LudoAiLevel.facile => const Duration(milliseconds: 1100),
+      LudoAiLevel.moyen => const Duration(milliseconds: 850),
+      LudoAiLevel.difficile => const Duration(milliseconds: 600),
+    };
 
 /// État et actions d'une partie de Ludo (logique de LudoGameScreen.tsx).
 /// Les règles restent dans lib/game/ludo.dart ; ce contrôleur ne fait que
@@ -31,9 +31,9 @@ class LudoController extends PersistentGameController {
     required this.difficulty,
     RandomDouble? random,
     SavedGameStore? store,
-  }) : _random = random,
-       _game = newLudoGame(),
-       super(store: store, gameKey: 'ludo');
+  })  : _random = random,
+        _game = newLudoGame(),
+        super(store: store, gameKey: 'ludo');
 
   /// Nombre de joueurs humains (1 à 4).
   final int playerCount;
@@ -90,8 +90,7 @@ class LudoController extends PersistentGameController {
     _timer?.cancel();
     _timer = null;
     if (_disposed) return;
-    final aiTurn =
-        !humanTurn &&
+    final aiTurn = !humanTurn &&
         (_game.phase == LudoPhase.roll || _game.phase == LudoPhase.move);
     if (!aiTurn) return;
 

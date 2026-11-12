@@ -29,8 +29,8 @@ void main() {
           state = move.action == DominoAction.play
               ? playDomino(state, Player.opponent, move.tile!.id, move.side!)
               : move.action == DominoAction.draw
-              ? drawDomino(state, Player.opponent)
-              : passDomino(state, Player.opponent);
+                  ? drawDomino(state, Player.opponent)
+                  : passDomino(state, Player.opponent);
         } else {
           final mine = playableTiles(state, Player.player);
           if (mine.isEmpty) {
@@ -52,7 +52,9 @@ void main() {
     }
   });
 
-  test('difficile ne lit pas la main du joueur : même coup quelle que soit sa main', () {
+  test(
+      'difficile ne lit pas la main du joueur : même coup quelle que soit sa main',
+      () {
     final base = newDominoRound(
       targetScore: 50,
       random: math.Random(7).nextDouble,

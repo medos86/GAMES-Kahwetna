@@ -12,14 +12,15 @@ RamiState inPlay(
   RamiState base, {
   required List<List<RamiCard>> hands,
   String? takenId,
-}) => base.copyWith(
-  phase: RamiPhase.play,
-  turn: 0,
-  hands: hands,
-  opened: [false, false, false, false],
-  staged: const [],
-  takenId: takenId,
-);
+}) =>
+    base.copyWith(
+      phase: RamiPhase.play,
+      turn: 0,
+      hands: hands,
+      opened: [false, false, false, false],
+      staged: const [],
+      takenId: takenId,
+    );
 
 /// Donne déterministe : le hasard vaut toujours 0.
 RamiState fixedDeal() => dealRound([0, 0, 0, 0], 3, 1, 100, () => 0.0);

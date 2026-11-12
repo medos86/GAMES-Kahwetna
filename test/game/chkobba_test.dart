@@ -267,7 +267,9 @@ void main() {
       expect(move.capture, isTrue);
     });
 
-    test('difficile lit la main du joueur : ne laisse pas une table qu\'il ramasse d\'un coup', () {
+    test(
+        'difficile lit la main du joueur : ne laisse pas une table qu\'il ramasse d\'un coup',
+        () {
       // Table 5 + 2 (somme 7). Le joueur a un 7 pour tout ramasser. L'IA ne doit pas
       // ajouter une carte qui laisse la table à ramasser d'un coup, quand une autre carte est sûre.
       final s = makeState(
@@ -284,7 +286,9 @@ void main() {
       expect(s.hands[Player.opponent]!.map((c) => c.id), contains(id));
     });
 
-    test('difficile ne lit pas la main du joueur : même coup quelle que soit sa main', () {
+    test(
+        'difficile ne lit pas la main du joueur : même coup quelle que soit sa main',
+        () {
       final base = {
         Player.opponent: [
           card(4, ChkobbaSuit.epees),

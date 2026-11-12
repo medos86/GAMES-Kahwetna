@@ -4,36 +4,36 @@ import '../../game/chkobba.dart';
 
 /// Symbole de chaque couleur (même correspondance que suitSymbols du source).
 String chkobbaSuitSymbol(ChkobbaSuit suit) => switch (suit) {
-  ChkobbaSuit.deniers => '♦',
-  ChkobbaSuit.coupes => '♥',
-  ChkobbaSuit.epees => '♠',
-  ChkobbaSuit.batons => '♣',
-};
+      ChkobbaSuit.deniers => '♦',
+      ChkobbaSuit.coupes => '♥',
+      ChkobbaSuit.epees => '♠',
+      ChkobbaSuit.batons => '♣',
+    };
 
 /// Couleur de chaque couleur (suitColors du source : yellow-600, red-600, gray-800, amber-800).
 Color chkobbaSuitColor(ChkobbaSuit suit) => switch (suit) {
-  ChkobbaSuit.deniers => const Color(0xFFCA8A04),
-  ChkobbaSuit.coupes => const Color(0xFFDC2626),
-  ChkobbaSuit.epees => const Color(0xFF1F2937),
-  ChkobbaSuit.batons => const Color(0xFF92400E),
-};
+      ChkobbaSuit.deniers => const Color(0xFFCA8A04),
+      ChkobbaSuit.coupes => const Color(0xFFDC2626),
+      ChkobbaSuit.epees => const Color(0xFF1F2937),
+      ChkobbaSuit.batons => const Color(0xFF92400E),
+    };
 
 /// Libellé de valeur : 1 = A, 8 = D (dame), 9 = V (valet), 10 = R (roi).
 String chkobbaRankLabel(int rank) => switch (rank) {
-  1 => 'A',
-  8 => 'D',
-  9 => 'V',
-  10 => 'R',
-  _ => '$rank',
-};
+      1 => 'A',
+      8 => 'D',
+      9 => 'V',
+      10 => 'R',
+      _ => '$rank',
+    };
 
 /// Nom de fichier de l'enseigne dans assets/images/cards_cartoon/.
 String _assetSuitName(ChkobbaSuit suit) => switch (suit) {
-  ChkobbaSuit.deniers => 'carreau',
-  ChkobbaSuit.coupes => 'coeur',
-  ChkobbaSuit.epees => 'pique',
-  ChkobbaSuit.batons => 'trèfle',
-};
+      ChkobbaSuit.deniers => 'carreau',
+      ChkobbaSuit.coupes => 'coeur',
+      ChkobbaSuit.epees => 'pique',
+      ChkobbaSuit.batons => 'trèfle',
+    };
 
 const String _cardsFolder = 'assets/images/cards_cartoon';
 const String cardBackAsset = '$_cardsFolder/Chkobba_back.png';

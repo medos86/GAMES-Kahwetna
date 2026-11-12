@@ -5,7 +5,9 @@ import 'package:kahwetne/features/ludo/ludo_controller.dart';
 import 'package:kahwetne/game/ludo.dart';
 
 void main() {
-  test('un tour humain sans coup possible passe au joueur suivant, puis l\'IA joue après 1100 ms', () {
+  test(
+      'un tour humain sans coup possible passe au joueur suivant, puis l\'IA joue après 1100 ms',
+      () {
     fakeAsync((async) {
       // Tirage constant 0.0 : dé = 1, aucun pion ne sort : le bleu passe.
       final c = LudoController(

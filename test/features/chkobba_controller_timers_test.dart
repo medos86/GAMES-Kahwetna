@@ -11,22 +11,22 @@ ChkobbaCard card(ChkobbaSuit suit, int rank) =>
 /// Le 1 ne prend rien (aucune somme ni carte de même valeur) : le tour passe à l'adversaire,
 /// qui ne peut rien prendre non plus. Pioche vide : la manche se termine après la dernière carte.
 ChkobbaState duel() => ChkobbaState(
-  targetScore: 11,
-  deck: const [],
-  hands: {
-    Player.player: [card(ChkobbaSuit.batons, 1)],
-    Player.opponent: [card(ChkobbaSuit.deniers, 2)],
-  },
-  table: [card(ChkobbaSuit.coupes, 9)],
-  won: {Player.player: [], Player.opponent: []},
-  chkobbas: {Player.player: 0, Player.opponent: 0},
-  scores: {Player.player: 0, Player.opponent: 0},
-  lastCapturer: null,
-  turn: Player.player,
-  starter: Player.player,
-  round: 1,
-  winner: null,
-);
+      targetScore: 11,
+      deck: const [],
+      hands: {
+        Player.player: [card(ChkobbaSuit.batons, 1)],
+        Player.opponent: [card(ChkobbaSuit.deniers, 2)],
+      },
+      table: [card(ChkobbaSuit.coupes, 9)],
+      won: {Player.player: [], Player.opponent: []},
+      chkobbas: {Player.player: 0, Player.opponent: 0},
+      scores: {Player.player: 0, Player.opponent: 0},
+      lastCapturer: null,
+      turn: Player.player,
+      starter: Player.player,
+      round: 1,
+      winner: null,
+    );
 
 void main() {
   group('ChkobbaController : minuteurs (issue #20)', () {

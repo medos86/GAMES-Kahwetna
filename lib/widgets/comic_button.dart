@@ -29,27 +29,27 @@ class _ComicButtonState extends State<ComicButton> {
   bool _pressed = false;
 
   _Look get _look => switch (widget.variant) {
-    ComicButtonVariant.white => const _Look(
-      gradient: [Color(0xFFFFFFFF), Color(0xFFFFFFFF)],
-      text: Color(0xFF7E22CE),
-      shadow: Color(0xFF4A2A10),
-    ),
-    ComicButtonVariant.primary => const _Look(
-      gradient: [Color(0xFFFFE16B), Color(0xFFFFB43C)],
-      text: Color(0xFF3D351F),
-      shadow: Color(0xFFAE7131),
-    ),
-    ComicButtonVariant.danger => const _Look(
-      gradient: [Color(0xFFFF5A3C), Color(0xFFD71920)],
-      text: Color(0xFFFFFFFF),
-      shadow: Color(0xFF4A0A0A),
-    ),
-    ComicButtonVariant.neutral => const _Look(
-      gradient: [Color(0xFFFFFFFF), Color(0xFFF1F5F9)],
-      text: Color(0xFF15264D),
-      shadow: Color(0xFF15264D),
-    ),
-  };
+        ComicButtonVariant.white => const _Look(
+            gradient: [Color(0xFFFFFFFF), Color(0xFFFFFFFF)],
+            text: Color(0xFF7E22CE),
+            shadow: Color(0xFF4A2A10),
+          ),
+        ComicButtonVariant.primary => const _Look(
+            gradient: [Color(0xFFFFE16B), Color(0xFFFFB43C)],
+            text: Color(0xFF3D351F),
+            shadow: Color(0xFFAE7131),
+          ),
+        ComicButtonVariant.danger => const _Look(
+            gradient: [Color(0xFFFF5A3C), Color(0xFFD71920)],
+            text: Color(0xFFFFFFFF),
+            shadow: Color(0xFF4A0A0A),
+          ),
+        ComicButtonVariant.neutral => const _Look(
+            gradient: [Color(0xFFFFFFFF), Color(0xFFF1F5F9)],
+            text: Color(0xFF15264D),
+            shadow: Color(0xFF15264D),
+          ),
+      };
 
   void _setPressed(bool value) {
     if (widget.onPressed == null || _pressed == value) return;

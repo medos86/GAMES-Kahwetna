@@ -18,10 +18,10 @@ class ChkobbaCard {
   final String id;
 
   factory ChkobbaCard.fromJson(Map<String, dynamic> json) => ChkobbaCard(
-    suit: ChkobbaSuit.values.byName(json['suit'] as String),
-    rank: intFromJson(json['rank']),
-    id: json['id'] as String,
-  );
+        suit: ChkobbaSuit.values.byName(json['suit'] as String),
+        rank: intFromJson(json['rank']),
+        id: json['id'] as String,
+      );
 
   Map<String, dynamic> toJson() => {'suit': suit.name, 'rank': rank, 'id': id};
 
@@ -69,9 +69,9 @@ class ChkobbaState {
   /// Relit un état produit par [toJson] (mêmes clés que les champs du source TypeScript).
   factory ChkobbaState.fromJson(Map<String, dynamic> json) {
     List<ChkobbaCard> cards(Object? raw) => [
-      for (final c in raw as List<dynamic>)
-        ChkobbaCard.fromJson(c as Map<String, dynamic>),
-    ];
+          for (final c in raw as List<dynamic>)
+            ChkobbaCard.fromJson(c as Map<String, dynamic>),
+        ];
     final hands = json['hands'] as Map<String, dynamic>;
     final won = json['won'] as Map<String, dynamic>;
     final chkobbas = json['chkobbas'] as Map<String, dynamic>;
@@ -95,25 +95,25 @@ class ChkobbaState {
   }
 
   Map<String, dynamic> toJson() => {
-    'targetScore': targetScore,
-    'deck': [for (final c in deck) c.toJson()],
-    'hands': {
-      for (final p in Player.values)
-        p.name: [for (final c in hands[p]!) c.toJson()],
-    },
-    'table': [for (final c in table) c.toJson()],
-    'won': {
-      for (final p in Player.values)
-        p.name: [for (final c in won[p]!) c.toJson()],
-    },
-    'chkobbas': {for (final p in Player.values) p.name: chkobbas[p]},
-    'scores': {for (final p in Player.values) p.name: scores[p]},
-    'lastCapturer': lastCapturer?.name,
-    'turn': turn.name,
-    'starter': starter.name,
-    'round': round,
-    'winner': winner?.name,
-  };
+        'targetScore': targetScore,
+        'deck': [for (final c in deck) c.toJson()],
+        'hands': {
+          for (final p in Player.values)
+            p.name: [for (final c in hands[p]!) c.toJson()],
+        },
+        'table': [for (final c in table) c.toJson()],
+        'won': {
+          for (final p in Player.values)
+            p.name: [for (final c in won[p]!) c.toJson()],
+        },
+        'chkobbas': {for (final p in Player.values) p.name: chkobbas[p]},
+        'scores': {for (final p in Player.values) p.name: scores[p]},
+        'lastCapturer': lastCapturer?.name,
+        'turn': turn.name,
+        'starter': starter.name,
+        'round': round,
+        'winner': winner?.name,
+      };
 
   ChkobbaState copyWith({
     List<ChkobbaCard>? deck,
@@ -220,13 +220,14 @@ ChkobbaState dealRound({
 ChkobbaState newMatch({
   int targetScore = chkobbaDefaultTarget,
   RandomDouble? random,
-}) => dealRound(
-  scores: {Player.player: 0, Player.opponent: 0},
-  starter: Player.player,
-  round: 1,
-  targetScore: targetScore,
-  random: random,
-);
+}) =>
+    dealRound(
+      scores: {Player.player: 0, Player.opponent: 0},
+      starter: Player.player,
+      round: 1,
+      targetScore: targetScore,
+      random: random,
+    );
 
 /// Donne fixe pour vérifier le dialogue de choix de prise (issue #29, équivalent de `?demo=choice` du React).
 /// Le joueur a 7 d'épées, 10 de bâtons et 9 de coupes ; le tapis est 3 d'épées, 4 de bâtons, 2 de coupes,
@@ -280,12 +281,12 @@ ChkobbaState chkobbaDemoChoiceState({int targetScore = chkobbaDefaultTarget}) {
 
 /// Distribue les 6 cartes suivantes du paquet (si la distribution n'a pas tout donné).
 ChkobbaState dealHands(ChkobbaState state) => state.copyWith(
-  deck: state.deck.skip(6).toList(),
-  hands: {
-    Player.player: state.deck.take(3).toList(),
-    Player.opponent: state.deck.skip(3).take(3).toList(),
-  },
-);
+      deck: state.deck.skip(6).toList(),
+      hands: {
+        Player.player: state.deck.take(3).toList(),
+        Player.opponent: state.deck.skip(3).take(3).toList(),
+      },
+    );
 
 // Une carte de même valeur sur la table se prend seule, avant toute combinaison de somme.
 List<List<ChkobbaCard>> _captureOptions(List<ChkobbaCard> table, int rank) {
@@ -313,14 +314,13 @@ List<List<ChkobbaCard>> _captureOptions(List<ChkobbaCard> table, int rank) {
 int _cardsValue(List<ChkobbaCard> cards) {
   var sum = 0;
   for (final c in cards) {
-    sum +=
-        1 +
+    sum += 1 +
         (c.suit == ChkobbaSuit.deniers ? 1 : 0) +
         (c.rank == 7
             ? 2
             : c.rank == 6
-            ? 1
-            : 0) +
+                ? 1
+                : 0) +
         (c.isHaya ? 10 : 0);
   }
   return sum;
@@ -406,8 +406,7 @@ ChkobbaMoveResult playCard(
 
   final capturedIds = captured.map((c) => c.id).toSet();
   final table = state.table.where((c) => !capturedIds.contains(c.id)).toList();
-  final isLastPlay =
-      state.deck.isEmpty &&
+  final isLastPlay = state.deck.isEmpty &&
       hands[Player.player]!.isEmpty &&
       hands[Player.opponent]!.isEmpty;
   // Un ramassage fait avec la toute dernière carte de la manche ne compte pas.
@@ -483,9 +482,8 @@ ChkobbaRoundScore scoreRound(ChkobbaState state) {
   final sp = scores[Player.player]!;
   final so = scores[Player.opponent]!;
   final reached = sp >= state.targetScore || so >= state.targetScore;
-  final Player? winner = reached && sp != so
-      ? (sp > so ? Player.player : Player.opponent)
-      : null;
+  final Player? winner =
+      reached && sp != so ? (sp > so ? Player.player : Player.opponent) : null;
 
   return ChkobbaRoundScore(
     state: state.copyWith(won: won, table: [], scores: scores, winner: winner),
@@ -599,4 +597,5 @@ String chooseOpponentCard(
   ChkobbaState state,
   ChkobbaAiLevel level, {
   RandomDouble? random,
-}) => chooseOpponentMove(state, level, random: random).cardId;
+}) =>
+    chooseOpponentMove(state, level, random: random).cardId;

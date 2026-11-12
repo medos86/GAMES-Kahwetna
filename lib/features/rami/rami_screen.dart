@@ -41,35 +41,34 @@ const _groupColors = [
 final _ramiRules = <({String title, String text})>[
   (
     title: 'Le jeu',
-    text: '4 joueurs chacun pour soi : toi contre 3 IA. 2 jeux de 52 cartes + 2 jokers, 13 cartes chacun.',
+    text:
+        '4 joueurs chacun pour soi : toi contre 3 IA. 2 jeux de 52 cartes + 2 jokers, 13 cartes chacun.',
   ),
   (
     title: 'Combinaisons',
-    text:
-        'Suite : 3 cartes ou plus de même couleur qui se suivent (As bas ou haut, sans boucler). '
+    text: 'Suite : 3 cartes ou plus de même couleur qui se suivent (As bas ou haut, sans boucler). '
         'Brelan ou carré : 3 ou 4 cartes de même valeur et de couleurs différentes.',
   ),
   (
     title: Strings.jokerLabel,
-    text: "Remplace n'importe quelle carte dans une combinaison, avec au moins 2 vraies cartes.",
+    text:
+        "Remplace n'importe quelle carte dans une combinaison, avec au moins 2 vraies cartes.",
   ),
   (
     title: 'Ouverture',
     text:
         'Ta première pose doit totaliser ${rules.ramiOpenMin} points minimum, en une seule fois. '
-        'As = 1, figures = 10, joker = 20.',
+            'As = 1, figures = 10, joker = 20.',
   ),
   (
     title: 'Ton tour',
-    text:
-        'Pioche dans la pioche ou prends la défausse. Pose tes combinaisons, ajoute des cartes sur '
+    text: 'Pioche dans la pioche ou prends la défausse. Pose tes combinaisons, ajoute des cartes sur '
         'celles de la table (une fois ouvert), puis défausse. La carte prise à la défausse ne peut pas '
         'être défaussée tout de suite.',
   ),
   (
     title: 'Glisser-déposer',
-    text:
-        'Fais glisser tes cartes pour les ranger : une barre colorée sous des cartes voisines indique '
+    text: 'Fais glisser tes cartes pour les ranger : une barre colorée sous des cartes voisines indique '
         'un paquet valide. Glisse un paquet sur la table pour le poser, une carte sur une combinaison '
         'pour l\'ajouter, ou sur la défausse pour finir ton tour. Un simple appui sélectionne une carte.',
   ),
@@ -77,11 +76,12 @@ final _ramiRules = <({String title, String text})>[
     title: 'Fin de manche',
     text:
         'Le premier qui vide sa main gagne la manche. Les autres comptent les points des cartes qui '
-        'leur restent.',
+            'leur restent.',
   ),
   (
     title: 'Partie',
-    text: "Les points de pénalité s'additionnent jusqu'à 100 ou 200. Le plus petit total gagne.",
+    text:
+        "Les points de pénalité s'additionnent jusqu'à 100 ou 200. Le plus petit total gagne.",
   ),
 ];
 
@@ -621,9 +621,8 @@ class _RamiScreenState extends State<RamiScreen> {
             : Colors.black.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: hover
-              ? _goldColor
-              : (dropping ? Colors.white70 : Colors.white24),
+          color:
+              hover ? _goldColor : (dropping ? Colors.white70 : Colors.white24),
           width: 2,
         ),
       ),
@@ -882,10 +881,10 @@ class _RamiScreenState extends State<RamiScreen> {
     final title = matchWinner != null
         ? (matchWinner == 0 ? Strings.victory : Strings.defeat)
         : winner == 0
-        ? Strings.roundWon
-        : winner == null
-        ? Strings.drawExhausted
-        : '${_seatNames[winner]} gagne la manche';
+            ? Strings.roundWon
+            : winner == null
+                ? Strings.drawExhausted
+                : '${_seatNames[winner]} gagne la manche';
 
     return ColoredBox(
       color: Colors.black54,
@@ -1117,8 +1116,8 @@ class _MeldView extends StatelessWidget {
     final Color border = hot || eligible
         ? _goldColor
         : staged
-        ? _goldColor.withValues(alpha: 0.8)
-        : Colors.white24;
+            ? _goldColor.withValues(alpha: 0.8)
+            : Colors.white24;
 
     return GestureDetector(
       onTap: onTap,
@@ -1170,8 +1169,8 @@ class _ActionButton extends StatelessWidget {
     final Color background = danger
         ? const Color(0xFFD71920)
         : primary
-        ? const Color(0xFFF2B74E)
-        : Colors.white;
+            ? const Color(0xFFF2B74E)
+            : Colors.white;
     final Color foreground = danger ? Colors.white : _inkColor;
     return Opacity(
       opacity: enabled ? 1 : 0.4,

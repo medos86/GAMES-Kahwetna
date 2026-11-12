@@ -34,8 +34,8 @@ class SharedPreferencesAdFreeStore implements AdFreeStore {
 /// - [load] relit l'échéance conservée ; à appeler une fois au démarrage de l'application.
 class AdFreeService {
   AdFreeService({AdFreeStore? store, DateTime Function()? now})
-    : _store = store ?? const SharedPreferencesAdFreeStore(),
-      _now = now ?? DateTime.now;
+      : _store = store ?? const SharedPreferencesAdFreeStore(),
+        _now = now ?? DateTime.now;
 
   /// Instance partagée par toute l'application.
   static final AdFreeService instance = AdFreeService();

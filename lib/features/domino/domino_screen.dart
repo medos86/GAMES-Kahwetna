@@ -127,11 +127,9 @@ class _DominoScreenState extends State<DominoScreen> {
                             _ScoreStrip(
                               unit: unit,
                               game: game,
-                              turnIsPlayer:
-                                  game.turn == Player.player &&
+                              turnIsPlayer: game.turn == Player.player &&
                                   game.roundWinner == null,
-                              turnIsOpponent:
-                                  game.turn == Player.opponent &&
+                              turnIsOpponent: game.turn == Player.opponent &&
                                   game.roundWinner == null,
                               onDrawTap: _controller.drawOrPass,
                               mustDraw: _controller.mustDraw,
@@ -971,8 +969,7 @@ class _HandTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Pressable(
-      semanticLabel:
-          tf('sTile', {'a': '${tile.a}', 'b': '${tile.b}'}) +
+      semanticLabel: tf('sTile', {'a': '${tile.a}', 'b': '${tile.b}'}) +
           (enabled ? t('sPlayable') : t('sNotPlayable')),
       onTap: onTap,
       pressedScale: 0.97,

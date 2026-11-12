@@ -77,9 +77,9 @@ class RamiController extends PersistentGameController {
     this.onMessage,
     RandomDouble? random,
     SavedGameStore? store,
-  }) : _random = random,
-       _game = rules.newMatch(targetScore, random),
-       super(store: store, gameKey: 'rami') {
+  })  : _random = random,
+        _game = rules.newMatch(targetScore, random),
+        super(store: store, gameKey: 'rami') {
     if (store == null) _reschedule();
   }
 
@@ -150,9 +150,9 @@ class RamiController extends PersistentGameController {
       _game.staged.fold(0, (sum, cards) => sum + rules.pointsOf(cards));
 
   List<rules.RamiCard> get selectedCards => [
-    for (final card in displayed)
-      if (_selected.contains(card.id)) card,
-  ];
+        for (final card in displayed)
+          if (_selected.contains(card.id)) card,
+      ];
 
   bool get selectionIsMeld =>
       selectedCards.length >= 3 && rules.isValidMeld(selectedCards);
@@ -208,9 +208,9 @@ class RamiController extends PersistentGameController {
 
   /// Valide l'ouverture (51 points minimum).
   void commit() => _apply(
-    rules.commitOpening(_game),
-    'Il faut au moins ${rules.ramiOpenMin} points pour ouvrir',
-  );
+        rules.commitOpening(_game),
+        'Il faut au moins ${rules.ramiOpenMin} points pour ouvrir',
+      );
 
   void cancel() => _apply(rules.cancelStaged(_game));
 

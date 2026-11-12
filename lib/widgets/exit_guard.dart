@@ -30,23 +30,24 @@ class ExitGuard extends StatelessWidget {
 
 /// Dialogue « Quitter la partie ? ». Renvoie true si le joueur confirme.
 Future<bool?> showLeaveGameDialog(BuildContext context) => showLeaveDialog(
-  context,
-  title: Strings.exitGameTitle,
-  body: Strings.exitGameBody,
-);
+      context,
+      title: Strings.exitGameTitle,
+      body: Strings.exitGameBody,
+    );
 
 /// Dialogue de confirmation de sortie, générique (partie ou application).
 Future<bool?> showLeaveDialog(
   BuildContext context, {
   required String title,
   required String body,
-}) => showConfirmDialog(
-  context,
-  title: title,
-  body: body,
-  cancelLabel: Strings.exitStay,
-  confirmLabel: Strings.exitLeave,
-);
+}) =>
+    showConfirmDialog(
+      context,
+      title: title,
+      body: body,
+      cancelLabel: Strings.exitStay,
+      confirmLabel: Strings.exitLeave,
+    );
 
 /// Dialogue à deux choix. Renvoie true si le bouton de confirmation est pressé.
 Future<bool?> showConfirmDialog(

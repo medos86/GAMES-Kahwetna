@@ -329,9 +329,8 @@ class DominoChain extends StatelessWidget {
               tileHeight = length;
             } else {
               // Horizontal : sens inverse sur les rangées impaires, en partant du bord du vertical.
-              left = reverse
-                  ? totalWidth - (index + 1) * length
-                  : index * length;
+              left =
+                  reverse ? totalWidth - (index + 1) * length : index * length;
               tileWidth = length;
               tileHeight = thickness;
             }

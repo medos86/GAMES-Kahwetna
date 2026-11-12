@@ -43,31 +43,31 @@ class _Tone {
 }
 
 _Tone _toneOf(LudoColor color) => switch (color) {
-  LudoColor.red => const _Tone(
-    Color(0xFFE43F5F),
-    Color(0xFF8F203D),
-    Color(0xFFFFD3DC),
-    'Rouge',
-  ),
-  LudoColor.green => const _Tone(
-    Color(0xFF49C9A7),
-    Color(0xFF14705B),
-    Color(0xFFC9F5E8),
-    'Vert',
-  ),
-  LudoColor.yellow => const _Tone(
-    Color(0xFFFFD653),
-    Color(0xFF9A6B00),
-    Color(0xFFFFF1BF),
-    'Jaune',
-  ),
-  LudoColor.blue => const _Tone(
-    Color(0xFF1676D2),
-    Color(0xFF0B3F7A),
-    Color(0xFFCFE5FB),
-    'Bleu',
-  ),
-};
+      LudoColor.red => const _Tone(
+          Color(0xFFE43F5F),
+          Color(0xFF8F203D),
+          Color(0xFFFFD3DC),
+          'Rouge',
+        ),
+      LudoColor.green => const _Tone(
+          Color(0xFF49C9A7),
+          Color(0xFF14705B),
+          Color(0xFFC9F5E8),
+          'Vert',
+        ),
+      LudoColor.yellow => const _Tone(
+          Color(0xFFFFD653),
+          Color(0xFF9A6B00),
+          Color(0xFFFFF1BF),
+          'Jaune',
+        ),
+      LudoColor.blue => const _Tone(
+          Color(0xFF1676D2),
+          Color(0xFF0B3F7A),
+          Color(0xFFCFE5FB),
+          'Bleu',
+        ),
+    };
 
 String _colorName(LudoColor color, bool solo) =>
     solo && color == LudoColor.blue ? 'Toi' : _toneOf(color).name;
@@ -110,10 +110,10 @@ class _LudoScreenState extends State<LudoScreen> {
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
 
   static LudoAiLevel _aiLevel(Difficulty d) => switch (d) {
-    Difficulty.facile => LudoAiLevel.facile,
-    Difficulty.moyen => LudoAiLevel.moyen,
-    Difficulty.difficile => LudoAiLevel.difficile,
-  };
+        Difficulty.facile => LudoAiLevel.facile,
+        Difficulty.moyen => LudoAiLevel.moyen,
+        Difficulty.difficile => LudoAiLevel.difficile,
+      };
 
   @override
   void initState() {
@@ -603,9 +603,8 @@ class _RollableDieState extends State<_RollableDie>
               animation: _pulse,
               child: widget.child,
               builder: (context, child) {
-                final scale = (widget.pulse && !reduce)
-                    ? 1 + 0.08 * _pulse.value
-                    : 1.0;
+                final scale =
+                    (widget.pulse && !reduce) ? 1 + 0.08 * _pulse.value : 1.0;
                 return Transform.scale(scale: scale, child: child);
               },
             ),
@@ -649,13 +648,11 @@ class _Board extends StatelessWidget {
                     for (final color in LudoColor.values)
                       for (var slot = 0; slot < ludoBaseSlots.length; slot++)
                         _at(
-                          left:
-                              (ludoCorner(color).col +
+                          left: (ludoCorner(color).col +
                                   ludoBaseSlots[slot][1] -
                                   0.4) *
                               u,
-                          top:
-                              (ludoCorner(color).row +
+                          top: (ludoCorner(color).row +
                                   ludoBaseSlots[slot][0] -
                                   0.4) *
                               u,
@@ -673,11 +670,9 @@ class _Board extends StatelessWidget {
                     for (var index = 0; index < ludoTrack.length; index++)
                       _trackCell(index, ludoTrack[index], u),
                     for (final color in LudoColor.values)
-                      for (
-                        var step = 0;
-                        step < ludoHomeColumn(color).length;
-                        step++
-                      )
+                      for (var step = 0;
+                          step < ludoHomeColumn(color).length;
+                          step++)
                         _at(
                           left: ludoHomeColumn(color)[step].col * u,
                           top: ludoHomeColumn(color)[step].row * u,
@@ -731,7 +726,8 @@ Positioned _at({
   required double top,
   required double size,
   required Widget child,
-}) => Positioned(left: left, top: top, width: size, height: size, child: child);
+}) =>
+    Positioned(left: left, top: top, width: size, height: size, child: child);
 
 Positioned _cornerHouse(LudoColor color, double u) {
   final corner = ludoCorner(color);
@@ -900,12 +896,12 @@ class _Footer extends StatelessWidget {
     final prompt = controller.roundOver
         ? ''
         : game.note != null
-        ? _noteText(game.note!, solo)
-        : controller.humanTurn
-        ? game.phase == LudoPhase.roll
-              ? '${solo ? 'À toi' : 'À $turnName'} : lance le dé'
-              : 'Touche un pion en surbrillance'
-        : '$turnName joue…';
+            ? _noteText(game.note!, solo)
+            : controller.humanTurn
+                ? game.phase == LudoPhase.roll
+                    ? '${solo ? 'À toi' : 'À $turnName'} : lance le dé'
+                    : 'Touche un pion en surbrillance'
+                : '$turnName joue…';
 
     return Container(
       padding: const EdgeInsets.all(10),

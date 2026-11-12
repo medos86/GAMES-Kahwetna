@@ -42,7 +42,9 @@ void main() {
       expect(all.length, 40);
     });
 
-    test('jouer le 7 d\'épées ouvre le choix de prise avec les trois combinaisons attendues', () {
+    test(
+        'jouer le 7 d\'épées ouvre le choix de prise avec les trois combinaisons attendues',
+        () {
       final controller = ChkobbaController(
         targetScore: 11,
         level: ChkobbaAiLevel.facile,
@@ -56,7 +58,8 @@ void main() {
       expect(
         pending,
         isNotNull,
-        reason: 'un 7 peut prendre plusieurs combinaisons : le dialogue doit s\'ouvrir',
+        reason:
+            'un 7 peut prendre plusieurs combinaisons : le dialogue doit s\'ouvrir',
       );
       expect(pending!.cardId, 'epees-7');
 

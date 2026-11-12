@@ -310,8 +310,8 @@ class _ScoreBar extends StatelessWidget {
                       contract == null
                           ? 'Enchères'
                           : '${contract.value} ${coincheSuitSymbol(contract.mode)}'
-                                '${contract.multiplier > 1 ? ' ×${contract.multiplier}' : ''}'
-                                ' · ${_teamLabel[teamOf(contract.seat)]}',
+                              '${contract.multiplier > 1 ? ' ×${contract.multiplier}' : ''}'
+                              ' · ${_teamLabel[teamOf(contract.seat)]}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -464,9 +464,8 @@ class _Table extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: yourTurnToPlay
-                          ? _goldColor
-                          : const Color(0xFFF97316),
+                      color:
+                          yourTurnToPlay ? _goldColor : const Color(0xFFF97316),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.black, width: 2),
                     ),
@@ -532,8 +531,7 @@ class _SeatInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final call = round.phase == CoinchePhase.bidding ? round.calls[seat] : null;
     final count = round.hands[seat]!.length;
-    final active =
-        round.turn == seat &&
+    final active = round.turn == seat &&
         (round.phase == CoinchePhase.bidding ||
             round.phase == CoinchePhase.playing);
 
@@ -623,11 +621,12 @@ class _SeatInfo extends StatelessWidget {
 }
 
 String _callText(BidAction call) => switch (call) {
-  PassBid() => 'Passe',
-  ContreBid() => 'Contre !',
-  SurcoincheBid() => 'Surcoinche !',
-  ValueBid(:final value, :final mode) => '$value ${coincheSuitSymbol(mode)}',
-};
+      PassBid() => 'Passe',
+      ContreBid() => 'Contre !',
+      SurcoincheBid() => 'Surcoinche !',
+      ValueBid(:final value, :final mode) =>
+        '$value ${coincheSuitSymbol(mode)}',
+    };
 
 class _TrickArea extends StatelessWidget {
   const _TrickArea({required this.trick, required this.cardWidth});
@@ -654,11 +653,11 @@ class _TrickArea extends StatelessWidget {
   }
 
   Alignment _trickAlignment(Seat seat) => switch (seat) {
-    Seat.south => Alignment.bottomCenter,
-    Seat.north => Alignment.topCenter,
-    Seat.west => Alignment.centerLeft,
-    Seat.east => Alignment.centerRight,
-  };
+        Seat.south => Alignment.bottomCenter,
+        Seat.north => Alignment.topCenter,
+        Seat.west => Alignment.centerLeft,
+        Seat.east => Alignment.centerRight,
+      };
 }
 
 class _BidPanel extends StatelessWidget {
@@ -671,8 +670,7 @@ class _BidPanel extends StatelessWidget {
     final contract = controller.round.contract;
     final choiceValue = controller.choiceValue;
     final choiceMode = controller.choiceMode;
-    final canAnnounce =
-        choiceMode != null &&
+    final canAnnounce = choiceMode != null &&
         choiceValue != null &&
         choiceValue >= controller.minValue;
 
@@ -931,8 +929,8 @@ class _ActionButton extends StatelessWidget {
     final Color background = danger
         ? const Color(0xFFD71920)
         : primary
-        ? const Color(0xFFF2B74E)
-        : Colors.white;
+            ? const Color(0xFFF2B74E)
+            : Colors.white;
     final Color foreground = danger ? Colors.white : _inkColor;
     return Opacity(
       opacity: enabled ? 1 : 0.4,
@@ -1011,9 +1009,8 @@ class _HandFooter extends StatelessWidget {
               final n = hand.length;
               if (n == 0) return SizedBox(height: cardWidth * 1.4 + 12);
               // Chevauchement de 65 % de la largeur, réduit si la main ne tient pas.
-              final overlap = n > 1
-                  ? (constraints.maxWidth - cardWidth) / (n - 1)
-                  : 0.0;
+              final overlap =
+                  n > 1 ? (constraints.maxWidth - cardWidth) / (n - 1) : 0.0;
               final step = [
                 cardWidth * 0.65,
                 overlap,
@@ -1070,8 +1067,8 @@ class _SummaryDialog extends StatelessWidget {
     final title = winner != null
         ? (winner == Team.ns ? 'Victoire !' : 'Défaite')
         : summary.made
-        ? (summary.capot ? 'Capot !' : 'Contrat réussi')
-        : 'Chute';
+            ? (summary.capot ? 'Capot !' : 'Contrat réussi')
+            : 'Chute';
     final multiplier = summary.contract.multiplier > 1
         ? ' ×${summary.contract.multiplier}'
         : '';

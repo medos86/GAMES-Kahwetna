@@ -13,14 +13,14 @@ typedef _RuleSection = ({String title, String? paragraph, List<String> items});
 final _chkobbaRules = <_RuleSection>[
   (
     title: '🎴 Le Jeu',
-    paragraph:
-        'La Chkobba se joue avec 40 cartes italiennes (ou espagnoles). '
+    paragraph: 'La Chkobba se joue avec 40 cartes italiennes (ou espagnoles). '
         'Le but est de ramasser le plus de cartes possible et de marquer des points.',
     items: [],
   ),
   (
     title: '🎯 Objectif',
-    paragraph: 'Être le premier joueur à atteindre 11 points (ou plus selon les variantes).',
+    paragraph:
+        'Être le premier joueur à atteindre 11 points (ou plus selon les variantes).',
     items: [],
   ),
   (
@@ -286,9 +286,8 @@ class _RichLine extends StatelessWidget {
           for (var i = 0; i < parts.length; i++)
             TextSpan(
               text: parts[i],
-              style: i.isOdd
-                  ? const TextStyle(fontWeight: FontWeight.w900)
-                  : null,
+              style:
+                  i.isOdd ? const TextStyle(fontWeight: FontWeight.w900) : null,
             ),
         ],
       ),

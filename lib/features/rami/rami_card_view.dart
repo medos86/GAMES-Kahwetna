@@ -5,28 +5,28 @@ import '../../core/strings.dart';
 
 /// Libellé d'une valeur : As, Valet, Dame, Roi, ou le chiffre.
 String ramiRankLabel(int rank) => switch (rank) {
-  1 => 'A',
-  11 => 'V',
-  12 => 'D',
-  13 => 'R',
-  _ => '$rank',
-};
+      1 => 'A',
+      11 => 'V',
+      12 => 'D',
+      13 => 'R',
+      _ => '$rank',
+    };
 
 /// Symbole de chaque couleur (valeurs de Card.tsx).
 String ramiSuitSymbol(rules.RamiSuit suit) => switch (suit) {
-  rules.RamiSuit.deniers => '♦',
-  rules.RamiSuit.coupes => '♥',
-  rules.RamiSuit.epees => '♠',
-  rules.RamiSuit.batons => '♣',
-};
+      rules.RamiSuit.deniers => '♦',
+      rules.RamiSuit.coupes => '♥',
+      rules.RamiSuit.epees => '♠',
+      rules.RamiSuit.batons => '♣',
+    };
 
 /// Couleur de chaque couleur (valeurs de Card.tsx).
 Color ramiSuitColor(rules.RamiSuit suit) => switch (suit) {
-  rules.RamiSuit.deniers => const Color(0xFFCA8A04),
-  rules.RamiSuit.coupes => const Color(0xFFDC2626),
-  rules.RamiSuit.epees => const Color(0xFF1F2937),
-  rules.RamiSuit.batons => const Color(0xFF92400E),
-};
+      rules.RamiSuit.deniers => const Color(0xFFCA8A04),
+      rules.RamiSuit.coupes => const Color(0xFFDC2626),
+      rules.RamiSuit.epees => const Color(0xFF1F2937),
+      rules.RamiSuit.batons => const Color(0xFF92400E),
+    };
 
 /// Carte Rami dessinée en texte. Seul le coin haut-gauche (valeur et couleur) est visible,
 /// comme TopCard du source : les cartes qui se chevauchent restent lisibles.

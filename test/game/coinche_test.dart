@@ -108,7 +108,9 @@ void main() {
       expect(round.turn, isNull);
     });
 
-    test('trois passes après un contrat : phase de jeu, premier joueur = siège après le donneur', () {
+    test(
+        'trois passes après un contrat : phase de jeu, premier joueur = siège après le donneur',
+        () {
       var round = makeRound();
       round = placeBid(
         round,

@@ -9,9 +9,8 @@ void main() {
       final round = dealRound(Seat.east, math.Random(seed).nextDouble);
       final action = chooseBid(round, Seat.south, CoincheAiLevel.difficile);
       if (action is ValueBid) {
-        final trumps = round.hands[Seat.south]!
-            .where((c) => c.suit == action.mode)
-            .length;
+        final trumps =
+            round.hands[Seat.south]!.where((c) => c.suit == action.mode).length;
         expect(trumps, greaterThanOrEqualTo(3), reason: 'seed $seed');
       }
     }

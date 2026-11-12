@@ -80,7 +80,9 @@ void main() {
       },
     );
 
-    test('facile : tirage à 0 joue la première tuile légale, sur le seul côté possible', () {
+    test(
+        'facile : tirage à 0 joue la première tuile légale, sur le seul côté possible',
+        () {
       final state = _state(
         hands: {
           Player.player: [_t(id: '0-1', a: 0, b: 1)],

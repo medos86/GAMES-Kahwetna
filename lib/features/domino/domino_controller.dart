@@ -17,9 +17,9 @@ class DominoController extends PersistentGameController {
     required this.difficulty,
     RandomDouble? random,
     SavedGameStore? store,
-  }) : _random = random,
-       _game = newDominoRound(targetScore: targetScore, random: random),
-       super(store: store, gameKey: 'domino');
+  })  : _random = random,
+        _game = newDominoRound(targetScore: targetScore, random: random),
+        super(store: store, gameKey: 'domino');
 
   final int targetScore;
   final Difficulty difficulty;
@@ -58,8 +58,7 @@ class DominoController extends PersistentGameController {
     final tile = selectedTile;
     if (tile == null ||
         _game.turn != Player.player ||
-        _game.roundWinner != null)
-      return null;
+        _game.roundWinner != null) return null;
     return (
       left: canPlace(tile, _game, DominoSide.left),
       right: canPlace(tile, _game, DominoSide.right),
@@ -68,10 +67,10 @@ class DominoController extends PersistentGameController {
 
   /// Délai de l'IA selon le niveau (valeurs du source : 1250 / 950 / 650 ms).
   Duration get aiDelay => switch (difficulty) {
-    Difficulty.difficile => const Duration(milliseconds: 650),
-    Difficulty.moyen => const Duration(milliseconds: 950),
-    Difficulty.facile => const Duration(milliseconds: 1250),
-  };
+        Difficulty.difficile => const Duration(milliseconds: 650),
+        Difficulty.moyen => const Duration(milliseconds: 950),
+        Difficulty.facile => const Duration(milliseconds: 1250),
+      };
 
   /// Touche une tuile : la pose directement, ou demande le choix de l'extrémité si les deux conviennent.
   void tapTile(DominoTile tile) {

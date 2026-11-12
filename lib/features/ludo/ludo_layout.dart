@@ -26,11 +26,11 @@ const ludoBaseSlots = <List<double>>[
 
 /// Coin de la maison de chaque couleur (ligne, colonne).
 Cell ludoCorner(LudoColor color) => switch (color) {
-  LudoColor.red => const Cell(0, 0),
-  LudoColor.green => const Cell(0, 9),
-  LudoColor.yellow => const Cell(9, 9),
-  LudoColor.blue => const Cell(9, 0),
-};
+      LudoColor.red => const Cell(0, 0),
+      LudoColor.green => const Cell(0, 9),
+      LudoColor.yellow => const Cell(9, 9),
+      LudoColor.blue => const Cell(9, 0),
+    };
 
 class PlacedToken {
   const PlacedToken({

@@ -27,12 +27,12 @@ class RamiCard {
   const RamiCard({required this.id, required this.suit, required this.rank});
 
   factory RamiCard.fromJson(Map<String, dynamic> json) => RamiCard(
-    id: json['id'] as String,
-    suit: json['suit'] == null
-        ? null
-        : RamiSuit.values.byName(json['suit'] as String),
-    rank: json['rank'] as int,
-  );
+        id: json['id'] as String,
+        suit: json['suit'] == null
+            ? null
+            : RamiSuit.values.byName(json['suit'] as String),
+        rank: json['rank'] as int,
+      );
 
   final String id;
   final RamiSuit? suit;
@@ -60,9 +60,9 @@ class Meld {
   final List<RamiCard> cards;
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'cards': [for (final c in cards) c.toJson()],
-  };
+        'id': id,
+        'cards': [for (final c in cards) c.toJson()],
+      };
 }
 
 class RamiRoundResult {
@@ -103,27 +103,28 @@ class RamiState {
   });
 
   factory RamiState.fromJson(Map<String, dynamic> json) => RamiState(
-    targetScore: json['targetScore'] as int,
-    round: json['round'] as int,
-    dealer: json['dealer'] as int,
-    turn: json['turn'] as int,
-    phase: RamiPhase.values.byName(json['phase'] as String),
-    stock: _cardsFromJson(json['stock']),
-    discard: _cardsFromJson(json['discard']),
-    hands: [for (final h in json['hands'] as List) _cardsFromJson(h)],
-    table: [
-      for (final m in json['table'] as List)
-        Meld.fromJson(m as Map<String, dynamic>),
-    ],
-    opened: [for (final o in json['opened'] as List) o as bool],
-    staged: [for (final s in json['staged'] as List) _cardsFromJson(s)],
-    takenId: json['takenId'] as String?,
-    scores: [for (final s in json['scores'] as List) s as int],
-    roundResult: json['roundResult'] == null
-        ? null
-        : RamiRoundResult.fromJson(json['roundResult'] as Map<String, dynamic>),
-    matchWinner: json['matchWinner'] as int?,
-  );
+        targetScore: json['targetScore'] as int,
+        round: json['round'] as int,
+        dealer: json['dealer'] as int,
+        turn: json['turn'] as int,
+        phase: RamiPhase.values.byName(json['phase'] as String),
+        stock: _cardsFromJson(json['stock']),
+        discard: _cardsFromJson(json['discard']),
+        hands: [for (final h in json['hands'] as List) _cardsFromJson(h)],
+        table: [
+          for (final m in json['table'] as List)
+            Meld.fromJson(m as Map<String, dynamic>),
+        ],
+        opened: [for (final o in json['opened'] as List) o as bool],
+        staged: [for (final s in json['staged'] as List) _cardsFromJson(s)],
+        takenId: json['takenId'] as String?,
+        scores: [for (final s in json['scores'] as List) s as int],
+        roundResult: json['roundResult'] == null
+            ? null
+            : RamiRoundResult.fromJson(
+                json['roundResult'] as Map<String, dynamic>),
+        matchWinner: json['matchWinner'] as int?,
+      );
 
   final int targetScore;
   final int round;
@@ -180,31 +181,31 @@ class RamiState {
   }
 
   Map<String, dynamic> toJson() => {
-    'targetScore': targetScore,
-    'round': round,
-    'dealer': dealer,
-    'turn': turn,
-    'phase': phase.name,
-    'stock': [for (final c in stock) c.toJson()],
-    'discard': [for (final c in discard) c.toJson()],
-    'hands': [
-      for (final h in hands) [for (final c in h) c.toJson()],
-    ],
-    'table': [for (final m in table) m.toJson()],
-    'opened': opened,
-    'staged': [
-      for (final s in staged) [for (final c in s) c.toJson()],
-    ],
-    'takenId': takenId,
-    'scores': scores,
-    'roundResult': roundResult?.toJson(),
-    'matchWinner': matchWinner,
-  };
+        'targetScore': targetScore,
+        'round': round,
+        'dealer': dealer,
+        'turn': turn,
+        'phase': phase.name,
+        'stock': [for (final c in stock) c.toJson()],
+        'discard': [for (final c in discard) c.toJson()],
+        'hands': [
+          for (final h in hands) [for (final c in h) c.toJson()],
+        ],
+        'table': [for (final m in table) m.toJson()],
+        'opened': opened,
+        'staged': [
+          for (final s in staged) [for (final c in s) c.toJson()],
+        ],
+        'takenId': takenId,
+        'scores': scores,
+        'roundResult': roundResult?.toJson(),
+        'matchWinner': matchWinner,
+      };
 }
 
 List<RamiCard> _cardsFromJson(Object? raw) => [
-  for (final c in raw as List) RamiCard.fromJson(c as Map<String, dynamic>),
-];
+      for (final c in raw as List) RamiCard.fromJson(c as Map<String, dynamic>),
+    ];
 
 final _defaultRandom = math.Random();
 
@@ -250,8 +251,7 @@ List<RamiCard>? _runOrder(List<RamiCard> cards) {
   final naturals = _naturalsOf(cards);
   final jokers = cards.where((c) => c.isJoker).toList();
   if (naturals.length < 2 ||
-      naturals.any((card) => card.suit != naturals.first.suit))
-    return null;
+      naturals.any((card) => card.suit != naturals.first.suit)) return null;
 
   for (final aceHigh in [false, true]) {
     final slots = sortedStable([
@@ -480,8 +480,7 @@ RamiState commitOpening(RamiState state) {
   final seat = state.turn;
   if (state.phase != RamiPhase.play ||
       state.opened[seat] ||
-      state.staged.isEmpty)
-    return state;
+      state.staged.isEmpty) return state;
   final staged = state.staged.fold<int>(
     0,
     (sum, cards) => sum + pointsOf(cards),
@@ -515,8 +514,7 @@ RamiState layOff(RamiState state, String cardId, String meldId) {
   final seat = state.turn;
   if (state.phase != RamiPhase.play ||
       !state.opened[seat] ||
-      state.staged.isNotEmpty)
-    return state;
+      state.staged.isNotEmpty) return state;
   final hand = state.hands[seat];
   final cardIndex = hand.indexWhere((item) => item.id == cardId);
   final meldIndex = state.table.indexWhere((item) => item.id == meldId);
@@ -580,9 +578,9 @@ List<List<RamiCard>> _setCandidates(List<RamiCard> hand) {
     final ofRank = <RamiCard>[
       for (final suit in RamiSuit.values)
         if (_firstWhereOrNull(
-              hand,
-              (item) => item.suit == suit && item.rank == rank,
-            )
+          hand,
+          (item) => item.suit == suit && item.rank == rank,
+        )
             case final card?)
           card,
     ];
@@ -600,9 +598,10 @@ List<List<RamiCard>> _runCandidates(List<RamiCard> hand) {
   final candidates = <List<RamiCard>>[];
   for (final suit in RamiSuit.values) {
     RamiCard? cardAt(int pos) => _firstWhereOrNull(
-      hand,
-      (card) => card.suit == suit && card.rank == (pos == _aceHigh ? 1 : pos),
-    );
+          hand,
+          (card) =>
+              card.suit == suit && card.rank == (pos == _aceHigh ? 1 : pos),
+        );
     for (var low = 1; low <= _aceHigh; low++) {
       for (var len = 3; len <= 13 && low + len - 1 <= _aceHigh; len++) {
         final parts = <RamiCard>[];
@@ -687,13 +686,11 @@ String _chooseDiscard(
 
   double score(RamiCard card) {
     // Difficile : évite de jeter une carte que les autres peuvent poser sur la table.
-    final useful =
-        level == RamiAiLevel.difficile &&
+    final useful = level == RamiAiLevel.difficile &&
         state.table.any((meld) => isValidMeld([...meld.cards, card]));
     // Difficile : une carte qui se combine avec la défausse (que le joueur a pu laisser passer) est gardée.
-    final pile = level == RamiAiLevel.difficile
-        ? _keepValue(card, state.discard)
-        : 0;
+    final pile =
+        level == RamiAiLevel.difficile ? _keepValue(card, state.discard) : 0;
     return _keepValue(card, hand) * 2 +
         pile -
         cardValue(card) * 0.5 +
@@ -713,8 +710,7 @@ RamiState _aiDraw(RamiState state, RamiAiLevel level, RandomDouble random) {
   final top = state.discard.last;
   final hand = state.hands[seat];
   final improves = _planValue([...hand, top]) > _planValue(hand);
-  final layable =
-      state.opened[seat] &&
+  final layable = state.opened[seat] &&
       state.table.any((meld) => isValidMeld([...meld.cards, top]));
   final take = level == RamiAiLevel.facile
       ? random() < 0.5
@@ -723,9 +719,10 @@ RamiState _aiDraw(RamiState state, RamiAiLevel level, RandomDouble random) {
 }
 
 RamiState _poseAll(RamiState state, List<List<RamiCard>> plan) => plan.fold(
-  state,
-  (current, cards) => poseMeld(current, [for (final card in cards) card.id]),
-);
+      state,
+      (current, cards) =>
+          poseMeld(current, [for (final card in cards) card.id]),
+    );
 
 /// Une action atomique de l'IA (pioche, pose, ajout, défausse). Le contrôleur la rappelle tant que ce n'est pas son tour.
 RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {

@@ -61,10 +61,13 @@ void main() {
       async.elapse(const Duration(seconds: 1));
       expect(service.active.value, isFalse, reason: 'expiration automatique');
       expect(service.remaining, Duration.zero);
-      expect(events, [
-        true,
-        false,
-      ], reason: 'une notification à l\'activation, une à l\'expiration');
+      expect(
+          events,
+          [
+            true,
+            false,
+          ],
+          reason: 'une notification à l\'activation, une à l\'expiration');
 
       service.dispose();
     });
@@ -195,7 +198,9 @@ void main() {
     },
   );
 
-  test('SharedPreferences : valeur écrite sous la bonne clé et relue après redémarrage', () async {
+  test(
+      'SharedPreferences : valeur écrite sous la bonne clé et relue après redémarrage',
+      () async {
     SharedPreferences.setMockInitialValues({});
     var now = _start;
 

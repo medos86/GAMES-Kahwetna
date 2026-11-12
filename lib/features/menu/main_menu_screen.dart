@@ -240,9 +240,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   Widget _buildDifficulty({required double vw, required bool sm}) {
     final wide = vw >= 540;
     final scoreOptions = _selected.targets;
-    final label = difficultyOptions
-        .firstWhere((o) => o.difficulty == _difficulty)
-        .label;
+    final label =
+        difficultyOptions.firstWhere((o) => o.difficulty == _difficulty).label;
 
     return LayoutBuilder(
       builder: (context, c) => SingleChildScrollView(
@@ -333,12 +332,10 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
 
   Widget _difficultyButton(DifficultyOption o, bool wide) {
     final active = _difficulty == o.difficulty;
-    final fg = active
-        ? o.activeForeground
-        : const Color(0xA6FFFFFF); // blanc 65 %
-    final bg = active
-        ? o.activeBackground
-        : const Color(0x8C081735); // #081735 à 55 %
+    final fg =
+        active ? o.activeForeground : const Color(0xA6FFFFFF); // blanc 65 %
+    final bg =
+        active ? o.activeBackground : const Color(0x8C081735); // #081735 à 55 %
     final border = active ? const Color(0xB3FFFFFF) : const Color(0x26FFFFFF);
 
     final iconBoxSize = wide ? 48.0 : 40.0;
@@ -352,9 +349,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       child: Icon(o.icon, size: 20, color: fg),
     );
     final texts = Column(
-      crossAxisAlignment: wide
-          ? CrossAxisAlignment.center
-          : CrossAxisAlignment.start,
+      crossAxisAlignment:
+          wide ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
@@ -419,15 +415,15 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   }
 
   Widget _sectionLabel(String text) => Text(
-    text.toUpperCase(),
-    textAlign: TextAlign.center,
-    style: const TextStyle(
-      fontSize: 12,
-      fontWeight: FontWeight.w900,
-      letterSpacing: 2.2,
-      color: Color(0xBFFFFFFF),
-    ),
-  );
+        text.toUpperCase(),
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 2.2,
+          color: Color(0xBFFFFFFF),
+        ),
+      );
 
   Widget _scoreRow(List<int> scores) {
     return Row(
@@ -1214,9 +1210,8 @@ class _AdFreeButton extends StatelessWidget {
     final active = secondsLeft > 0;
     final minutes = secondsLeft ~/ 60;
     final seconds = secondsLeft % 60;
-    final clock = active
-        ? '$minutes:${seconds.toString().padLeft(2, '0')}'
-        : '30:00';
+    final clock =
+        active ? '$minutes:${seconds.toString().padLeft(2, '0')}' : '30:00';
 
     return Pressable(
       semanticLabel: active

@@ -63,9 +63,8 @@ class KahwetneApp extends StatelessWidget {
         locale: localeOf(language),
         // Arabe : mise en page en RTL. Les cartes et le plateau restent gérés par leurs écrans.
         builder: (context, child) => Directionality(
-          textDirection: isRtl(language)
-              ? TextDirection.rtl
-              : TextDirection.ltr,
+          textDirection:
+              isRtl(language) ? TextDirection.rtl : TextDirection.ltr,
           child: child!,
         ),
         navigatorKey: _navigatorKey,
@@ -87,8 +86,8 @@ class KahwetneApp extends StatelessWidget {
         home: kComicDemo
             ? const ComicDemoScreen()
             : kSizeProbe
-            ? const SizeProbeScreen()
-            : const SplashScreen(next: MainMenuScreen(onPlay: _onPlay)),
+                ? const SizeProbeScreen()
+                : const SplashScreen(next: MainMenuScreen(onPlay: _onPlay)),
       ),
     );
   }

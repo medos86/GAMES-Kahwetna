@@ -7,9 +7,9 @@ enum Sfx { place, draw, pass, win, lose, capture, dice }
 
 extension SfxPath on Sfx {
   String get assetPath => switch (this) {
-    Sfx.capture || Sfx.dice => 'assets/sounds/common/$name.wav',
-    _ => 'assets/sounds/domino/$name.wav',
-  };
+        Sfx.capture || Sfx.dice => 'assets/sounds/common/$name.wav',
+        _ => 'assets/sounds/domino/$name.wav',
+      };
 }
 
 /// Effets prévus par jeu (issue #24). Un fichier absent laisse le jeu silencieux, sans erreur bloquante.

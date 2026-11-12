@@ -16,10 +16,10 @@ class DominoTile {
   final int b;
 
   factory DominoTile.fromJson(Map<String, dynamic> json) => DominoTile(
-    id: json['id'] as String,
-    a: intFromJson(json['a']),
-    b: intFromJson(json['b']),
-  );
+        id: json['id'] as String,
+        a: intFromJson(json['a']),
+        b: intFromJson(json['b']),
+      );
 
   Map<String, dynamic> toJson() => {'id': id, 'a': a, 'b': b};
 
@@ -44,19 +44,19 @@ class PlacedTile extends DominoTile {
   final int right;
 
   factory PlacedTile.fromJson(Map<String, dynamic> json) => PlacedTile(
-    id: json['id'] as String,
-    a: intFromJson(json['a']),
-    b: intFromJson(json['b']),
-    left: intFromJson(json['left']),
-    right: intFromJson(json['right']),
-  );
+        id: json['id'] as String,
+        a: intFromJson(json['a']),
+        b: intFromJson(json['b']),
+        left: intFromJson(json['left']),
+        right: intFromJson(json['right']),
+      );
 
   @override
   Map<String, dynamic> toJson() => {
-    ...super.toJson(),
-    'left': left,
-    'right': right,
-  };
+        ...super.toJson(),
+        'left': left,
+        'right': right,
+      };
 }
 
 const Object _unset = Object();
@@ -95,9 +95,9 @@ class DominoState {
   /// Relit un état produit par [toJson] (ou par `JSON.stringify(state)` côté TypeScript).
   factory DominoState.fromJson(Map<String, dynamic> json) {
     List<DominoTile> tiles(Object? raw) => [
-      for (final t in raw as List<dynamic>)
-        DominoTile.fromJson(t as Map<String, dynamic>),
-    ];
+          for (final t in raw as List<dynamic>)
+            DominoTile.fromJson(t as Map<String, dynamic>),
+        ];
     final hands = json['hands'] as Map<String, dynamic>;
     final scores = json['scores'] as Map<String, dynamic>;
     return DominoState(
@@ -157,23 +157,23 @@ class DominoState {
 
   /// Même structure et mêmes clés que JSON.stringify(state) côté TypeScript.
   Map<String, dynamic> toJson() => {
-    'hands': {
-      for (final p in Player.values)
-        p.name: [for (final t in hands[p]!) t.toJson()],
-    },
-    'boneyard': [for (final t in boneyard) t.toJson()],
-    'chain': [for (final t in chain) t.toJson()],
-    'leftEnd': leftEnd,
-    'rightEnd': rightEnd,
-    'scores': {for (final p in Player.values) p.name: scores[p]},
-    'turn': turn.name,
-    'consecutivePasses': consecutivePasses,
-    'roundWinner': roundWinner?.name,
-    'matchWinner': matchWinner?.name,
-    'pointsAwarded': pointsAwarded,
-    'targetScore': targetScore,
-    'round': round,
-  };
+        'hands': {
+          for (final p in Player.values)
+            p.name: [for (final t in hands[p]!) t.toJson()],
+        },
+        'boneyard': [for (final t in boneyard) t.toJson()],
+        'chain': [for (final t in chain) t.toJson()],
+        'leftEnd': leftEnd,
+        'rightEnd': rightEnd,
+        'scores': {for (final p in Player.values) p.name: scores[p]},
+        'turn': turn.name,
+        'consecutivePasses': consecutivePasses,
+        'roundWinner': roundWinner?.name,
+        'matchWinner': matchWinner?.name,
+        'pointsAwarded': pointsAwarded,
+        'targetScore': targetScore,
+        'round': round,
+      };
 }
 
 List<DominoTile> _shuffledTiles(RandomDouble random) {

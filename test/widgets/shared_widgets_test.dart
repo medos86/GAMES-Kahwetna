@@ -8,10 +8,10 @@ import 'package:kahwetne/widgets/result_dialog.dart';
 import 'package:kahwetne/widgets/trophy_badge.dart';
 
 Widget _host(Widget child) => MaterialApp(
-  home: Scaffold(
-    body: Center(child: SizedBox(width: 360, child: child)),
-  ),
-);
+      home: Scaffold(
+        body: Center(child: SizedBox(width: 360, child: child)),
+      ),
+    );
 
 void main() {
   testWidgets('PlayingCard : dos par défaut puis tap', (tester) async {

@@ -61,9 +61,8 @@ class ResultDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isGreen = style == ResultDialogStyle.comicGreen;
-    final background = isGreen
-        ? const Color(0xFF059669)
-        : const Color(0xFF0B3F7A);
+    final background =
+        isGreen ? const Color(0xFF059669) : const Color(0xFF0B3F7A);
     final border = isGreen ? const Color(0xFF000000) : const Color(0xFFFFD653);
     final titleColor = isGreen ? Colors.white : const Color(0xFFFFE681);
 

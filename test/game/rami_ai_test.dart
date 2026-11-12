@@ -4,7 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/game/rami.dart';
 
 void main() {
-  test('difficile mène une partie complète sans erreur et sans bloquer (partie IA seule)', () {
+  test(
+      'difficile mène une partie complète sans erreur et sans bloquer (partie IA seule)',
+      () {
     for (var seed = 0; seed < 5; seed++) {
       final rng = math.Random(seed).nextDouble;
       var state = newMatch(100, rng);
