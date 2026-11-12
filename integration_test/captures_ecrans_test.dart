@@ -44,6 +44,8 @@ void main() {
       await tester.pumpWidget(_avecEncoche(entry.value()));
       // pump et non pumpAndSettle : certains écrans ont des animations en boucle.
       await tester.pump(const Duration(seconds: 3));
+      // Obligatoire sur Android avant une capture (#214).
+      await binding.convertFlutterSurfaceToImage();
       await binding.takeScreenshot(entry.key);
     });
   }
