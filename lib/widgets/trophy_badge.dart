@@ -41,19 +41,22 @@ class _TrophyBadgeState extends State<TrophyBadge> with SingleTickerProviderStat
       alignment: Alignment.center,
       children: [
         Icon(Icons.emoji_events, size: size, color: const Color(0xFFFBBF24)),
-        // Le chiffre est réduit s'il dépasse la largeur de l'icône (#125 : « 1000 » ne chevauche plus).
-        Positioned(
-          top: size * 0.22,
-          left: size * 0.1,
-          right: size * 0.1,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              '${widget.target}',
-              style: TextStyle(
-                fontSize: size * 0.16,
-                fontWeight: FontWeight.w900,
-                color: const Color(0xFF92400E),
+        // Chiffre centré dans la coupe de l'icône (#153) : la coupe occupe le haut de l'icône,
+        // donc le centre se trouve un peu au-dessus du centre géométrique.
+        // Réduit s'il dépasse la largeur de la coupe (« 1000 » reste dans l'icône).
+        Align(
+          alignment: const Alignment(0, -0.25),
+          child: SizedBox(
+            width: size * 0.6,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                '${widget.target}',
+                style: TextStyle(
+                  fontSize: size * 0.2,
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xFF92400E),
+                ),
               ),
             ),
           ),
