@@ -30,10 +30,10 @@ class LudoController extends PersistentGameController {
     required this.playerCount,
     required this.difficulty,
     RandomDouble? random,
-    SavedGameStore? store,
+    super.store,
   })  : _random = random,
         _game = newLudoGame(),
-        super(store: store, gameKey: 'ludo');
+        super(gameKey: 'ludo');
 
   /// Nombre de joueurs humains (1 à 4).
   final int playerCount;

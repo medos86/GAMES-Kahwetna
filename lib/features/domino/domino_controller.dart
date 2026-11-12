@@ -16,10 +16,10 @@ class DominoController extends PersistentGameController {
     required this.targetScore,
     required this.difficulty,
     RandomDouble? random,
-    SavedGameStore? store,
+    super.store,
   })  : _random = random,
         _game = newDominoRound(targetScore: targetScore, random: random),
-        super(store: store, gameKey: 'domino');
+        super(gameKey: 'domino');
 
   final int targetScore;
   final Difficulty difficulty;

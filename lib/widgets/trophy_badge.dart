@@ -23,8 +23,8 @@ class _TrophyBadgeState extends State<TrophyBadge>
     if (reduce) {
       _pulse?.dispose();
       _pulse = null;
-    } else if (_pulse == null) {
-      _pulse = AnimationController(
+    } else {
+      _pulse ??= AnimationController(
         vsync: this,
         duration: const Duration(milliseconds: 2400),
       )..repeat(reverse: true);
