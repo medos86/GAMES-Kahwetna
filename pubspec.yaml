@@ -19,6 +19,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   fake_async: any
+  flutter_lints: any
 
 flutter:
   uses-material-design: true

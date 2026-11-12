@@ -1,0 +1,19 @@
+# Règles de lint du projet (issue #170).
+# Base : flutter_lints (recommandations officielles Flutter).
+# La CI lance `flutter analyze --no-fatal-infos` : les erreurs et avertissements
+# font échouer le pipeline, les infos restent affichées sans bloquer.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - "**/*.g.dart"
+
+linter:
+  rules:
+    # Règles ajoutées au-delà du jeu par défaut, pour un code plus sûr.
+    avoid_print: true
+    prefer_single_quotes: true
+    unawaited_futures: true
+    cancel_subscriptions: true
+    close_sinks: true
