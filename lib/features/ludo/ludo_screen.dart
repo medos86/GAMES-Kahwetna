@@ -73,7 +73,7 @@ String _colorName(LudoColor color, bool solo) =>
     solo && color == LudoColor.blue ? 'Toi' : _toneOf(color).name;
 
 String _noteText(LudoNote note, bool solo) {
-  final label = (LudoColor c) => _colorName(c, solo);
+  String label(LudoColor c) => _colorName(c, solo);
   return switch (note) {
     // Formulé au passé : la note reste affichée après que le tour a changé (#155).
     NoMoveNote() =>

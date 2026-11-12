@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -34,7 +36,7 @@ Future<void> main() async {
   ]);
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   // Sons chargés dès l'ouverture de l'application, pour qu'ils soient prêts au premier coup.
-  Sounds.preload();
+  unawaited(Sounds.preload());
   // Langue sauvegardée relue avant le premier écran (#116).
   await loadLanguage();
   // Échéance du mode sans pub relue avant le premier écran : pas de bannière qui clignote au démarrage.

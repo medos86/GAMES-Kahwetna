@@ -1,5 +1,4 @@
 import '../../core/services/persistent_game_controller.dart';
-import '../../core/services/saved_game_store.dart';
 
 import 'dart:async';
 
@@ -44,11 +43,11 @@ class ChkobbaController extends PersistentGameController {
     required this.level,
     RandomDouble? random,
     ChkobbaState? initialState,
-    SavedGameStore? store,
+    super.store,
   })  : _random = random,
         _game =
             initialState ?? newMatch(targetScore: targetScore, random: random),
-        super(store: store, gameKey: 'chkobba');
+        super(gameKey: 'chkobba');
 
   final int targetScore;
   final ChkobbaAiLevel level;

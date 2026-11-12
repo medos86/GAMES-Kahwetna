@@ -137,7 +137,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           title: Strings.exitAppTitle,
           body: Strings.exitAppBody,
         );
-        if (leave == true) SystemNavigator.pop();
+        if (leave == true) await SystemNavigator.pop();
       },
       child: Scaffold(
         backgroundColor: const Color(0xFF2BB8EA),
