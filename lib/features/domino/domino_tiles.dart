@@ -5,6 +5,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
 import '../../game/domino.dart';
 
@@ -120,7 +121,7 @@ class DominoFace extends StatelessWidget {
       Expanded(child: SizedBox.expand(child: CustomPaint(painter: _HalfPainter(second, rotated: horizontal)))),
     ];
     return Semantics(
-      label: 'Domino $first et $second',
+      label: tf('sTile', {'a': '$first', 'b': '$second'}),
       child: Container(
       width: width,
       height: height,
