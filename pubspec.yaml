@@ -19,6 +19,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   fake_async: any
+  integration_test:
+    sdk: flutter
   flutter_lints: any
 
 flutter:
