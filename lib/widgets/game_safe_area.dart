@@ -11,8 +11,8 @@ import 'package:material_ui/material_ui.dart';
 class GameSafeArea extends StatelessWidget {
   const GameSafeArea({super.key, required this.child, this.bottom = true});
 
-  /// Plafond de la marge haute, en dp.
-  static const double maxTopInset = 24;
+  /// Plafond de la marge haute, en dp. À 0 : la caméra centrée du S23 Ultra ne couvre pas les boutons latéraux.
+  static const double maxTopInset = 0;
 
   final Widget child;
   final bool bottom;
