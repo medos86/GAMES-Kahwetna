@@ -604,7 +604,8 @@ class _RamiScreenState extends State<RamiScreen> {
     ];
   }
 
-  /// Main du joueur : chaque carte se rétrécit pour tenir sur la largeur.
+  /// Main du joueur (#141) : les cartes se chevauchent. La carte sélectionnée ou déplacée
+  /// passe au-dessus des autres (z-order). Si la main est trop longue, le pas se resserre.
   Widget _handRow(double cardWidth) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -612,19 +613,49 @@ class _RamiScreenState extends State<RamiScreen> {
         final hand = c.displayed;
         final groupOf = c.groupOf;
         final selected = c.selected;
-        final fit = hand.isEmpty ? cardWidth : constraints.maxWidth / hand.length;
-        final width = fit < cardWidth ? fit : cardWidth;
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            for (final card in hand)
-              _handCard(
-                card,
-                width,
-                selected: selected.contains(card.id),
-                group: groupOf[card.id],
-              ),
-          ],
+        final n = hand.length;
+        final maxW = constraints.maxWidth;
+        // Largeur de carte : réduite seulement si même le chevauchement minimal ne tient pas.
+        final minStep = 0.3;
+        final fitWidth = n <= 1 ? cardWidth : maxW / (1 + minStep * (n - 1));
+        final width = fitWidth < cardWidth ? fitWidth : cardWidth;
+        // Pas entre deux cartes : 60 % de la largeur, resserré pour tenir sur la largeur.
+        final room = n <= 1 ? 0.0 : (maxW - width) / (n - 1);
+        final natural = 0.6 * width;
+        final step = n <= 1 ? 0.0 : (room < natural ? room : natural);
+        final total = n == 0 ? 0.0 : width + step * (n - 1);
+        final height = width * 1.4 + 8;
+
+        // Ordre de dessin : cartes non sélectionnées d'abord, sélectionnées ou déplacées en dernier.
+        final order = [
+          for (var i = 0; i < n; i++)
+            if (!selected.contains(hand[i].id) && _drag?.id != hand[i].id) i,
+          for (var i = 0; i < n; i++)
+            if (selected.contains(hand[i].id) || _drag?.id == hand[i].id) i,
+        ];
+
+        return Center(
+          child: SizedBox(
+            width: total,
+            height: height,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                for (final i in order)
+                  Positioned(
+                    key: ValueKey('pos:${hand[i].id}'),
+                    left: i * step,
+                    top: 0,
+                    child: _handCard(
+                      hand[i],
+                      width,
+                      selected: selected.contains(hand[i].id),
+                      group: groupOf[hand[i].id],
+                    ),
+                  ),
+              ],
+            ),
+          ),
         );
       },
     );
