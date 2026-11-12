@@ -1,8 +1,10 @@
 # Génère les goldens du thème BD sur le runner Ubuntu (même plateforme que la CI),
-# puis les versionne sur la branche. À lancer à la main : Actions → « Goldens BD » → Run workflow.
+# puis les versionne sur la branche. Se lance à chaque push sur la branche de #98.
 name: Goldens BD
 
 on:
+  push:
+    branches: ["feature/comic-98-demo-goldens"]
   workflow_dispatch:
 
 permissions:
