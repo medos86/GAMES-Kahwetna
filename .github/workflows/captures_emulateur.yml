@@ -1,0 +1,51 @@
+# Captures d'écran sur émulateur Android (issue #206). Manuel uniquement :
+# Actions → « Captures d'écran émulateur » → Run workflow.
+# Les PNG sont dans l'artifact « captures-emulateur ». Ne bloque pas analyze.yml.
+# Encoche : simulée dans integration_test (marge haute de 36 px via MediaQuery).
+name: Captures d'écran émulateur
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  captures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Activer KVM (accélération de l'émulateur)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+
+      - name: Dépendances
+        run: flutter pub get
+
+      - name: Captures sur émulateur
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          script: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/captures_ecrans_test.dart -d emulator-5554
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: captures-emulateur
+          path: screenshots/
+          retention-days: 14
+          if-no-files-found: warn
