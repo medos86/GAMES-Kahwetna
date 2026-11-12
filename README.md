@@ -155,7 +155,7 @@ Pour le retirer, supprimer `splash_screen.dart` et pointer l'accueil vers le men
 
 ## Version de Flutter (CI)
 
-Tous les workflows (`analyze.yml`, `apk.yml`, `goldens.yml`, `screenshots.yml`) épinglent la même version de Flutter (`flutter-version:`), pour des builds reproductibles.
+Tous les workflows (`analyze.yml`, `apk.yml`, `goldens.yml`, `captures_emulateur.yml`) épinglent la même version de Flutter (`flutter-version:`), pour des builds reproductibles.
 
 Pour la mettre à jour :
 
