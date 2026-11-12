@@ -10,6 +10,7 @@ import '../../core/theme/game_style.dart';
 import '../../widgets/comic/comic_panel.dart';
 import '../../widgets/comic/halftone_overlay.dart';
 import '../../widgets/fade_slide_in.dart';
+import '../settings/settings_screen.dart';
 import '../../widgets/pressable.dart';
 import '../../widgets/texture_patterns.dart';
 import 'game_icons.dart';
@@ -599,7 +600,9 @@ class _Header extends StatelessWidget {
             const SizedBox(width: 8),
             _GlassButton(
               square: true,
-              onTap: () {},
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
+              ),
               semanticLabel: Strings.menuOpenSettings,
               child: const Icon(Icons.settings, size: 20),
             ),

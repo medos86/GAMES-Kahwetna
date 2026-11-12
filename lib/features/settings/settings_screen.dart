@@ -1,0 +1,64 @@
+import 'package:flutter/material.dart';
+
+import '../../core/i18n/app_language.dart';
+import '../../core/theme/comic_palette.dart';
+
+/// Écran Paramètres (issue #116) : pour l'instant seul le choix de la langue (FR / عربي).
+/// Accessible depuis le menu principal. Le choix est sauvegardé et appliqué tout de suite.
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: ComicPalette.paper,
+      appBar: AppBar(
+        backgroundColor: ComicPalette.paper,
+        foregroundColor: ComicPalette.ink,
+        elevation: 0,
+        title: Text(
+          t('settingsTitle'),
+          style: const TextStyle(fontWeight: FontWeight.w900, color: ComicPalette.ink),
+        ),
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Text(
+              t('settingsDisplay').toUpperCase(),
+              style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, color: ComicPalette.ink),
+            ),
+            const SizedBox(height: 8),
+            // Ligne de réglage : au moins 48 px de haut, valeur à droite (règles UI de #116).
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      t('settingsLanguage'),
+                      style: const TextStyle(fontWeight: FontWeight.w700, color: ComicPalette.ink),
+                    ),
+                  ),
+                  ValueListenableBuilder<AppLanguage>(
+                    valueListenable: appLanguage,
+                    builder: (context, language, _) => SegmentedButton<AppLanguage>(
+                      showSelectedIcon: false,
+                      segments: [
+                        ButtonSegment(value: AppLanguage.fr, label: Text(t('langFrench'))),
+                        ButtonSegment(value: AppLanguage.ar, label: Text(t('langArabic'))),
+                      ],
+                      selected: {language},
+                      onSelectionChanged: (selection) => setLanguage(selection.first),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
