@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// INTERRUPTEUR ESTHÉTIQUE
 /// true  : style cartoon tunisien (tapis bleu, bordure zellige, fond village, bannières magenta et jaune).

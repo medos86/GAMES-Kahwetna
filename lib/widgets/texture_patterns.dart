@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Trame de points, équivalent de `radial-gradient(circle, color rayon, transparent rayon)`
 /// répété tous les `spacing` px. La couleur porte l'opacité du CSS source.

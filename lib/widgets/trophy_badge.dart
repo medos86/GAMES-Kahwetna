@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Trophée affichant le score cible, avec un halo pulsé (guide §8).
 /// Le halo est désactivé si l'utilisateur a réduit les animations.

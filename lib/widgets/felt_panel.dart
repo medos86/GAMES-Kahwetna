@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Tapis vert émeraude à cadre brun (guide §8 : FeltPanel).
 class FeltPanel extends StatelessWidget {

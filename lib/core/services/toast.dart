@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Gravité d'un toast : info (neutre), success (réussite) ou error (action refusée).
 enum ToastType { info, success, error }

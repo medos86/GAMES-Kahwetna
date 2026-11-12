@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import '../../core/audio/sounds.dart';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../core/theme/comic_palette.dart';
 import '../../core/theme/game_style.dart';

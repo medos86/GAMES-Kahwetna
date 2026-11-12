@@ -2,6 +2,8 @@
 
 Portage Flutter des jeux de cartes kahwetne (Chkobba, Domino, Belote/Coinche, Ludo, Rami), à partir de la version React.
 
+Les widgets de design viennent de `package:material_ui` (et non de `package:flutter/material.dart`, déprécié depuis Flutter 3.50, issue #213).
+
 ## État d'avancement
 
 | Jeu | Règles | IA | Écran | Tests |
