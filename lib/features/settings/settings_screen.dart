@@ -1,5 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/services/card_animations.dart';
+
 import '../../core/i18n/app_language.dart';
 import '../../core/theme/comic_palette.dart';
 
@@ -84,6 +86,31 @@ class SettingsScreen extends StatelessWidget {
                         selected: {language},
                         onSelectionChanged: (selection) =>
                             setLanguage(selection.first),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Animations de cartes (#224) : coupées par défaut.
+                ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 48),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          t('settingsCardAnimations'),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: ComicPalette.ink,
+                          ),
+                        ),
+                      ),
+                      ValueListenableBuilder<bool>(
+                        valueListenable: cardAnimations,
+                        builder: (context, on, _) => Switch(
+                          value: on,
+                          onChanged: setCardAnimations,
+                        ),
                       ),
                     ],
                   ),
