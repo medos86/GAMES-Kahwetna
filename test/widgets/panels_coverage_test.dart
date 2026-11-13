@@ -73,6 +73,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Fin'), findsOneWidget);
   });
+
+  testWidgets('motifs redessinés quand la couleur change', (tester) async {
+    await tester.pumpWidget(_host(_pattern(Colors.white)));
+    await tester.pumpWidget(_host(_pattern(Colors.black)));
+    expect(find.byType(DotPattern), findsOneWidget);
+    expect(find.byType(StripePattern), findsOneWidget);
+  });
 }
 
 Widget _opener() {
@@ -88,4 +95,25 @@ Widget _opener() {
       child: const Text('ouvrir'),
     ),
   );
+}
+
+Widget _pattern(Color color) {
+  return SizedBox(
+    width: 120,
+    height: 60,
+    child: Column(
+      children: [
+        Expanded(
+          child: DotPattern(spacing: 12, radius: 2, color: color),
+        ),
+        Expanded(
+          child: StripePattern(period: 10, width: 4, color: color),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _host(Widget child) {
+  return MaterialApp(home: Scaffold(body: Center(child: child)));
 }
