@@ -91,12 +91,13 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
-    // Une copie de la carte vole vers la défausse.
-    expect(find.byType(RamiCardView).evaluate().length, before + 1);
+    // Main -1 et copie qui vole +1 : le total ne change pas pendant le vol.
+    expect(find.byType(RamiCardView).evaluate().length, before);
 
     await tester.pump(const Duration(seconds: 1));
     expect(tester.takeException(), isNull);
-    expect(find.byType(RamiCardView).evaluate().length, before);
+    // La défausse n'affiche que la carte du dessus : total = before - 1.
+    expect(find.byType(RamiCardView).evaluate().length, before - 1);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
