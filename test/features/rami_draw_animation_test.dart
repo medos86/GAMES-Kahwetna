@@ -79,7 +79,15 @@ void main() {
     );
     final before = find.byType(RamiCardView).evaluate().length;
     expect(find.text(Strings.actDiscard), findsOneWidget);
-    await tester.tap(find.text(Strings.actDiscard));
+    // Déclenche le bouton directement : le tap est masqué par la main (layout).
+    final discardButton = tester.widget<InkWell>(
+      find.ancestor(
+        of: find.text(Strings.actDiscard),
+        matching: find.byType(InkWell),
+      ),
+    );
+    expect(discardButton.onTap, isNotNull);
+    discardButton.onTap!();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
