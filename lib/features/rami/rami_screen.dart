@@ -4,7 +4,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../../core/layout/device_metrics.dart';
-import '../../widgets/comic/comic_pill.dart';
 import '../../core/services/toast.dart';
 import '../../game/rami.dart' as rules;
 import '../../widgets/ad_banner.dart';
@@ -13,7 +12,6 @@ import 'rami_card_view.dart';
 import 'rami_controller.dart';
 import '../../core/strings.dart';
 import '../../core/i18n/app_language.dart';
-import '../../core/theme/game_style.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/game_safe_area.dart';
@@ -21,6 +19,7 @@ import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/card_flight.dart';
 import '../../widgets/difficulty_chip.dart';
+import '../../widgets/game_header.dart';
 
 /// Facteur d'agrandissement des cartes Rami (lisibilité sur téléphone).
 const double _ramiCardScale = 1.35;
@@ -325,95 +324,64 @@ class _RamiScreenState extends State<RamiScreen> {
   }
 
   Widget _header(rules.RamiState g) {
-    return Row(
-      children: [
-        kComicRami
-            ? ComicPill(
-                label: Strings.menuLabel,
-                icon: Icons.arrow_back,
-                onTap: () => Navigator.of(context).maybePop(),
-              )
-            : Material(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () => Navigator.of(context).maybePop(),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.arrow_back,
-                          size: 18,
-                          color: Color(0xFF7E22CE),
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          Strings.menuLabel,
-                          style: TextStyle(
-                            color: Color(0xFF7E22CE),
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-        Expanded(
-          child: Column(
-            children: [
-              Wrap(
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 6,
-                children: [
-                  Text(
-                    tf('round', {'n': '${g.round}'}),
-                    style: const TextStyle(fontWeight: FontWeight.w800),
-                  ),
-                  DifficultyChip(difficulty: widget.difficulty),
-                ],
-              ),
-            ],
-          ),
-        ),
-        IconButton(
-          tooltip: Strings.seeRules,
-          onPressed: _showRules,
-          icon: const Icon(Icons.menu_book, color: Colors.white),
-        ),
-        Semantics(
-          label: tf('target', {'n': '${g.targetScore}'}),
-          child: SizedBox(
-            width: 48,
-            height: 48,
-            child: Stack(
-              alignment: Alignment.center,
+    return GameHeader(
+      onMenu: () => Navigator.of(context).maybePop(),
+      center: Expanded(
+        child: Column(
+          children: [
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 6,
               children: [
-                const Icon(
-                  Icons.emoji_events,
-                  size: 44,
-                  color: Color(0xFFFBBF24),
+                Text(
+                  tf('round', {'n': '${g.round}'}),
+                  style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Text(
-                    '${g.targetScore}',
-                    style: const TextStyle(
-                      color: _inkColor,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
+                DifficultyChip(difficulty: widget.difficulty),
               ],
             ),
-          ),
+          ],
         ),
-      ],
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            tooltip: Strings.seeRules,
+            onPressed: _showRules,
+            icon: const Icon(Icons.menu_book, color: Colors.white),
+          ),
+          Semantics(
+            label: tf('target', {'n': '${g.targetScore}'}),
+            child: SizedBox(
+              width: 48,
+              height: 48,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  const Icon(
+                    Icons.emoji_events,
+                    size: 44,
+                    color: Color(0xFFFBBF24),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      '${g.targetScore}',
+                      style: const TextStyle(
+                        color: _inkColor,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
