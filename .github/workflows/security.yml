@@ -1,0 +1,41 @@
+# Sécurité (#172) : dépendances vulnérables sur les pull requests, et détection de secrets commités.
+name: Sécurité
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    # Temporaire : la revue exige que le « Dependency graph » soit activé dans les réglages du dépôt
+    # (Settings → Advanced Security). Retirer cette ligne une fois activé (#172).
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Revue des dépendances
+        # Échoue si la PR ajoute une dépendance avec une vulnérabilité de gravité élevée ou plus.
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Historique complet : un secret supprimé d'un commit récent reste détecté.
+          fetch-depth: 0
+
+      - name: Scan de secrets (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
