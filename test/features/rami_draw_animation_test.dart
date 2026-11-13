@@ -4,7 +4,6 @@ import 'package:kahwetne/core/services/card_animations.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:kahwetne/features/rami/rami_card_view.dart';
 import 'package:kahwetne/features/rami/rami_screen.dart';
-import 'package:kahwetne/widgets/card_flight.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Pioche de Rami avec animation activée : l'écran reste stable pendant le vol (#224).
