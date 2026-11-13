@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/theme/comic_palette.dart';
 import '../../core/theme/game_style.dart';
@@ -19,6 +20,9 @@ import 'game_icons.dart';
 import 'menu_models.dart';
 import '../../core/strings.dart';
 import '../../core/services/ad_free_service.dart';
+import '../../core/services/saved_game_store.dart';
+import '../../widgets/comic_button.dart';
+import '../../widgets/resume_game.dart';
 import '../../core/services/toast.dart';
 
 // Couleurs fixes reprises du source (Tailwind -> hex).
@@ -86,7 +90,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     });
   }
 
-  void _selectGame(GameEntry game) {
+  Future<void> _selectGame(GameEntry game) async {
     if (!game.available) {
       showToast(
         context,
@@ -95,6 +99,50 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       );
       return;
     }
+    final key = savedGameKeys[game.route];
+    if (key != null) {
+      const store = SharedPreferencesSavedGameStore();
+      final saved = await store.load(key);
+      if (!mounted) return;
+      if (saved != null) {
+        final resume = await showConfirmDialog(
+          context,
+          title: Strings.resumeTitle,
+          body: Strings.resumeBody,
+          cancelLabel: Strings.resumeNew,
+          confirmLabel: Strings.resumeContinue,
+          confirmVariant: ComicButtonVariant.primary,
+          dismissible: false,
+        );
+        if (!mounted) return;
+        if (resume == true) {
+          markResumeConfirmed(key);
+          final prefs = await SharedPreferences.getInstance();
+          final name = prefs.getString(_difficultyPrefKey(key));
+          setState(() {
+            _selected = game;
+            _difficulty = Difficulty.values.firstWhere(
+              (d) => d.name == name,
+              orElse: () => Difficulty.facile,
+            );
+            _target = game.defaultTarget;
+          });
+          _launch();
+          return;
+        }
+        final sure = await showConfirmDialog(
+          context,
+          title: Strings.resumeNewTitle,
+          body: Strings.resumeNewBody,
+          cancelLabel: Strings.exitStay,
+          confirmLabel: Strings.resumeNew,
+          dismissible: false,
+        );
+        if (!mounted) return;
+        if (sure != true) return;
+        await store.clear(key);
+      }
+    }
     setState(() {
       _selected = game;
       _target = game.defaultTarget;
@@ -102,7 +150,17 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     });
   }
 
+  static String _difficultyPrefKey(String key) => 'kahwetne-difficulty-$key';
+
   void _launch() {
+    final key = savedGameKeys[_selected.route];
+    if (key != null) {
+      unawaited(
+        SharedPreferences.getInstance().then(
+          (prefs) => prefs.setString(_difficultyPrefKey(key), _difficulty.name),
+        ),
+      );
+    }
     widget.onPlay?.call(
       LaunchRequest(
         game: _selected,

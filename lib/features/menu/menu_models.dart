@@ -166,3 +166,12 @@ class LaunchRequest {
       ? '${game.route}?difficulty=${difficulty.name}&players=$players'
       : '${game.route}?difficulty=${difficulty.name}&target=$target';
 }
+
+/// Clé de sauvegarde (SavedGameStore) de chaque jeu, par route (#219).
+const savedGameKeys = <String, String>{
+  '/game': 'chkobba',
+  '/domino': 'domino',
+  '/coinche': 'coinche',
+  '/ludo': 'ludo',
+  '/rami': 'rami',
+};

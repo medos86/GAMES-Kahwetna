@@ -5,6 +5,11 @@ import '../core/strings.dart';
 import 'comic_button.dart';
 import 'exit_guard.dart';
 
+final Set<String> _resumeConfirmed = {};
+
+/// Le menu a déjà demandé « Reprendre » pour ce jeu : l'écran de jeu reprend sans redemander (#219).
+void markResumeConfirmed(String gameKey) => _resumeConfirmed.add(gameKey);
+
 /// Si une partie sauvegardée attend : propose Reprendre (action principale) ou Nouvelle partie
 /// (secondaire, avec confirmation). Ne se ferme pas sans choix (#112).
 Future<void> offerResume(
@@ -12,6 +17,10 @@ Future<void> offerResume(
   PersistentGameController controller,
 ) async {
   if (!controller.awaitingResume) return;
+  if (_resumeConfirmed.remove(controller.gameKey)) {
+    controller.resume();
+    return;
+  }
   while (true) {
     final resume = await showConfirmDialog(
       context,
