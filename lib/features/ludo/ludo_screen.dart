@@ -295,15 +295,6 @@ class _Header extends StatelessWidget {
         Expanded(
           child: Column(
             children: [
-              const Text(
-                'KAHWETNE · LUDO',
-                style: TextStyle(
-                  color: Color(0xFFFFE16B),
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 2,
-                  fontSize: 13,
-                ),
-              ),
               Wrap(
                 alignment: WrapAlignment.center,
                 crossAxisAlignment: WrapCrossAlignment.center,

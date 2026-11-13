@@ -204,15 +204,6 @@ class _Header extends StatelessWidget {
         Expanded(
           child: Column(
             children: [
-              const Text(
-                'KAHWETNE · COINCHE',
-                style: TextStyle(
-                  color: Color(0xFFFFF1BD),
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 2,
-                  fontSize: 13,
-                ),
-              ),
               Wrap(
                 alignment: WrapAlignment.center,
                 crossAxisAlignment: WrapCrossAlignment.center,

@@ -356,15 +356,6 @@ class _RamiScreenState extends State<RamiScreen> {
         Expanded(
           child: Column(
             children: [
-              Text(
-                Strings.headerRami,
-                style: TextStyle(
-                  color: Color(0xFFFFF1BD),
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 2,
-                  fontSize: 13,
-                ),
-              ),
               Wrap(
                 alignment: WrapAlignment.center,
                 crossAxisAlignment: WrapCrossAlignment.center,

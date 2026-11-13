@@ -223,9 +223,6 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // text-[calc(var(--game-unit)*0.75)], et 0.9 à partir du seuil sm (640 px) comme dans le source.
-    final titleSize =
-        unit * (MediaQuery.sizeOf(context).width >= 640 ? 0.9 : 0.75);
     return Row(
       children: [
         Pressable(
@@ -272,20 +269,6 @@ class _Header extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: unit * 0.5),
             child: Column(
               children: [
-                Text(
-                  'KAHWETNE · DOMINO',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'RobotoSlab',
-                    fontSize: titleSize,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: titleSize * 0.16,
-                    color: const Color(0xFFFFF1BD),
-                    shadows: const [
-                      Shadow(offset: Offset(1, 2), color: Color(0xFF4A2A10)),
-                    ],
-                  ),
-                ),
                 Wrap(
                   alignment: WrapAlignment.center,
                   crossAxisAlignment: WrapCrossAlignment.center,
