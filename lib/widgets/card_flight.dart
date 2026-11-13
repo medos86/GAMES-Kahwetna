@@ -12,7 +12,7 @@ Rect? rectOfKey(GlobalKey key) {
 }
 
 /// Fait voler [child] de [from] à [to] (repères écran) par-dessus l'écran (#224).
-/// [delay] décale le départ (distributions échelonnées).
+/// [delay] retarde le départ (distributions échelonnées), sans second minuteur.
 /// Sans effet si le réglage est coupé, si le système réduit les animations
 /// ou si [from] / [to] est absent.
 Future<void> flyCard({
@@ -22,27 +22,33 @@ Future<void> flyCard({
   required Widget child,
   Duration duration = const Duration(milliseconds: 300),
   Duration delay = Duration.zero,
-}) async {
-  if (from == null || to == null) return;
-  if (!cardAnimations.value || MediaQuery.disableAnimationsOf(context)) return;
-  if (delay > Duration.zero) {
-    await Future<void>.delayed(delay);
+}) {
+  if (from == null || to == null) return Future<void>.value();
+  if (!cardAnimations.value || MediaQuery.disableAnimationsOf(context)) {
+    return Future<void>.value();
   }
-  if (!context.mounted) return;
   final overlay = Overlay.maybeOf(context);
-  if (overlay == null) return;
+  if (overlay == null) return Future<void>.value();
+
+  final total = delay + duration;
+  // Part du temps d'attente : la courbe reste à 0 pendant le délai.
+  final wait = delay.inMicroseconds / total.inMicroseconds;
+  final Curve curve =
+      wait == 0 ? Curves.easeInOut : Interval(wait, 1, curve: Curves.easeInOut);
   final done = Completer<void>();
   late final OverlayEntry entry;
   entry = OverlayEntry(
     builder: (_) => TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: duration,
-      curve: Curves.easeInOut,
+      duration: total,
+      curve: curve,
       onEnd: () {
         entry.remove();
         done.complete();
       },
       builder: (context, t, _) {
+        // Avant le départ la courbe vaut 0 : la carte n'est pas encore lancée.
+        if (t == 0 && wait > 0) return const SizedBox.shrink();
         final r = Rect.lerp(from, to, t)!;
         return Positioned(
           left: r.left,
