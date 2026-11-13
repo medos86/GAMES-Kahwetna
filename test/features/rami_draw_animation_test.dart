@@ -30,20 +30,18 @@ void main() {
     );
     await tester.pump(const Duration(seconds: 1));
 
-    final inOverlay = find.descendant(
-      of: find.byType(Overlay),
-      matching: find.byType(RamiBackView),
-    );
-    final stock = find.byType(RamiBackView).first;
-    await tester.tap(stock);
+    final backs = find.byType(RamiBackView);
+    final before = backs.evaluate().length;
+    await tester.tap(backs.first);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
-    expect(inOverlay, findsWidgets);
+    // Une carte de plus pendant le vol (la copie qui vole).
+    expect(backs.evaluate().length, before + 1);
 
     await tester.pump(const Duration(seconds: 1));
     expect(tester.takeException(), isNull);
-    expect(inOverlay, findsNothing);
+    expect(backs.evaluate().length, before);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
