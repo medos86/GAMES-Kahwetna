@@ -97,7 +97,7 @@ void main() {
     expect(game.value, 0);
   });
 
-  testWidgets('reprise confirmée par le menu : pas de dialogue', (tester) async {
+  testWidgets('reprise confirmée : pas de dialogue', (tester) async {
     final store = MemoryStore()..data['test'] = {'value': 6};
     final game = CounterGame(store: store);
     await game.restore();
