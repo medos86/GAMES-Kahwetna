@@ -12,7 +12,7 @@ Rect? rectOfKey(GlobalKey key) {
 }
 
 /// Fait voler [child] de [from] à [to] (repères écran) par-dessus l'écran (#224).
-/// [delay] décale le départ (distributions échelonnées).
+/// [delay] retarde le départ (distributions échelonnées), sans second minuteur.
 /// Sans effet si le réglage est coupé, si le système réduit les animations
 /// ou si [from] / [to] est absent.
 Future<void> flyCard({
@@ -22,28 +22,33 @@ Future<void> flyCard({
   required Widget child,
   Duration duration = const Duration(milliseconds: 300),
   Duration delay = Duration.zero,
-}) async {
-  if (from == null || to == null) return;
-  if (!cardAnimations.value || MediaQuery.disableAnimationsOf(context)) return;
-  if (delay > Duration.zero) {
-    await Future<void>.delayed(delay);
+}) {
+  if (from == null || to == null) return Future<void>.value();
+  if (!cardAnimations.value || MediaQuery.disableAnimationsOf(context)) {
+    return Future<void>.value();
   }
-  if (!context.mounted) return;
   final overlay = Overlay.maybeOf(context);
-  if (overlay == null) return;
+  if (overlay == null) return Future<void>.value();
+
+  final total = delay + duration;
   final done = Completer<void>();
   late final OverlayEntry entry;
   entry = OverlayEntry(
     builder: (_) => TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: duration,
-      curve: Curves.easeInOut,
+      duration: total,
       onEnd: () {
         entry.remove();
         done.complete();
       },
       builder: (context, t, _) {
-        final r = Rect.lerp(from, to, t)!;
+        // t parcourt delay + duration : la carte attend son tour puis vole.
+        final elapsed = t * total.inMicroseconds;
+        final local = ((elapsed - delay.inMicroseconds) /
+                duration.inMicroseconds)
+            .clamp(0.0, 1.0);
+        if (local == 0) return const SizedBox.shrink();
+        final r = Rect.lerp(from, to, Curves.easeInOut.transform(local))!;
         return Positioned(
           left: r.left,
           top: r.top,
