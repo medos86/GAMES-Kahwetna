@@ -61,4 +61,58 @@ void main() {
     await setCardAnimations(false);
     expect(cardAnimations.value, isFalse);
   });
+
+  testWidgets('délai : la carte ne part qu\'après le délai', (tester) async {
+    cardAnimations.value = true;
+    final context = await _pumpApp(tester);
+    final done = flyCard(
+      context: context,
+      from: const Rect.fromLTWH(0, 0, 40, 60),
+      to: const Rect.fromLTWH(200, 200, 40, 60),
+      delay: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 300),
+      child: const SizedBox(key: ValueKey('retard'), width: 40, height: 60),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byKey(const ValueKey('retard')), findsNothing);
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.byKey(const ValueKey('retard')), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byKey(const ValueKey('retard')), findsNothing);
+    await done;
+  });
+
+  testWidgets('départ absent : aucun vol, pas d\'erreur', (tester) async {
+    cardAnimations.value = true;
+    final context = await _pumpApp(tester);
+    await flyCard(
+      context: context,
+      from: null,
+      to: const Rect.fromLTWH(200, 200, 40, 60),
+      child: const SizedBox(key: ValueKey('absent'), width: 40, height: 60),
+    );
+    expect(find.byKey(const ValueKey('absent')), findsNothing);
+  });
+
+  testWidgets('rectOfKey : position d\'un widget affiché, null sinon', (
+    tester,
+  ) async {
+    final key = GlobalKey();
+    final orphan = GlobalKey();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Stack(
+          children: [
+            Positioned(
+              left: 30,
+              top: 40,
+              child: SizedBox(key: key, width: 50, height: 70),
+            ),
+          ],
+        ),
+      ),
+    );
+    expect(rectOfKey(key), const Rect.fromLTWH(30, 40, 50, 70));
+    expect(rectOfKey(orphan), isNull);
+  });
 }
