@@ -19,10 +19,13 @@ void main() {
     expect(taps, 1);
   });
 
-  testWidgets('pas de titre « KAHWETNE » dans l\'en-tête (#223)', (tester) async {
-    await tester.pumpWidget(_host(GameHeader(onMenu: () {})));
-    expect(find.textContaining('KAHWETNE'), findsNothing);
-  });
+  testWidgets(
+    'pas de titre « KAHWETNE » dans l\'en-tête (#223)',
+    (tester) async {
+      await tester.pumpWidget(_host(GameHeader(onMenu: () {})));
+      expect(find.textContaining('KAHWETNE'), findsNothing);
+    },
+  );
 
   testWidgets('Menu à gauche, emplacement à droite', (tester) async {
     await tester.pumpWidget(_host(GameHeader(
