@@ -151,4 +151,22 @@ void main() {
     );
     expect(find.byType(ChainTile), findsOneWidget);
   });
+
+  testWidgets('tuile de chaîne touchée', (tester) async {
+    var taps = 0;
+    const tile = PlacedTile(id: 't2', a: 1, b: 5, left: 1, right: 5);
+    await tester.pumpWidget(
+      _host(
+        ChainTile(
+          tile: tile,
+          length: 60,
+          turn: false,
+          reverse: false,
+          onTap: (_) => taps++,
+        ),
+      ),
+    );
+    await tester.tap(find.byType(ChainTile));
+    expect(taps, 1);
+  });
 }
