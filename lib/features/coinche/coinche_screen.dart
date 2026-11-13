@@ -6,9 +6,7 @@ import '../../core/layout/device_metrics.dart';
 import '../../game/coinche.dart';
 import '../../widgets/ad_banner.dart';
 import '../../core/i18n/app_language.dart';
-import '../../core/strings.dart';
 import '../../core/theme/game_style.dart';
-import '../../widgets/comic/comic_pill.dart';
 import '../menu/menu_models.dart';
 import 'coinche_card_view.dart';
 import 'coinche_controller.dart';
@@ -20,6 +18,7 @@ import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
+import '../../widgets/game_header.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
 const _feltColor = Color(0xFF10B981);
@@ -164,90 +163,54 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        kComicCoinche
-            ? ComicPill(
-                label: Strings.menuLabel,
-                icon: Icons.arrow_back,
-                onTap: () => Navigator.of(context).maybePop(),
-              )
-            : Material(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () => Navigator.of(context).maybePop(),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.arrow_back,
-                          size: 18,
-                          color: Color(0xFF7E22CE),
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          Strings.menuLabel,
-                          style: TextStyle(
-                            color: Color(0xFF7E22CE),
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ],
-                    ),
+    return GameHeader(
+      onMenu: () => Navigator.of(context).maybePop(),
+      center: Expanded(
+        child: Column(
+          children: [
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 6,
+              children: [
+                Text(
+                  'Manche ${controller.match.round}',
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+                DifficultyChip(difficulty: difficulty),
+              ],
+            ),
+          ],
+        ),
+      ),
+      trailing: Semantics(
+        label: tf('sMatchTarget', {'n': '${controller.match.target}'}),
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              const Icon(
+                Icons.emoji_events,
+                size: 48,
+                color: Color(0xFFFBBF24),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  '${controller.match.target}',
+                  style: const TextStyle(
+                    color: _inkColor,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 11,
                   ),
                 ),
-              ),
-        Expanded(
-          child: Column(
-            children: [
-              Wrap(
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 6,
-                children: [
-                  Text(
-                    'Manche ${controller.match.round}',
-                    style: const TextStyle(fontWeight: FontWeight.w800),
-                  ),
-                  DifficultyChip(difficulty: difficulty),
-                ],
               ),
             ],
           ),
         ),
-        Semantics(
-          label: tf('sMatchTarget', {'n': '${controller.match.target}'}),
-          child: SizedBox(
-            width: 48,
-            height: 48,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                const Icon(
-                  Icons.emoji_events,
-                  size: 48,
-                  color: Color(0xFFFBBF24),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Text(
-                    '${controller.match.target}',
-                    style: const TextStyle(
-                      color: _inkColor,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
