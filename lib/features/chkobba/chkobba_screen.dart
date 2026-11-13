@@ -66,16 +66,19 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
               : null),
     );
     _snapshotCaptures();
-    _controller.addListener(_onCaptures);
+    _controller.addListener(_onChanged);
     _controller.restore().then((_) {
       _snapshotCaptures();
+      _ready = true;
+      // Partie neuve : la donne initiale est animée.
+      if (!_restored) _distribute();
       if (mounted) offerResume(context, _controller);
     });
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_onCaptures);
+    _controller.removeListener(_onChanged);
     _controller.dispose();
     super.dispose();
   }
@@ -87,52 +90,193 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
   final Map<String, GlobalKey> _keys = {};
   GlobalKey _key(String name) => _keys.putIfAbsent(name, () => GlobalKey());
 
+  static const _stagger = Duration(milliseconds: 60);
+  bool _ready = false;
+  bool _restored = false;
+  bool _dealPending = false;
+  ChkobbaState? _lastGame;
   List<ChkobbaCard> _lastTable = const [];
+  List<ChkobbaCard> _lastPlayer = const [];
+  List<ChkobbaCard> _lastOpp = const [];
   Map<Player, int> _lastWon = const {};
 
   void _snapshotCaptures() {
     final game = _controller.game;
+    _lastGame = game;
     _lastTable = game.table;
+    _lastPlayer = game.hands[Player.player] ?? const [];
+    _lastOpp = game.hands[Player.opponent] ?? const [];
     _lastWon = {for (final p in Player.values) p: game.won[p]?.length ?? 0};
   }
 
-  static Rect? _rectOfKey(GlobalKey key) {
-    final box = key.currentContext?.findRenderObject();
-    if (box is! RenderBox || !box.hasSize) return null;
-    return box.localToGlobal(Offset.zero) & box.size;
+  /// Lance une action qui donne une nouvelle donne : la distribution est animée.
+  void _deal(VoidCallback action) {
+    _dealPending = true;
+    action();
+    _dealPending = false;
   }
 
-  /// Appelé à chaque changement : une carte disparue du tapis, avec un tas qui grandit, vole vers ce tas.
-  void _onCaptures() {
+  /// Tout mouvement de carte : captures, cartes jouées (joueur et adversaire), donne (#238).
+  void _onChanged() {
     final game = _controller.game;
-    final before = _lastTable;
+    if (identical(game, _lastGame)) return;
+    if (!_ready) {
+      _restored = true;
+      return;
+    }
+    final beforeTable = _lastTable;
     final beforeWon = _lastWon;
+    final beforePlayer = _lastPlayer;
+    final beforeOpp = _lastOpp;
     _snapshotCaptures();
+
+    // Cartes prises du tapis : vers le tas du gagnant.
     final gone = [
-      for (final card in before)
+      for (final card in beforeTable)
         if (game.table.every((t) => t.id != card.id)) card,
     ];
-    if (gone.isEmpty) return;
     Player? taker;
     for (final p in Player.values) {
       if ((game.won[p]?.length ?? 0) > (beforeWon[p] ?? 0)) taker = p;
     }
-    if (taker == null) return;
-    // Positions lues avant reconstruction : le tapis est encore à sa place.
-    final to = _rectOfKey(_key('won:${taker.name}'));
-    if (to == null) return;
-    for (final card in gone) {
-      final from = _rectOfKey(_key('tbl:${card.id}'));
-      if (from == null) continue;
-      unawaited(
-        flyCard(
-          context: context,
-          from: from,
-          to: to,
-          child: ChkobbaCardFace(card: card),
-        ),
-      );
+    if (gone.isNotEmpty && taker != null) {
+      final to = rectOfKey(_key('won:${taker.name}'));
+      for (final card in gone) {
+        final from = rectOfKey(_key('tbl:${card.id}'));
+        if (to == null || from == null) continue;
+        unawaited(
+          flyCard(
+            context: context,
+            from: from,
+            to: to,
+            child: ChkobbaCardFace(card: card),
+          ),
+        );
+      }
     }
+
+    // Carte jouée par le joueur : de sa main vers le tapis (ou le tas si elle capture).
+    final stillPlayer = {for (final c in game.hands[Player.player]!) c.id};
+    final leavingPlayer = [
+      for (final card in beforePlayer)
+        if (!stillPlayer.contains(card.id)) card,
+    ];
+    final playerStarts = [
+      for (final card in leavingPlayer)
+        if (rectOfKey(_key('hand:${card.id}')) case final from?) (card, from),
+    ];
+    if (playerStarts.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        for (final (card, from) in playerStarts) {
+          final to = _targetFor(card.id, from.size);
+          if (to == null) continue;
+          unawaited(
+            flyCard(
+              context: context,
+              from: from,
+              to: to,
+              child: ChkobbaCardFace(card: card),
+            ),
+          );
+        }
+      });
+    }
+
+    // Carte jouée par l'adversaire : de sa zone vers le tapis (ou le tas).
+    final stillOpp = {for (final c in game.hands[Player.opponent]!) c.id};
+    final leavingOpp = [
+      for (final card in beforeOpp)
+        if (!stillOpp.contains(card.id)) card,
+    ];
+    if (leavingOpp.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        var i = 0;
+        for (final card in leavingOpp) {
+          final area = rectOfKey(_key('opp-hand'));
+          final to = _targetFor(card.id, area?.size ?? Size.zero);
+          if (area == null || to == null) continue;
+          unawaited(
+            flyCard(
+              context: context,
+              from: Rect.fromCenter(
+                center: area.center,
+                width: to.width,
+                height: to.height,
+              ),
+              to: to,
+              child: ChkobbaCardFace(card: card),
+              delay: _stagger * i,
+            ),
+          );
+          i++;
+        }
+      });
+    }
+
+    if (_dealPending) _distribute();
+  }
+
+  /// Destination d'une carte : sa place sur le tapis, ou le tas de celui qui l'a prise.
+  Rect? _targetFor(String id, Size size) {
+    final game = _controller.game;
+    Rect? at(GlobalKey key) {
+      final r = rectOfKey(key);
+      if (r == null) return null;
+      return Rect.fromLTWH(r.left, r.top, size.width, size.height);
+    }
+
+    if (game.table.any((c) => c.id == id)) return at(_key('tbl:$id'));
+    for (final p in Player.values) {
+      if (game.won[p]?.any((c) => c.id == id) ?? false) {
+        return at(_key('won:${p.name}'));
+      }
+    }
+    return null;
+  }
+
+  /// Donne : la pioche envoie les cartes du joueur, puis un dos vers l'adversaire.
+  void _distribute() {
+    final from = rectOfKey(_key('deck'));
+    if (from == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final game = _controller.game;
+      var i = 0;
+      for (final card in game.hands[Player.player]!) {
+        final to = rectOfKey(_key('hand:${card.id}'));
+        if (to == null) continue;
+        unawaited(
+          flyCard(
+            context: context,
+            from: from,
+            to: to,
+            child: ChkobbaCardFace(card: card),
+            delay: _stagger * i,
+          ),
+        );
+        i++;
+      }
+      final area = rectOfKey(_key('opp-hand'));
+      if (area == null) return;
+      for (var k = 0; k < game.hands[Player.opponent]!.length; k++) {
+        unawaited(
+          flyCard(
+            context: context,
+            from: from,
+            to: Rect.fromCenter(
+              center: area.center,
+              width: from.width,
+              height: from.height,
+            ),
+            child: const ChkobbaCardBack(),
+            delay: _stagger * i,
+          ),
+        );
+        i++;
+      }
+    });
   }
 
   static ChkobbaAiLevel _levelFor(Difficulty d) => switch (d) {
@@ -241,7 +385,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                       _PillButton(
                         label: t('newGame'),
                         icon: Icons.refresh,
-                        onTap: _controller.startNewGame,
+                        onTap: () => _deal(_controller.startNewGame),
                       ),
                       const SizedBox(width: 8),
                     ],
@@ -263,18 +407,22 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                 game: game,
                 playerWonKey: _key('won:player'),
                 opponentWonKey: _key('won:opponent'),
+                deckKey: _key('deck'),
               ),
             ),
             const SizedBox(height: 8),
             // Main de l'adversaire : dos des cartes, sauf celle qu'il montre.
             // Taille réduite (≈ 0,8 × la main du joueur), comme le source React (0,9 vs 1,06).
-            _Hand(
-              cards: game.hands[Player.opponent]!,
-              width: cardWidth * 0.8,
-              height: cardHeight * 0.8,
-              builder: (card) => card.id == revealed
-                  ? ChkobbaCardFace(card: card, highlight: true)
-                  : const ChkobbaCardBack(),
+            KeyedSubtree(
+              key: _key('opp-hand'),
+              child: _Hand(
+                cards: game.hands[Player.opponent]!,
+                width: cardWidth * 0.8,
+                height: cardHeight * 0.8,
+                builder: (card) => card.id == revealed
+                    ? ChkobbaCardFace(card: card, highlight: true)
+                    : const ChkobbaCardBack(),
+              ),
             ),
             Expanded(
               child: Stack(
@@ -324,6 +472,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
               width: cardWidth,
               height: cardHeight,
               builder: (card) => ChkobbaCardFace(
+                key: _key('hand:${card.id}'),
                 card: card,
                 onTap: canPlay ? () => _onPlayerCard(card.id) : null,
               ),
@@ -350,7 +499,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                   padding: const EdgeInsets.all(16),
                   child: _RoundCard(
                     summary: summary,
-                    onContinue: _controller.continueAfterRound,
+                    onContinue: () => _deal(_controller.continueAfterRound),
                   ),
                 ),
               ),
@@ -559,7 +708,11 @@ class _Scoreboard extends StatelessWidget {
     required this.game,
     this.playerWonKey,
     this.opponentWonKey,
+    this.deckKey,
   });
+
+  /// Clé de la pioche (cible de la donne animée, #238).
+  final Key? deckKey;
 
   final ChkobbaState game;
 
@@ -600,7 +753,10 @@ class _Scoreboard extends StatelessWidget {
             ),
             Semantics(
               label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
-              child: _DeckPile(count: game.deck.length),
+              child: KeyedSubtree(
+                key: deckKey,
+                child: _DeckPile(count: game.deck.length),
+              ),
             ),
             _ScoreSide(
               key: opponentWonKey,
