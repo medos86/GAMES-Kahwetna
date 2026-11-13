@@ -98,7 +98,8 @@ void main() {
   });
 
   testWidgets('reprise confirmée par le menu : pas de dialogue', (tester) async {
-    final game = CounterGame(store: MemoryStore()..data['test'] = {'value': 6});
+    final store = MemoryStore()..data['test'] = {'value': 6};
+    final game = CounterGame(store: store);
     await game.restore();
     markResumeConfirmed('test');
     late BuildContext context;
