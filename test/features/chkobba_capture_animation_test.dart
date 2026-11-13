@@ -74,4 +74,59 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
+
+  testWidgets('une carte jouée vole de la main vers le tapis (#238)', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844) * 3;
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ChkobbaScreen(
+          difficulty: Difficulty.facile,
+          targetScore: 11,
+          initialState: ChkobbaState(
+            targetScore: 11,
+            deck: const [],
+            hands: {
+              Player.player: [card(ChkobbaSuit.batons, 3)],
+              Player.opponent: [card(ChkobbaSuit.deniers, 2)],
+            },
+            table: [card(ChkobbaSuit.coupes, 9)],
+            won: {Player.player: [], Player.opponent: []},
+            chkobbas: {Player.player: 0, Player.opponent: 0},
+            scores: {Player.player: 0, Player.opponent: 0},
+            lastCapturer: null,
+            turn: Player.player,
+            starter: Player.player,
+            round: 1,
+            winner: null,
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(seconds: 1));
+
+    Finder faceOf(String id) => find.byWidgetPredicate(
+          (w) => w is ChkobbaCardFace && w.card.id == id,
+        );
+
+    final play = tester.widget<ChkobbaCardFace>(faceOf('batons-3'));
+    expect(play.onTap, isNotNull);
+    play.onTap!();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(tester.takeException(), isNull);
+    // Pendant le vol : la carte est sur le tapis et une copie vole.
+    expect(faceOf('batons-3').evaluate().length, greaterThanOrEqualTo(2));
+
+    await tester.pump(const Duration(seconds: 1));
+    expect(tester.takeException(), isNull);
+    // Après le vol : la carte est posée sur le tapis.
+    expect(faceOf('batons-3'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump();
+  });
 }
