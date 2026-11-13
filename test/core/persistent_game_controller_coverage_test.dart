@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/persistent_game_controller.dart';
 import 'package:kahwetne/core/services/saved_game_store.dart';
+import 'package:kahwetne/widgets/resume_game.dart';
 
 class MemoryStore implements SavedGameStore {
   final Map<String, Map<String, dynamic>> data = {};
@@ -93,5 +95,25 @@ void main() {
     expect(game.awaitingResume, isFalse);
     expect(game.newGames, 1);
     expect(game.value, 0);
+  });
+
+  testWidgets('reprise confirmée par le menu : pas de dialogue', (tester) async {
+    final game = CounterGame(store: MemoryStore()..data['test'] = {'value': 6});
+    await game.restore();
+    markResumeConfirmed('test');
+    late BuildContext context;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (ctx) {
+            context = ctx;
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+    await offerResume(context, game);
+    expect(game.value, 6);
+    expect(game.awaitingResume, isFalse);
   });
 }
