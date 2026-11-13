@@ -26,7 +26,8 @@ void main() {
     FlutterError.onError = previous;
     for (final e in errors) {
       debugPrint('DIAG_BEGIN ${e.exceptionAsString()}');
-      for (final node in e.informationCollector?.call() ?? const <DiagnosticsNode>[]) {
+      final collector = e.informationCollector;
+      for (final node in collector?.call() ?? <DiagnosticsNode>[]) {
         debugPrint('DIAG ${node.toStringDeep()}');
       }
       debugPrint('DIAG_END');
