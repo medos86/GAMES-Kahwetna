@@ -104,20 +104,21 @@ void main() {
     };
 
     for (final entry in targets.entries) {
-      test(
-        'niveau ${entry.key.name} : ~${(entry.value * 100).round()} % contre moyen',
-        () {
-          final rate = _winRate(entry.key);
-          // ignore: avoid_print
-          print('Chkobba ${entry.key.name} : ${(rate * 100).toStringAsFixed(1)} % '
-              'sur $_games parties (cible ${(entry.value * 100).round()} %)');
-          expect(
-            rate,
-            closeTo(entry.value, _tolerance),
-            reason: 'hors cible ±${(_tolerance * 100).round()} points : ajuster l\'IA ou documenter l\'écart dans #92',
-          );
-        },
-      );
+      final level = entry.key;
+      final target = entry.value;
+      final pct = (target * 100).round();
+      test('niveau ${level.name} : ~$pct % contre moyen', () {
+        final rate = _winRate(level);
+        final measured = (rate * 100).toStringAsFixed(1);
+        print(
+          'Chkobba ${level.name} : $measured % sur $_games parties (cible $pct %)',
+        );
+        expect(
+          rate,
+          closeTo(target, _tolerance),
+          reason: 'hors cible : ajuster l\'IA ou documenter l\'écart dans #92',
+        );
+      });
     }
   });
 }
