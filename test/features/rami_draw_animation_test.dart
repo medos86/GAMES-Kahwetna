@@ -73,7 +73,12 @@ void main() {
     );
     await tester.tap(find.byWidget(lowest));
     await tester.pump();
+    expect(
+      find.byWidgetPredicate((w) => w is RamiCardView && w.selected),
+      findsOneWidget,
+    );
     final before = find.byType(RamiCardView).evaluate().length;
+    expect(find.text(Strings.actDiscard), findsOneWidget);
     await tester.tap(find.text(Strings.actDiscard));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
