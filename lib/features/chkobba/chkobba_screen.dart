@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -22,6 +23,7 @@ import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
+import '../../widgets/card_flight.dart';
 
 /// Écran de jeu de la Chkobba, fidèle à GameScreen.tsx : scores, pioche, tapis, mains,
 /// bannière de tour, Haya, choix de prise et récapitulatif de manche.
@@ -31,7 +33,11 @@ class ChkobbaScreen extends StatefulWidget {
     required this.difficulty,
     required this.targetScore,
     this.demoChoice = false,
+    this.initialState,
   });
+
+  /// État de départ imposé (tests) : remplace la donne aléatoire.
+  final ChkobbaState? initialState;
 
   final Difficulty difficulty;
   final int targetScore;
@@ -53,19 +59,79 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
       store: const SharedPreferencesSavedGameStore(),
       targetScore: widget.targetScore,
       level: _levelFor(widget.difficulty),
-      initialState: kDebugMode && widget.demoChoice
-          ? chkobbaDemoChoiceState(targetScore: widget.targetScore)
-          : null,
+      initialState: widget.initialState ??
+          (kDebugMode && widget.demoChoice
+              ? chkobbaDemoChoiceState(targetScore: widget.targetScore)
+              : null),
     );
+    _snapshotCaptures();
+    _controller.addListener(_onCaptures);
     _controller.restore().then((_) {
+      _snapshotCaptures();
       if (mounted) offerResume(context, _controller);
     });
   }
 
   @override
   void dispose() {
+    _controller.removeListener(_onCaptures);
     _controller.dispose();
     super.dispose();
+  }
+
+  // -------------------------------------------------------------------------
+  // Captures animées (#238) : les cartes prises volent du tapis vers le tas.
+  // -------------------------------------------------------------------------
+
+  final Map<String, GlobalKey> _keys = {};
+  GlobalKey _key(String name) => _keys.putIfAbsent(name, () => GlobalKey());
+
+  List<ChkobbaCard> _lastTable = const [];
+  Map<Player, int> _lastWon = const {};
+
+  void _snapshotCaptures() {
+    final game = _controller.game;
+    _lastTable = game.table;
+    _lastWon = {for (final p in Player.values) p: game.won[p]?.length ?? 0};
+  }
+
+  static Rect? _rectOfKey(GlobalKey key) {
+    final box = key.currentContext?.findRenderObject();
+    if (box is! RenderBox || !box.hasSize) return null;
+    return box.localToGlobal(Offset.zero) & box.size;
+  }
+
+  /// Appelé à chaque changement : une carte disparue du tapis, avec un tas qui grandit, vole vers ce tas.
+  void _onCaptures() {
+    final game = _controller.game;
+    final before = _lastTable;
+    final beforeWon = _lastWon;
+    _snapshotCaptures();
+    final gone = [
+      for (final card in before)
+        if (game.table.every((t) => t.id != card.id)) card,
+    ];
+    if (gone.isEmpty) return;
+    Player? taker;
+    for (final p in Player.values) {
+      if ((game.won[p]?.length ?? 0) > (beforeWon[p] ?? 0)) taker = p;
+    }
+    if (taker == null) return;
+    // Positions lues avant reconstruction : le tapis est encore à sa place.
+    final to = _rectOfKey(_key('won:${taker.name}'));
+    if (to == null) return;
+    for (final card in gone) {
+      final from = _rectOfKey(_key('tbl:${card.id}'));
+      if (from == null) continue;
+      unawaited(
+        flyCard(
+          context: context,
+          from: from,
+          to: to,
+          child: ChkobbaCardFace(card: card),
+        ),
+      );
+    }
   }
 
   static ChkobbaAiLevel _levelFor(Difficulty d) => switch (d) {
@@ -142,7 +208,10 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     final slotCount = _roundUp(math.max(12, used), columns);
     final slots = List<Widget?>.filled(slotCount, null);
     for (final card in game.table) {
-      slots[assigned[card.id]!] = ChkobbaCardFace(card: card);
+      slots[assigned[card.id]!] = ChkobbaCardFace(
+        key: _key('tbl:${card.id}'),
+        card: card,
+      );
     }
 
     return Stack(
@@ -509,23 +578,29 @@ class _Scoreboard extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _ScoreSide(
-              name: t('you'),
-              score: game.scores[Player.player]!,
-              chkobbas: game.chkobbas[Player.player]!,
-              cards: game.won[Player.player]!.length,
-              color: const Color(0xFF047857),
+            KeyedSubtree(
+              key: _key('won:player'),
+              child: _ScoreSide(
+                name: t('you'),
+                score: game.scores[Player.player]!,
+                chkobbas: game.chkobbas[Player.player]!,
+                cards: game.won[Player.player]!.length,
+                color: const Color(0xFF047857),
+              ),
             ),
             Semantics(
               label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
               child: _DeckPile(count: game.deck.length),
             ),
-            _ScoreSide(
-              name: t('opponent'),
-              score: game.scores[Player.opponent]!,
-              chkobbas: game.chkobbas[Player.opponent]!,
-              cards: game.won[Player.opponent]!.length,
-              color: const Color(0xFFB91C1C),
+            KeyedSubtree(
+              key: _key('won:opponent'),
+              child: _ScoreSide(
+                name: t('opponent'),
+                score: game.scores[Player.opponent]!,
+                chkobbas: game.chkobbas[Player.opponent]!,
+                cards: game.won[Player.opponent]!.length,
+                color: const Color(0xFFB91C1C),
+              ),
             ),
           ],
         ),
