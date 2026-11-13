@@ -15,6 +15,9 @@ jobs:
   dependency-review:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    # Temporaire : la revue exige que le « Dependency graph » soit activé dans les réglages du dépôt
+    # (Settings → Advanced Security). Retirer cette ligne une fois activé (#172).
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
