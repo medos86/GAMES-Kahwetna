@@ -71,13 +71,15 @@ void main() {
           ? a
           : b,
     );
+    final id = lowest.card.id;
+    Finder faceOf() =>
+        find.byWidgetPredicate((w) => w is RamiCardView && w.card.id == id);
     await tester.tap(find.byWidget(lowest));
     await tester.pump();
     expect(
       find.byWidgetPredicate((w) => w is RamiCardView && w.selected),
       findsOneWidget,
     );
-    final before = find.byType(RamiCardView).evaluate().length;
     expect(find.text(Strings.actDiscard), findsOneWidget);
     // Déclenche le bouton directement : le tap est masqué par la main (layout).
     final discardButton = tester.widget<InkWell>(
@@ -91,13 +93,13 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
-    // Main -1 et copie qui vole +1 : le total ne change pas pendant le vol.
-    expect(find.byType(RamiCardView).evaluate().length, before);
+    // Pendant le vol : la carte est à la défausse et une copie vole.
+    expect(faceOf(), findsNWidgets(2));
 
     await tester.pump(const Duration(seconds: 1));
     expect(tester.takeException(), isNull);
-    // La défausse n'affiche que la carte du dessus : total = before - 1.
-    expect(find.byType(RamiCardView).evaluate().length, before - 1);
+    // Après le vol : seule la carte du dessus de la défausse reste.
+    expect(faceOf(), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });

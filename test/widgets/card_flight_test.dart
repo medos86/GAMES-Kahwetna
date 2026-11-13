@@ -62,7 +62,9 @@ void main() {
     expect(cardAnimations.value, isFalse);
   });
 
-  testWidgets('délai : la carte ne part qu\'après le délai', (tester) async {
+  testWidgets('délai : la carte n\'apparaît pas avant son tour', (
+    tester,
+  ) async {
     cardAnimations.value = true;
     final context = await _pumpApp(tester);
     final done = flyCard(
@@ -75,9 +77,8 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.byKey(const ValueKey('retard')), findsNothing);
-    await tester.pump(const Duration(milliseconds: 200));
-    expect(find.byKey(const ValueKey('retard')), findsOneWidget);
-    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(seconds: 1));
+    expect(tester.takeException(), isNull);
     expect(find.byKey(const ValueKey('retard')), findsNothing);
     await done;
   });
