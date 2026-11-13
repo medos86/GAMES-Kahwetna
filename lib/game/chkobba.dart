@@ -541,7 +541,7 @@ typedef ChkobbaAiMove = ({String cardId, bool capture});
 /// Coup de l'adversaire selon le niveau.
 /// - Facile : carte au hasard ; quand une prise existe, il ne la prend qu'environ 60 % du temps.
 /// - Moyen : évaluation gloutonne, avec priorité aux carreaux.
-/// - Difficile : deux coups d'avance, sans lire la main du joueur (cartes inconnues seulement).
+/// - Difficile : Monte-Carlo sur la manche, sans lire la main du joueur (cartes inconnues seulement).
 ChkobbaAiMove chooseOpponentMove(
   ChkobbaState state,
   ChkobbaAiLevel level, {
@@ -568,28 +568,85 @@ ChkobbaAiMove chooseOpponentMove(
     return (cardId: best.id, capture: true);
   }
 
-  // Difficile (loyal) : pour chaque carte, on retranche la meilleure réponse que le joueur pourrait
-  // faire parmi les cartes encore inconnues (ni tombées, ni dans la main de l'IA). La main du joueur n'est pas lue.
-  final unseen = _unseenCards(state);
+  // Difficile (loyal, Monte-Carlo) : pour chaque carte, on tire des mains plausibles pour le joueur
+  // parmi les cartes inconnues (sa vraie main n'est pas lue), on joue la manche jusqu'au bout,
+  // et on garde la carte qui rapporte le plus de points en moyenne.
   var bestCard = hand.first;
-  var bestTotal = 0;
-  var first = true;
+  // Sans générateur fourni, graine fixe : même état, même coup (le test « ne lit pas la main » le vérifie).
+  final rr = random ?? _fixedRandom();
+  var bestValue = double.negativeInfinity;
   for (final card in hand) {
-    final mine = _simulateMove(state.table, card, priority: true);
-    var reply = 0;
-    if (unseen.isNotEmpty) {
-      reply = unseen
-          .map((c) => _simulateMove(mine.table, c).score)
-          .reduce((a, b) => a > b ? a : b);
+    var total = 0;
+    for (var i = 0; i < _difficileRollouts; i++) {
+      total += _rolloutRound(state, card.id, rr);
     }
-    final total = mine.score - reply;
-    if (first || total > bestTotal) {
+    final value = total / _difficileRollouts;
+    if (value > bestValue) {
+      bestValue = value;
       bestCard = card;
-      bestTotal = total;
-      first = false;
     }
   }
   return (cardId: bestCard.id, capture: true);
+}
+
+/// Nombre de manches simulées par carte pour le niveau difficile.
+const int _difficileRollouts = 100;
+
+/// Générateur à graine fixe (utilisé quand l'appelant n'en fournit pas).
+RandomDouble _fixedRandom() {
+  var s = 2024;
+  return () {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return s / 0x80000000;
+  };
+}
+
+/// Joue la manche jusqu'au bout après que l'adversaire a joué [cardId], avec une main du joueur
+/// tirée au hasard parmi les cartes inconnues. Renvoie le solde de points de la manche pour l'adversaire.
+int _rolloutRound(ChkobbaState state, String cardId, RandomDouble r) {
+  final pool = _unseenCards(state);
+  for (var i = pool.length - 1; i > 0; i--) {
+    final j = (r() * (i + 1)).floor();
+    final tmp = pool[i];
+    pool[i] = pool[j];
+    pool[j] = tmp;
+  }
+  final playerSize = state.hands[Player.player]!.length;
+  var s = state.copyWith(
+    hands: {
+      Player.player: pool.sublist(0, playerSize),
+      Player.opponent: state.hands[Player.opponent]!,
+    },
+    deck: pool.sublist(playerSize),
+  );
+  s = playCard(s, Player.opponent, cardId).state;
+  while (true) {
+    if (s.hands[Player.player]!.isEmpty && s.hands[Player.opponent]!.isEmpty) {
+      if (s.deck.isEmpty) break;
+      s = dealHands(s);
+      continue;
+    }
+    final who = s.turn;
+    if (s.hands[who]!.isEmpty) break;
+    final move = _moyenMove(s, who);
+    s = playCard(s, who, move.cardId).state;
+  }
+  final round = scoreRound(s);
+  int total(Player p) => round.points[p]!.fold(0, (sum, x) => sum + x.value);
+  return total(Player.opponent) - total(Player.player);
+}
+
+/// Politique du niveau moyen, pour n'importe quel siège (utilisée dans les simulations).
+ChkobbaAiMove _moyenMove(ChkobbaState state, Player who) {
+  final hand = state.hands[who]!;
+  var best = hand.first;
+  for (final card in hand.skip(1)) {
+    if (_simulateMove(state.table, card, priority: true).score >
+        _simulateMove(state.table, best, priority: true).score) {
+      best = card;
+    }
+  }
+  return (cardId: best.id, capture: true);
 }
 
 /// Carte jouée par l'adversaire (voir chooseOpponentMove).

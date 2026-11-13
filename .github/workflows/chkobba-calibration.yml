@@ -1,0 +1,38 @@
+# Calibration nocturne des niveaux IA Chkobba (issue #92) : 2 000 parties par niveau.
+# Mesure seule : les taux sont écrits dans le résumé du job, le workflow ne bloque rien.
+# Le cron ne s'exécute que depuis la branche par défaut.
+name: Calibration IA Chkobba
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  calibration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+
+      - name: Dépendances
+        run: flutter pub get
+
+      - name: Mesure des taux de victoire
+        run: flutter test calibration/chkobba_win_rate_test.dart | tee calibration.log
+
+      - name: Résumé
+        if: always()
+        run: |
+          {
+            echo "## Calibration IA Chkobba"
+            grep "^Chkobba " calibration.log || echo "Aucun résultat."
+          } >> "$GITHUB_STEP_SUMMARY"
