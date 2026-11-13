@@ -1,6 +1,6 @@
 // Mesure des niveaux IA Chkobba (issue #92) : 2 000 parties par niveau, chacune contre le niveau moyen
 // (référence). Les places sont alternées une partie sur deux pour éviter le biais de donne.
-// Cibles : facile ~30 %, moyen ~50 %, difficile ~85 %. Mesure seule : les écarts sont affichés, pas bloquants.
+// Cibles : facile ~30 %, moyen ~50 %, difficile ~90 %. Mesure seule : les écarts sont affichés, pas bloquants.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/game/chkobba.dart';
 import 'package:kahwetne/game/common.dart';
@@ -99,7 +99,7 @@ void main() {
     final targets = {
       ChkobbaAiLevel.facile: 0.30,
       ChkobbaAiLevel.moyen: 0.50,
-      ChkobbaAiLevel.difficile: 0.85,
+      ChkobbaAiLevel.difficile: 0.90,
     };
 
     for (final entry in targets.entries) {
