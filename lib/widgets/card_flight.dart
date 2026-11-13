@@ -33,9 +33,8 @@ Future<void> flyCard({
   final total = delay + duration;
   // Part du temps d'attente : la courbe reste à 0 pendant le délai.
   final wait = delay.inMicroseconds / total.inMicroseconds;
-  final Curve curve = wait == 0
-      ? Curves.easeInOut
-      : Interval(wait, 1, curve: Curves.easeInOut);
+  final Curve curve =
+      wait == 0 ? Curves.easeInOut : Interval(wait, 1, curve: Curves.easeInOut);
   final done = Completer<void>();
   late final OverlayEntry entry;
   entry = OverlayEntry(
