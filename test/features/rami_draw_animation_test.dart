@@ -93,12 +93,13 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
-    // Pendant le vol : la carte est à la défausse et une copie vole.
-    expect(faceOf(), findsNWidgets(2));
-
     await tester.pump(const Duration(seconds: 1));
     expect(tester.takeException(), isNull);
-    // Après le vol : seule la carte du dessus de la défausse reste.
+    // Défaussée : plus aucune carte sélectionnée, et elle est sur la défausse.
+    expect(
+      find.byWidgetPredicate((w) => w is RamiCardView && w.selected),
+      findsNothing,
+    );
     expect(faceOf(), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();

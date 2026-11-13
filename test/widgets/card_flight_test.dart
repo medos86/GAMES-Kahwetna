@@ -62,9 +62,7 @@ void main() {
     expect(cardAnimations.value, isFalse);
   });
 
-  testWidgets('délai : la carte n\'apparaît pas avant son tour', (
-    tester,
-  ) async {
+  testWidgets('délai : pas de carte avant son tour', (tester) async {
     cardAnimations.value = true;
     final context = await _pumpApp(tester);
     final done = flyCard(
