@@ -259,7 +259,11 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
-              child: _Scoreboard(game: game),
+              child: _Scoreboard(
+                game: game,
+                playerWonKey: _key('won:player'),
+                opponentWonKey: _key('won:opponent'),
+              ),
             ),
             const SizedBox(height: 8),
             // Main de l'adversaire : dos des cartes, sauf celle qu'il montre.
@@ -551,9 +555,17 @@ class _TargetBadge extends StatelessWidget {
 
 /// Tableau de bord : score de chaque joueur, Chkobba, cartes ramassées et pioche.
 class _Scoreboard extends StatelessWidget {
-  const _Scoreboard({required this.game});
+  const _Scoreboard({
+    required this.game,
+    this.playerWonKey,
+    this.opponentWonKey,
+  });
 
   final ChkobbaState game;
+
+  /// Clés des tas de cartes gagnées (cibles des captures animées, #238).
+  final Key? playerWonKey;
+  final Key? opponentWonKey;
 
   @override
   Widget build(BuildContext context) {
@@ -578,29 +590,25 @@ class _Scoreboard extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            KeyedSubtree(
-              key: _key('won:player'),
-              child: _ScoreSide(
-                name: t('you'),
-                score: game.scores[Player.player]!,
-                chkobbas: game.chkobbas[Player.player]!,
-                cards: game.won[Player.player]!.length,
-                color: const Color(0xFF047857),
-              ),
+            _ScoreSide(
+              key: playerWonKey,
+              name: t('you'),
+              score: game.scores[Player.player]!,
+              chkobbas: game.chkobbas[Player.player]!,
+              cards: game.won[Player.player]!.length,
+              color: const Color(0xFF047857),
             ),
             Semantics(
               label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
               child: _DeckPile(count: game.deck.length),
             ),
-            KeyedSubtree(
-              key: _key('won:opponent'),
-              child: _ScoreSide(
-                name: t('opponent'),
-                score: game.scores[Player.opponent]!,
-                chkobbas: game.chkobbas[Player.opponent]!,
-                cards: game.won[Player.opponent]!.length,
-                color: const Color(0xFFB91C1C),
-              ),
+            _ScoreSide(
+              key: opponentWonKey,
+              name: t('opponent'),
+              score: game.scores[Player.opponent]!,
+              chkobbas: game.chkobbas[Player.opponent]!,
+              cards: game.won[Player.opponent]!.length,
+              color: const Color(0xFFB91C1C),
             ),
           ],
         ),
@@ -611,6 +619,7 @@ class _Scoreboard extends StatelessWidget {
 
 class _ScoreSide extends StatelessWidget {
   const _ScoreSide({
+    super.key,
     required this.name,
     required this.score,
     required this.chkobbas,
