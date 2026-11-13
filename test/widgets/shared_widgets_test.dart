@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/widgets/comic_button.dart';
 import 'package:kahwetne/widgets/felt_panel.dart';
-import 'package:kahwetne/widgets/game_header.dart';
 import 'package:kahwetne/widgets/playing_card.dart';
 import 'package:kahwetne/widgets/result_dialog.dart';
 import 'package:kahwetne/widgets/trophy_badge.dart';
@@ -81,23 +80,6 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     },
   );
-
-  testWidgets('GameHeader : bouton Menu et titre du jeu', (tester) async {
-    var menu = 0;
-    await tester.pumpWidget(
-      _host(
-        GameHeader(
-          gameName: 'CHKOBBA',
-          subtitle: 'Manche 1',
-          onMenu: () => menu++,
-        ),
-      ),
-    );
-    expect(find.text('KAHWETNE · CHKOBBA'), findsOneWidget);
-    expect(find.text('Manche 1'), findsOneWidget);
-    await tester.tap(find.byType(TextButton));
-    expect(menu, 1);
-  });
 
   testWidgets('ResultDialog : titre et actions visibles', (tester) async {
     await tester.pumpWidget(

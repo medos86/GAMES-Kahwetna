@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import 'ad_banner.dart';
+import 'game_safe_area.dart';
 
 /// Structure commune des écrans de jeu (guide §8 : GameScaffold).
 /// Fond → contenu dans SafeArea (largeur max 1100) → bannière pub (si affichée) → overlays.
@@ -40,7 +41,7 @@ class GameScaffold extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           background ?? const ColoredBox(color: Color(0xFF10234B)),
-          SafeArea(
+          GameSafeArea(
             bottom: false,
             child: Align(
               alignment: Alignment.topCenter,
