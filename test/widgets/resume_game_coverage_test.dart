@@ -79,19 +79,21 @@ void main() {
     expect(game.awaitingResume, isFalse);
   });
 
-  testWidgets('Nouvelle partie demande confirmation puis efface la sauvegarde',
-      (tester) async {
-    final store = _Store({'test': {'value': 4}});
-    final game = _Game(store);
-    await game.restore();
+  testWidgets(
+    'Nouvelle partie efface la sauvegarde après confirmation',
+    (tester) async {
+      final store = _Store({'test': {'value': 4}});
+      final game = _Game(store);
+      await game.restore();
 
-    await _pumpWith(tester, game);
-    await tester.tap(find.text(Strings.resumeNew).first);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text(Strings.resumeNew).last);
-    await tester.pumpAndSettle();
+      await _pumpWith(tester, game);
+      await tester.tap(find.text(Strings.resumeNew).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(Strings.resumeNew).last);
+      await tester.pumpAndSettle();
 
-    expect(store.data.containsKey('test'), isFalse);
-    expect(game.awaitingResume, isFalse);
-  });
+      expect(store.data.containsKey('test'), isFalse);
+      expect(game.awaitingResume, isFalse);
+    },
+  );
 }
