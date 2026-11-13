@@ -1,12 +1,10 @@
-// Mesure des niveaux IA Chkobba (issue #92) : 2 000 parties par niveau, chacune contre le niveau moyen
-// (référence). Les places sont alternées une partie sur deux pour éviter le biais de donne.
-// Cibles : facile ~30 %, moyen ~50 %, difficile ~90 %. Mesure seule : les écarts sont affichés, pas bloquants.
-import 'package:flutter_test/flutter_test.dart';
+// Simulation de parties Chkobba pour mesurer les niveaux IA (issue #92).
+// Partagé par le garde-fou rapide (test/game/chkobba_levels_smoke_test.dart, en CI)
+// et la calibration nocturne (calibration/chkobba_win_rate_test.dart).
 import 'package:kahwetne/game/chkobba.dart';
 import 'package:kahwetne/game/common.dart';
 
-const _games = 2000;
-const _targetScore = 11;
+const int chkobbaSimTargetScore = 11;
 
 /// Générateur pseudo-aléatoire à graine fixe (congruentiel linéaire).
 RandomDouble _seeded(int seed) {
@@ -45,13 +43,13 @@ ChkobbaAiMove _aiMove(
 
 /// Joue une partie complète. [levelSeat] joue au niveau [level], l'autre siège au niveau moyen.
 /// Retourne le vainqueur.
-Player _playGame(ChkobbaAiLevel level, Player levelSeat, int seed) {
+Player playChkobbaGame(ChkobbaAiLevel level, Player levelSeat, int seed) {
   final rnd = _seeded(seed);
-  var state = newMatch(targetScore: _targetScore, random: rnd);
+  var state = newMatch(targetScore: chkobbaSimTargetScore, random: rnd);
   var steps = 0;
   while (state.winner == null) {
     if (++steps > 20000) {
-      fail('partie non terminée (graine $seed)');
+      throw StateError('partie non terminée (graine $seed)');
     }
     if (state.hands[Player.player]!.isEmpty &&
         state.hands[Player.opponent]!.isEmpty) {
@@ -84,36 +82,12 @@ Player _playGame(ChkobbaAiLevel level, Player levelSeat, int seed) {
   return state.winner!;
 }
 
-/// Taux de victoire du niveau [level] contre le niveau moyen, places alternées.
-double _winRate(ChkobbaAiLevel level) {
+/// Taux de victoire de [level] contre le niveau moyen, places alternées une partie sur deux.
+double chkobbaWinRate(ChkobbaAiLevel level, {required int games}) {
   var wins = 0;
-  for (var i = 0; i < _games; i++) {
+  for (var i = 0; i < games; i++) {
     final levelSeat = i.isEven ? Player.opponent : Player.player;
-    if (_playGame(level, levelSeat, i + 1) == levelSeat) wins++;
+    if (playChkobbaGame(level, levelSeat, i + 1) == levelSeat) wins++;
   }
-  return wins / _games;
-}
-
-void main() {
-  group('Chkobba : taux de victoire des niveaux IA (issue #92)', () {
-    final targets = {
-      ChkobbaAiLevel.facile: 0.30,
-      ChkobbaAiLevel.moyen: 0.50,
-      ChkobbaAiLevel.difficile: 0.90,
-    };
-
-    for (final entry in targets.entries) {
-      final level = entry.key;
-      final target = entry.value;
-      final pct = (target * 100).round();
-      // Mesure seule (issue #92) : l'écart à la cible est affiché, sans faire échouer la CI.
-      test('niveau ${level.name} : mesure contre moyen', () {
-        final rate = _winRate(level);
-        final measured = (rate * 100).toStringAsFixed(1);
-        print(
-          'Chkobba ${level.name} : $measured % sur $_games parties (cible $pct %)',
-        );
-      });
-    }
-  });
+  return wins / games;
 }
