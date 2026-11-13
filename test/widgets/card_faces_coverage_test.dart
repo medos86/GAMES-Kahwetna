@@ -5,6 +5,9 @@ import 'package:kahwetne/features/coinche/coinche_card_view.dart';
 import 'package:kahwetne/features/domino/domino_tiles.dart';
 import 'package:kahwetne/features/rami/rami_card_view.dart';
 import 'package:kahwetne/game/chkobba.dart';
+import 'package:kahwetne/game/coinche.dart';
+import 'package:kahwetne/game/domino.dart';
+import 'package:kahwetne/game/rami.dart';
 
 // Rendu des faces et dos de cartes (#167 : couverture des widgets de cartes).
 Widget _host(Widget child) {
@@ -75,5 +78,77 @@ void main() {
       _host(const CoincheCardView(width: 60)),
     );
     expect(find.byType(CoincheCardView), findsOneWidget);
+  });
+
+  testWidgets('carte Coinche grisée puis touchée', (tester) async {
+    var taps = 0;
+    await tester.pumpWidget(
+      _host(
+        CoincheCardView(
+          width: 60,
+          card: const CoincheCard(
+            suit: CoincheSuit.coupes,
+            rank: CoincheRank.seven,
+            id: 'k7',
+          ),
+          dimmed: true,
+          onTap: () => taps++,
+        ),
+      ),
+    );
+    await tester.tap(find.byType(CoincheCardView));
+    expect(taps, 1);
+  });
+
+  testWidgets('carte Rami sélectionnée et joker', (tester) async {
+    await tester.pumpWidget(
+      _host(
+        const RamiCardView(
+          card: RamiCard(id: 'r12', suit: RamiSuit.epees, rank: 12),
+          width: 60,
+          selected: true,
+        ),
+      ),
+    );
+    expect(find.byType(RamiCardView), findsOneWidget);
+
+    await tester.pumpWidget(
+      _host(
+        const RamiCardView(
+          card: RamiCard(id: 'joker', suit: null, rank: 0),
+          width: 60,
+        ),
+      ),
+    );
+    expect(find.byType(RamiCardView), findsOneWidget);
+  });
+
+  testWidgets('tuile posée sur la chaîne, retournée et en surbrillance',
+      (tester) async {
+    const tile = PlacedTile(id: 't1', a: 2, b: 4, left: 2, right: 4);
+    await tester.pumpWidget(
+      _host(
+        const ChainTile(
+          tile: tile,
+          length: 60,
+          turn: false,
+          reverse: true,
+          highlight: true,
+        ),
+      ),
+    );
+    expect(find.byType(ChainTile), findsOneWidget);
+
+    await tester.pumpWidget(
+      _host(
+        const ChainTile(
+          tile: tile,
+          length: 60,
+          turn: true,
+          reverse: false,
+        ),
+      ),
+    );
+    expect(find.byType(ChainTile), findsOneWidget);
   });
 }
