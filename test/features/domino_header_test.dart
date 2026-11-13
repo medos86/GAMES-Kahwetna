@@ -10,15 +10,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  testWidgets('Domino : en-tête commun, Menu et manche visibles', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: DominoScreen(difficulty: Difficulty.facile, targetScore: 50),
-      ),
-    );
-    await tester.pump();
-    expect(find.byType(GameHeader), findsOneWidget);
-    expect(find.text(Strings.menuLabel), findsOneWidget);
-    expect(find.textContaining('Manche'), findsOneWidget);
-  });
+  testWidgets(
+    'Domino : en-tête commun, Menu et manche visibles',
+    (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: DominoScreen(difficulty: Difficulty.facile, targetScore: 50),
+        ),
+      );
+      await tester.pump();
+      expect(find.byType(GameHeader), findsOneWidget);
+      expect(find.text(Strings.menuLabel), findsOneWidget);
+      expect(find.textContaining('Manche'), findsOneWidget);
+    },
+  );
 }

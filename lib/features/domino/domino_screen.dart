@@ -257,7 +257,7 @@ class _Header extends StatelessWidget {
             ],
           ),
         ),
-      ),,
+      ),
       trailing: SizedBox(
         width: unit * 3,
         height: unit * 3,
@@ -282,7 +282,7 @@ class _Header extends StatelessWidget {
             ),
           ],
         ),
-      ),,
+      ),
     );
   }
 }
