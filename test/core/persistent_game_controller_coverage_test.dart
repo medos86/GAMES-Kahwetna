@@ -48,11 +48,11 @@ class CounterGame extends PersistentGameController {
 }
 
 void main() {
-  test('sans store : aucune sauvegarde, la partie démarre à neuf', () async {
+  test('sans store : aucune sauvegarde, rien à reprendre', () async {
     final game = CounterGame();
     await game.restore();
     expect(game.awaitingResume, isFalse);
-    expect(game.freshStarts, 1);
+    expect(game.freshStarts, 0);
   });
 
   test('notification : la partie est sauvegardée', () async {
