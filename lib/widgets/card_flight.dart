@@ -43,10 +43,10 @@ Future<void> flyCard({
       },
       builder: (context, t, _) {
         // t parcourt delay + duration : la carte attend son tour puis vole.
-        final elapsed = t * total.inMicroseconds;
-        final local = ((elapsed - delay.inMicroseconds) /
-                duration.inMicroseconds)
-            .clamp(0.0, 1.0);
+        final local =
+            ((t * total.inMicroseconds - delay.inMicroseconds) /
+                    duration.inMicroseconds)
+                .clamp(0.0, 1.0);
         if (local == 0) return const SizedBox.shrink();
         final r = Rect.lerp(from, to, Curves.easeInOut.transform(local))!;
         return Positioned(
