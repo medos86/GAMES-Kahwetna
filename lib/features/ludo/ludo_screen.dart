@@ -6,9 +6,7 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../../game/ludo.dart';
 import '../../widgets/ad_banner.dart';
-import '../../core/strings.dart';
 import '../../core/theme/game_style.dart';
-import '../../widgets/comic/comic_pill.dart';
 import '../menu/menu_models.dart';
 import 'ludo_controller.dart';
 import 'ludo_layout.dart';
@@ -19,6 +17,7 @@ import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
+import '../../widgets/game_header.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
 const _ink = Color(0xFF20284B);
@@ -255,65 +254,30 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final count = controller.playerCount;
-    return Row(
-      children: [
-        kComicLudo
-            ? ComicPill(
-                label: Strings.menuLabel,
-                icon: Icons.arrow_back,
-                onTap: () => Navigator.of(context).maybePop(),
-              )
-            : Material(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () => Navigator.of(context).maybePop(),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.arrow_back,
-                          size: 18,
-                          color: Color(0xFF0B3F7A),
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          Strings.menuLabel,
-                          style: TextStyle(
-                            color: Color(0xFF0B3F7A),
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+    return GameHeader(
+      onMenu: () => Navigator.of(context).maybePop(),
+      center: Expanded(
+        child: Column(
+          children: [
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 6,
+              children: [
+                Text(
+                  count == 1
+                      ? t('ludoPlayerOne')
+                      : tf('ludoPlayers', {'n': '$count'}),
+                  style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
-              ),
-        Expanded(
-          child: Column(
-            children: [
-              Wrap(
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 6,
-                children: [
-                  Text(
-                    count == 1
-                        ? t('ludoPlayerOne')
-                        : tf('ludoPlayers', {'n': '$count'}),
-                    style: const TextStyle(fontWeight: FontWeight.w800),
-                  ),
-                  DifficultyChip(difficulty: difficulty),
-                ],
-              ),
-            ],
-          ),
+                DifficultyChip(difficulty: difficulty),
+              ],
+            ),
+          ],
         ),
-        const SizedBox(width: 48),
-      ],
+      ),
+      // Équilibre la pastille Menu : le centre reste au milieu de l'écran.
+      trailing: const SizedBox(width: 48),
     );
   }
 }
