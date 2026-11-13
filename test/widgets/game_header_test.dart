@@ -1,7 +1,7 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/strings.dart';
 import 'package:kahwetne/widgets/game_header.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Socle commun des en-têtes de jeu (#242).
 Widget _host(Widget child, {double width = 390}) => MaterialApp(
@@ -12,7 +12,7 @@ Widget _host(Widget child, {double width = 390}) => MaterialApp(
     );
 
 void main() {
-  testWidgets('le bouton Menu appelle onMenu', (tester) async {
+  testWidgets('la pastille Menu appelle onMenu', (tester) async {
     var taps = 0;
     await tester.pumpWidget(_host(GameHeader(onMenu: () => taps++)));
     await tester.tap(find.text(Strings.menuLabel));
@@ -27,30 +27,30 @@ void main() {
     },
   );
 
-  testWidgets('Menu à gauche, emplacement à droite', (tester) async {
+  testWidgets('Menu à gauche, contenu central et droite', (tester) async {
     await tester.pumpWidget(
       _host(
         GameHeader(
           onMenu: () {},
-          trailing: const SizedBox(
-            key: ValueKey('droite'),
-            width: 40,
-            height: 40,
+          center: const Expanded(
+            child: Text('centre', key: ValueKey('centre')),
           ),
+          trailing: const SizedBox(key: ValueKey('droite'), width: 40),
         ),
       ),
     );
     final menuX = tester.getTopLeft(find.text(Strings.menuLabel)).dx;
+    final centreX = tester.getTopLeft(find.byKey(const ValueKey('centre'))).dx;
     final rightX = tester.getTopLeft(find.byKey(const ValueKey('droite'))).dx;
-    expect(menuX, lessThan(195));
-    expect(rightX, greaterThan(195));
+    expect(menuX, lessThan(centreX));
+    expect(centreX, lessThan(rightX));
   });
 
   testWidgets('même position du Menu à 360 px et à 430 px', (tester) async {
     await tester.pumpWidget(_host(GameHeader(onMenu: () {}), width: 360));
-    final narrow = tester.getTopLeft(find.byType(TextButton)).dx;
+    final narrow = tester.getTopLeft(find.text(Strings.menuLabel)).dx;
     await tester.pumpWidget(_host(GameHeader(onMenu: () {}), width: 430));
-    final wide = tester.getTopLeft(find.byType(TextButton)).dx;
+    final wide = tester.getTopLeft(find.text(Strings.menuLabel)).dx;
     expect(narrow, wide);
   });
 }
