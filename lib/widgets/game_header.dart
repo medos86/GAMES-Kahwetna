@@ -29,12 +29,21 @@ class GameHeader extends StatelessWidget {
           label: Strings.menuLabel,
           child: TextButton.icon(
             onPressed: onMenu,
-            icon: const Icon(Icons.arrow_back, size: 18, color: Color(0xFFFFF1BD)),
-            label: Text(
-              Strings.menuLabel,
-              style: const TextStyle(color: Color(0xFFFFF1BD), fontWeight: FontWeight.w800),
+            icon: const Icon(
+              Icons.arrow_back,
+              size: 18,
+              color: Color(0xFFFFF1BD),
             ),
-            style: TextButton.styleFrom(minimumSize: const Size(touchSize, touchSize)),
+            label: const Text(
+              Strings.menuLabel,
+              style: TextStyle(
+                color: Color(0xFFFFF1BD),
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            style: TextButton.styleFrom(
+              minimumSize: const Size(touchSize, touchSize),
+            ),
           ),
         ),
         const Spacer(),

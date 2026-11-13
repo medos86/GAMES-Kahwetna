@@ -30,7 +30,8 @@ void main() {
       trailing: const SizedBox(key: ValueKey('droite'), width: 40, height: 40),
     )));
     final menuX = tester.getTopLeft(find.text(Strings.menuLabel)).dx;
-    final rightX = tester.getTopLeft(find.byKey(const ValueKey('droite'))).dx;
+    final rightX =
+        tester.getTopLeft(find.byKey(const ValueKey('droite'))).dx;
     expect(menuX, lessThan(195));
     expect(rightX, greaterThan(195));
   });

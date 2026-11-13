@@ -15,7 +15,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('la marge du haut ne dépasse pas le plafond du socle', (tester) async {
+  testWidgets('la marge du haut reste sous le plafond du socle', (
+    tester,
+  ) async {
     await tester.pumpWidget(const MaterialApp(
       home: MediaQuery(
         data: MediaQueryData(padding: EdgeInsets.only(top: 40)),
