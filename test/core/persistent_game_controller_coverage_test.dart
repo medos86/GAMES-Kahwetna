@@ -102,18 +102,8 @@ void main() {
     final game = CounterGame(store: store);
     await game.restore();
     markResumeConfirmed('test');
-    late BuildContext context;
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Builder(
-          builder: (ctx) {
-            context = ctx;
-            return const SizedBox();
-          },
-        ),
-      ),
-    );
-    await offerResume(context, game);
+    await tester.pumpWidget(const MaterialApp(home: Scaffold()));
+    await offerResume(tester.element(find.byType(Scaffold)), game);
     expect(game.value, 6);
     expect(game.awaitingResume, isFalse);
   });
