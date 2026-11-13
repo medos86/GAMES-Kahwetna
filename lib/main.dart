@@ -7,6 +7,7 @@ import 'app/game_routes.dart';
 import 'core/audio/sounds.dart';
 import 'core/layout/device_metrics.dart';
 import 'core/services/ad_free_service.dart';
+import 'core/services/card_animations.dart';
 import 'core/services/toast.dart';
 import 'core/i18n/app_language.dart';
 import 'core/theme/app_colors.dart';
@@ -39,6 +40,8 @@ Future<void> main() async {
   unawaited(Sounds.preload());
   // Langue sauvegardée relue avant le premier écran (#116).
   await loadLanguage();
+  // Réglage des animations de cartes relu avant le premier écran (#224).
+  await loadCardAnimations();
   // Échéance du mode sans pub relue avant le premier écran : pas de bannière qui clignote au démarrage.
   await AdFreeService.instance.load();
   runApp(const KahwetneApp());
