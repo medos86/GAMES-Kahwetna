@@ -101,4 +101,26 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
+
+  testWidgets('la donne initiale vole depuis la pioche (#238)', (tester) async {
+    tester.view.physicalSize = const Size(390, 844) * 3;
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 60));
+    final during = find.byType(RamiCardView).evaluate().length;
+    await tester.pump(const Duration(seconds: 3));
+    expect(tester.takeException(), isNull);
+    final settled = find.byType(RamiCardView).evaluate().length;
+    // Pendant la donne, des copies volent en plus des cartes déjà posées.
+    expect(during, greaterThan(settled));
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump();
+  });
 }
