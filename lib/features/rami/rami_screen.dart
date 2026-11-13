@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 
@@ -17,6 +19,7 @@ import '../../widgets/exit_guard.dart';
 import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
+import '../../widgets/card_flight.dart';
 import '../../widgets/difficulty_chip.dart';
 
 /// Facteur d'agrandissement des cartes Rami (lisibilité sur téléphone).
@@ -519,6 +522,28 @@ class _RamiScreenState extends State<RamiScreen> {
     );
   }
 
+  /// Pioche : la carte-dos vole vers le bas de l'écran si les animations sont activées (#224).
+  void _drawFromStock(double width) {
+    final from = _rectOf(_key('stock'));
+    final body = _rectOf(_bodyKey);
+    if (from != null && body != null) {
+      final to = Rect.fromCenter(
+        center: Offset(body.center.dx, body.bottom - width),
+        width: from.width,
+        height: from.height,
+      );
+      unawaited(
+        flyCard(
+          context: context,
+          from: from,
+          to: to,
+          child: RamiBackView(width: width),
+        ),
+      );
+    }
+    _c.drawFromStock();
+  }
+
   Widget _piles(double width, rules.RamiState g) {
     final c = _c;
     final top = c.top;
@@ -529,8 +554,9 @@ class _RamiScreenState extends State<RamiScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             GestureDetector(
-              onTap: c.canDraw ? c.drawFromStock : null,
+              onTap: c.canDraw ? () => _drawFromStock(width) : null,
               child: Container(
+                key: _key('stock'),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(width * 0.14),
                   border: c.canDraw
