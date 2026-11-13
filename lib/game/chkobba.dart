@@ -590,7 +590,7 @@ ChkobbaAiMove chooseOpponentMove(
 }
 
 /// Nombre de manches simulées par carte pour le niveau difficile.
-const int _difficileRollouts = 100;
+const int _difficileRollouts = 20;
 
 /// Générateur à graine fixe (utilisé quand l'appelant n'en fournit pas).
 RandomDouble _fixedRandom() {
