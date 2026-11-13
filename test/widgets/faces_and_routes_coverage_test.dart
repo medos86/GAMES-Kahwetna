@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/app/game_routes.dart';
+import 'package:kahwetne/core/audio/sounds.dart';
 import 'package:kahwetne/core/i18n/app_language.dart';
 import 'package:kahwetne/features/chkobba/chkobba_card_face.dart';
 import 'package:kahwetne/features/comic_demo/comic_demo_screen.dart';
@@ -8,6 +9,7 @@ import 'package:kahwetne/features/domino/domino_tiles.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:kahwetne/game/chkobba.dart';
 import 'package:kahwetne/game/domino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Toutes les faces de dominos et de cartes, langues et routes (#167 : couverture).
 Widget _host(Widget child) {
@@ -105,5 +107,28 @@ void main() {
     expect(parseDifficulty('inconnu'), Difficulty.facile);
     expect(gameForRoute('/ludo')?.name, 'Ludo');
     expect(gameForRoute('/inexistant'), isNull);
+  });
+
+  test('langue : enregistrée puis rechargée', () async {
+    SharedPreferences.setMockInitialValues({});
+    await loadLanguage();
+    await setLanguage(AppLanguage.ar);
+    expect(appLanguage.value, AppLanguage.ar);
+    await setLanguage(AppLanguage.fr);
+    expect(appLanguage.value, AppLanguage.fr);
+    expect(tf('ludoPlayers', {'n': '2'}), isNotEmpty);
+  });
+
+  test('sons : chaque effet a un fichier', () {
+    for (final sfx in Sfx.values) {
+      expect(sfx.assetPath, isNotEmpty);
+    }
+  });
+
+  test('routes de jeu : chaque chemin donne une route', () {
+    for (final path in ['/game', '/domino', '/coinche', '/ludo', '/rami']) {
+      expect(buildGameRoute(path), isNotNull);
+    }
+    expect(buildGameRoute(null), isNull);
   });
 }
