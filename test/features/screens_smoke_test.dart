@@ -16,7 +16,8 @@ Future<void> _pumpScreen(WidgetTester tester, Widget screen) async {
   addTearDown(tester.view.resetDevicePixelRatio);
   await tester.pumpWidget(MaterialApp(home: screen));
   await tester.pump(const Duration(seconds: 1));
-  expect(tester.takeException(), isNull);
+  final error = tester.takeException();
+  if (error != null) throw error;
   // Démontage : annule les minuteurs des contrôleurs et des bannières.
   await tester.pumpWidget(const SizedBox());
   await tester.pump();
