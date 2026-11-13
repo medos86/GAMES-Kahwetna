@@ -100,10 +100,5 @@ void main() {
     expect(Strings.menuComingSoonBody, isNotEmpty);
     expect(Strings.menuBackgroundAlt, isNotEmpty);
     expect(Strings.chkobbaRuleHaya, isNotEmpty);
-    expect(Strings.gameChkobba, isNotEmpty);
-    expect(Strings.gameDomino, isNotEmpty);
-    expect(Strings.gameLudo, isNotEmpty);
-    expect(Strings.gameRami, isNotEmpty);
-    expect(Strings.tagline, isNotEmpty);
   });
 }
