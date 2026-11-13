@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/card_animations.dart';
+import 'package:kahwetne/core/strings.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:kahwetne/features/rami/rami_card_view.dart';
 import 'package:kahwetne/features/rami/rami_screen.dart';
@@ -42,6 +43,39 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     expect(tester.takeException(), isNull);
     expect(backs.evaluate().length, before);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump();
+  });
+
+  testWidgets('la défausse lance un vol vers la défausse', (tester) async {
+    tester.view.physicalSize = const Size(390, 844) * 3;
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
+      ),
+    );
+    await tester.pump(const Duration(seconds: 1));
+
+    // Piocher d'abord : la défausse n'est possible qu'ensuite.
+    await tester.tap(find.byType(RamiBackView).first);
+    await tester.pump(const Duration(seconds: 1));
+
+    await tester.tap(find.byType(RamiCardView).last);
+    await tester.pump();
+    final before = find.byType(RamiCardView).evaluate().length;
+    await tester.tap(find.text(Strings.actDiscard));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(tester.takeException(), isNull);
+    // Une copie de la carte vole vers la défausse.
+    expect(find.byType(RamiCardView).evaluate().length, before + 1);
+
+    await tester.pump(const Duration(seconds: 1));
+    expect(tester.takeException(), isNull);
+    expect(find.byType(RamiCardView).evaluate().length, before);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });

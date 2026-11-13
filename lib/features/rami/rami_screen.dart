@@ -241,7 +241,11 @@ class _RamiScreenState extends State<RamiScreen> {
     setState(() => _drag = null);
     if (press == null) return;
     if (press.active) {
-      _c.dropCard(press.id, _targetAt(event.position));
+      final target = _targetAt(event.position);
+      final from = _rectOf(_key('hand:${press.id}'));
+      final card = _cardById(press.id);
+      _c.dropCard(press.id, target);
+      if (target is RamiDropDiscard) _flyToDiscard(press.id, from, card);
     } else {
       _c.tap(press.id);
     }
@@ -523,6 +527,46 @@ class _RamiScreenState extends State<RamiScreen> {
   }
 
   /// Pioche : la carte-dos vole vers le bas de l'écran si les animations sont activées (#224).
+  rules.RamiCard? _cardById(String id) {
+    for (final card in _c.hand) {
+      if (card.id == id) return card;
+    }
+    return null;
+  }
+
+  /// Défausse la carte sélectionnée avec son vol vers la défausse (#238).
+  void _discardSelected() {
+    final ids = _c.selected;
+    if (ids.length != 1) {
+      _c.discardSelected();
+      return;
+    }
+    final id = ids.first;
+    final from = _rectOf(_key('hand:$id'));
+    final card = _cardById(id);
+    _c.discardSelected();
+    _flyToDiscard(id, from, card);
+  }
+
+  /// Fait voler la carte [card] de [from] vers la défausse, si elle a bien
+  /// quitté la main (une défausse refusée ne vole pas).
+  void _flyToDiscard(String id, Rect? from, rules.RamiCard? card) {
+    if (from == null || card == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _c.hand.any((c) => c.id == id)) return;
+      final to = _rectOf(_key('discard'));
+      if (to == null) return;
+      unawaited(
+        flyCard(
+          context: context,
+          from: from,
+          to: to,
+          child: RamiCardView(card: card, width: to.width),
+        ),
+      );
+    });
+  }
+
   void _drawFromStock(double width) {
     final from = _rectOf(_key('stock'));
     final before = {for (final card in _c.hand) card.id};
@@ -729,7 +773,7 @@ class _RamiScreenState extends State<RamiScreen> {
       ],
       _ActionButton(
         label: Strings.actDiscard,
-        onTap: c.discardSelected,
+        onTap: _discardSelected,
         enabled: c.selected.length == 1 && !staged,
         danger: true,
       ),
