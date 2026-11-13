@@ -34,7 +34,7 @@ class GameHeader extends StatelessWidget {
               size: 18,
               color: Color(0xFFFFF1BD),
             ),
-            label: const Text(
+            label: Text(
               Strings.menuLabel,
               style: TextStyle(
                 color: Color(0xFFFFF1BD),

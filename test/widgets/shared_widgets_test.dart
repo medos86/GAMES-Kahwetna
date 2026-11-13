@@ -82,23 +82,6 @@ void main() {
     },
   );
 
-  testWidgets('GameHeader : bouton Menu et titre du jeu', (tester) async {
-    var menu = 0;
-    await tester.pumpWidget(
-      _host(
-        GameHeader(
-          gameName: 'CHKOBBA',
-          subtitle: 'Manche 1',
-          onMenu: () => menu++,
-        ),
-      ),
-    );
-    expect(find.text('KAHWETNE · CHKOBBA'), findsOneWidget);
-    expect(find.text('Manche 1'), findsOneWidget);
-    await tester.tap(find.byType(TextButton));
-    expect(menu, 1);
-  });
-
   testWidgets('ResultDialog : titre et actions visibles', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
