@@ -159,8 +159,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                     onTap: () => Navigator.of(context).pop(),
                   ),
                   const Spacer(),
-                  DifficultyChip(difficulty: widget.difficulty),
-                  const SizedBox(width: 8),
                   _PillButton(
                     label: t('chkobbaRules'),
                     icon: Icons.menu_book,
@@ -181,6 +179,13 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                   ],
                   _TargetBadge(target: game.targetScore),
                 ],
+              ),
+            ),
+            // Niveau en cours : sur sa propre ligne, pour ne pas faire déborder la barre du haut (#204).
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Center(
+                child: DifficultyChip(difficulty: widget.difficulty),
               ),
             ),
             Padding(
