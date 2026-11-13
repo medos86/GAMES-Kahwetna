@@ -26,7 +26,9 @@ void main() {
     FlutterError.onError = previous;
     for (final e in errors) {
       debugPrint('DIAG_BEGIN ${e.exceptionAsString()}');
-      debugPrint('DIAG ${e.toString()}');
+      for (final node in e.informationCollector?.call() ?? const <DiagnosticsNode>[]) {
+        debugPrint('DIAG ${node.toStringDeep()}');
+      }
       debugPrint('DIAG_END');
     }
     await tester.pumpWidget(const SizedBox());
