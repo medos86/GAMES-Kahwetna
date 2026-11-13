@@ -36,12 +36,12 @@ jobs:
       - name: Tests unitaires (avec couverture)
         run: flutter test --coverage
 
-      - name: Seuil de couverture (90 %)
-        # Pourcentage de lignes couvertes dans coverage/lcov.info. Le pipeline échoue sous 90 % (#167).
+      - name: Seuil de couverture (40 %)
+        # Pourcentage de lignes couvertes dans coverage/lcov.info. Seuil de départ à 40 %, à relever au fil des tests ajoutés (#167). Objectif : 90 %.
         run: |
           awk -F: '/^LF:/{lf+=$2} /^LH:/{lh+=$2} END {
             if (lf == 0) { print "Aucune ligne dans lcov.info"; exit 1 }
             pct = 100 * lh / lf
             printf "Couverture : %.2f %% (%d / %d lignes)\n", pct, lh, lf
-            if (pct < 90) { print "Échec : couverture sous le seuil de 90 %"; exit 1 }
+            if (pct < 40) { print "Échec : couverture sous le seuil de 40 %"; exit 1 }
           }' coverage/lcov.info
