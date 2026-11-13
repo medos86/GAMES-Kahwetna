@@ -279,6 +279,29 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     });
   }
 
+  static ChkobbaAiLevel _levelFor(Difficulty d) => switch (d) {
+        Difficulty.facile => ChkobbaAiLevel.facile,
+        Difficulty.moyen => ChkobbaAiLevel.moyen,
+        Difficulty.difficile => ChkobbaAiLevel.difficile,
+      };
+
+  Future<void> _onPlayerCard(String cardId) async {
+    _controller.tapPlayerCard(cardId);
+    final pending = _controller.pendingCapture;
+    if (pending == null) return;
+    final option = await showModalBottomSheet<List<ChkobbaCard>>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => _CapturePicker(options: pending.options),
+    );
+    if (!mounted) return;
+    if (option == null) {
+      _controller.cancelPendingCapture();
+    } else {
+      _controller.choosePendingCapture(option);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
@@ -384,6 +407,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                 game: game,
                 playerWonKey: _key('won:player'),
                 opponentWonKey: _key('won:opponent'),
+                deckKey: _key('deck'),
               ),
             ),
             const SizedBox(height: 8),
@@ -684,7 +708,11 @@ class _Scoreboard extends StatelessWidget {
     required this.game,
     this.playerWonKey,
     this.opponentWonKey,
+    this.deckKey,
   });
+
+  /// Clé de la pioche (cible de la donne animée, #238).
+  final Key? deckKey;
 
   final ChkobbaState game;
 
@@ -726,7 +754,7 @@ class _Scoreboard extends StatelessWidget {
             Semantics(
               label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
               child: KeyedSubtree(
-                key: _key('deck'),
+                key: deckKey,
                 child: _DeckPile(count: game.deck.length),
               ),
             ),
