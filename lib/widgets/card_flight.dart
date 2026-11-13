@@ -31,22 +31,26 @@ Future<void> flyCard({
   if (overlay == null) return Future<void>.value();
 
   final total = delay + duration;
+  // Part du temps d'attente : la courbe reste à 0 pendant le délai.
+  final wait = delay.inMicroseconds / total.inMicroseconds;
+  final curve = wait == 0
+      ? Curves.easeInOut
+      : Interval(wait, 1, curve: Curves.easeInOut);
   final done = Completer<void>();
   late final OverlayEntry entry;
   entry = OverlayEntry(
     builder: (_) => TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
       duration: total,
+      curve: curve,
       onEnd: () {
         entry.remove();
         done.complete();
       },
       builder: (context, t, _) {
-        // t parcourt delay + duration : la carte attend son tour puis vole.
-        final progress = t * total.inMicroseconds - delay.inMicroseconds;
-        final local = (progress / duration.inMicroseconds).clamp(0.0, 1.0);
-        if (local == 0) return const SizedBox.shrink();
-        final r = Rect.lerp(from, to, Curves.easeInOut.transform(local))!;
+        // Avant le départ la courbe vaut 0 : la carte n'est pas encore lancée.
+        if (t == 0 && wait > 0) return const SizedBox.shrink();
+        final r = Rect.lerp(from, to, t)!;
         return Positioned(
           left: r.left,
           top: r.top,
