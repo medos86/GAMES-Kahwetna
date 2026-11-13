@@ -63,7 +63,15 @@ void main() {
     await tester.tap(find.byType(RamiBackView).first);
     await tester.pump(const Duration(seconds: 1));
 
-    await tester.tap(find.byType(RamiCardView).last);
+    // Carte la plus basse à l'écran : celle de la main, pas la défausse.
+    final cards = tester.widgetList<RamiCardView>(find.byType(RamiCardView));
+    final lowest = cards.reduce(
+      (a, b) => tester.getCenter(find.byWidget(a)).dy >=
+              tester.getCenter(find.byWidget(b)).dy
+          ? a
+          : b,
+    );
+    await tester.tap(find.byWidget(lowest));
     await tester.pump();
     final before = find.byType(RamiCardView).evaluate().length;
     await tester.tap(find.text(Strings.actDiscard));
