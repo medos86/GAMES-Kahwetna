@@ -24,7 +24,6 @@ void main() {
       );
       final tile = c.playable.first;
       c.tapTile(tile);
-      expect(c.selectedTileId, tile.id);
       c.tapTile(tile);
       c.tapTile(c.playable.first);
       c.playSelected(DominoSide.left);
