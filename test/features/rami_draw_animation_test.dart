@@ -71,13 +71,15 @@ void main() {
           ? a
           : b,
     );
+    final id = lowest.card.id;
+    Finder faceOf() =>
+        find.byWidgetPredicate((w) => w is RamiCardView && w.card.id == id);
     await tester.tap(find.byWidget(lowest));
     await tester.pump();
     expect(
       find.byWidgetPredicate((w) => w is RamiCardView && w.selected),
       findsOneWidget,
     );
-    final before = find.byType(RamiCardView).evaluate().length;
     expect(find.text(Strings.actDiscard), findsOneWidget);
     // Déclenche le bouton directement : le tap est masqué par la main (layout).
     final discardButton = tester.widget<InkWell>(
@@ -91,13 +93,36 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
-    // Main -1 et copie qui vole +1 : le total ne change pas pendant le vol.
-    expect(find.byType(RamiCardView).evaluate().length, before);
-
     await tester.pump(const Duration(seconds: 1));
     expect(tester.takeException(), isNull);
-    // La défausse n'affiche que la carte du dessus : total = before - 1.
-    expect(find.byType(RamiCardView).evaluate().length, before - 1);
+    // Défaussée : plus aucune carte sélectionnée, et elle est sur la défausse.
+    expect(
+      find.byWidgetPredicate((w) => w is RamiCardView && w.selected),
+      findsNothing,
+    );
+    expect(faceOf(), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump();
+  });
+
+  testWidgets('la donne initiale vole depuis la pioche (#238)', (tester) async {
+    tester.view.physicalSize = const Size(390, 844) * 3;
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 60));
+    final during = find.byType(RamiCardView).evaluate().length;
+    await tester.pump(const Duration(seconds: 3));
+    expect(tester.takeException(), isNull);
+    final settled = find.byType(RamiCardView).evaluate().length;
+    // Pendant la donne, des copies volent en plus des cartes déjà posées.
+    expect(during, greaterThan(settled));
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });

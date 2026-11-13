@@ -152,7 +152,12 @@ class _RamiScreenState extends State<RamiScreen> {
   @override
   void initState() {
     super.initState();
+    _c.addListener(_onRamiChanged);
     _c.restore().then((_) {
+      _ready = true;
+      _snapshot();
+      // Partie neuve : la première donne est animée.
+      if (!_restored) _distribute();
       if (mounted) offerResume(context, _c);
     });
     _adFree.addListener(_onAdFreeChanged);
@@ -161,6 +166,7 @@ class _RamiScreenState extends State<RamiScreen> {
   @override
   void dispose() {
     _adFree.removeListener(_onAdFreeChanged);
+    _c.removeListener(_onRamiChanged);
     _c.dispose();
     super.dispose();
   }
@@ -241,11 +247,7 @@ class _RamiScreenState extends State<RamiScreen> {
     setState(() => _drag = null);
     if (press == null) return;
     if (press.active) {
-      final target = _targetAt(event.position);
-      final from = _rectOf(_key('hand:${press.id}'));
-      final card = _cardById(press.id);
-      _c.dropCard(press.id, target);
-      if (target is RamiDropDiscard) _flyToDiscard(press.id, from, card);
+      _c.dropCard(press.id, _targetAt(event.position));
     } else {
       _c.tap(press.id);
     }
@@ -472,7 +474,10 @@ class _RamiScreenState extends State<RamiScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: _PlayerChip(seat: seat, game: g),
+              child: KeyedSubtree(
+                key: _key('seat:$seat'),
+                child: _PlayerChip(seat: seat, game: g),
+              ),
             ),
           ),
       ],
@@ -527,43 +532,141 @@ class _RamiScreenState extends State<RamiScreen> {
   }
 
   /// Pioche : la carte-dos vole vers le bas de l'écran si les animations sont activées (#224).
-  rules.RamiCard? _cardById(String id) {
-    for (final card in _c.hand) {
-      if (card.id == id) return card;
+  // -------------------------------------------------------------------------
+  // Mouvements animés (#238) : distribution et cartes qui quittent la main.
+  // Une seule règle pour tous les passages : la carte vole vers sa destination.
+  // -------------------------------------------------------------------------
+
+  static const _flightStagger = Duration(milliseconds: 40);
+  bool _ready = false;
+  bool _restored = false;
+  bool _dealPending = false;
+  List<rules.RamiCard> _lastHand = const [];
+  rules.RamiState? _lastGame;
+
+  void _snapshot() {
+    _lastHand = List.of(_c.hand);
+    _lastGame = _c.game;
+  }
+
+  /// Lance une action qui donne une nouvelle manche : la distribution est animée.
+  void _deal(VoidCallback action) {
+    _dealPending = true;
+    action();
+    _dealPending = false;
+  }
+
+  void _onRamiChanged() {
+    final prevHand = _lastHand;
+    final prevGame = _lastGame;
+    final g = _c.game;
+    if (identical(g, prevGame)) return;
+    if (!_ready) {
+      _restored = true;
+      return;
+    }
+    _snapshot();
+    final still = {for (final card in _c.hand) card.id};
+    final leaving = [
+      for (final card in prevHand)
+        if (!still.contains(card.id)) card,
+    ];
+    if (leaving.isNotEmpty) _flyLeaving(leaving);
+    if (_dealPending) _distribute();
+  }
+
+  /// Vol des cartes qui quittent la main vers leur destination (défausse, combinaison, tapis).
+  void _flyLeaving(List<rules.RamiCard> leaving) {
+    final starts = <(rules.RamiCard, Rect)>[];
+    for (final card in leaving) {
+      final from = _rectOf(_key('hand:${card.id}'));
+      if (from != null) starts.add((card, from));
+    }
+    if (starts.isEmpty) return;
+    // Destinations lues après le rendu : la nouvelle position existe alors.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      var i = 0;
+      for (final (card, from) in starts) {
+        final to = _targetFor(card.id, from);
+        if (to == null) continue;
+        unawaited(
+          flyCard(
+            context: context,
+            from: from,
+            to: to,
+            child: RamiCardView(card: card, width: from.width),
+            delay: _flightStagger * i,
+          ),
+        );
+        i++;
+      }
+    });
+  }
+
+  Rect? _targetFor(String id, Rect from) {
+    final g = _c.game;
+    if (_c.top?.id == id) return _rectOf(_key('discard'));
+    for (final meld in g.table) {
+      if (meld.cards.any((card) => card.id == id)) {
+        final r = _rectOf(_key('meld:${meld.id}'));
+        return r == null
+            ? null
+            : Rect.fromLTWH(r.left, r.top, from.width, from.height);
+      }
+    }
+    if (g.staged.any((group) => group.any((card) => card.id == id))) {
+      final r = _rectOf(_key('table'));
+      return r == null
+          ? null
+          : Rect.fromCenter(
+              center: r.center,
+              width: from.width,
+              height: from.height,
+            );
     }
     return null;
   }
 
-  /// Défausse la carte sélectionnée avec son vol vers la défausse (#238).
-  void _discardSelected() {
-    final ids = _c.selected;
-    if (ids.length != 1) {
-      _c.discardSelected();
-      return;
-    }
-    final id = ids.first;
-    final from = _rectOf(_key('hand:$id'));
-    final card = _cardById(id);
-    _c.discardSelected();
-    _flyToDiscard(id, from, card);
-  }
-
-  /// Fait voler la carte [card] de [from] vers la défausse, si elle a bien
-  /// quitté la main (une défausse refusée ne vole pas).
-  void _flyToDiscard(String id, Rect? from, rules.RamiCard? card) {
-    if (from == null || card == null) return;
+  /// Distribution : pioche → chaque carte de ta main, puis un dos vers chaque adversaire.
+  void _distribute() {
+    final from = _rectOf(_key('stock'));
+    if (from == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || _c.hand.any((c) => c.id == id)) return;
-      final to = _rectOf(_key('discard'));
-      if (to == null) return;
-      unawaited(
-        flyCard(
-          context: context,
-          from: from,
-          to: to,
-          child: RamiCardView(card: card, width: to.width),
-        ),
-      );
+      if (!mounted) return;
+      var i = 0;
+      for (final card in _c.hand) {
+        final to = _rectOf(_key('hand:${card.id}'));
+        if (to == null) continue;
+        unawaited(
+          flyCard(
+            context: context,
+            from: from,
+            to: to,
+            child: RamiCardView(card: card, width: to.width),
+            delay: _flightStagger * i,
+          ),
+        );
+        i++;
+      }
+      for (var seat = 1; seat < 4; seat++) {
+        final chip = _rectOf(_key('seat:$seat'));
+        if (chip == null) continue;
+        unawaited(
+          flyCard(
+            context: context,
+            from: from,
+            to: Rect.fromCenter(
+              center: chip.center,
+              width: from.width,
+              height: from.height,
+            ),
+            child: RamiBackView(width: from.width),
+            delay: _flightStagger * i,
+          ),
+        );
+        i++;
+      }
     });
   }
 
@@ -773,7 +876,7 @@ class _RamiScreenState extends State<RamiScreen> {
       ],
       _ActionButton(
         label: Strings.actDiscard,
-        onTap: _discardSelected,
+        onTap: _c.discardSelected,
         enabled: c.selected.length == 1 && !staged,
         danger: true,
       ),
@@ -1056,7 +1159,10 @@ class _RamiScreenState extends State<RamiScreen> {
                   ),
                   const SizedBox(height: 20),
                   if (matchWinner != null) ...[
-                    _DialogButton(label: Strings.replay, onTap: _c.restart),
+                    _DialogButton(
+                      label: Strings.replay,
+                      onTap: () => _deal(_c.restart),
+                    ),
                     TextButton(
                       onPressed: () => Navigator.of(context).maybePop(),
                       child: Text(
@@ -1067,7 +1173,7 @@ class _RamiScreenState extends State<RamiScreen> {
                   ] else
                     _DialogButton(
                       label: Strings.nextRoundButton,
-                      onTap: _c.nextRound,
+                      onTap: () => _deal(_c.nextRound),
                     ),
                 ],
               ),
