@@ -25,7 +25,15 @@ Future<void> _resumeScreen(WidgetTester tester, Widget screen) async {
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
-  await tester.pumpWidget(MaterialApp(home: screen));
+  await tester.pumpWidget(
+    MaterialApp(
+      localizationsDelegates: const [
+        DefaultMaterialLocalizations.delegate,
+        DefaultWidgetsLocalizations.delegate,
+      ],
+      home: screen,
+    ),
+  );
   await tester.pump(const Duration(seconds: 1));
   final resume = find.text(Strings.resumeContinue);
   if (resume.evaluate().isNotEmpty) {
