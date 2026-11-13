@@ -67,4 +67,25 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     expect(find.text('11'), findsOneWidget);
   });
+  testWidgets('ResultDialog.show ouvre la fenêtre', (tester) async {
+    await tester.pumpWidget(MaterialApp(home: Scaffold(body: _opener())));
+    await tester.tap(find.text('ouvrir'));
+    await tester.pumpAndSettle();
+    expect(find.text('Fin'), findsOneWidget);
+  });
+}
+
+Widget _opener() {
+  return Builder(
+    builder: (context) => TextButton(
+      onPressed: () => ResultDialog.show<void>(
+        context,
+        builder: (_) => const ResultDialog(
+          style: ResultDialogStyle.comicGreen,
+          title: 'Fin',
+        ),
+      ),
+      child: const Text('ouvrir'),
+    ),
+  );
 }
