@@ -572,11 +572,13 @@ ChkobbaAiMove chooseOpponentMove(
   // parmi les cartes inconnues (sa vraie main n'est pas lue), on joue la manche jusqu'au bout,
   // et on garde la carte qui rapporte le plus de points en moyenne.
   var bestCard = hand.first;
+  // Sans générateur fourni, graine fixe : même état, même coup (le test « ne lit pas la main » le vérifie).
+  final rr = random ?? _fixedRandom();
   var bestValue = double.negativeInfinity;
   for (final card in hand) {
     var total = 0;
     for (var i = 0; i < _difficileRollouts; i++) {
-      total += _rolloutRound(state, card.id, r);
+      total += _rolloutRound(state, card.id, rr);
     }
     final value = total / _difficileRollouts;
     if (value > bestValue) {
@@ -589,6 +591,15 @@ ChkobbaAiMove chooseOpponentMove(
 
 /// Nombre de manches simulées par carte pour le niveau difficile.
 const int _difficileRollouts = 20;
+
+/// Générateur à graine fixe (utilisé quand l'appelant n'en fournit pas).
+RandomDouble _fixedRandom() {
+  var s = 2024;
+  return () {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return s / 0x80000000;
+  };
+}
 
 /// Joue la manche jusqu'au bout après que l'adversaire a joué [cardId], avec une main du joueur
 /// tirée au hasard parmi les cartes inconnues. Renvoie le solde de points de la manche pour l'adversaire.
