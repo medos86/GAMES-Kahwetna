@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/card_animations.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
+import 'package:kahwetne/features/rami/rami_card_view.dart';
 import 'package:kahwetne/features/rami/rami_screen.dart';
 import 'package:kahwetne/widgets/card_flight.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,7 +25,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
       const MaterialApp(
-        home: RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
+        home: const RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
       ),
     );
     await tester.pump(const Duration(seconds: 1));
