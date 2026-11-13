@@ -23,6 +23,7 @@ import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
+import '../../widgets/game_header.dart';
 import '../../widgets/card_flight.dart';
 
 /// Écran de jeu de la Chkobba, fidèle à GameScreen.tsx : scores, pioche, tapis, mains,
@@ -220,34 +221,33 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 6, 10, 0),
-              child: Row(
-                children: [
-                  _PillButton(
-                    label: Strings.menuLabel,
-                    icon: Icons.arrow_back,
-                    onTap: () => Navigator.of(context).pop(),
-                  ),
-                  const Spacer(),
-                  _PillButton(
-                    label: t('chkobbaRules'),
-                    icon: Icons.menu_book,
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const ChkobbaRulesScreen(),
+              child: GameHeader(
+                unit: 14,
+                onMenu: () => Navigator.of(context).pop(),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _PillButton(
+                      label: t('chkobbaRules'),
+                      icon: Icons.menu_book,
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const ChkobbaRulesScreen(),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  if (game.winner != null) ...[
-                    _PillButton(
-                      label: t('newGame'),
-                      icon: Icons.refresh,
-                      onTap: _controller.startNewGame,
-                    ),
                     const SizedBox(width: 8),
+                    if (game.winner != null) ...[
+                      _PillButton(
+                        label: t('newGame'),
+                        icon: Icons.refresh,
+                        onTap: _controller.startNewGame,
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    _TargetBadge(target: game.targetScore),
                   ],
-                  _TargetBadge(target: game.targetScore),
-                ],
+                ),
               ),
             ),
             // Niveau en cours : sur sa propre ligne, pour ne pas faire déborder la barre du haut (#204).

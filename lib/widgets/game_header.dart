@@ -1,91 +1,81 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../core/strings.dart';
+import '../core/theme/comic_palette.dart';
+import 'comic/comic_panel.dart';
+import 'pressable.dart';
 
-/// En-tête commun des écrans de jeu (guide §8 : GameHeader).
-/// Bouton Menu (texte masqué sous 390 px de large), titre « KAHWETNE · JEU »,
-/// sous-titre (ex. « Manche 3 ») et emplacement à droite (trophée, règles…).
+/// En-tête commun des écrans de jeu (#242).
+///
+/// Pastille Menu à gauche (style BD), contenu central et emplacement à droite.
+/// [center] et [trailing] sont placés tels quels dans la ligne : [center] doit donc
+/// être un `Expanded` ou un `Flexible`. La position ne dépend ni du jeu ni de la langue.
 class GameHeader extends StatelessWidget {
   const GameHeader({
     super.key,
-    required this.gameName,
     required this.onMenu,
-    this.subtitle,
+    this.unit = 16,
+    this.center,
     this.trailing,
   });
 
-  /// Nom du jeu en majuscules, ex. « CHKOBBA » → « KAHWETNE · CHKOBBA ».
-  final String gameName;
   final VoidCallback onMenu;
-  final String? subtitle;
-  final Widget? trailing;
 
-  static const double _labelBreakpoint = 390;
+  /// Taille de référence du header, en dp (les autres tailles en sont proportionnelles).
+  final double unit;
+
+  /// Contenu central (ex. manche et difficulté). Un `Spacer` si absent.
+  final Widget? center;
+
+  /// Contenu à droite (ex. trophée et score cible).
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final showLabel = MediaQuery.sizeOf(context).width >= _labelBreakpoint;
-        return Row(
-          children: [
-            Semantics(
-              button: true,
-              label: Strings.menuLabel,
-              child: TextButton.icon(
-                onPressed: onMenu,
-                icon: const Icon(
-                  Icons.arrow_back,
-                  size: 18,
-                  color: Color(0xFFFFF1BD),
-                ),
-                label: showLabel
-                    ? Text(
-                        Strings.menuLabel,
-                        style: TextStyle(
-                          color: Color(0xFFFFF1BD),
-                          fontWeight: FontWeight.w800,
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-                style: TextButton.styleFrom(minimumSize: const Size(44, 44)),
-              ),
+    return Row(
+      children: [
+        Pressable(
+          semanticLabel: Strings.menuLabel,
+          onTap: onMenu,
+          child: _MenuPill(unit: unit),
+        ),
+        center ?? const Spacer(),
+        if (trailing != null) trailing!,
+      ],
+    );
+  }
+}
+
+/// Bouton Menu en case BD : contour encre, libellé en Bangers.
+class _MenuPill extends StatelessWidget {
+  const _MenuPill({required this.unit});
+
+  final double unit;
+
+  @override
+  Widget build(BuildContext context) {
+    return ComicPanel(
+      color: ComicPalette.paper,
+      outlineColor: ComicPalette.ink,
+      radius: 12,
+      shadowOffset: const Offset(3, 3),
+      padding: EdgeInsets.symmetric(horizontal: unit, vertical: unit * 0.55),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.arrow_back, size: unit, color: ComicPalette.ink),
+          SizedBox(width: unit * 0.4),
+          Text(
+            Strings.menuLabel,
+            style: TextStyle(
+              fontFamily: 'Bangers',
+              fontSize: unit * 0.95,
+              letterSpacing: 1,
+              color: ComicPalette.ink,
             ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'KAHWETNE · $gameName',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontFamily: 'RobotoSlab',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFFFFF1BD),
-                      shadows: [
-                        Shadow(offset: Offset(1, 2), color: Color(0xFF4A2A10)),
-                      ],
-                    ),
-                  ),
-                  if (subtitle != null)
-                    Text(
-                      subtitle!,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xCCFFF8E7),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            if (trailing != null) trailing!,
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 }
