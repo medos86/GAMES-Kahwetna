@@ -525,13 +525,17 @@ class _RamiScreenState extends State<RamiScreen> {
   /// Pioche : la carte-dos vole vers le bas de l'écran si les animations sont activées (#224).
   void _drawFromStock(double width) {
     final from = _rectOf(_key('stock'));
-    final body = _rectOf(_bodyKey);
-    if (from != null && body != null) {
-      final to = Rect.fromCenter(
-        center: Offset(body.center.dx, body.bottom - width),
-        width: from.width,
-        height: from.height,
-      );
+    final before = {for (final card in _c.hand) card.id};
+    _c.drawFromStock();
+    if (from == null) return;
+    // La carte piochée n'existe dans la main qu'après le prochain rendu :
+    // on lit sa position réelle à ce moment-là (#238).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final drawn = _c.hand.where((card) => !before.contains(card.id));
+      if (drawn.isEmpty) return;
+      final to = _rectOf(_key('hand:${drawn.first.id}'));
+      if (to == null) return;
       unawaited(
         flyCard(
           context: context,
@@ -540,8 +544,7 @@ class _RamiScreenState extends State<RamiScreen> {
           child: RamiBackView(width: width),
         ),
       );
-    }
-    _c.drawFromStock();
+    });
   }
 
   Widget _piles(double width, rules.RamiState g) {

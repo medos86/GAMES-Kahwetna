@@ -1,12 +1,13 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/card_animations.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:kahwetne/features/rami/rami_card_view.dart';
 import 'package:kahwetne/features/rami/rami_screen.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Pioche de Rami avec animation activée : l'écran reste stable pendant le vol (#224).
+// Pioche de Rami avec animation : la carte vole pendant l'action puis
+// disparaît à l'arrivée sur la vraie carte de la main (#224, #238).
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -15,7 +16,7 @@ void main() {
 
   tearDown(() => cardAnimations.value = false);
 
-  testWidgets('pioche avec animation : pas d\'erreur pendant le vol', (
+  testWidgets('la pioche lance un vol qui se termine sur la main', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844) * 3;
@@ -24,16 +25,23 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
       const MaterialApp(
-        home: const RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
+        home: RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
       ),
     );
     await tester.pump(const Duration(seconds: 1));
-    final stock = find.byType(RamiBackView).first;
-    await tester.tap(stock);
-    await tester.pump(const Duration(milliseconds: 100));
+
+    final backs = find.byType(RamiBackView);
+    final before = backs.evaluate().length;
+    await tester.tap(backs.first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
+    // Une carte de plus pendant le vol (la copie qui vole).
+    expect(backs.evaluate().length, before + 1);
+
     await tester.pump(const Duration(seconds: 1));
     expect(tester.takeException(), isNull);
+    expect(backs.evaluate().length, before);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
