@@ -6,7 +6,6 @@ import '../../core/layout/device_metrics.dart';
 import '../../game/coinche.dart';
 import '../../widgets/ad_banner.dart';
 import '../../core/i18n/app_language.dart';
-import '../../core/strings.dart';
 import '../../core/theme/game_style.dart';
 import '../menu/menu_models.dart';
 import 'coinche_card_view.dart';
