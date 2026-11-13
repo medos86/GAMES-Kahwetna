@@ -27,6 +27,7 @@ import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
+import '../../widgets/game_header.dart';
 
 /// Écran de jeu Domino (DominoGameScreen.tsx).
 class DominoScreen extends StatefulWidget {
@@ -223,104 +224,65 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Pressable(
-          semanticLabel: Strings.menuLabel,
-          onTap: onMenu,
-          child: kComicDomino
-              ? _comicMenuPill(unit)
-              : Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: unit,
-                    vertical: unit * 0.55,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      BoxShadow(color: Color(0xFF4A2A10), spreadRadius: 3),
-                      BoxShadow(color: Color(0xFF4A2A10), offset: Offset(0, 5)),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.arrow_back,
-                        size: unit,
-                        color: const Color(0xFF7E22CE),
-                      ),
-                      SizedBox(width: unit * 0.4),
-                      Text(
-                        Strings.menuLabel,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: unit * 0.85,
-                          color: const Color(0xFF7E22CE),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: unit * 0.5),
-            child: Column(
-              children: [
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 6,
-                  children: [
-                    Text(
-                      'Manche $round',
-                      style: TextStyle(
-                        fontSize: unit * 0.8,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        shadows: const [
-                          Shadow(
-                            offset: Offset(1, 2),
-                            color: Color(0xFF4A2A10),
-                          ),
-                        ],
-                      ),
-                    ),
-                    DifficultyChip(difficulty: difficulty),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(
-          width: unit * 3,
-          height: unit * 3,
-          child: Stack(
-            alignment: Alignment.center,
+    return GameHeader(
+      unit: unit,
+      onMenu: onMenu,
+      center: Expanded(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: unit * 0.5),
+          child: Column(
             children: [
-              Icon(
-                Icons.emoji_events,
-                size: unit * 3,
-                color: const Color(0xFFFBBF24),
-              ),
-              Positioned(
-                top: unit * 0.4,
-                child: Text(
-                  '$target',
-                  style: TextStyle(
-                    fontSize: unit * 0.8,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF20284B),
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 6,
+                children: [
+                  Text(
+                    'Manche $round',
+                    style: TextStyle(
+                      fontSize: unit * 0.8,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      shadows: const [
+                        Shadow(
+                          offset: Offset(1, 2),
+                          color: Color(0xFF4A2A10),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                  DifficultyChip(difficulty: difficulty),
+                ],
               ),
             ],
           ),
         ),
-      ],
+      ),,
+      trailing: SizedBox(
+        width: unit * 3,
+        height: unit * 3,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Icon(
+              Icons.emoji_events,
+              size: unit * 3,
+              color: const Color(0xFFFBBF24),
+            ),
+            Positioned(
+              top: unit * 0.4,
+              child: Text(
+                '$target',
+                style: TextStyle(
+                  fontSize: unit * 0.8,
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xFF20284B),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),,
     );
   }
 }
@@ -1142,32 +1104,6 @@ class _OverlayButton extends StatelessWidget {
 }
 
 /// Bouton « Menu » du Domino en case BD (issue #97).
-Widget _comicMenuPill(double unit) {
-  return ComicPanel(
-    color: ComicPalette.paper,
-    outlineColor: ComicPalette.ink,
-    radius: 12,
-    shadowOffset: const Offset(3, 3),
-    padding: EdgeInsets.symmetric(horizontal: unit, vertical: unit * 0.55),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(Icons.arrow_back, size: unit, color: ComicPalette.ink),
-        SizedBox(width: unit * 0.4),
-        Text(
-          Strings.menuLabel,
-          style: TextStyle(
-            fontFamily: 'Bangers',
-            fontSize: unit * 0.95,
-            letterSpacing: 1,
-            color: ComicPalette.ink,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
 /// Bouton « Piocher / Passer » en case BD (#146) : rouge, contour encre, libellé en Bangers.
 Widget _comicDrawChip(String label) {
   return ComicPanel(
