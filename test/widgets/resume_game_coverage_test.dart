@@ -46,32 +46,36 @@ class _Game extends PersistentGameController {
   }
 }
 
-Future<void> _pumpWith(WidgetTester tester, _Game game) async {
-  await tester.pumpWidget(
-    MaterialApp(
-      home: Builder(
-        builder: (context) => Scaffold(
-          body: Center(
-            child: TextButton(
-              onPressed: () => offerResume(context, game),
-              child: const Text('ouvrir'),
-            ),
-          ),
+class _Opener extends StatelessWidget {
+  const _Opener(this.game);
+
+  final PersistentGameController game;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: TextButton(
+          onPressed: () => offerResume(context, game),
+          child: const Text('ouvrir'),
         ),
       ),
-    ),
-  );
+    );
+  }
+}
+
+Future<void> _openDialog(WidgetTester tester, _Game game) async {
+  await tester.pumpWidget(MaterialApp(home: _Opener(game)));
   await tester.tap(find.text('ouvrir'));
   await tester.pumpAndSettle();
 }
 
 void main() {
   testWidgets('Reprendre applique la partie sauvegardée', (tester) async {
-    final store = _Store({'test': {'value': 4}});
-    final game = _Game(store);
+    final game = _Game(_Store({'test': {'value': 4}}));
     await game.restore();
 
-    await _pumpWith(tester, game);
+    await _openDialog(tester, game);
     await tester.tap(find.text(Strings.resumeContinue));
     await tester.pumpAndSettle();
 
@@ -86,7 +90,7 @@ void main() {
       final game = _Game(store);
       await game.restore();
 
-      await _pumpWith(tester, game);
+      await _openDialog(tester, game);
       await tester.tap(find.text(Strings.resumeNew).first);
       await tester.pumpAndSettle();
       await tester.tap(find.text(Strings.resumeNew).last);
