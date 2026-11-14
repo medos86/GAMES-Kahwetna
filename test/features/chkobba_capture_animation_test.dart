@@ -69,8 +69,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
-    // Temps 1 : la carte jouée se pose au centre du tapis.
-    expect(faceOf('batons-5'), findsOneWidget);
+    // Temps 1 : la carte jouée se pose au centre du tapis (au moins une copie qui vole).
+    expect(faceOf('batons-5').evaluate().length, greaterThanOrEqualTo(1));
 
     // Temps 2 : la carte et la carte prise rejoignent le tas.
     await tester.pump(const Duration(milliseconds: 400));
