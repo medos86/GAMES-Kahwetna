@@ -802,8 +802,7 @@ class _RamiScreenState extends State<RamiScreen>
                   cardWidth: meldWidth,
                   hot: _isHotMeld(target, meld.id),
                   eligible: c.layEligible,
-                  onTap:
-                      c.layEligible ? () => c.layOffSelected(meld.id) : null,
+                  onTap: c.layEligible ? () => c.layOffSelected(meld.id) : null,
                 ),
               ),
             for (final cards in g.staged)
