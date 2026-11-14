@@ -4,7 +4,8 @@ import 'dart:math' as math;
 /// La main forme un éventail : le centre reste droit, les bords penchent vers l'extérieur.
 double ramiFanAngle(int index, int count) {
   if (count <= 1) return 0;
-  final tilt = math.min(0.04, 0.5 / (count - 1));
+  // Au plus environ 4° pour les cartes du bord (0,07 rad).
+  final tilt = math.min(0.012, 0.07 / math.max(1, (count - 1) / 2));
   return (index - (count - 1) / 2) * tilt;
 }
 

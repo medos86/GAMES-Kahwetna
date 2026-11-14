@@ -24,7 +24,7 @@ void main() {
 
   test('l\'inclinaison reste modérée même avec une main pleine', () {
     for (var i = 0; i < 13; i++) {
-      expect(ramiFanAngle(i, 13).abs(), lessThanOrEqualTo(0.25));
+      expect(ramiFanAngle(i, 13).abs(), lessThanOrEqualTo(0.07 + 1e-9));
     }
   });
 
