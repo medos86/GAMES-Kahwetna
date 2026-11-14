@@ -683,7 +683,7 @@ class _Scoreboard extends StatelessWidget {
               score: game.scores[Player.player]!,
               chkobbas: game.chkobbas[Player.player]!,
               cards: game.won[Player.player]!.length,
-              color: const ScobaPalette.blueText,
+              color: ScobaPalette.blueText,
             ),
             Semantics(
               label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
@@ -698,7 +698,7 @@ class _Scoreboard extends StatelessWidget {
               score: game.scores[Player.opponent]!,
               chkobbas: game.chkobbas[Player.opponent]!,
               cards: game.won[Player.opponent]!.length,
-              color: const ScobaPalette.redText,
+              color: ScobaPalette.redText,
             ),
           ],
         ),
@@ -807,17 +807,17 @@ class _DeckPile extends StatelessWidget {
                 offset: const Offset(-4, 0),
                 child: Transform.rotate(
                   angle: -0.2,
-                  child: pile(const ScobaPalette.blue),
+                  child: pile(ScobaPalette.blue),
                 ),
               ),
               Transform.translate(
                 offset: const Offset(4, 0),
                 child: Transform.rotate(
                   angle: 0.2,
-                  child: pile(const ScobaPalette.red),
+                  child: pile(ScobaPalette.red),
                 ),
               ),
-              pile(const ScobaPalette.red),
+              pile(ScobaPalette.red),
               const Icon(Icons.layers, size: 14, color: ScobaPalette.yellow),
               Positioned(
                 top: -2,
@@ -1026,7 +1026,7 @@ class _RoundCard extends StatelessWidget {
             child: Text(
               player,
               textAlign: TextAlign.center,
-              style: base.copyWith(color: const ScobaPalette.blueText),
+              style: base.copyWith(color: ScobaPalette.blueText),
             ),
           ),
           SizedBox(
@@ -1034,7 +1034,7 @@ class _RoundCard extends StatelessWidget {
             child: Text(
               opponent,
               textAlign: TextAlign.center,
-              style: base.copyWith(color: const ScobaPalette.redText),
+              style: base.copyWith(color: ScobaPalette.redText),
             ),
           ),
         ],
@@ -1049,7 +1049,7 @@ class _RoundCard extends StatelessWidget {
     return Container(
       constraints: const BoxConstraints(maxWidth: 420),
       decoration: BoxDecoration(
-        color: const ScobaPalette.panel,
+        color: ScobaPalette.panel,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: Colors.black, width: 4),
         boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 7))],
@@ -1163,7 +1163,7 @@ class _RoundCard extends StatelessWidget {
                   const SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                      color: const ScobaPalette.felt,
+                      color: ScobaPalette.felt,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.black, width: 3),
                     ),
