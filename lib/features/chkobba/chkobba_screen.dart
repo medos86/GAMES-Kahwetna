@@ -7,12 +7,10 @@ import 'package:material_ui/material_ui.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
-import '../../core/theme/comic_palette.dart';
 import '../../core/theme/game_style.dart';
 import '../../game/chkobba.dart';
 import '../../game/common.dart';
 import '../../widgets/ad_banner.dart';
-import '../../widgets/comic/comic_panel.dart';
 import '../menu/menu_models.dart';
 import 'chkobba_card_face.dart';
 import 'chkobba_controller.dart';
@@ -359,37 +357,32 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
               child: GameHeader(
                 unit: 14,
                 onMenu: () => Navigator.of(context).pop(),
+                center: Expanded(
+                  child: Center(
+                    child: DifficultyChip(difficulty: widget.difficulty),
+                  ),
+                ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _PillButton(
-                      label: t('chkobbaRules'),
-                      icon: Icons.menu_book,
-                      onTap: () => Navigator.of(context).push(
+                    IconButton(
+                      tooltip: t('chkobbaRules'),
+                      onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
                           builder: (_) => const ChkobbaRulesScreen(),
                         ),
                       ),
+                      icon: const Icon(Icons.menu_book, color: Colors.white),
                     ),
-                    const SizedBox(width: 8),
-                    if (game.winner != null) ...[
-                      _PillButton(
-                        label: t('newGame'),
-                        icon: Icons.refresh,
-                        onTap: () => _deal(_controller.startNewGame),
+                    if (game.winner != null)
+                      IconButton(
+                        tooltip: t('newGame'),
+                        onPressed: () => _deal(_controller.startNewGame),
+                        icon: const Icon(Icons.refresh, color: Colors.white),
                       ),
-                      const SizedBox(width: 8),
-                    ],
                     _TargetBadge(target: game.targetScore),
                   ],
                 ),
-              ),
-            ),
-            // Niveau en cours : sur sa propre ligne, pour ne pas faire déborder la barre du haut (#204).
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Center(
-                child: DifficultyChip(difficulty: widget.difficulty),
               ),
             ),
             Padding(
@@ -588,80 +581,6 @@ class _WoodPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-/// Bouton blanc à bordure brune, comme le bouton « Menu » du source.
-class _PillButton extends StatelessWidget {
-  const _PillButton({
-    required this.label,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final String label;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    if (kComicChkobba) {
-      // Style BD (issue #97) : case papier à contour d'encre et ombre dure, libellé en Bangers.
-      return GestureDetector(
-        onTap: onTap,
-        child: ComicPanel(
-          color: ComicPalette.paper,
-          outlineColor: ComicPalette.ink,
-          radius: 12,
-          shadowOffset: const Offset(3, 3),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 18, color: ComicPalette.ink),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontFamily: 'Bangers',
-                  fontSize: 18,
-                  letterSpacing: 1,
-                  color: ComicPalette.ink,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.black, width: 3),
-          boxShadow: const [
-            BoxShadow(color: Colors.black, offset: Offset(0, 4)),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 18, color: const Color(0xFF7E22CE)),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                color: Color(0xFF7E22CE),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 /// Pastille du score cible (trophée jaune avec le nombre dessus).
