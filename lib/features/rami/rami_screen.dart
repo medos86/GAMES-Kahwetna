@@ -962,7 +962,7 @@ class _RamiScreenState extends State<RamiScreen>
       onPointerCancel: (_) => _onPointerCancel(),
       child: AnimatedRotation(
         turns: turns,
-        alignment: Alignment.bottomCenter,
+        alignment: Alignment.center,
         duration: const Duration(milliseconds: 180),
         child: SizedBox(
           width: width,
