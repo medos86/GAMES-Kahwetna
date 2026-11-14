@@ -15,7 +15,6 @@ import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
 import '../../game/common.dart';
 import '../../game/domino.dart';
-import '../../widgets/ad_banner.dart';
 import '../../widgets/pressable.dart';
 import '../../widgets/texture_patterns.dart';
 import '../menu/menu_models.dart';
@@ -23,11 +22,11 @@ import 'domino_controller.dart';
 import 'domino_tiles.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../widgets/exit_guard.dart';
-import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
+import '../../widgets/game_scaffold.dart';
 
 /// Écran de jeu Domino (DominoGameScreen.tsx).
 class DominoScreen extends StatefulWidget {
@@ -82,107 +81,88 @@ class _DominoScreenState extends State<DominoScreen> {
 
     return ExitGuard(
       active: _controller.game.matchWinner == null,
-      child: Scaffold(
-        backgroundColor: const Color(0xFF8B4513),
-        body: ListenableBuilder(
-          listenable: _controller,
-          builder: (context, _) {
-            final game = _controller.game;
-            return Stack(
+      child: ListenableBuilder(
+        listenable: _controller,
+        builder: (context, _) {
+          final game = _controller.game;
+          return GameScaffold(
+            showAd: !_adFree.value,
+            background: Stack(
+              fit: StackFit.expand,
               children: [
+                const ColoredBox(color: Color(0xFF8B4513)),
                 const _WoodBackground(),
                 // Trames du fond : points 4px (opacité 0.2) et rayures verticales 11px (opacité 0.1 × 0.2).
-                const Positioned.fill(
-                  child: DotPattern(
-                    spacing: 4,
-                    radius: 1,
-                    color: Color(0x33000000),
-                  ),
+                const DotPattern(
+                  spacing: 4,
+                  radius: 1,
+                  color: Color(0x33000000),
                 ),
-                const Positioned.fill(
-                  child: StripePattern(
-                    period: 11,
-                    width: 1,
-                    color: Color(0x05000000),
-                    vertical: true,
-                  ),
+                const StripePattern(
+                  period: 11,
+                  width: 1,
+                  color: Color(0x05000000),
+                  vertical: true,
                 ),
-                GameSafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      12,
-                      12,
-                      12,
-                      _adFree.value ? 12 : 88,
-                    ),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1100),
-                        child: Column(
-                          children: [
-                            _Header(
-                              difficulty: widget.difficulty,
-                              unit: unit,
-                              round: game.round,
-                              target: game.targetScore,
-                              onMenu: () => Navigator.of(context).maybePop(),
-                            ),
-                            SizedBox(height: unit),
-                            _ScoreStrip(
-                              unit: unit,
-                              game: game,
-                              turnIsPlayer: game.turn == Player.player &&
-                                  game.roundWinner == null,
-                              turnIsOpponent: game.turn == Player.opponent &&
-                                  game.roundWinner == null,
-                              onDrawTap: _controller.drawOrPass,
-                              mustDraw: _controller.mustDraw,
-                            ),
-                            SizedBox(height: unit * 0.6),
-                            _OpponentHand(
-                              unit: unit,
-                              count: game.hands[Player.opponent]!.length,
-                            ),
-                            SizedBox(height: unit * 0.6),
-                            Expanded(
-                              child: _Table(
-                                unit: unit,
-                                sm: sm,
-                                controller: _controller,
-                              ),
-                            ),
-                            SizedBox(height: unit * 0.6),
-                            _Footer(
-                              unit: unit,
-                              sm: sm,
-                              controller: _controller,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                if (!_adFree.value)
-                  const Positioned(
-                    left: 8,
-                    right: 8,
-                    bottom: 8,
-                    child: AdBanner(),
-                  ),
-                if (game.roundWinner != null || game.matchWinner != null)
-                  Positioned.fill(
-                    child: _RoundOverlay(
-                      game: game,
-                      onNext: _controller.startNextRound,
-                      onRestart: _controller.restart,
-                      onMenu: () => Navigator.of(context).maybePop(),
-                    ),
-                  ),
               ],
-            );
-          },
-        ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              child: Column(
+                children: [
+                  _Header(
+                    difficulty: widget.difficulty,
+                    unit: unit,
+                    round: game.round,
+                    target: game.targetScore,
+                    onMenu: () => Navigator.of(context).maybePop(),
+                  ),
+                  SizedBox(height: unit),
+                  _ScoreStrip(
+                    unit: unit,
+                    game: game,
+                    turnIsPlayer: game.turn == Player.player &&
+                        game.roundWinner == null,
+                    turnIsOpponent: game.turn == Player.opponent &&
+                        game.roundWinner == null,
+                    onDrawTap: _controller.drawOrPass,
+                    mustDraw: _controller.mustDraw,
+                  ),
+                  SizedBox(height: unit * 0.6),
+                  _OpponentHand(
+                    unit: unit,
+                    count: game.hands[Player.opponent]!.length,
+                  ),
+                  SizedBox(height: unit * 0.6),
+                  Expanded(
+                    child: _Table(
+                      unit: unit,
+                      sm: sm,
+                      controller: _controller,
+                    ),
+                  ),
+                  SizedBox(height: unit * 0.6),
+                  _Footer(
+                    unit: unit,
+                    sm: sm,
+                    controller: _controller,
+                  ),
+                ],
+              ),
+            ),
+            overlays: [
+              if (game.roundWinner != null || game.matchWinner != null)
+                Positioned.fill(
+                  child: _RoundOverlay(
+                    game: game,
+                    onNext: _controller.startNextRound,
+                    onRestart: _controller.restart,
+                    onMenu: () => Navigator.of(context).maybePop(),
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
