@@ -109,7 +109,9 @@ void main() {
       findsNothing,
     );
     // DEBUG temporaire
-    print('DBG lowest=$id selected=${tester.widgetList<RamiCardView>(find.byType(RamiCardView)).where((w) => w.selected).map((w) => w.card.id).toList()} all=${tester.widgetList<RamiCardView>(find.byType(RamiCardView)).map((w) => w.card.id).toList()}');
+    final all = tester.widgetList<RamiCardView>(find.byType(RamiCardView));
+    print('DBG lowest=$id all=${all.map((w) => w.card.id).toList()}');
+    print('DBG sel=${all.where((w) => w.selected).map((w) => w.card.id).toList()}');
     expect(faceOf(), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
