@@ -147,6 +147,7 @@ class RamiState {
   final List<int> scores;
   final RamiRoundResult? roundResult;
   final int? matchWinner;
+
   /// Points de la dernière ouverture de la manche (0 : personne n'a ouvert).
   final int lastOpening;
 

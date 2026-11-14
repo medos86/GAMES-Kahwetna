@@ -28,7 +28,11 @@ List<List<RamiCard>> stagedFor(int points) {
   final aces = [
     for (var i = 0; i < points - 50; i++) c(RamiSuit.deniers, 1, 'a$i'),
   ];
-  return [kings, queens, ...aces.map((ace) => [ace])];
+  return [
+    kings,
+    queens,
+    ...aces.map((ace) => [ace])
+  ];
 }
 
 void main() {

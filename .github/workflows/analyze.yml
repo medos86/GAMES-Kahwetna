@@ -25,14 +25,6 @@ jobs:
       - name: Dépendances
         run: flutter pub get
 
-      - name: DIAG format diff
-        if: always()
-        run: |
-          for f in lib/game/rami.dart test/game/rami_opening_order_test.dart; do
-            dart format -o show "$f" > /tmp/fmt.txt
-            diff -u "$f" /tmp/fmt.txt || true
-          done
-
       - name: Formatage (dart format)
         # Le pipeline échoue si un fichier Dart n'est pas formaté.
         run: dart format --output=none --set-exit-if-changed .
