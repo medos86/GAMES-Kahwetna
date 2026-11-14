@@ -43,7 +43,10 @@ void main() {
     expect(hiddenSlots(), findsWidgets);
     expect(tester.takeException(), isNull);
 
-    await tester.pump(const Duration(seconds: 3));
+    // Une image par tranche : chaque vol démarre à l'image suivante.
+    for (var i = 0; i < 60; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
     expect(tester.takeException(), isNull);
     expect(hiddenSlots(), findsNothing);
     await tester.pumpWidget(const SizedBox());
