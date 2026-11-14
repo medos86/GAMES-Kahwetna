@@ -9,6 +9,7 @@ import '../../game/rami.dart' as rules;
 import '../../widgets/ad_banner.dart';
 import '../menu/menu_models.dart';
 import 'rami_card_view.dart';
+import 'rami_hand_layout.dart';
 import 'rami_controller.dart';
 import '../../core/strings.dart';
 import '../../core/i18n/app_language.dart';
@@ -195,11 +196,14 @@ class _RamiScreenState extends State<RamiScreen>
 
   RamiDropTarget? _targetAt(Offset point) {
     RamiDropTarget? table;
+    var inHandRow = false;
     for (final entry in _keys.entries) {
       final rect = _rectOf(entry.value);
       if (rect == null || !rect.contains(point)) continue;
       final name = entry.key;
-      if (name == 'table') {
+      if (name == 'handrow') {
+        inHandRow = true;
+      } else if (name == 'table') {
         table = const RamiDropTable();
       } else if (name == 'discard') {
         return const RamiDropDiscard();
@@ -212,6 +216,9 @@ class _RamiScreenState extends State<RamiScreen>
         );
       }
     }
+    // Entre deux cartes, les cartes s'écartent : la cible de la main reste celle d'avant.
+    final previous = _drag?.target;
+    if (inHandRow && previous is RamiDropHand) return previous;
     return table;
   }
 
@@ -879,31 +886,53 @@ class _RamiScreenState extends State<RamiScreen>
         final total = n == 0 ? 0.0 : width + step * (n - 1);
         final height = width * 1.4 + 8;
 
+        // Glisser au-dessus de la main : la carte quitte sa place, les autres s'écartent
+        // à l'endroit où elle va atterrir.
+        final dragId = _drag?.id;
+        final target = _drag?.target;
+        final RamiDropHand? hover =
+            target is RamiDropHand && target.id != dragId ? target : null;
+        final shown = hover == null
+            ? hand
+            : hand.where((card) => card.id != dragId).toList();
+        final m = shown.length;
+        var gapAt = -1;
+        if (hover != null) {
+          final at = shown.indexWhere((card) => card.id == hover.id);
+          if (at >= 0) {
+            gapAt = hover.after ? at + 1 : at;
+          }
+        }
+
         // Ordre de dessin : cartes non sélectionnées d'abord, sélectionnées ou déplacées en dernier.
         final order = [
-          for (var i = 0; i < n; i++)
-            if (!selected.contains(hand[i].id) && _drag?.id != hand[i].id) i,
-          for (var i = 0; i < n; i++)
-            if (selected.contains(hand[i].id) || _drag?.id == hand[i].id) i,
+          for (var j = 0; j < m; j++)
+            if (!selected.contains(shown[j].id) && dragId != shown[j].id) j,
+          for (var j = 0; j < m; j++)
+            if (selected.contains(shown[j].id) || dragId == shown[j].id) j,
         ];
 
         return Center(
           child: SizedBox(
+            key: _key('handrow'),
             width: total,
             height: height,
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                for (final i in order)
-                  Positioned(
-                    key: ValueKey('pos:${hand[i].id}'),
-                    left: i * step,
+                for (final j in order)
+                  AnimatedPositioned(
+                    key: ValueKey('pos:${shown[j].id}'),
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOut,
+                    left: j * step + ramiGapOffset(j, gapAt, step),
                     top: 0,
                     child: _handCard(
-                      hand[i],
+                      shown[j],
                       width,
-                      selected: selected.contains(hand[i].id),
-                      group: groupOf[hand[i].id],
+                      selected: selected.contains(shown[j].id),
+                      group: groupOf[shown[j].id],
+                      turns: ramiFanAngle(j, m) / (2 * math.pi),
                     ),
                   ),
               ],
@@ -919,14 +948,10 @@ class _RamiScreenState extends State<RamiScreen>
     double width, {
     required bool selected,
     required int? group,
+    required double turns,
   }) {
-    final drag = _drag;
-    final target = drag?.target;
-    final dragged = drag?.id == card.id;
+    final dragged = _drag?.id == card.id;
     final arriving = landing.contains(card.id);
-    final insert = target is RamiDropHand && target.id == card.id && !dragged
-        ? target
-        : null;
 
     return Listener(
       key: _key('hand:${card.id}'),
@@ -935,40 +960,32 @@ class _RamiScreenState extends State<RamiScreen>
       onPointerMove: _onPointerMove,
       onPointerUp: _onPointerUp,
       onPointerCancel: (_) => _onPointerCancel(),
-      child: SizedBox(
-        width: width,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Opacity(
-                  opacity: dragged ? 0.3 : (arriving ? 0 : 1),
-                  child: RamiCardView(
-                    card: card,
-                    width: width,
-                    selected: selected,
-                  ),
+      child: AnimatedRotation(
+        turns: turns,
+        alignment: Alignment.bottomCenter,
+        duration: const Duration(milliseconds: 180),
+        child: SizedBox(
+          width: width,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Opacity(
+                opacity: dragged ? 0.3 : (arriving ? 0 : 1),
+                child: RamiCardView(
+                  card: card,
+                  width: width,
+                  selected: selected,
                 ),
-                if (insert != null)
-                  Positioned(
-                    top: 0,
-                    bottom: 0,
-                    left: insert.after ? null : -3,
-                    right: insert.after ? -3 : null,
-                    child: Container(width: 3, color: const Color(0xFFE43F5F)),
-                  ),
-              ],
-            ),
-            Container(
-              margin: const EdgeInsets.only(top: 3),
-              height: 5,
-              color: group == null
-                  ? Colors.transparent
-                  : _groupColors[group % _groupColors.length],
-            ),
-          ],
+              ),
+              Container(
+                margin: const EdgeInsets.only(top: 3),
+                height: 5,
+                color: group == null
+                    ? Colors.transparent
+                    : _groupColors[group % _groupColors.length],
+              ),
+            ],
+          ),
         ),
       ),
     );
