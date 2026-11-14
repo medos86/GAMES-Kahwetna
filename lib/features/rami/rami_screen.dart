@@ -685,9 +685,8 @@ class _RamiScreenState extends State<RamiScreen>
               key: _key('stock'),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(width * 0.14),
-                border: c.canDraw
-                    ? Border.all(color: _goldColor, width: 3)
-                    : null,
+                border:
+                    c.canDraw ? Border.all(color: _goldColor, width: 3) : null,
               ),
               child: RamiBackView(width: width),
             ),
@@ -702,9 +701,8 @@ class _RamiScreenState extends State<RamiScreen>
           key: _key('discard'),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(width * 0.14),
-            border: discardHover
-                ? Border.all(color: _goldColor, width: 3)
-                : null,
+            border:
+                discardHover ? Border.all(color: _goldColor, width: 3) : null,
           ),
           child: top == null
               ? Container(
