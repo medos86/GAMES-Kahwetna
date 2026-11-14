@@ -466,9 +466,7 @@ RamiState drawDiscard(RamiState state) {
 /// Remet sur la défausse la carte prise, tant qu'aucune pose n'a été faite ce tour.
 RamiState returnTaken(RamiState state) {
   final id = state.takenId;
-  if (state.phase != RamiPhase.play ||
-      id == null ||
-      state.staged.isNotEmpty) {
+  if (state.phase != RamiPhase.play || id == null || state.staged.isNotEmpty) {
     return state;
   }
   final seat = state.turn;
