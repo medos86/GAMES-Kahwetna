@@ -932,7 +932,7 @@ class _RamiScreenState extends State<RamiScreen>
                       width,
                       selected: selected.contains(shown[j].id),
                       group: groupOf[shown[j].id],
-                      turns: 0, // EXPÉRIENCE
+                      turns: ramiFanAngle(j, m) / (2 * math.pi),
                     ),
                   ),
               ],
