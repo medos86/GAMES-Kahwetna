@@ -18,7 +18,16 @@ void main() {
       ),
     );
     final size = tester.getSize(find.byType(AdBanner));
-    expect(size.height, lessThanOrEqualTo(96));
-    expect(size.height, greaterThanOrEqualTo(64));
+    expect(size.height, kAdBannerHeight);
+    expect(kAdBannerHeight, inInclusiveRange(50, 60));
+  });
+
+  testWidgets('la bannière ne déborde pas de sa hauteur fixe', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Align(alignment: Alignment.bottomCenter, child: AdBanner()),
+      ),
+    );
+    expect(tester.takeException(), isNull);
   });
 }

@@ -26,7 +26,8 @@ class GameScaffold extends StatelessWidget {
   final List<Widget> overlays;
 
   static const double maxContentWidth = 1100;
-  static const double _adReservedHeight = 88;
+  // Hauteur de la bannière et marge au-dessus : le contenu ne passe pas dessous.
+  static const double _adReservedHeight = kAdBannerHeight + 16;
 
   @override
   Widget build(BuildContext context) {
