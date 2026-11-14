@@ -376,24 +376,21 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _PillButton(
-                      label: t('chkobbaRules'),
-                      icon: Icons.menu_book,
-                      onTap: () => Navigator.of(context).push(
+                    IconButton(
+                      tooltip: t('chkobbaRules'),
+                      onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
                           builder: (_) => const ChkobbaRulesScreen(),
                         ),
                       ),
+                      icon: const Icon(Icons.menu_book, color: Colors.white),
                     ),
-                    const SizedBox(width: 8),
-                    if (game.winner != null) ...[
-                      _PillButton(
-                        label: t('newGame'),
-                        icon: Icons.refresh,
-                        onTap: () => _deal(_controller.startNewGame),
+                    if (game.winner != null)
+                      IconButton(
+                        tooltip: t('newGame'),
+                        onPressed: () => _deal(_controller.startNewGame),
+                        icon: const Icon(Icons.refresh, color: Colors.white),
                       ),
-                      const SizedBox(width: 8),
-                    ],
                     _TargetBadge(target: game.targetScore),
                   ],
                 ),
