@@ -799,8 +799,7 @@ RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {
   final plan = _planMelds(state.hands[seat], state.takenId);
   final planTotal = plan.fold<int>(0, (sum, cards) => sum + pointsOf(cards));
   // Facile : ouvre plus tard que la règle (seuil relevé).
-  final openMin =
-      minOpening(state) + (level == RamiAiLevel.facile ? 15 : 0);
+  final openMin = minOpening(state) + (level == RamiAiLevel.facile ? 15 : 0);
   if (state.opened[seat] && plan.isNotEmpty) return _poseAll(state, plan);
   if (!state.opened[seat] && planTotal >= openMin) {
     return commitOpening(_poseAll(state, plan));
