@@ -11,7 +11,8 @@ void main() {
     test('facile reste nettement sous le moyen, difficile au-dessus', () {
       final facile = chkobbaWinRate(ChkobbaAiLevel.facile, games: 200);
       final difficile = chkobbaWinRate(ChkobbaAiLevel.difficile, games: 200);
-      expect(facile, lessThan(0.25));
+      // Cible de calibration du facile : 30 % (#278). Marge ±7 points à 200 parties : seuil 0,35.
+      expect(facile, lessThan(0.35));
       expect(difficile, greaterThan(0.5));
     });
   });
