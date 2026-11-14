@@ -114,7 +114,11 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     _dealPending = false;
   }
 
-  /// Tout mouvement de carte : captures, cartes jouées (joueur et adversaire), donne (#238).
+  static const _capturePause = Duration(milliseconds: 320);
+
+  /// Tout mouvement de carte : cartes jouées, captures, donne (#238).
+  /// Une capture se lit en deux temps : la carte se pose sur le tapis,
+  /// puis la carte et les cartes prises rejoignent le tas du gagnant.
   void _onChanged() {
     final game = _controller.game;
     if (identical(game, _lastGame)) return;
@@ -128,17 +132,21 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     final beforeOpp = _lastOpp;
     _snapshotCaptures();
 
-    // Cartes prises du tapis : vers le tas du gagnant.
-    final gone = [
-      for (final card in beforeTable)
-        if (game.table.every((t) => t.id != card.id)) card,
-    ];
     Player? taker;
     for (final p in Player.values) {
       if ((game.won[p]?.length ?? 0) > (beforeWon[p] ?? 0)) taker = p;
     }
-    if (gone.isNotEmpty && taker != null) {
-      final winnerKey = _key('won:${taker.name}');
+    final winnerKey = taker == null ? null : _key('won:${taker.name}');
+    final tableKey = _key('table');
+    bool wonNow(String id) =>
+        taker != null && (game.won[taker]?.any((c) => c.id == id) ?? false);
+
+    // Cartes prises : elles quittent le tapis vers le tas du gagnant, après la pose.
+    final gone = [
+      for (final card in beforeTable)
+        if (game.table.every((t) => t.id != card.id)) card,
+    ];
+    if (winnerKey != null) {
       for (final card in gone) {
         final from = rectOfKey(_key('tbl:${card.id}'));
         if (from == null) continue;
@@ -148,53 +156,65 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
             from: from,
             to: () => rectOfKey(winnerKey),
             child: ChkobbaCardFace(card: card),
+            delay: _capturePause,
           ),
         );
       }
     }
 
-    // Carte jouée par le joueur : de sa main vers le tapis (ou le tas si elle capture).
+    // Cartes jouées (joueur, puis adversaire) : depuis la main ou la zone adverse.
     final stillPlayer = {for (final c in game.hands[Player.player]!) c.id};
-    final leavingPlayer = [
-      for (final card in beforePlayer)
-        if (!stillPlayer.contains(card.id)) card,
+    final stillOpp = {for (final c in game.hands[Player.opponent]!) c.id};
+    final leaving = [
+      for (final c in beforePlayer)
+        if (!stillPlayer.contains(c.id)) (c, _key('hand:${c.id}')),
+      for (final c in beforeOpp)
+        if (!stillOpp.contains(c.id)) (c, _key('opp:${c.id}')),
     ];
-    final playerStarts = [
-      for (final card in leavingPlayer)
-        if (rectOfKey(_key('hand:${card.id}')) case final from?) (card, from),
+    final tableNow = tableKey;
+    final captures = [
+      for (final (card, key) in leaving)
+        if (wonNow(card.id) && rectOfKey(key) != null) (card, key),
     ];
-    if (playerStarts.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        for (final (card, from) in playerStarts) {
-          if (_targetFor(card.id) == null) continue;
-          unawaited(
-            flyCard(
-              context: context,
-              from: from,
-              to: () => _targetFor(card.id),
-              child: ChkobbaCardFace(card: card),
-            ),
-          );
-        }
-      });
+    // Position de départ lue maintenant : après le rendu la carte a quitté sa place.
+    final plain = <(ChkobbaCard, Rect)>[];
+    for (final (card, key) in leaving) {
+      final from = rectOfKey(key);
+      if (!wonNow(card.id) && from != null) plain.add((card, from));
     }
 
-    // Carte jouée par l'adversaire : de sa place vers le tapis (ou le tas).
-    final stillOpp = {for (final c in game.hands[Player.opponent]!) c.id};
-    final leavingOpp = [
-      for (final card in beforeOpp)
-        if (!stillOpp.contains(card.id)) card,
-    ];
-    final oppStarts = [
-      for (final card in leavingOpp)
-        if (rectOfKey(_key('opp:${card.id}')) case final from?) (card, from),
-    ];
-    if (oppStarts.isNotEmpty) {
+    for (final (card, key) in captures) {
+      final from = rectOfKey(key)!;
+      // Temps 1 : la carte se pose au centre du tapis.
+      unawaited(
+        flyCard(
+          context: context,
+          from: from,
+          to: () => _centerOn(tableNow, from.size),
+          child: ChkobbaCardFace(card: card),
+        ),
+      );
+      // Temps 2 : elle rejoint le tas avec les cartes prises.
+      final mid = _centerOn(tableNow, from.size);
+      if (mid != null && winnerKey != null) {
+        unawaited(
+          flyCard(
+            context: context,
+            from: mid,
+            to: () => rectOfKey(winnerKey),
+            child: ChkobbaCardFace(card: card),
+            delay: _capturePause,
+          ),
+        );
+      }
+    }
+
+    // Cartes posées sans capture : vers leur case du tapis (après le rendu).
+    if (plain.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         var i = 0;
-        for (final (card, from) in oppStarts) {
+        for (final (card, from) in plain) {
           if (_targetFor(card.id) == null) continue;
           unawaited(
             flyCard(
@@ -211,6 +231,17 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     }
 
     if (_dealPending) _distribute();
+  }
+
+  /// Rectangle de taille [size] centré sur le widget [key].
+  Rect? _centerOn(GlobalKey key, Size size) {
+    final r = rectOfKey(key);
+    if (r == null) return null;
+    return Rect.fromCenter(
+      center: r.center,
+      width: size.width,
+      height: size.height,
+    );
   }
 
   /// Destination exacte d'une carte : sa case du tapis, ou le tas de celui qui l'a prise.
@@ -419,6 +450,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 400),
                         child: ChkobbaTable(
+                          key: _key('table'),
                           cards: slots,
                           columns: columns,
                           emptyLabel: 'Chkobba !',
