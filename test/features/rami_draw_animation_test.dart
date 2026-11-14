@@ -31,11 +31,10 @@ void main() {
     );
     // Laisse le chargement asynchrone (restore) finir : la donne démarre alors.
     await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+      () => Future<void>.delayed(const Duration(milliseconds: 400)),
     );
     // Attend la fin de la donne (environ 1,5 s) avant de mesurer.
-    await tester.pump(const Duration(seconds: 2));
-    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 3));
 
     final backs = find.byType(RamiBackView);
     final before = backs.evaluate().length;
@@ -65,7 +64,7 @@ void main() {
     );
     // Laisse le chargement asynchrone (restore) finir : la donne démarre alors.
     await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+      () => Future<void>.delayed(const Duration(milliseconds: 400)),
     );
     await tester.pump(const Duration(seconds: 2));
 
@@ -127,7 +126,7 @@ void main() {
     );
     // Laisse le chargement asynchrone (restore) finir : la donne démarre alors.
     await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+      () => Future<void>.delayed(const Duration(milliseconds: 400)),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 60));
