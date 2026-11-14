@@ -90,7 +90,8 @@ void main() {
     );
     expect(find.text(Strings.actDiscard), findsOneWidget);
     final sel = tester.widgetList<RamiCardView>(find.byType(RamiCardView));
-    print('DBG tap=$id sel=${sel.where((w) => w.selected).map((w) => w.card.id).join(',')}');
+    final picked = sel.where((w) => w.selected).toList();
+    print('DBG tap=$id picked=${picked.map((w) => w.card.id).toList()}');
     // Déclenche le bouton directement : le tap est masqué par la main (layout).
     final discardButton = tester.widget<InkWell>(
       find.ancestor(
