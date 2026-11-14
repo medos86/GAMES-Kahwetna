@@ -818,6 +818,12 @@ class _RamiScreenState extends State<RamiScreen>
       enabled: c.selected.length == 1 && !staged,
       danger: true,
     );
+    final returnTaken = _ActionButton(
+      label: Strings.actReturnTaken,
+      onTap: c.returnTaken,
+      enabled: c.canReturnTaken,
+    );
+    if (!staged && c.canReturnTaken) return [pose, returnTaken, discard];
     if (!staged) return [pose, discard];
     return [
       _ActionButton(

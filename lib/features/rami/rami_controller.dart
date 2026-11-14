@@ -159,6 +159,15 @@ class RamiController extends PersistentGameController {
 
   bool get layEligible => canPlay && opened && _selected.length == 1;
 
+  /// Vrai si la carte prise à la défausse est encore en main et qu'aucune pose n'a été faite.
+  bool get canReturnTaken {
+    final taken = _game.takenId;
+    return canPlay &&
+        _game.staged.isEmpty &&
+        taken != null &&
+        hand.any((card) => card.id == taken);
+  }
+
   /// Paquet à poser pour une carte glissée : la sélection si elle est valide, sinon le paquet voisin.
   List<rules.RamiCard> groupFor(String id) {
     if (_selected.contains(id) &&
@@ -194,8 +203,12 @@ class RamiController extends PersistentGameController {
     if (!canDraw) return;
     Sounds.play(Sfx.draw);
     _keepOrder();
-    _apply(rules.drawDiscard(_game));
+    _apply(rules.drawDiscard(_game), Strings.ramiDiscardNeedsLay);
   }
+
+  /// Remet la carte prise à la défausse, si elle n'a pas encore été posée.
+  void returnTaken() =>
+      _apply(rules.returnTaken(_game), Strings.ramiReturnRefused);
 
   /// Fige l'ordre affiché avant une pioche : la carte piochée arrive alors à la fin de la main.
   void _keepOrder() {
