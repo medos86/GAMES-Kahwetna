@@ -3,6 +3,15 @@ import 'package:material_ui/material_ui.dart';
 import '../../game/rami.dart' as rules;
 import '../../core/strings.dart';
 
+/// Dossier des images du jeu Rami (CC0, voir ATTRIBUTIONS.md). Distinct de cards_cartoon (Chkobba).
+const String ramiCardsFolder = 'assets/images/cards_rami';
+
+/// Dos de carte utilisé pour la pioche et la main adverse.
+const String ramiCardBackAsset = '$ramiCardsFolder/card_back_red.png';
+
+/// Largeur de décodage des PNG (1500 px d'origine) : suffisant pour l'affichage, sans gonfler la mémoire.
+const int _ramiCacheWidth = 600;
+
 /// Libellé d'une valeur : As, Valet, Dame, Roi, ou le chiffre.
 String ramiRankLabel(int rank) => switch (rank) {
       1 => 'A',
@@ -20,16 +29,36 @@ String ramiSuitSymbol(rules.RamiSuit suit) => switch (suit) {
       rules.RamiSuit.batons => '♣',
     };
 
-/// Couleur de chaque couleur (valeurs de Card.tsx).
-Color ramiSuitColor(rules.RamiSuit suit) => switch (suit) {
-      rules.RamiSuit.deniers => const Color(0xFFCA8A04),
-      rules.RamiSuit.coupes => const Color(0xFFDC2626),
-      rules.RamiSuit.epees => const Color(0xFF1F2937),
-      rules.RamiSuit.batons => const Color(0xFF92400E),
+/// Nom anglais de la couleur, tel qu'il figure dans les fichiers CC0.
+String _ramiSuitFileName(rules.RamiSuit suit) => switch (suit) {
+      rules.RamiSuit.deniers => 'diamonds',
+      rules.RamiSuit.coupes => 'hearts',
+      rules.RamiSuit.epees => 'spades',
+      rules.RamiSuit.batons => 'clubs',
     };
 
-/// Carte Rami dessinée en texte. Seul le coin haut-gauche (valeur et couleur) est visible,
-/// comme TopCard du source : les cartes qui se chevauchent restent lisibles.
+/// Nom anglais de la valeur : ace, jack, queen, king, ou le chiffre.
+String _ramiRankFileName(int rank) => switch (rank) {
+      1 => 'ace',
+      11 => 'jack',
+      12 => 'queen',
+      13 => 'king',
+      _ => '$rank',
+    };
+
+/// Image d'une carte, par ex. assets/images/cards_rami/ace_of_spades.png.
+/// Les deux jokers ont chacun leur couleur : joker-0 noir, joker-1 rouge.
+String ramiCardAsset(rules.RamiCard card) {
+  if (card.isJoker) {
+    final colour = card.id == 'joker-1' ? 'red' : 'black';
+    return '$ramiCardsFolder/${colour}_joker.png';
+  }
+  final suit = _ramiSuitFileName(card.suit!);
+  return '$ramiCardsFolder/${_ramiRankFileName(card.rank)}_of_$suit.png';
+}
+
+/// Carte Rami : image du jeu CC0. Seul le coin haut-gauche est visible dans la main,
+/// les cartes qui se chevauchent restent donc lisibles.
 class RamiCardView extends StatelessWidget {
   const RamiCardView({
     super.key,
@@ -45,12 +74,10 @@ class RamiCardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final height = width * 1.4;
-    final fontSize = height * 0.25;
-    final joker = card.isJoker;
-    final rules.RamiSuit? suit = card.suit;
-    final semanticsLabel = joker
+    final radius = BorderRadius.circular(width * 0.14);
+    final semanticsLabel = card.isJoker
         ? Strings.jokerLabel
-        : '${ramiRankLabel(card.rank)} ${ramiSuitSymbol(suit!)}';
+        : '${ramiRankLabel(card.rank)} ${ramiSuitSymbol(card.suit!)}';
 
     return Semantics(
       label: semanticsLabel,
@@ -60,71 +87,24 @@ class RamiCardView extends StatelessWidget {
         child: Container(
           width: width,
           height: height,
-          padding: EdgeInsets.fromLTRB(width * 0.06, 1, 0, 0),
           decoration: BoxDecoration(
-            color: joker ? null : const Color(0xFFFFFBEB),
-            gradient: joker
-                ? const LinearGradient(
-                    colors: [
-                      Color(0xFFC026D3),
-                      Color(0xFF7E22CE),
-                      Color(0xFF312E81),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  )
+            borderRadius: radius,
+            border: selected
+                ? Border.all(color: const Color(0xFFFFE16B), width: 3)
                 : null,
-            borderRadius: BorderRadius.circular(width * 0.14),
-            border: Border.all(
-              color: selected ? const Color(0xFFFFE16B) : Colors.black,
-              width: selected ? 3 : 2,
-            ),
             boxShadow: const [
               BoxShadow(color: Colors.black, offset: Offset(0, 2)),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: joker
-                ? <Widget>[
-                    Text(
-                      '★',
-                      style: TextStyle(
-                        color: const Color(0xFFFFE16B),
-                        fontSize: fontSize,
-                        height: 1.05,
-                      ),
-                    ),
-                    Text(
-                      'J',
-                      style: TextStyle(
-                        color: const Color(0xFFFFE16B),
-                        fontSize: fontSize,
-                        fontWeight: FontWeight.w900,
-                        height: 1.05,
-                      ),
-                    ),
-                  ]
-                : <Widget>[
-                    Text(
-                      ramiRankLabel(card.rank),
-                      style: TextStyle(
-                        color: ramiSuitColor(suit!),
-                        fontSize: fontSize,
-                        fontWeight: FontWeight.w900,
-                        height: 1.05,
-                      ),
-                    ),
-                    Text(
-                      ramiSuitSymbol(suit),
-                      style: TextStyle(
-                        color: ramiSuitColor(suit),
-                        fontSize: fontSize,
-                        height: 1.05,
-                      ),
-                    ),
-                  ],
+          child: ClipRRect(
+            borderRadius: radius,
+            child: Image.asset(
+              ramiCardAsset(card),
+              fit: BoxFit.fill,
+              gaplessPlayback: true,
+              cacheWidth: _ramiCacheWidth,
+              excludeFromSemantics: true,
+            ),
           ),
         ),
       ),
@@ -140,23 +120,24 @@ class RamiBackView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(width * 0.14);
     return Container(
       width: width,
       height: width * 1.4,
       decoration: BoxDecoration(
-        color: const Color(0xFF991B1B),
-        borderRadius: BorderRadius.circular(width * 0.14),
-        border: Border.all(color: Colors.black, width: 2),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(3, 3))],
+        borderRadius: radius,
+        boxShadow: const [
+          BoxShadow(color: Colors.black, offset: Offset(3, 3)),
+        ],
       ),
-      child: Center(
-        child: Container(
-          width: width * 0.6,
-          height: width * 0.9,
-          decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFFFFE16B), width: 1.5),
-            borderRadius: BorderRadius.circular(width * 0.1),
-          ),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: Image.asset(
+          ramiCardBackAsset,
+          fit: BoxFit.fill,
+          gaplessPlayback: true,
+          cacheWidth: _ramiCacheWidth,
+          excludeFromSemantics: true,
         ),
       ),
     );
