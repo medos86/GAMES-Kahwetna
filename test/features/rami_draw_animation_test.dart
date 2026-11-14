@@ -73,7 +73,11 @@ void main() {
 
     // Carte la plus basse à l'écran : celle de la main, pas la défausse.
     final cards = tester.widgetList<RamiCardView>(find.byType(RamiCardView));
-    final lowest = cards.reduce(
+    // Moitié gauche : la carte piochée (à droite) ne peut pas être défaussée.
+    final left = cards.where(
+      (w) => tester.getCenter(find.byWidget(w)).dx < 195,
+    );
+    final lowest = left.reduce(
       (a, b) => tester.getCenter(find.byWidget(a)).dy >=
               tester.getCenter(find.byWidget(b)).dy
           ? a
@@ -89,9 +93,6 @@ void main() {
       findsOneWidget,
     );
     expect(find.text(Strings.actDiscard), findsOneWidget);
-    final sel = tester.widgetList<RamiCardView>(find.byType(RamiCardView));
-    final picked = sel.where((w) => w.selected).toList();
-    print('DBG tap=$id picked=${picked.map((w) => w.card.id).toList()}');
     // Déclenche le bouton directement : le tap est masqué par la main (layout).
     final discardButton = tester.widget<InkWell>(
       find.ancestor(
@@ -111,10 +112,6 @@ void main() {
       find.byWidgetPredicate((w) => w is RamiCardView && w.selected),
       findsNothing,
     );
-    print('DBG id=$id');
-    final views = tester.widgetList<RamiCardView>(find.byType(RamiCardView));
-    print('DBG ${views.map((w) => w.card.id).join(' ')}');
-    print('DBG sel ${views.where((w) => w.selected).length}');
     expect(faceOf(), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
