@@ -890,8 +890,9 @@ class _RamiScreenState extends State<RamiScreen>
         // à l'endroit où elle va atterrir.
         final dragId = _drag?.id;
         final target = _drag?.target;
-        final hover =
-            target is RamiDropHand && target.id != dragId ? target : null;
+        final hover = target is RamiDropHand && target.id != dragId
+            ? target
+            : null;
         final shown = [
           for (final card in hand)
             if (hover == null || card.id != dragId) card,
