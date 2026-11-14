@@ -29,6 +29,10 @@ void main() {
         home: RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
       ),
     );
+    // Laisse le chargement asynchrone (restore) finir : la donne démarre alors.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
     // Attend la fin de la donne (environ 1,5 s) avant de mesurer.
     await tester.pump(const Duration(seconds: 2));
 
@@ -57,6 +61,10 @@ void main() {
       const MaterialApp(
         home: RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
       ),
+    );
+    // Laisse le chargement asynchrone (restore) finir : la donne démarre alors.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );
     await tester.pump(const Duration(seconds: 2));
 
@@ -115,6 +123,10 @@ void main() {
       const MaterialApp(
         home: RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
       ),
+    );
+    // Laisse le chargement asynchrone (restore) finir : la donne démarre alors.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 60));
