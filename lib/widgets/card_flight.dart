@@ -15,6 +15,7 @@ Rect? rectOfKey(GlobalKey key) {
 /// [to] est relue à chaque image : si la mise en page bouge pendant le vol
 /// (main qui se recentre, pile qui change), la carte suit sa vraie place.
 /// [delay] retarde le départ (distributions échelonnées), sans second minuteur.
+/// [hold] garde la carte visible à [from] pendant le délai, au lieu de la cacher.
 /// Sans effet si le réglage est coupé, si le système réduit les animations,
 /// ou si [from] / la cible initiale est absente.
 Future<void> flyCard({
@@ -24,6 +25,7 @@ Future<void> flyCard({
   required Widget child,
   Duration duration = const Duration(milliseconds: 300),
   Duration delay = Duration.zero,
+  bool hold = false,
 }) {
   final start = to();
   if (from == null || start == null) return Future<void>.value();
@@ -53,7 +55,8 @@ Future<void> flyCard({
       },
       builder: (context, t, _) {
         // Avant le départ la courbe vaut 0 : la carte n'est pas encore lancée.
-        if (t == 0 && wait > 0) return const SizedBox.shrink();
+        // hold : la carte reste visible à sa place pendant le délai (captures).
+        if (t == 0 && wait > 0 && !hold) return const SizedBox.shrink();
         // Cible relue à chaque image ; on garde la dernière connue si elle disparaît.
         final target = to() ?? lastTo;
         lastTo = target;
