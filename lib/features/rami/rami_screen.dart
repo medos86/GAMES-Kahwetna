@@ -22,6 +22,7 @@ import '../../widgets/resume_game.dart';
 import '../../widgets/card_motion.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
+import 'rami_action_button.dart';
 
 /// Facteur d'agrandissement des cartes Rami (lisibilité sur téléphone).
 const double _ramiCardScale = 1.35;
@@ -503,9 +504,9 @@ class _RamiScreenState extends State<RamiScreen>
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 6,
-        runSpacing: 6,
+        alignment: WrapAlignment.end,
+        spacing: 4,
+        runSpacing: 4,
         children: _actions(staged),
       ),
     );
@@ -806,37 +807,45 @@ class _RamiScreenState extends State<RamiScreen>
 
   List<Widget> _actions(bool staged) {
     final c = _c;
-    final pose = _ActionButton(
+    final pose = RamiActionButton(
       label: Strings.actPose,
+      icon: Icons.check,
       onTap: c.pose,
       enabled: c.selectionIsMeld,
       primary: !staged,
     );
-    final discard = _ActionButton(
+    final discard = RamiActionButton(
       label: Strings.actDiscard,
+      icon: Icons.south,
       onTap: c.discardSelected,
       enabled: c.selected.length == 1 && !staged,
       danger: true,
     );
-    final returnTaken = _ActionButton(
+    final returnTaken = RamiActionButton(
       label: Strings.actReturnTaken,
+      icon: Icons.undo,
       onTap: c.returnTaken,
       enabled: c.canReturnTaken,
     );
     if (!staged && c.canReturnTaken) return [pose, returnTaken, discard];
     if (!staged) return [pose, discard];
     return [
-      _ActionButton(
+      RamiActionButton(
         label: tf('validate', {
           'cur': '${c.stagedPoints}',
           'min': '${rules.ramiOpenMin}',
         }),
+        icon: Icons.done_all,
         onTap: c.commit,
         enabled: c.stagedPoints >= rules.ramiOpenMin,
         primary: true,
       ),
       pose,
-      _ActionButton(label: Strings.actCancel, onTap: c.cancel),
+      RamiActionButton(
+        label: Strings.actCancel,
+        icon: Icons.close,
+        onTap: c.cancel,
+      ),
       discard,
     ];
   }
@@ -1256,56 +1265,6 @@ class _MeldView extends StatelessWidget {
                   child: RamiCardView(card: cards[i], width: cardWidth),
                 ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.label,
-    required this.onTap,
-    this.primary = false,
-    this.danger = false,
-    this.enabled = true,
-  });
-
-  final String label;
-  final VoidCallback onTap;
-  final bool primary;
-  final bool danger;
-  final bool enabled;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color background = danger
-        ? const Color(0xFFD71920)
-        : primary
-            ? const Color(0xFFF2B74E)
-            : Colors.white;
-    final Color foreground = danger ? Colors.white : _inkColor;
-    return Opacity(
-      opacity: enabled ? 1 : 0.4,
-      child: Material(
-        color: background,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: enabled ? onTap : null,
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 40, minWidth: 64),
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Text(
-              label,
-              style: TextStyle(
-                color: foreground,
-                fontWeight: FontWeight.w900,
-                fontSize: 13,
-              ),
-            ),
           ),
         ),
       ),
