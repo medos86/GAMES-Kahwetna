@@ -1247,7 +1247,6 @@ class _PlayerChip extends StatelessWidget {
 /// Combinaison de la table : cartes qui se chevauchent, comme les piles du source.
 class _MeldView extends StatelessWidget {
   const _MeldView({
-    super.key,
     required this.cards,
     required this.cardWidth,
     this.hot = false,
