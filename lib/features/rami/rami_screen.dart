@@ -7,6 +7,7 @@ import '../../core/layout/device_metrics.dart';
 import '../../core/services/toast.dart';
 import '../../game/rami.dart' as rules;
 import '../../widgets/ad_banner.dart';
+import '../../widgets/pulse_glow.dart';
 import '../menu/menu_models.dart';
 import 'rami_card_view.dart';
 import 'rami_hand_layout.dart';
@@ -35,13 +36,6 @@ const _woodColor = Color(0xFF8B4513);
 const _dragThreshold = 8.0;
 
 const _seatNames = ['Toi', 'Ali', 'Karim', 'Sami'];
-const _groupColors = [
-  Color(0xFFE43F5F),
-  Color(0xFF1676D2),
-  Color(0xFFF49B32),
-  Color(0xFF9B8CFF),
-  Color(0xFF14705B),
-];
 
 final _ramiRules = <({String title, String text})>[
   (
@@ -89,17 +83,6 @@ final _ramiRules = <({String title, String text})>[
         "Les points de pénalité s'additionnent jusqu'à 100 ou 200. Le plus petit total gagne.",
   ),
 ];
-
-String _statusText(rules.RamiState g, int stagedPoints) {
-  if (g.phase == rules.RamiPhase.end) return '';
-  if (g.turn != 0) return '${_seatNames[g.turn]} réfléchit…';
-  if (g.phase == rules.RamiPhase.draw) return Strings.ramiYourDraw;
-  if (g.staged.isNotEmpty) {
-    return 'Ouverture : $stagedPoints / ${rules.ramiOpenMin} pts. Valide quand c\'est bon';
-  }
-  if (g.opened[0]) return Strings.ramiSlideThenDiscard;
-  return 'Ouvre avec ${rules.ramiOpenMin} pts : glisse tes paquets sur la table';
-}
 
 /// Écran du Rami. Logique dans RamiController et lib/game/rami.dart.
 class RamiScreen extends StatefulWidget {
@@ -473,16 +456,36 @@ class _RamiScreenState extends State<RamiScreen>
       ),
       child: Column(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _piles(handWidth * 1.1, g),
-              const SizedBox(width: 8),
-              Expanded(child: _statusBubble(g)),
-            ],
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                const gap = 6.0;
+                final pileWidth = handWidth * 0.6;
+                final areaWidth = constraints.maxWidth - pileWidth - gap;
+                // Zoom adaptatif : les cartes du tapis rétrécissent pour que tous les paquets tiennent.
+                final meldWidth = ramiTableCardWidth(
+                  [
+                    for (final meld in g.table) meld.cards.length,
+                    for (final cards in g.staged) cards.length,
+                  ],
+                  areaWidth - 16,
+                  constraints.maxHeight - 12,
+                  handWidth * 0.8,
+                );
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: _tableCards(meldWidth, g)),
+                    const SizedBox(width: gap),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: _piles(pileWidth, g),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
-          const SizedBox(height: 8),
-          Expanded(child: _tableCards(handWidth * 0.8, g)),
           _contextActions(g),
         ],
       ),
@@ -670,91 +673,60 @@ class _RamiScreenState extends State<RamiScreen>
     final c = _c;
     final top = c.top;
     final discardHover = c.canPlay && _drag?.target is RamiDropDiscard;
-    return Row(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: c.canDraw ? () => _drawFromStock(width) : null,
-              child: Container(
-                key: _key('stock'),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(width * 0.14),
-                  border: c.canDraw
-                      ? Border.all(color: _goldColor, width: 3)
-                      : null,
-                ),
-                child: RamiBackView(width: width),
-              ),
-            ),
-            Text(
-              'Pioche · ${g.stock.length}',
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
-            ),
-          ],
-        ),
-        const SizedBox(width: 8),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              key: _key('discard'),
+        PulseGlow(
+          active: c.canDraw,
+          child: GestureDetector(
+            onTap: c.canDraw ? () => _drawFromStock(width) : null,
+            child: Container(
+              key: _key('stock'),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(width * 0.14),
-                border: discardHover || c.canDraw
+                border: c.canDraw
                     ? Border.all(color: _goldColor, width: 3)
                     : null,
               ),
-              child: top == null
-                  ? Container(
-                      width: width,
-                      height: width * 1.4,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(width * 0.14),
-                        border: Border.all(color: Colors.white54, width: 2),
-                      ),
-                    )
-                  : GestureDetector(
-                      onTap: c.canDraw ? c.drawFromDiscard : null,
-                      child: MaskedSlot(
-                        hidden: landing.contains(top.id),
-                        child: RamiCardView(card: top, width: width),
-                      ),
-                    ),
+              child: RamiBackView(width: width),
             ),
-            Text(
-              'Défausse · ${g.discard.length}',
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _statusBubble(rules.RamiState g) {
-    final text = _statusText(g, _c.stagedPoints);
-    if (text.isEmpty) return const SizedBox.shrink();
-    final myTurn = _c.myTurn;
-    return Semantics(
-      liveRegion: true,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        decoration: BoxDecoration(
-          color: myTurn ? _goldColor : const Color(0xFFF97316),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.black, width: 2),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: myTurn ? const Color(0xFF3D351F) : Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 13,
           ),
         ),
-      ),
+        Text(
+          'Pioche · ${g.stock.length}',
+          style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          key: _key('discard'),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(width * 0.14),
+            border: discardHover
+                ? Border.all(color: _goldColor, width: 3)
+                : null,
+          ),
+          child: top == null
+              ? Container(
+                  width: width,
+                  height: width * 1.4,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(width * 0.14),
+                    border: Border.all(color: Colors.white54, width: 2),
+                  ),
+                )
+              : GestureDetector(
+                  onTap: c.canDraw ? c.drawFromDiscard : null,
+                  child: MaskedSlot(
+                    hidden: landing.contains(top.id),
+                    child: RamiCardView(card: top, width: width),
+                  ),
+                ),
+        ),
+        Text(
+          'Défausse · ${g.discard.length}',
+          style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900),
+        ),
+      ],
     );
   }
 
@@ -835,32 +807,32 @@ class _RamiScreenState extends State<RamiScreen>
 
   List<Widget> _actions(bool staged) {
     final c = _c;
+    final pose = _ActionButton(
+      label: Strings.actPose,
+      onTap: c.pose,
+      enabled: c.selectionIsMeld,
+      primary: !staged,
+    );
+    final discard = _ActionButton(
+      label: Strings.actDiscard,
+      onTap: c.discardSelected,
+      enabled: c.selected.length == 1 && !staged,
+      danger: true,
+    );
+    if (!staged) return [pose, discard];
     return [
-      if (!staged)
-        _ActionButton(
-          label: Strings.actPose,
-          onTap: c.pose,
-          enabled: c.selectionIsMeld,
-          primary: true,
-        )
-      else ...[
-        _ActionButton(
-          label: tf('validate', {
-            'cur': '${c.stagedPoints}',
-            'min': '${rules.ramiOpenMin}',
-          }),
-          onTap: c.commit,
-          enabled: c.stagedPoints >= rules.ramiOpenMin,
-          primary: true,
-        ),
-        _ActionButton(label: Strings.actCancel, onTap: c.cancel),
-      ],
       _ActionButton(
-        label: Strings.actDiscard,
-        onTap: _c.discardSelected,
-        enabled: c.selected.length == 1 && !staged,
-        danger: true,
+        label: tf('validate', {
+          'cur': '${c.stagedPoints}',
+          'min': '${rules.ramiOpenMin}',
+        }),
+        onTap: c.commit,
+        enabled: c.stagedPoints >= rules.ramiOpenMin,
+        primary: true,
       ),
+      pose,
+      _ActionButton(label: Strings.actCancel, onTap: c.cancel),
+      discard,
     ];
   }
 
@@ -871,7 +843,6 @@ class _RamiScreenState extends State<RamiScreen>
       builder: (context, constraints) {
         final c = _c;
         final hand = c.displayed;
-        final groupOf = c.groupOf;
         final selected = c.selected;
         final n = hand.length;
         final maxW = constraints.maxWidth;
@@ -927,8 +898,6 @@ class _RamiScreenState extends State<RamiScreen>
                       shown[j],
                       width,
                       selected: selected.contains(shown[j].id),
-                      group: groupOf[shown[j].id],
-                      turns: ramiFanAngle(j, m) / (2 * math.pi),
                     ),
                   ),
               ],
@@ -943,12 +912,9 @@ class _RamiScreenState extends State<RamiScreen>
     rules.RamiCard card,
     double width, {
     required bool selected,
-    required int? group,
-    required double turns,
   }) {
     final dragged = _drag?.id == card.id;
     final arriving = landing.contains(card.id);
-
     return Listener(
       key: _key('hand:${card.id}'),
       behavior: HitTestBehavior.opaque,
@@ -956,33 +922,9 @@ class _RamiScreenState extends State<RamiScreen>
       onPointerMove: _onPointerMove,
       onPointerUp: _onPointerUp,
       onPointerCancel: (_) => _onPointerCancel(),
-      child: AnimatedRotation(
-        turns: turns,
-        alignment: Alignment.center,
-        duration: const Duration(milliseconds: 180),
-        child: SizedBox(
-          width: width,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Opacity(
-                opacity: dragged ? 0.3 : (arriving ? 0 : 1),
-                child: RamiCardView(
-                  card: card,
-                  width: width,
-                  selected: selected,
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.only(top: 3),
-                height: 5,
-                color: group == null
-                    ? Colors.transparent
-                    : _groupColors[group % _groupColors.length],
-              ),
-            ],
-          ),
-        ),
+      child: Opacity(
+        opacity: dragged ? 0.3 : (arriving ? 0 : 1),
+        child: RamiCardView(card: card, width: width, selected: selected),
       ),
     );
   }
@@ -1277,7 +1219,7 @@ class _MeldView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final step = cardWidth * 0.58;
+    final step = cardWidth * ramiMeldStepRatio;
     final width = cardWidth + step * (cards.length - 1);
     final height = cardWidth * 1.4;
     final Color border = hot || eligible

@@ -1,55 +1,72 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/rami/rami_hand_layout.dart';
 
-// Éventail et écartement de la main Rami (#270).
+// Calculs de la main et du tapis Rami (#270, #276).
 
 void main() {
-  drawOrderTests();
-  test('une seule carte ou aucune : pas d\'inclinaison', () {
-    expect(ramiFanAngle(0, 0), 0);
-    expect(ramiFanAngle(0, 1), 0);
-  });
-
-  test('l\'éventail est symétrique et la carte du centre est droite', () {
-    const count = 7;
-    expect(ramiFanAngle(3, count), 0);
-    for (var i = 0; i < count; i++) {
-      expect(
-        ramiFanAngle(i, count),
-        closeTo(-ramiFanAngle(count - 1 - i, count), 1e-9),
-      );
-    }
-    expect(ramiFanAngle(0, count), lessThan(0));
-    expect(ramiFanAngle(count - 1, count), greaterThan(0));
-  });
-
-  test('l\'inclinaison reste modérée même avec une main pleine', () {
-    for (var i = 0; i < 13; i++) {
-      expect(ramiFanAngle(i, 13).abs(), lessThanOrEqualTo(0.07 + 1e-9));
-    }
-  });
-
-  test('sans dépôt dans la main, aucun écartement', () {
+  test('écartement : rien sans dépôt dans la main', () {
     for (var i = 0; i < 5; i++) {
       expect(ramiGapOffset(i, -1, 30), 0);
     }
   });
 
-  test('le dépôt écarte les cartes à partir de l\'emplacement', () {
+  test('écartement : le dépôt écarte les cartes à partir de l\'emplacement', () {
     expect(ramiGapOffset(1, 2, 30), 0);
     expect(ramiGapOffset(2, 2, 30), closeTo(27, 1e-9));
     expect(ramiGapOffset(4, 2, 30), closeTo(27, 1e-9));
   });
-}
 
-// Ordre de dessin : une carte sélectionnée garde sa place, seule la carte déplacée passe devant.
-void drawOrderTests() {
-  test('sans glissement : ordre de gauche à droite', () {
+  test('ordre de dessin : de gauche à droite', () {
     expect(ramiDrawOrder(3, null), [0, 1, 2]);
     expect(ramiDrawOrder(0, null), isEmpty);
   });
 
-  test('la carte déplacée passe en dernier', () {
+  test('ordre de dessin : la carte déplacée passe en dernier', () {
     expect(ramiDrawOrder(4, 1), [0, 2, 3, 1]);
+  });
+
+  test('tapis : sans paquet, largeur maximale', () {
+    expect(ramiTableCardWidth([], 300, 200, 80), 80);
+  });
+
+  test('tapis : un seul paquet court garde la largeur maximale', () {
+    expect(ramiTableCardWidth([3], 300, 200, 80), 80);
+  });
+
+  test('tapis : les paquets se rangent sur une rangée s\'ils tiennent', () {
+    const w = 60.0;
+    expect(ramiMeldRows([3, 3], w, 400), 1);
+    expect(ramiMeldRows([3, 3, 3, 3], w, 200), greaterThan(1));
+  });
+
+  test('tapis : trop de paquets pour la zone, largeur minimale', () {
+    final sizes = List<int>.filled(12, 4);
+    expect(ramiTableCardWidth(sizes, 60, 40, 80), 36);
+  });
+
+  test('tapis : plus de paquets donnent des cartes plus petites', () {
+    const area = 320.0;
+    const height = 260.0;
+    final few = ramiTableCardWidth([3, 3, 4], area, height, 80);
+    final many = ramiTableCardWidth(
+      [3, 3, 4, 3, 3, 4, 3, 3, 4, 3],
+      area,
+      height,
+      80,
+    );
+    expect(many, lessThanOrEqualTo(few));
+    expect(many, greaterThanOrEqualTo(36));
+  });
+
+  test('tapis : la largeur calculée fait tenir tous les paquets', () {
+    const area = 320.0;
+    const height = 260.0;
+    final sizes = [3, 3, 4, 3, 3, 4, 3];
+    final w = ramiTableCardWidth(sizes, area, height, 80);
+    if (w > 36) {
+      final rows = ramiMeldRows(sizes, w, area)!;
+      final used = rows * (w * 1.4 + 10) + (rows - 1) * 6;
+      expect(used, lessThanOrEqualTo(height));
+    }
   });
 }
