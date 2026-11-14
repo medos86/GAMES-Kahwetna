@@ -169,7 +169,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         for (final (card, from) in playerStarts) {
-          final to = _targetFor(card.id, from.size);
+          final to = _targetFor(card.id);
           if (to == null) continue;
           unawaited(
             flyCard(
@@ -183,28 +183,27 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
       });
     }
 
-    // Carte jouée par l'adversaire : de sa zone vers le tapis (ou le tas).
+    // Carte jouée par l'adversaire : de sa place vers le tapis (ou le tas).
     final stillOpp = {for (final c in game.hands[Player.opponent]!) c.id};
     final leavingOpp = [
       for (final card in beforeOpp)
         if (!stillOpp.contains(card.id)) card,
     ];
-    if (leavingOpp.isNotEmpty) {
+    final oppStarts = [
+      for (final card in leavingOpp)
+        if (rectOfKey(_key('opp:${card.id}')) case final from?) (card, from),
+    ];
+    if (oppStarts.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         var i = 0;
-        for (final card in leavingOpp) {
-          final area = rectOfKey(_key('opp-hand'));
-          final to = _targetFor(card.id, area?.size ?? Size.zero);
-          if (area == null || to == null) continue;
+        for (final (card, from) in oppStarts) {
+          final to = _targetFor(card.id);
+          if (to == null) continue;
           unawaited(
             flyCard(
               context: context,
-              from: Rect.fromCenter(
-                center: area.center,
-                width: to.width,
-                height: to.height,
-              ),
+              from: from,
               to: to,
               child: ChkobbaCardFace(card: card),
               delay: _stagger * i,
@@ -218,19 +217,15 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     if (_dealPending) _distribute();
   }
 
-  /// Destination d'une carte : sa place sur le tapis, ou le tas de celui qui l'a prise.
-  Rect? _targetFor(String id, Size size) {
+  /// Destination exacte d'une carte : sa case du tapis, ou le tas de celui qui l'a prise.
+  Rect? _targetFor(String id) {
     final game = _controller.game;
-    Rect? at(GlobalKey key) {
-      final r = rectOfKey(key);
-      if (r == null) return null;
-      return Rect.fromLTWH(r.left, r.top, size.width, size.height);
+    if (game.table.any((c) => c.id == id)) {
+      return rectOfKey(_key('tbl:$id'));
     }
-
-    if (game.table.any((c) => c.id == id)) return at(_key('tbl:$id'));
     for (final p in Player.values) {
       if (game.won[p]?.any((c) => c.id == id) ?? false) {
-        return at(_key('won:${p.name}'));
+        return rectOfKey(_key('won:${p.name}'));
       }
     }
     return null;
@@ -258,18 +253,14 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
         );
         i++;
       }
-      final area = rectOfKey(_key('opp-hand'));
-      if (area == null) return;
-      for (var k = 0; k < game.hands[Player.opponent]!.length; k++) {
+      for (final card in game.hands[Player.opponent]!) {
+        final to = rectOfKey(_key('opp:${card.id}'));
+        if (to == null) continue;
         unawaited(
           flyCard(
             context: context,
             from: from,
-            to: Rect.fromCenter(
-              center: area.center,
-              width: from.width,
-              height: from.height,
-            ),
+            to: to,
             child: const ChkobbaCardBack(),
             delay: _stagger * i,
           ),
@@ -419,9 +410,12 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                 cards: game.hands[Player.opponent]!,
                 width: cardWidth * 0.8,
                 height: cardHeight * 0.8,
-                builder: (card) => card.id == revealed
-                    ? ChkobbaCardFace(card: card, highlight: true)
-                    : const ChkobbaCardBack(),
+                builder: (card) => KeyedSubtree(
+                  key: _key('opp:${card.id}'),
+                  child: card.id == revealed
+                      ? ChkobbaCardFace(card: card, highlight: true)
+                      : const ChkobbaCardBack(),
+                ),
               ),
             ),
             Expanded(
