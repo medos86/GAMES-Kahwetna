@@ -298,7 +298,7 @@ class _RamiScreenState extends State<RamiScreen>
                       8,
                       8,
                       8,
-                      _adFree.value ? 8 : 80,
+                      _adFree.value ? 8 : kAdBannerHeight + 24,
                     ),
                     child: Column(
                       children: [
@@ -904,13 +904,9 @@ class _RamiScreenState extends State<RamiScreen>
           }
         }
 
-        // Ordre de dessin : cartes non sélectionnées d'abord, sélectionnées ou déplacées en dernier.
-        final order = [
-          for (var j = 0; j < m; j++)
-            if (!selected.contains(shown[j].id) && dragId != shown[j].id) j,
-          for (var j = 0; j < m; j++)
-            if (selected.contains(shown[j].id) || dragId == shown[j].id) j,
-        ];
+        // Ordre de dessin : de gauche à droite, la carte déplacée en dernier.
+        final dragAt = shown.indexWhere((card) => card.id == dragId);
+        final order = ramiDrawOrder(m, dragAt >= 0 ? dragAt : null);
 
         return Center(
           child: SizedBox(
