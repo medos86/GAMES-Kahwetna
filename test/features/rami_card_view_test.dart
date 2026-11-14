@@ -21,6 +21,13 @@ List<RamiCard> _fullDeck() => [
 Widget _host(Widget child) =>
     MaterialApp(home: Scaffold(body: Center(child: child)));
 
+/// Nom de l'asset affiché : l'image est enveloppée dans un ResizeImage (cacheWidth).
+String _shownAsset(WidgetTester tester) {
+  var provider = tester.widget<Image>(find.byType(Image)).image;
+  if (provider is ResizeImage) provider = provider.imageProvider;
+  return (provider as AssetImage).assetName;
+}
+
 void main() {
   test('chaque carte du jeu a un fichier PNG existant', () {
     final deck = _fullDeck();
@@ -74,9 +81,8 @@ void main() {
         ),
       ),
     );
-    final image = tester.widget<Image>(find.byType(Image));
     expect(
-      (image.image as AssetImage).assetName,
+      _shownAsset(tester),
       'assets/images/cards_rami/ace_of_spades.png',
     );
     expect(find.bySemanticsLabel('A ♠'), findsOneWidget);
@@ -84,7 +90,6 @@ void main() {
 
   testWidgets('RamiBackView affiche le dos rouge', (tester) async {
     await tester.pumpWidget(_host(const RamiBackView(width: 60)));
-    final image = tester.widget<Image>(find.byType(Image));
-    expect((image.image as AssetImage).assetName, ramiCardBackAsset);
+    expect(_shownAsset(tester), ramiCardBackAsset);
   });
 }
