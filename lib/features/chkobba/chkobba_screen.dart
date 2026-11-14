@@ -10,14 +10,13 @@ import '../../core/strings.dart';
 import '../../core/theme/game_style.dart';
 import '../../game/chkobba.dart';
 import '../../game/common.dart';
-import '../../widgets/ad_banner.dart';
 import '../menu/menu_models.dart';
 import 'chkobba_card_face.dart';
 import 'chkobba_controller.dart';
 import 'chkobba_rules_screen.dart';
 import 'chkobba_table.dart';
 import '../../widgets/exit_guard.dart';
-import '../../widgets/game_safe_area.dart';
+import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
@@ -325,24 +324,24 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     // Hauteur de carte : 11 % de l'écran, bornée pour laisser la place au tapis.
     final cardHeight = math.min(math.max(size.height * 0.11, 56.0), 92.0);
     final style = GameStyle.current;
+    final Widget background;
+    if (style.villageBackground) {
+      background = const _CalmBackground();
+    } else {
+      background = const _WoodBackground();
+    }
 
-    return ExitGuard(
-      active: _controller.game.winner == null,
-      child: Scaffold(
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            style.villageBackground
-                ? const _CalmBackground()
-                : const _WoodBackground(),
-            GameSafeArea(
-              child: ListenableBuilder(
-                listenable: _controller,
-                builder: (context, _) =>
-                    _buildBoard(context, columns, cardHeight),
-              ),
-            ),
-          ],
+    return ListenableBuilder(
+      listenable: Listenable.merge([
+        _controller,
+        AdFreeService.instance.active,
+      ]),
+      builder: (context, _) => ExitGuard(
+        active: _controller.game.winner == null,
+        child: GameScaffold(
+          showAd: !AdFreeService.instance.active.value,
+          background: background,
+          child: _buildBoard(context, columns, cardHeight),
         ),
       ),
     );
@@ -493,16 +492,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            // Bannière masquée pendant le mode sans pub, de retour à l'expiration.
-            ValueListenableBuilder<bool>(
-              valueListenable: AdFreeService.instance.active,
-              builder: (context, adFree, _) => adFree
-                  ? const SizedBox.shrink()
-                  : const Padding(
-                      padding: EdgeInsets.fromLTRB(8, 0, 8, 8),
-                      child: AdBanner(),
-                    ),
-            ),
           ],
         ),
         if (summary != null)
