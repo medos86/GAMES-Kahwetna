@@ -13,7 +13,8 @@ class AdBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minHeight: 64),
+      // Hauteur bornée : la bannière ne peut jamais s'étirer sur tout l'écran.
+      constraints: const BoxConstraints(minHeight: 64, maxHeight: 96),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: const Color(0xF210254C),
