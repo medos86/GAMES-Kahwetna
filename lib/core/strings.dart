@@ -88,6 +88,9 @@ abstract final class Strings {
   static String get ramiSelectDiscard => t('ramiSelectDiscard');
   static String get ramiCannotDiscardTaken => t('ramiCannotDiscardTaken');
   static String get ramiDiscardRefused => t('ramiDiscardRefused');
+  static String get ramiDiscardNeedsLay => t('ramiDiscardNeedsLay');
+  static String get ramiReturnRefused => t('ramiReturnRefused');
+  static String get actReturnTaken => t('actReturnTaken');
   static String get ramiFinishOrCancel => t('ramiFinishOrCancel');
   static String get notAMeld => t('notAMeld');
   static String get drawFirst => t('drawFirst');
