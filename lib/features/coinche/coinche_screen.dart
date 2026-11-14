@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../../core/layout/device_metrics.dart';
 import '../../game/coinche.dart';
-import '../../widgets/ad_banner.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/theme/game_style.dart';
 import '../menu/menu_models.dart';
@@ -14,7 +13,7 @@ import '../../core/services/ad_free_service.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../widgets/comic/comic_panel.dart';
 import '../../widgets/exit_guard.dart';
-import '../../widgets/game_safe_area.dart';
+import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
@@ -86,66 +85,46 @@ class _CoincheScreenState extends State<CoincheScreen> {
 
     return ExitGuard(
       active: _controller.match.winner == null,
-      child: Scaffold(
-        backgroundColor: const Color(0xFF8B4513),
-        body: ListenableBuilder(
-          listenable: _controller,
-          builder: (context, _) {
-            final c = _controller;
-            return Stack(
-              children: [
-                const Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(color: Color(0xFF8B4513)),
+      child: ListenableBuilder(
+        listenable: _controller,
+        builder: (context, _) {
+          final c = _controller;
+          return GameScaffold(
+            showAd: !_adFree.value,
+            background: const ColoredBox(color: Color(0xFF8B4513)),
+            overlays: [
+              if (c.summary != null)
+                Positioned.fill(
+                  child: _SummaryDialog(
+                    controller: c,
+                    onMenu: () => Navigator.of(context).maybePop(),
                   ),
                 ),
-                GameSafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      12,
-                      12,
-                      12,
-                      _adFree.value ? 12 : 88,
-                    ),
-                    child: Column(
-                      children: [
-                        _Header(controller: c, difficulty: widget.difficulty),
-                        const SizedBox(height: 8),
-                        _ScoreBar(controller: c),
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: _Table(
-                            controller: c,
-                            cardWidth: metrics.coincheCardWidth * 0.8,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        _HandFooter(
-                          controller: c,
-                          cardWidth: metrics.coincheCardWidth,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (!_adFree.value)
-                  const Positioned(
-                    left: 8,
-                    right: 8,
-                    bottom: 8,
-                    child: AdBanner(),
-                  ),
-                if (c.summary != null)
-                  Positioned.fill(
-                    child: _SummaryDialog(
+            ],
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              child: Column(
+                children: [
+                  _Header(controller: c, difficulty: widget.difficulty),
+                  const SizedBox(height: 8),
+                  _ScoreBar(controller: c),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: _Table(
                       controller: c,
-                      onMenu: () => Navigator.of(context).maybePop(),
+                      cardWidth: metrics.coincheCardWidth * 0.8,
                     ),
                   ),
-              ],
-            );
-          },
-        ),
+                  const SizedBox(height: 8),
+                  _HandFooter(
+                    controller: c,
+                    cardWidth: metrics.coincheCardWidth,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
