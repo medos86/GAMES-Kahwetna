@@ -110,7 +110,6 @@ void main() {
     );
     print('DBG id=$id');
     print('DBG ${find.byType(RamiCardView).evaluate().length}');
-    print('DBG ${tester.widgetList<RamiCardView>(find.byType(RamiCardView)).map((w) => w.card.id).join(',')}');
     expect(faceOf(), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
