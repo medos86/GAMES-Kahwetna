@@ -7,7 +7,6 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 import '../../core/layout/device_metrics.dart';
 import '../../core/services/toast.dart';
 import '../../game/rami.dart' as rules;
-import '../../widgets/ad_banner.dart';
 import '../menu/menu_models.dart';
 import 'rami_card_view.dart';
 import 'rami_controller.dart';
@@ -15,7 +14,7 @@ import '../../core/strings.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../widgets/exit_guard.dart';
-import '../../widgets/game_safe_area.dart';
+import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/card_flight.dart';
@@ -271,55 +270,39 @@ class _RamiScreenState extends State<RamiScreen> {
 
     return ExitGuard(
       active: _c.game.matchWinner == null,
-      child: Scaffold(
-        backgroundColor: _woodColor,
-        body: ListenableBuilder(
-          listenable: _c,
-          builder: (context, _) {
-            final g = _c.game;
-            return Stack(
+      child: ListenableBuilder(
+        listenable: _c,
+        builder: (context, _) {
+          final g = _c.game;
+          return GameScaffold(
+            showAd: !_adFree.value,
+            background: const ColoredBox(color: _woodColor),
+            overlays: [
+              if (g.phase == rules.RamiPhase.end && g.roundResult != null)
+                Positioned.fill(child: _summary(g)),
+            ],
+            child: Stack(
               key: _bodyKey,
               children: [
-                const Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(color: _woodColor),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                  child: Column(
+                    children: [
+                      _header(g),
+                      const SizedBox(height: 6),
+                      _scores(g),
+                      const SizedBox(height: 6),
+                      Expanded(child: _tableSection(handWidth, g)),
+                      const SizedBox(height: 6),
+                      _footer(handWidth),
+                    ],
                   ),
                 ),
-                GameSafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      8,
-                      8,
-                      8,
-                      _adFree.value ? 8 : 80,
-                    ),
-                    child: Column(
-                      children: [
-                        _header(g),
-                        const SizedBox(height: 6),
-                        _scores(g),
-                        const SizedBox(height: 6),
-                        Expanded(child: _tableSection(handWidth, g)),
-                        const SizedBox(height: 6),
-                        _footer(handWidth),
-                      ],
-                    ),
-                  ),
-                ),
-                if (!_adFree.value)
-                  const Positioned(
-                    left: 8,
-                    right: 8,
-                    bottom: 8,
-                    child: AdBanner(),
-                  ),
                 if (_drag != null) _dragOverlay(handWidth),
-                if (g.phase == rules.RamiPhase.end && g.roundResult != null)
-                  Positioned.fill(child: _summary(g)),
               ],
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
