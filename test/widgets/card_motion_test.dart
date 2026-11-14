@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Moteur commun de mouvement (#266) : la case d'arrivée reste masquée pendant le vol.
 class _Probe extends StatefulWidget {
-  const _Probe({super.key});
+  const _Probe();
 
   @override
   State<_Probe> createState() => _ProbeState();
