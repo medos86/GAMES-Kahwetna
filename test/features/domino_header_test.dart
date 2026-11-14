@@ -3,6 +3,7 @@ import 'package:kahwetne/core/strings.dart';
 import 'package:kahwetne/features/domino/domino_screen.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:kahwetne/widgets/game_header.dart';
+import 'package:kahwetne/widgets/game_scaffold.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,6 +23,19 @@ void main() {
       expect(find.byType(GameHeader), findsOneWidget);
       expect(find.text(Strings.menuLabel), findsOneWidget);
       expect(find.textContaining('Manche'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'Domino : écran construit sur GameScaffold (#242)',
+    (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: DominoScreen(difficulty: Difficulty.facile, targetScore: 50),
+        ),
+      );
+      await tester.pump();
+      expect(find.byType(GameScaffold), findsOneWidget);
     },
   );
 }
