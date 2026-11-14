@@ -4,6 +4,9 @@ import 'pressable.dart';
 import '../core/services/toast.dart';
 import '../core/strings.dart';
 
+/// Hauteur fixe de la bannière (proche du format standard 50 px, avec le texte sur trois lignes).
+const double kAdBannerHeight = 56;
+
 /// Bannière publicitaire réutilisable (aspect de la bannière du source React).
 /// Contenu de démonstration : à remplacer par le SDK publicitaire réel avant publication.
 /// Placée en bas de chaque écran de jeu, sauf pendant le mode sans pub.
@@ -13,9 +16,9 @@ class AdBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // Hauteur bornée : la bannière ne peut jamais s'étirer sur tout l'écran.
-      constraints: const BoxConstraints(minHeight: 64, maxHeight: 96),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      // Hauteur fixe : la bannière ne change jamais de taille.
+      height: kAdBannerHeight,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color: const Color(0xF210254C),
         borderRadius: BorderRadius.circular(16),
@@ -46,6 +49,7 @@ class AdBanner extends StatelessWidget {
                   Strings.adLabel,
                   style: TextStyle(
                     fontSize: 9,
+                    height: 1.1,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 2,
                     color: Color(0xFFFFE681),
@@ -57,6 +61,7 @@ class AdBanner extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 14,
+                    height: 1.1,
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
                   ),
@@ -67,6 +72,7 @@ class AdBanner extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 10,
+                    height: 1.1,
                     fontWeight: FontWeight.w700,
                     color: Color(0x8CFFFFFF),
                   ),
