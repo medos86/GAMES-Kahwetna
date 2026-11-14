@@ -109,7 +109,9 @@ void main() {
       findsNothing,
     );
     print('DBG id=$id');
-    print('DBG ${find.byType(RamiCardView).evaluate().length}');
+    final views = tester.widgetList<RamiCardView>(find.byType(RamiCardView));
+    print('DBG ${views.map((w) => w.card.id).join(' ')}');
+    print('DBG sel ${views.where((w) => w.selected).length}');
     expect(faceOf(), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
