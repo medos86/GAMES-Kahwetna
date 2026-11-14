@@ -58,6 +58,7 @@ final _ramiRules = <({String title, String text})>[
     title: 'Ouverture',
     text:
         'Ta première pose doit totaliser ${rules.ramiOpenMin} points minimum, en une seule fois. '
+            'Chaque ouverture suivante doit dépasser la précédente. '
             'As = 1, figures = 10, joker = 20.',
   ),
   (
@@ -833,11 +834,11 @@ class _RamiScreenState extends State<RamiScreen>
       RamiActionButton(
         label: tf('validate', {
           'cur': '${c.stagedPoints}',
-          'min': '${rules.ramiOpenMin}',
+          'min': '${c.openMinimum}',
         }),
         icon: Icons.done_all,
         onTap: c.commit,
-        enabled: c.stagedPoints >= rules.ramiOpenMin,
+        enabled: c.stagedPoints >= c.openMinimum,
         primary: true,
       ),
       pose,

@@ -149,6 +149,9 @@ class RamiController extends PersistentGameController {
   int get stagedPoints =>
       _game.staged.fold(0, (sum, cards) => sum + rules.pointsOf(cards));
 
+  /// Seuil de l'ouverture en cours : 51, puis strictement plus que la précédente.
+  int get openMinimum => rules.minOpening(_game);
+
   List<rules.RamiCard> get selectedCards => [
         for (final card in displayed)
           if (_selected.contains(card.id)) card,
@@ -219,17 +222,17 @@ class RamiController extends PersistentGameController {
   void pose() =>
       _apply(rules.poseMeld(_game, List.of(_selected)), Strings.notAMeld);
 
-  /// Valide l'ouverture (51 points minimum).
+  /// Valide l'ouverture (seuil : voir openMinimum).
   void commit() => _apply(
         rules.commitOpening(_game),
-        'Il faut au moins ${rules.ramiOpenMin} points pour ouvrir',
+        'Il faut au moins $openMinimum points pour ouvrir',
       );
 
   void cancel() => _apply(rules.cancelStaged(_game));
 
   void layOffCard(String cardId, String meldId) {
     if (!opened) {
-      onMessage?.call("Ouvre d'abord avec ${rules.ramiOpenMin} points");
+      onMessage?.call("Ouvre d'abord avec $openMinimum points");
       return;
     }
     if (_game.staged.isNotEmpty) {

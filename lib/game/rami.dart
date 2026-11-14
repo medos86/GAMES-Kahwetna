@@ -19,6 +19,10 @@ enum RamiAiLevel { facile, moyen, difficile }
 
 const ramiSeats = [0, 1, 2, 3];
 const ramiOpenMin = 51;
+
+/// Seuil de la prochaine ouverture : 51 pour la première, puis strictement plus que la précédente.
+int minOpening(RamiState state) =>
+    state.lastOpening == 0 ? ramiOpenMin : state.lastOpening + 1;
 const _handSize = 13;
 const _aceHigh = 14;
 
@@ -100,6 +104,7 @@ class RamiState {
     required this.scores,
     required this.roundResult,
     required this.matchWinner,
+    required this.lastOpening,
   });
 
   factory RamiState.fromJson(Map<String, dynamic> json) => RamiState(
@@ -124,6 +129,7 @@ class RamiState {
             : RamiRoundResult.fromJson(
                 json['roundResult'] as Map<String, dynamic>),
         matchWinner: json['matchWinner'] as int?,
+        lastOpening: (json['lastOpening'] as int?) ?? 0,
       );
 
   final int targetScore;
@@ -142,6 +148,9 @@ class RamiState {
   final RamiRoundResult? roundResult;
   final int? matchWinner;
 
+  /// Points de la dernière ouverture de la manche (0 : personne n'a ouvert).
+  final int lastOpening;
+
   /// Les champs nullables (takenId, roundResult, matchWinner) se remettent à null avec une valeur explicite.
   RamiState copyWith({
     RamiPhase? phase,
@@ -156,6 +165,7 @@ class RamiState {
     List<int>? scores,
     Object? roundResult = _unset,
     Object? matchWinner = _unset,
+    int? lastOpening,
   }) {
     return RamiState(
       targetScore: targetScore,
@@ -177,6 +187,7 @@ class RamiState {
       matchWinner: identical(matchWinner, _unset)
           ? this.matchWinner
           : matchWinner as int?,
+      lastOpening: lastOpening ?? this.lastOpening,
     );
   }
 
@@ -200,6 +211,7 @@ class RamiState {
         'scores': scores,
         'roundResult': roundResult?.toJson(),
         'matchWinner': matchWinner,
+        'lastOpening': lastOpening,
       };
 }
 
@@ -362,6 +374,7 @@ RamiState dealRound(
     scores: [...scores],
     roundResult: null,
     matchWinner: null,
+    lastOpening: 0,
   );
 }
 
@@ -445,7 +458,7 @@ bool canUseDiscardTop(RamiState state) {
         state.table.any((meld) => isValidMeld([...meld.cards, top]));
   }
   final total = plan.fold<int>(0, (sum, cards) => sum + pointsOf(cards));
-  return carries && total >= ramiOpenMin;
+  return carries && total >= minOpening(state);
 }
 
 RamiState drawDiscard(RamiState state) {
@@ -523,7 +536,7 @@ RamiState commitOpening(RamiState state) {
     0,
     (sum, cards) => sum + pointsOf(cards),
   );
-  if (staged < ramiOpenMin) return state;
+  if (staged < minOpening(state)) return state;
 
   final next = state.copyWith(
     table: [
@@ -531,6 +544,7 @@ RamiState commitOpening(RamiState state) {
       for (final cards in state.staged) Meld(id: cards.first.id, cards: cards),
     ],
     staged: const [],
+    lastOpening: staged,
     opened: [
       for (var i = 0; i < state.opened.length; i++)
         state.opened[i] || i == seat,
@@ -786,7 +800,7 @@ RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {
   final plan = _planMelds(state.hands[seat], state.takenId);
   final planTotal = plan.fold<int>(0, (sum, cards) => sum + pointsOf(cards));
   // Facile : ouvre plus tard que la règle (seuil relevé).
-  final openMin = level == RamiAiLevel.facile ? ramiOpenMin + 15 : ramiOpenMin;
+  final openMin = minOpening(state) + (level == RamiAiLevel.facile ? 15 : 0);
   if (state.opened[seat] && plan.isNotEmpty) return _poseAll(state, plan);
   if (!state.opened[seat] && planTotal >= openMin) {
     return commitOpening(_poseAll(state, plan));
