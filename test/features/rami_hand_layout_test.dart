@@ -10,7 +10,7 @@ void main() {
     }
   });
 
-  test('écartement : le dépôt écarte les cartes à partir de l\'emplacement', () {
+  test('écartement : le dépôt écarte à partir de l\'emplacement', () {
     expect(ramiGapOffset(1, 2, 30), 0);
     expect(ramiGapOffset(2, 2, 30), closeTo(27, 1e-9));
     expect(ramiGapOffset(4, 2, 30), closeTo(27, 1e-9));
