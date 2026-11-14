@@ -890,20 +890,19 @@ class _RamiScreenState extends State<RamiScreen>
         // à l'endroit où elle va atterrir.
         final dragId = _drag?.id;
         final target = _drag?.target;
-        final hover = target is RamiDropHand && target.id != dragId
-            ? target
-            : null;
-        final shown = [
-          for (final card in hand)
-            if (hover == null || card.id != dragId) card,
-        ];
+        final RamiDropHand? hover =
+            target is RamiDropHand && target.id != dragId ? target : null;
+        final shown = hover == null
+            ? hand
+            : hand.where((card) => card.id != dragId).toList();
         final m = shown.length;
-        final hoverAt = hover == null
-            ? -1
-            : shown.indexWhere((card) => card.id == hover.id);
-        final gapAt = hover == null || hoverAt < 0
-            ? -1
-            : hoverAt + (hover.after ? 1 : 0);
+        var gapAt = -1;
+        if (hover != null) {
+          final at = shown.indexWhere((card) => card.id == hover.id);
+          if (at >= 0) {
+            gapAt = hover.after ? at + 1 : at;
+          }
+        }
 
         // Ordre de dessin : cartes non sélectionnées d'abord, sélectionnées ou déplacées en dernier.
         final order = [
