@@ -60,7 +60,7 @@ void main() {
       expect(drawn.discard, isEmpty);
     });
 
-    test('hors ouverture, refusée si les points n'ouvrent pas', () {
+    test('hors ouverture, refusée si les points sont insuffisants', () {
       // Seule la dame du dessus forme un brelan avec deux dames : 30 pts < 51.
       final state = withDiscard(
         [

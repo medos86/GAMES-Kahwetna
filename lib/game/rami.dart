@@ -694,9 +694,9 @@ int _planValue(List<RamiCard> cards) =>
 
 ({String cardId, String meldId})? _findLayOff(
   RamiState state,
-  int seat, [
+  int seat,
   String? onlyCardId,
-]) {
+) {
   for (final card in state.hands[seat]) {
     if (onlyCardId != null && card.id != onlyCardId) continue;
     for (final meld in state.table) {
@@ -801,7 +801,7 @@ RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {
     if (lay != null) return layOff(state, lay.cardId, lay.meldId);
   }
   if (state.opened[seat]) {
-    final lay = _findLayOff(state, seat);
+    final lay = _findLayOff(state, seat, null);
     // Facile : oublie de poser sur la table une fois sur deux.
     final forgets = level == RamiAiLevel.facile && draw() < 0.5;
     if (lay != null && !forgets) return layOff(state, lay.cardId, lay.meldId);
