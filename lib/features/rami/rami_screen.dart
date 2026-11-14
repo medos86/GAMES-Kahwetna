@@ -462,12 +462,13 @@ class _RamiScreenState extends State<RamiScreen>
                 const gap = 6.0;
                 final pileWidth = handWidth * 0.6;
                 final areaWidth = constraints.maxWidth - pileWidth - gap;
+                final sizes = [
+                  for (final meld in g.table) meld.cards.length,
+                  for (final cards in g.staged) cards.length,
+                ];
                 // Zoom adaptatif : les cartes du tapis rétrécissent pour que tous les paquets tiennent.
                 final meldWidth = ramiTableCardWidth(
-                  [
-                    for (final meld in g.table) meld.cards.length,
-                    for (final cards in g.staged) cards.length,
-                  ],
+                  sizes,
                   areaWidth - 16,
                   constraints.maxHeight - 12,
                   handWidth * 0.8,
