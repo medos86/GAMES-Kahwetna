@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:material_ui/material_ui.dart';
 
 import 'package:flutter/foundation.dart' show ValueListenable;
@@ -18,6 +20,8 @@ import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
+import '../../widgets/card_flight.dart';
+import '../../widgets/card_motion.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
 const _feltColor = Color(0xFF10B981);
@@ -50,7 +54,8 @@ class CoincheScreen extends StatefulWidget {
   State<CoincheScreen> createState() => _CoincheScreenState();
 }
 
-class _CoincheScreenState extends State<CoincheScreen> {
+class _CoincheScreenState extends State<CoincheScreen>
+    with CardMotionMixin<CoincheScreen> {
   late final CoincheController _controller = CoincheController(
     store: const SharedPreferencesSavedGameStore(),
     target: widget.targetScore,
@@ -58,11 +63,35 @@ class _CoincheScreenState extends State<CoincheScreen> {
   );
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
 
+  // Mouvements animés (#266) : donne, jeu, pli ramassé, pour toutes les places.
+  static const _dealStep = Duration(milliseconds: 90);
+  static const _stagger = Duration(milliseconds: 40);
+  final Map<String, GlobalKey> _keys = {};
+  bool _ready = false;
+  bool _restored = false;
+  RoundState? _lastRound;
+
+  GlobalKey _key(String name) => _keys.putIfAbsent(name, () => GlobalKey());
+
+  DeviceMetrics get _metrics {
+    final size = MediaQuery.sizeOf(context);
+    return DeviceMetrics(width: size.width, height: size.height);
+  }
+
+  double get _handWidth => _metrics.coincheCardWidth;
+  double get _trickWidth => _metrics.coincheCardWidth * 0.8;
+  double get _seatWidth => _trickWidth * 0.6;
+
   @override
   void initState() {
     super.initState();
+    _controller.addListener(_onChanged);
     _controller.restore().then((_) {
-      if (mounted) offerResume(context, _controller);
+      if (!mounted) return;
+      _ready = true;
+      _lastRound = _controller.round;
+      if (!_restored) _distribute();
+      offerResume(context, _controller);
     });
     _adFree.addListener(_onAdFreeChanged);
   }
@@ -70,12 +99,134 @@ class _CoincheScreenState extends State<CoincheScreen> {
   @override
   void dispose() {
     _adFree.removeListener(_onAdFreeChanged);
+    _controller.removeListener(_onChanged);
     _controller.dispose();
     super.dispose();
   }
 
   void _onAdFreeChanged() {
     if (mounted) setState(() {});
+  }
+
+  /// Rectangle d'une carte de largeur [width] centrée sur [rect].
+  Rect _cardBox(Rect rect, double width) =>
+      Rect.fromCenter(center: rect.center, width: width, height: width * 1.4);
+
+  /// Place d'une place (chip du siège, ou la main pour le joueur) pour une carte.
+  Rect? _seatBox(Seat seat, double width) {
+    final rect = rectOfKey(_key('seat:${seat.name}'));
+    return rect == null ? null : _cardBox(rect, width);
+  }
+
+  /// Tout mouvement de carte : donne, cartes jouées, pli ramassé (#266).
+  void _onChanged() {
+    final round = _controller.round;
+    final before = _lastRound;
+    if (identical(round, before)) return;
+    if (!_ready) {
+      _restored = true;
+      return;
+    }
+    _lastRound = round;
+    if (before == null) return;
+    if (round.dealer != before.dealer ||
+        before.phase == CoinchePhase.done ||
+        before.phase == CoinchePhase.redeal) {
+      _distribute();
+      return;
+    }
+    _flyPlayed(before, round);
+    _flyCollected(before, round);
+  }
+
+  /// Carte posée sur le tapis : depuis la main (joueur) ou la place (adversaire).
+  void _flyPlayed(RoundState before, RoundState now) {
+    final known = {for (final play in before.trick) play.card.id};
+    final width = _trickWidth;
+    final flights = <CardFlight>[];
+    for (final play in now.trick) {
+      final id = play.card.id;
+      if (known.contains(id)) continue;
+      final seatName = 'seat:${play.seat.name}';
+      final originName = play.seat == Seat.south ? 'hand:$id' : seatName;
+      final origin = rectOfKey(_key(originName));
+      if (origin == null) continue;
+      flights.add(
+        CardFlight(
+          from: _cardBox(origin, width),
+          to: () => rectOfKey(_key('trick:$id')),
+          child: CoincheCardView(width: width, card: play.card),
+          landingId: id,
+        ),
+      );
+    }
+    flyAfterRender(flights);
+  }
+
+  /// Pli ramassé : les quatre cartes rejoignent la place du gagnant.
+  void _flyCollected(RoundState before, RoundState now) {
+    final winner = now.lastWinner;
+    if (before.trick.length != 4 || now.trick.isNotEmpty || winner == null) {
+      return;
+    }
+    final width = _trickWidth;
+    final flights = <CardFlight>[];
+    for (final play in before.trick) {
+      final from = rectOfKey(_key('trick:${play.card.id}'));
+      if (from == null) continue;
+      flights.add(
+        CardFlight(
+          from: from,
+          to: () => _seatBox(winner, width),
+          child: CoincheCardView(width: width, card: play.card),
+          delay: _stagger * flights.length,
+        ),
+      );
+    }
+    flyAfterRender(flights);
+  }
+
+  /// Donne : pour chaque tour, une carte à chaque place (la tienne face visible).
+  void _distribute() {
+    final table = rectOfKey(_key('table'));
+    if (table == null) return;
+    final round = _controller.round;
+    final handWidth = _handWidth;
+    final origin = _cardBox(table, handWidth);
+    final mine = _controller.hand;
+    const others = [Seat.north, Seat.west, Seat.east];
+    var rounds = mine.length;
+    for (final seat in others) {
+      rounds = math.max(rounds, round.hands[seat]!.length);
+    }
+    final flights = <CardFlight>[];
+    for (var k = 0; k < rounds; k++) {
+      final delay = _dealStep * k;
+      if (k < mine.length) {
+        final card = mine[k];
+        flights.add(
+          CardFlight(
+            from: origin,
+            to: () => rectOfKey(_key('hand:${card.id}')),
+            child: CoincheCardView(width: handWidth, card: card),
+            delay: delay,
+            landingId: card.id,
+          ),
+        );
+      }
+      for (final seat in others) {
+        if (k >= round.hands[seat]!.length) continue;
+        flights.add(
+          CardFlight(
+            from: origin,
+            to: () => _seatBox(seat, _seatWidth),
+            child: CoincheCardView(width: _seatWidth),
+            delay: delay,
+          ),
+        );
+      }
+    }
+    flyAfterRender(flights);
   }
 
   @override
@@ -113,12 +264,16 @@ class _CoincheScreenState extends State<CoincheScreen> {
                     child: _Table(
                       controller: c,
                       cardWidth: metrics.coincheCardWidth * 0.8,
+                      keyOf: _key,
+                      landing: landing,
                     ),
                   ),
                   const SizedBox(height: 8),
                   _HandFooter(
                     controller: c,
                     cardWidth: metrics.coincheCardWidth,
+                    keyOf: _key,
+                    landing: landing,
                   ),
                 ],
               ),
@@ -331,10 +486,17 @@ class _TeamScore extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _Table extends StatelessWidget {
-  const _Table({required this.controller, required this.cardWidth});
+  const _Table({
+    required this.controller,
+    required this.cardWidth,
+    required this.keyOf,
+    required this.landing,
+  });
 
   final CoincheController controller;
   final double cardWidth;
+  final GlobalKey Function(String name) keyOf;
+  final Set<String> landing;
 
   @override
   Widget build(BuildContext context) {
@@ -343,6 +505,7 @@ class _Table extends StatelessWidget {
     final yourTurnToPlay = controller.isHumanPlayTurn;
 
     return Container(
+      key: keyOf('table'),
       decoration: BoxDecoration(
         color: _feltColor,
         borderRadius: BorderRadius.circular(22),
@@ -362,10 +525,13 @@ class _Table extends StatelessWidget {
             alignment: Alignment.topCenter,
             child: Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: _SeatInfo(
-                seat: Seat.north,
-                round: round,
-                cardWidth: cardWidth * 0.6,
+              child: KeyedSubtree(
+                key: keyOf('seat:north'),
+                child: _SeatInfo(
+                  seat: Seat.north,
+                  round: round,
+                  cardWidth: cardWidth * 0.6,
+                ),
               ),
             ),
           ),
@@ -373,10 +539,13 @@ class _Table extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Padding(
               padding: const EdgeInsets.only(left: 6),
-              child: _SeatInfo(
-                seat: Seat.west,
-                round: round,
-                cardWidth: cardWidth * 0.6,
+              child: KeyedSubtree(
+                key: keyOf('seat:west'),
+                child: _SeatInfo(
+                  seat: Seat.west,
+                  round: round,
+                  cardWidth: cardWidth * 0.6,
+                ),
               ),
             ),
           ),
@@ -384,15 +553,23 @@ class _Table extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: Padding(
               padding: const EdgeInsets.only(right: 6),
-              child: _SeatInfo(
-                seat: Seat.east,
-                round: round,
-                cardWidth: cardWidth * 0.6,
+              child: KeyedSubtree(
+                key: keyOf('seat:east'),
+                child: _SeatInfo(
+                  seat: Seat.east,
+                  round: round,
+                  cardWidth: cardWidth * 0.6,
+                ),
               ),
             ),
           ),
           Center(
-            child: _TrickArea(trick: round.trick, cardWidth: cardWidth),
+            child: _TrickArea(
+              trick: round.trick,
+              cardWidth: cardWidth,
+              keyOf: keyOf,
+              landing: landing,
+            ),
           ),
           if (status != null)
             Positioned(
@@ -573,10 +750,17 @@ String _callText(BidAction call) => switch (call) {
     };
 
 class _TrickArea extends StatelessWidget {
-  const _TrickArea({required this.trick, required this.cardWidth});
+  const _TrickArea({
+    required this.trick,
+    required this.cardWidth,
+    required this.keyOf,
+    required this.landing,
+  });
 
   final List<Play> trick;
   final double cardWidth;
+  final GlobalKey Function(String name) keyOf;
+  final Set<String> landing;
 
   @override
   Widget build(BuildContext context) {
@@ -589,7 +773,13 @@ class _TrickArea extends StatelessWidget {
           for (final play in trick)
             Align(
               alignment: _trickAlignment(play.seat),
-              child: CoincheCardView(width: cardWidth, card: play.card),
+              child: KeyedSubtree(
+                key: keyOf('trick:${play.card.id}'),
+                child: MaskedSlot(
+                  hidden: landing.contains(play.card.id),
+                  child: CoincheCardView(width: cardWidth, card: play.card),
+                ),
+              ),
             ),
         ],
       ),
@@ -904,10 +1094,35 @@ class _ActionButton extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _HandFooter extends StatelessWidget {
-  const _HandFooter({required this.controller, required this.cardWidth});
+  const _HandFooter({
+    required this.controller,
+    required this.cardWidth,
+    required this.keyOf,
+    required this.landing,
+  });
 
   final CoincheController controller;
   final double cardWidth;
+  final GlobalKey Function(String name) keyOf;
+  final Set<String> landing;
+
+  /// Une carte de la main : elle reste vide tant qu'elle vole vers la main.
+  Widget _handCard(CoincheCard card, Set<String> legal, bool dimmed) {
+    final playable = legal.contains(card.id);
+    void play() => controller.playHuman(card.id);
+    return KeyedSubtree(
+      key: keyOf('hand:${card.id}'),
+      child: MaskedSlot(
+        hidden: landing.contains(card.id),
+        child: CoincheCardView(
+          width: cardWidth,
+          card: card,
+          dimmed: dimmed && !playable,
+          onTap: dimmed && playable ? play : null,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -917,6 +1132,7 @@ class _HandFooter extends StatelessWidget {
     final dimmed = controller.isHumanPlayTurn;
 
     return Container(
+      key: keyOf('seat:south'),
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
       decoration: BoxDecoration(
         color: _creamColor,
@@ -971,14 +1187,7 @@ class _HandFooter extends StatelessWidget {
                           Positioned(
                             left: step * i,
                             top: legal.contains(hand[i].id) && dimmed ? 0 : 8,
-                            child: CoincheCardView(
-                              width: cardWidth,
-                              card: hand[i],
-                              dimmed: dimmed && !legal.contains(hand[i].id),
-                              onTap: dimmed && legal.contains(hand[i].id)
-                                  ? () => controller.playHuman(hand[i].id)
-                                  : null,
-                            ),
+                            child: _handCard(hand[i], legal, dimmed),
                           ),
                       ],
                     ),
