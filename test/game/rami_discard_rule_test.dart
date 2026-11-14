@@ -12,7 +12,7 @@ RamiState withDiscard(
   List<bool>? opened,
   List<Meld> table = const [],
 }) =>
-    fixedDeal().copyWith(
+    dealRound([0, 0, 0, 0], 3, 1, 100, () => 0.0).copyWith(
       phase: RamiPhase.draw,
       turn: 0,
       hands: hands,
