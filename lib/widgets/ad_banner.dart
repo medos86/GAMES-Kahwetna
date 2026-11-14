@@ -61,7 +61,7 @@ class AdBanner extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 14,
-                  height: 1.1,
+                    height: 1.1,
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
                   ),
