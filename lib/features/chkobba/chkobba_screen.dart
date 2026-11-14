@@ -176,9 +176,11 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
       for (final (card, key) in leaving)
         if (wonNow(card.id) && rectOfKey(key) != null) (card, key),
     ];
+    // Position de départ lue maintenant : après le rendu la carte a quitté sa place.
     final plain = [
       for (final (card, key) in leaving)
-        if (!wonNow(card.id) && rectOfKey(key) != null) (card, key),
+        if (!wonNow(card.id) && rectOfKey(key) != null)
+          (card, rectOfKey(key)!),
     ];
 
     for (final (card, key) in captures) {
@@ -212,9 +214,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         var i = 0;
-        for (final (card, key) in plain) {
-          final from = rectOfKey(key);
-          if (from == null || _targetFor(card.id) == null) continue;
+        for (final (card, from) in plain) {
+          if (_targetFor(card.id) == null) continue;
           unawaited(
             flyCard(
               context: context,

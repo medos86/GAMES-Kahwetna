@@ -50,7 +50,11 @@ void main() {
         ),
       ),
     );
-    await tester.pump(const Duration(seconds: 1));
+    // Laisse le chargement asynchrone finir : la donne démarre alors.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 400)),
+    );
+    await tester.pump(const Duration(seconds: 3));
 
     Finder faceOf(String id) => find.byWidgetPredicate(
           (w) => w is ChkobbaCardFace && w.card.id == id,
@@ -113,7 +117,11 @@ void main() {
         ),
       ),
     );
-    await tester.pump(const Duration(seconds: 1));
+    // Laisse le chargement asynchrone finir : la donne démarre alors.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 400)),
+    );
+    await tester.pump(const Duration(seconds: 3));
 
     Finder faceOf(String id) => find.byWidgetPredicate(
           (w) => w is ChkobbaCardFace && w.card.id == id,
@@ -168,7 +176,11 @@ void main() {
         ),
       ),
     );
-    await tester.pump(const Duration(seconds: 1));
+    // Laisse le chargement asynchrone finir : la donne démarre alors.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 400)),
+    );
+    await tester.pump(const Duration(seconds: 3));
 
     Finder faceOf(String id) => find.byWidgetPredicate(
           (w) => w is ChkobbaCardFace && w.card.id == id,
