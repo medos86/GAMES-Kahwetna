@@ -5,14 +5,13 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../../game/ludo.dart';
-import '../../widgets/ad_banner.dart';
 import '../menu/menu_models.dart';
 import 'ludo_controller.dart';
 import 'ludo_layout.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../widgets/exit_guard.dart';
-import '../../widgets/game_safe_area.dart';
+import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
@@ -142,103 +141,91 @@ class _LudoScreenState extends State<LudoScreen> {
 
     return ExitGuard(
       active: !_controller.roundOver,
-      child: Scaffold(
-        body: DecoratedBox(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF0B4F9C), Color(0xFF1676D2), Color(0xFF2A8CE6)],
+      child: ListenableBuilder(
+        listenable: _controller,
+        builder: (context, _) {
+          final c = _controller;
+          return GameScaffold(
+            showAd: !_adFree.value,
+            background: const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF0B4F9C),
+                    Color(0xFF1676D2),
+                    Color(0xFF2A8CE6),
+                  ],
+                ),
+              ),
             ),
-          ),
-          child: ListenableBuilder(
-            listenable: _controller,
-            builder: (context, _) {
-              final c = _controller;
-              return Stack(
-                children: [
-                  GameSafeArea(
-                    bottom: false,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        12,
-                        12,
-                        12,
-                        _adFree.value ? 12 : 88,
-                      ),
-                      child: Column(
-                        children: [
-                          _Header(controller: c, difficulty: widget.difficulty),
-                          const SizedBox(height: 8),
-                          Expanded(
-                            child: landscapeShort
-                                ? Row(
-                                    children: [
-                                      Expanded(
-                                        child: Center(
-                                          child: _Board(controller: c),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      SizedBox(
-                                        width: size.width * 0.42,
-                                        child: Column(
-                                          children: [
-                                            _PlayerRow(
-                                              controller: c,
-                                              top: true,
-                                            ),
-                                            const Spacer(),
-                                            _PlayerRow(
-                                              controller: c,
-                                              top: false,
-                                            ),
-                                            const SizedBox(height: 8),
-                                            _Footer(controller: c),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : Column(
-                                    children: [
-                                      _PlayerRow(controller: c, top: true),
-                                      const SizedBox(height: 8),
-                                      Expanded(
-                                        child: Center(
-                                          child: _Board(controller: c),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      _PlayerRow(controller: c, top: false),
-                                      const SizedBox(height: 8),
-                                      _Footer(controller: c),
-                                    ],
-                                  ),
-                          ),
-                        ],
-                      ),
-                    ),
+            overlays: [
+              if (c.roundOver)
+                Positioned.fill(
+                  child: _EndDialog(
+                    controller: c,
+                    onMenu: () => Navigator.of(context).maybePop(),
                   ),
-                  if (!_adFree.value)
-                    const Positioned(
-                      left: 8,
-                      right: 8,
-                      bottom: 8,
-                      child: AdBanner(),
-                    ),
-                  if (c.roundOver)
-                    Positioned.fill(
-                      child: _EndDialog(
-                        controller: c,
-                        onMenu: () => Navigator.of(context).maybePop(),
-                      ),
-                    ),
+                ),
+            ],
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              child: Column(
+                children: [
+                  _Header(controller: c, difficulty: widget.difficulty),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: landscapeShort
+                        ? Row(
+                            children: [
+                              Expanded(
+                                child: Center(
+                                  child: _Board(controller: c),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              SizedBox(
+                                width: size.width * 0.42,
+                                child: Column(
+                                  children: [
+                                    _PlayerRow(
+                                      controller: c,
+                                      top: true,
+                                    ),
+                                    const Spacer(),
+                                    _PlayerRow(
+                                      controller: c,
+                                      top: false,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    _Footer(controller: c),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )
+                        : Column(
+                            children: [
+                              _PlayerRow(controller: c, top: true),
+                              const SizedBox(height: 8),
+                              Expanded(
+                                child: Center(
+                                  child: _Board(controller: c),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              _PlayerRow(controller: c, top: false),
+                              const SizedBox(height: 8),
+                              _Footer(controller: c),
+                            ],
+                          ),
+                  ),
                 ],
-              );
-            },
-          ),
-        ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
