@@ -11,19 +11,22 @@ Rect? rectOfKey(GlobalKey key) {
   return box.localToGlobal(Offset.zero) & box.size;
 }
 
-/// Fait voler [child] de [from] à [to] (repères écran) par-dessus l'écran (#224).
+/// Fait voler [child] de [from] vers la position courante de [to] (#224).
+/// [to] est relue à chaque image : si la mise en page bouge pendant le vol
+/// (main qui se recentre, pile qui change), la carte suit sa vraie place.
 /// [delay] retarde le départ (distributions échelonnées), sans second minuteur.
-/// Sans effet si le réglage est coupé, si le système réduit les animations
-/// ou si [from] / [to] est absent.
+/// Sans effet si le réglage est coupé, si le système réduit les animations,
+/// ou si [from] / la cible initiale est absente.
 Future<void> flyCard({
   required BuildContext context,
   required Rect? from,
-  required Rect? to,
+  required Rect? Function() to,
   required Widget child,
   Duration duration = const Duration(milliseconds: 300),
   Duration delay = Duration.zero,
 }) {
-  if (from == null || to == null) return Future<void>.value();
+  final start = to();
+  if (from == null || start == null) return Future<void>.value();
   if (!cardAnimations.value || MediaQuery.disableAnimationsOf(context)) {
     return Future<void>.value();
   }
@@ -33,8 +36,10 @@ Future<void> flyCard({
   final total = delay + duration;
   // Part du temps d'attente : la courbe reste à 0 pendant le délai.
   final wait = delay.inMicroseconds / total.inMicroseconds;
-  final Curve curve =
-      wait == 0 ? Curves.easeInOut : Interval(wait, 1, curve: Curves.easeInOut);
+  final Curve curve = wait == 0
+      ? Curves.easeInOutCubic
+      : Interval(wait, 1, curve: Curves.easeInOutCubic);
+  var lastTo = start;
   final done = Completer<void>();
   late final OverlayEntry entry;
   entry = OverlayEntry(
@@ -49,7 +54,10 @@ Future<void> flyCard({
       builder: (context, t, _) {
         // Avant le départ la courbe vaut 0 : la carte n'est pas encore lancée.
         if (t == 0 && wait > 0) return const SizedBox.shrink();
-        final r = Rect.lerp(from, to, t)!;
+        // Cible relue à chaque image ; on garde la dernière connue si elle disparaît.
+        final target = to() ?? lastTo;
+        lastTo = target;
+        final r = Rect.lerp(from, target, t)!;
         return Positioned(
           left: r.left,
           top: r.top,

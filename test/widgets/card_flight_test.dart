@@ -31,7 +31,7 @@ void main() {
     await flyCard(
       context: context,
       from: const Rect.fromLTWH(0, 0, 40, 60),
-      to: const Rect.fromLTWH(200, 200, 40, 60),
+      to: () => const Rect.fromLTWH(200, 200, 40, 60),
       child: const SizedBox(key: ValueKey('vol'), width: 40, height: 60),
     );
     expect(find.byKey(const ValueKey('vol')), findsNothing);
@@ -43,7 +43,7 @@ void main() {
     final done = flyCard(
       context: context,
       from: const Rect.fromLTWH(0, 0, 40, 60),
-      to: const Rect.fromLTWH(200, 200, 40, 60),
+      to: () => const Rect.fromLTWH(200, 200, 40, 60),
       duration: const Duration(milliseconds: 300),
       child: const SizedBox(key: ValueKey('vol'), width: 40, height: 60),
     );
@@ -68,7 +68,7 @@ void main() {
     final done = flyCard(
       context: context,
       from: const Rect.fromLTWH(0, 0, 40, 60),
-      to: const Rect.fromLTWH(200, 200, 40, 60),
+      to: () => const Rect.fromLTWH(200, 200, 40, 60),
       delay: const Duration(milliseconds: 200),
       duration: const Duration(milliseconds: 300),
       child: const SizedBox(key: ValueKey('retard'), width: 40, height: 60),
@@ -87,7 +87,7 @@ void main() {
     await flyCard(
       context: context,
       from: null,
-      to: const Rect.fromLTWH(200, 200, 40, 60),
+      to: () => const Rect.fromLTWH(200, 200, 40, 60),
       child: const SizedBox(key: ValueKey('absent'), width: 40, height: 60),
     );
     expect(find.byKey(const ValueKey('absent')), findsNothing);
@@ -113,5 +113,29 @@ void main() {
     );
     expect(rectOfKey(key), const Rect.fromLTWH(30, 40, 50, 70));
     expect(rectOfKey(orphan), isNull);
+  });
+
+  testWidgets('la carte suit une cible qui bouge pendant le vol (#238)', (
+    tester,
+  ) async {
+    cardAnimations.value = true;
+    final context = await _pumpApp(tester);
+    var target = const Rect.fromLTWH(200, 200, 40, 60);
+    final done = flyCard(
+      context: context,
+      from: const Rect.fromLTWH(0, 0, 40, 60),
+      to: () => target,
+      duration: const Duration(milliseconds: 300),
+      child: const SizedBox(key: ValueKey('suit'), width: 40, height: 60),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+    final before = tester.getTopLeft(find.byKey(const ValueKey('suit')));
+    // La mise en page bouge : la cible part à droite.
+    target = const Rect.fromLTWH(600, 200, 40, 60);
+    await tester.pump(const Duration(milliseconds: 100));
+    final after = tester.getTopLeft(find.byKey(const ValueKey('suit')));
+    expect(after.dx, greaterThan(before.dx + 10));
+    await tester.pump(const Duration(seconds: 1));
+    await done;
   });
 }

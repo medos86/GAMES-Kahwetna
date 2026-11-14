@@ -558,13 +558,11 @@ class _RamiScreenState extends State<RamiScreen> {
       if (!mounted) return;
       var i = 0;
       for (final (card, from) in starts) {
-        final to = _targetFor(card.id, from);
-        if (to == null) continue;
         unawaited(
           flyCard(
             context: context,
             from: from,
-            to: to,
+            to: () => _targetFor(card.id, from),
             child: RamiCardView(card: card, width: from.width),
             delay: _flightStagger * i,
           ),
@@ -598,6 +596,17 @@ class _RamiScreenState extends State<RamiScreen> {
     return null;
   }
 
+  /// Place d'un adversaire pour un dos de carte (centre de son bloc, taille de la carte).
+  Rect? _seatTarget(int seat, Rect from) {
+    final chip = _rectOf(_key('seat:$seat'));
+    if (chip == null) return null;
+    return Rect.fromCenter(
+      center: chip.center,
+      width: from.width,
+      height: from.height,
+    );
+  }
+
   /// Distribution : pioche → chaque carte de ta main, puis un dos vers chaque adversaire.
   void _distribute() {
     final from = _rectOf(_key('stock'));
@@ -614,32 +623,24 @@ class _RamiScreenState extends State<RamiScreen> {
       for (var k = 0; k < rounds; k++) {
         final delay = _dealStep * k;
         if (k < mine.length) {
-          final to = _rectOf(_key('hand:${mine[k].id}'));
-          if (to != null) {
-            unawaited(
-              flyCard(
-                context: context,
-                from: from,
-                to: to,
-                child: RamiCardView(card: mine[k], width: to.width),
-                delay: delay,
-              ),
-            );
-          }
-        }
-        for (var seat = 1; seat < 4; seat++) {
-          if (k >= g.hands[seat].length) continue;
-          final chip = _rectOf(_key('seat:$seat'));
-          if (chip == null) continue;
+          final card = mine[k];
           unawaited(
             flyCard(
               context: context,
               from: from,
-              to: Rect.fromCenter(
-                center: chip.center,
-                width: from.width,
-                height: from.height,
-              ),
+              to: () => _rectOf(_key('hand:${card.id}')),
+              child: RamiCardView(card: card, width: from.width),
+              delay: delay,
+            ),
+          );
+        }
+        for (var seat = 1; seat < 4; seat++) {
+          if (k >= g.hands[seat].length) continue;
+          unawaited(
+            flyCard(
+              context: context,
+              from: from,
+              to: () => _seatTarget(seat, from),
               child: RamiBackView(width: from.width),
               delay: delay,
             ),
@@ -660,13 +661,12 @@ class _RamiScreenState extends State<RamiScreen> {
       if (!mounted) return;
       final drawn = _c.hand.where((card) => !before.contains(card.id));
       if (drawn.isEmpty) return;
-      final to = _rectOf(_key('hand:${drawn.first.id}'));
-      if (to == null) return;
+      final id = drawn.first.id;
       unawaited(
         flyCard(
           context: context,
           from: from,
-          to: to,
+          to: () => _rectOf(_key('hand:$id')),
           child: RamiBackView(width: width),
         ),
       );
