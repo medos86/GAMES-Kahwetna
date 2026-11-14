@@ -8,6 +8,13 @@ import 'package:kahwetne/game/common.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Case du tapis masquée (opacité 0) qui garde la carte d'arrivée (#238).
+bool _masked(Widget w, String id) {
+  if (w is! Opacity || w.opacity != 0) return false;
+  final child = w.child;
+  return child is ChkobbaCardFace && child.card.id == id;
+}
+
 ChkobbaCard card(ChkobbaSuit suit, int rank) =>
     ChkobbaCard(suit: suit, rank: rank, id: '${suit.name}-$rank');
 
@@ -71,6 +78,8 @@ void main() {
     expect(tester.takeException(), isNull);
     // Temps 1 : la carte jouée se pose au centre du tapis (au moins une copie qui vole).
     expect(faceOf('batons-5').evaluate().length, greaterThanOrEqualTo(1));
+    // La carte prise reste visible à sa place pendant la pause (#238).
+    expect(faceOf('coupes-5').evaluate().length, greaterThanOrEqualTo(1));
 
     // Temps 2 : la carte et la carte prise rejoignent le tas.
     await tester.pump(const Duration(milliseconds: 400));
@@ -135,10 +144,14 @@ void main() {
     expect(tester.takeException(), isNull);
     // Pendant le vol : la carte est sur le tapis et une copie vole.
     expect(faceOf('batons-3').evaluate().length, greaterThanOrEqualTo(2));
+    // La case d'arrivée est masquée pendant le vol (#238).
+    Finder masked() => find.byWidgetPredicate((w) => _masked(w, 'batons-3'));
+    expect(masked(), findsOneWidget);
 
     await tester.pump(const Duration(seconds: 1));
     expect(tester.takeException(), isNull);
-    // Après le vol : la carte est posée sur le tapis.
+    // Après le vol : la case est visible, la carte est posée sur le tapis.
+    expect(masked(), findsNothing);
     expect(faceOf('batons-3'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
