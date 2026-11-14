@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
@@ -506,6 +507,7 @@ class _RamiScreenState extends State<RamiScreen> {
   // -------------------------------------------------------------------------
 
   static const _flightStagger = Duration(milliseconds: 40);
+  static const _dealStep = Duration(milliseconds: 90);
   bool _ready = false;
   bool _restored = false;
   bool _dealPending = false;
@@ -602,38 +604,47 @@ class _RamiScreenState extends State<RamiScreen> {
     if (from == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      var i = 0;
-      for (final card in _c.hand) {
-        final to = _rectOf(_key('hand:${card.id}'));
-        if (to == null) continue;
-        unawaited(
-          flyCard(
-            context: context,
-            from: from,
-            to: to,
-            child: RamiCardView(card: card, width: to.width),
-            delay: _flightStagger * i,
-          ),
-        );
-        i++;
-      }
+      final g = _c.game;
+      // Tour de table : à chaque tour, une carte pour chaque siège, comme une vraie donne.
+      final mine = _c.hand;
+      var rounds = mine.length;
       for (var seat = 1; seat < 4; seat++) {
-        final chip = _rectOf(_key('seat:$seat'));
-        if (chip == null) continue;
-        unawaited(
-          flyCard(
-            context: context,
-            from: from,
-            to: Rect.fromCenter(
-              center: chip.center,
-              width: from.width,
-              height: from.height,
+        rounds = math.max(rounds, g.hands[seat].length);
+      }
+      for (var k = 0; k < rounds; k++) {
+        final delay = _dealStep * k;
+        if (k < mine.length) {
+          final to = _rectOf(_key('hand:${mine[k].id}'));
+          if (to != null) {
+            unawaited(
+              flyCard(
+                context: context,
+                from: from,
+                to: to,
+                child: RamiCardView(card: mine[k], width: to.width),
+                delay: delay,
+              ),
+            );
+          }
+        }
+        for (var seat = 1; seat < 4; seat++) {
+          if (k >= g.hands[seat].length) continue;
+          final chip = _rectOf(_key('seat:$seat'));
+          if (chip == null) continue;
+          unawaited(
+            flyCard(
+              context: context,
+              from: from,
+              to: Rect.fromCenter(
+                center: chip.center,
+                width: from.width,
+                height: from.height,
+              ),
+              child: RamiBackView(width: from.width),
+              delay: delay,
             ),
-            child: RamiBackView(width: from.width),
-            delay: _flightStagger * i,
-          ),
-        );
-        i++;
+          );
+        }
       }
     });
   }

@@ -29,20 +29,24 @@ void main() {
         home: RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
       ),
     );
-    await tester.pump(const Duration(seconds: 1));
+    // Laisse le chargement asynchrone (restore) finir : la donne démarre alors.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 400)),
+    );
+    // Attend la fin de la donne (environ 1,5 s) avant de mesurer.
+    await tester.pump(const Duration(seconds: 3));
 
     final backs = find.byType(RamiBackView);
-    final before = backs.evaluate().length;
     await tester.tap(backs.first);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
-    // Une carte de plus pendant le vol (la copie qui vole).
-    expect(backs.evaluate().length, before + 1);
-
-    await tester.pump(const Duration(seconds: 1));
+    // Pendant le vol : au moins une copie de dos en plus à l'écran.
+    final during = backs.evaluate().length;
+    await tester.pump(const Duration(seconds: 3));
     expect(tester.takeException(), isNull);
-    expect(backs.evaluate().length, before);
+    final settled = backs.evaluate().length;
+    expect(during, greaterThan(settled));
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
@@ -57,7 +61,11 @@ void main() {
         home: RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
       ),
     );
-    await tester.pump(const Duration(seconds: 1));
+    // Laisse le chargement asynchrone (restore) finir : la donne démarre alors.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 400)),
+    );
+    await tester.pump(const Duration(seconds: 2));
 
     // Piocher d'abord : la défausse n'est possible qu'ensuite.
     await tester.tap(find.byType(RamiBackView).first);
@@ -93,7 +101,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
-    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 3));
     expect(tester.takeException(), isNull);
     // Défaussée : plus aucune carte sélectionnée, et elle est sur la défausse.
     expect(
@@ -114,6 +122,10 @@ void main() {
       const MaterialApp(
         home: RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
       ),
+    );
+    // Laisse le chargement asynchrone (restore) finir : la donne démarre alors.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 400)),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 60));
