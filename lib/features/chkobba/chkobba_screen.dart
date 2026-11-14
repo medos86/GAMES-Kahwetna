@@ -22,6 +22,7 @@ import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
 import '../../widgets/card_flight.dart';
+import '../../widgets/card_motion.dart';
 
 /// Écran de jeu de la Chkobba, fidèle à GameScreen.tsx : scores, pioche, tapis, mains,
 /// bannière de tour, Haya, choix de prise et récapitulatif de manche.
@@ -47,7 +48,8 @@ class ChkobbaScreen extends StatefulWidget {
   State<ChkobbaScreen> createState() => _ChkobbaScreenState();
 }
 
-class _ChkobbaScreenState extends State<ChkobbaScreen> {
+class _ChkobbaScreenState extends State<ChkobbaScreen>
+    with CardMotionMixin<ChkobbaScreen> {
   late final ChkobbaController _controller;
 
   @override
@@ -114,9 +116,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
   }
 
   static const _capturePause = Duration(milliseconds: 320);
-
-  /// Cases du tapis masquées tant qu'une carte posée n'y est pas arrivée (#238).
-  final Set<String> _landing = {};
 
   /// Tout mouvement de carte : cartes jouées, captures, donne (#238).
   /// Une capture se lit en deux temps : la carte se pose sur le tapis,
@@ -215,33 +214,20 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
 
     // Cartes posées sans capture : vers leur case du tapis (après le rendu).
     if (plain.isNotEmpty) {
-      for (final (card, _) in plain) {
-        _landing.add(card.id);
+      final flights = <CardFlight>[];
+      for (final (card, from) in plain) {
+        final id = card.id;
+        flights.add(
+          CardFlight(
+            from: from,
+            to: () => _targetFor(id),
+            child: ChkobbaCardFace(card: card),
+            delay: _stagger * flights.length,
+            landingId: id,
+          ),
+        );
       }
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        var i = 0;
-        for (final (card, from) in plain) {
-          final id = card.id;
-          if (_targetFor(id) == null) {
-            setState(() => _landing.remove(id));
-            continue;
-          }
-          unawaited(
-            flyCard(
-              context: context,
-              from: from,
-              to: () => _targetFor(id),
-              child: ChkobbaCardFace(card: card),
-              delay: _stagger * i,
-            ).whenComplete(() {
-              if (!mounted) return;
-              setState(() => _landing.remove(id));
-            }),
-          );
-          i++;
-        }
-      });
+      flyAfterRender(flights);
     }
 
     if (_dealPending) _distribute();
@@ -384,18 +370,11 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     final slots = List<Widget?>.filled(slotCount, null);
     for (final card in game.table) {
       final index = assigned[card.id]!;
-      if (_landing.contains(card.id)) {
-        slots[index] = Opacity(
-          key: _key('tbl:${card.id}'),
-          opacity: 0,
-          child: ChkobbaCardFace(card: card),
-        );
-      } else {
-        slots[index] = ChkobbaCardFace(
-          key: _key('tbl:${card.id}'),
-          card: card,
-        );
-      }
+      slots[index] = MaskedSlot(
+        key: _key('tbl:${card.id}'),
+        hidden: landing.contains(card.id),
+        child: ChkobbaCardFace(card: card),
+      );
     }
 
     return Stack(

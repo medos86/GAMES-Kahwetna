@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
@@ -18,7 +17,7 @@ import '../../widgets/exit_guard.dart';
 import '../../widgets/game_safe_area.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
-import '../../widgets/card_flight.dart';
+import '../../widgets/card_motion.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
 
@@ -134,7 +133,8 @@ class _Drag {
   final RamiDropTarget? target;
 }
 
-class _RamiScreenState extends State<RamiScreen> {
+class _RamiScreenState extends State<RamiScreen>
+    with CardMotionMixin<RamiScreen> {
   late final RamiController _c = RamiController(
     store: const SharedPreferencesSavedGameStore(),
     targetScore: widget.targetScore,
@@ -547,29 +547,22 @@ class _RamiScreenState extends State<RamiScreen> {
 
   /// Vol des cartes qui quittent la main vers leur destination (défausse, combinaison, tapis).
   void _flyLeaving(List<rules.RamiCard> leaving) {
-    final starts = <(rules.RamiCard, Rect)>[];
+    final flights = <CardFlight>[];
     for (final card in leaving) {
       final from = _rectOf(_key('hand:${card.id}'));
-      if (from != null) starts.add((card, from));
+      if (from == null) continue;
+      flights.add(
+        CardFlight(
+          from: from,
+          to: () => _targetFor(card.id, from),
+          child: RamiCardView(card: card, width: from.width),
+          delay: _flightStagger * flights.length,
+          landingId: card.id,
+        ),
+      );
     }
-    if (starts.isEmpty) return;
     // Destinations lues après le rendu : la nouvelle position existe alors.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      var i = 0;
-      for (final (card, from) in starts) {
-        unawaited(
-          flyCard(
-            context: context,
-            from: from,
-            to: () => _targetFor(card.id, from),
-            child: RamiCardView(card: card, width: from.width),
-            delay: _flightStagger * i,
-          ),
-        );
-        i++;
-      }
-    });
+    flyAfterRender(flights);
   }
 
   Rect? _targetFor(String id, Rect from) {
@@ -611,43 +604,41 @@ class _RamiScreenState extends State<RamiScreen> {
   void _distribute() {
     final from = _rectOf(_key('stock'));
     if (from == null) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final g = _c.game;
-      // Tour de table : à chaque tour, une carte pour chaque siège, comme une vraie donne.
-      final mine = _c.hand;
-      var rounds = mine.length;
+    final g = _c.game;
+    // Tour de table : à chaque tour, une carte pour chaque siège, comme une vraie donne.
+    final mine = _c.hand;
+    var rounds = mine.length;
+    for (var seat = 1; seat < 4; seat++) {
+      rounds = math.max(rounds, g.hands[seat].length);
+    }
+    final flights = <CardFlight>[];
+    for (var k = 0; k < rounds; k++) {
+      final delay = _dealStep * k;
+      if (k < mine.length) {
+        final card = mine[k];
+        flights.add(
+          CardFlight(
+            from: from,
+            to: () => _rectOf(_key('hand:${card.id}')),
+            child: RamiCardView(card: card, width: from.width),
+            delay: delay,
+            landingId: card.id,
+          ),
+        );
+      }
       for (var seat = 1; seat < 4; seat++) {
-        rounds = math.max(rounds, g.hands[seat].length);
+        if (k >= g.hands[seat].length) continue;
+        flights.add(
+          CardFlight(
+            from: from,
+            to: () => _seatTarget(seat, from),
+            child: RamiBackView(width: from.width),
+            delay: delay,
+          ),
+        );
       }
-      for (var k = 0; k < rounds; k++) {
-        final delay = _dealStep * k;
-        if (k < mine.length) {
-          final card = mine[k];
-          unawaited(
-            flyCard(
-              context: context,
-              from: from,
-              to: () => _rectOf(_key('hand:${card.id}')),
-              child: RamiCardView(card: card, width: from.width),
-              delay: delay,
-            ),
-          );
-        }
-        for (var seat = 1; seat < 4; seat++) {
-          if (k >= g.hands[seat].length) continue;
-          unawaited(
-            flyCard(
-              context: context,
-              from: from,
-              to: () => _seatTarget(seat, from),
-              child: RamiBackView(width: from.width),
-              delay: delay,
-            ),
-          );
-        }
-      }
-    });
+    }
+    flyAfterRender(flights);
   }
 
   void _drawFromStock(double width) {
@@ -655,22 +646,17 @@ class _RamiScreenState extends State<RamiScreen> {
     final before = {for (final card in _c.hand) card.id};
     _c.drawFromStock();
     if (from == null) return;
-    // La carte piochée n'existe dans la main qu'après le prochain rendu :
-    // on lit sa position réelle à ce moment-là (#238).
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final drawn = _c.hand.where((card) => !before.contains(card.id));
-      if (drawn.isEmpty) return;
-      final id = drawn.first.id;
-      unawaited(
-        flyCard(
-          context: context,
-          from: from,
-          to: () => _rectOf(_key('hand:$id')),
-          child: RamiBackView(width: width),
-        ),
-      );
-    });
+    final drawn = _c.hand.where((card) => !before.contains(card.id));
+    if (drawn.isEmpty) return;
+    final id = drawn.first.id;
+    flyAfterRender([
+      CardFlight(
+        from: from,
+        to: () => _rectOf(_key('hand:$id')),
+        child: RamiBackView(width: width),
+        landingId: id,
+      ),
+    ]);
   }
 
   Widget _piles(double width, rules.RamiState g) {
@@ -724,7 +710,10 @@ class _RamiScreenState extends State<RamiScreen> {
                     )
                   : GestureDetector(
                       onTap: c.canDraw ? c.drawFromDiscard : null,
-                      child: RamiCardView(card: top, width: width),
+                      child: MaskedSlot(
+                        hidden: landing.contains(top.id),
+                        child: RamiCardView(card: top, width: width),
+                      ),
                     ),
             ),
             Text(
@@ -801,14 +790,21 @@ class _RamiScreenState extends State<RamiScreen> {
                 ),
               ),
             for (final meld in g.table)
-              _MeldView(
+              MaskedSlot(
                 key: _key('meld:${meld.id}'),
-                cards: meld.cards,
-                cardWidth: meldWidth,
-                hot:
-                    c.canPlay && target is RamiDropMeld && target.id == meld.id,
-                eligible: c.layEligible,
-                onTap: c.layEligible ? () => c.layOffSelected(meld.id) : null,
+                hidden: meld.cards.any((card) => landing.contains(card.id)),
+                child: _MeldView(
+                  cards: meld.cards,
+                  cardWidth: meldWidth,
+                  hot:
+                      c.canPlay &&
+                      target is RamiDropMeld &&
+                      target.id == meld.id,
+                  eligible: c.layEligible,
+                  onTap: c.layEligible
+                      ? () => c.layOffSelected(meld.id)
+                      : null,
+                ),
               ),
             for (final cards in g.staged)
               _MeldView(cards: cards, cardWidth: meldWidth, staged: true),
@@ -928,6 +924,7 @@ class _RamiScreenState extends State<RamiScreen> {
     final drag = _drag;
     final target = drag?.target;
     final dragged = drag?.id == card.id;
+    final arriving = landing.contains(card.id);
     final insert = target is RamiDropHand && target.id == card.id && !dragged
         ? target
         : null;
@@ -948,7 +945,7 @@ class _RamiScreenState extends State<RamiScreen> {
               clipBehavior: Clip.none,
               children: [
                 Opacity(
-                  opacity: dragged ? 0.3 : 1,
+                  opacity: dragged ? 0.3 : (arriving ? 0 : 1),
                   child: RamiCardView(
                     card: card,
                     width: width,
