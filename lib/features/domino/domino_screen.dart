@@ -85,6 +85,9 @@ class _DominoScreenState extends State<DominoScreen> {
         listenable: _controller,
         builder: (context, _) {
           final game = _controller.game;
+          final idle = game.roundWinner == null;
+          final playerTurn = game.turn == Player.player && idle;
+          final opponentTurn = game.turn == Player.opponent && idle;
           return GameScaffold(
             showAd: !_adFree.value,
             // Trames du fond : points 4px (opacité 0.2) et rayures verticales 11px (opacité 0.1 × 0.2).
@@ -121,10 +124,8 @@ class _DominoScreenState extends State<DominoScreen> {
                   _ScoreStrip(
                     unit: unit,
                     game: game,
-                    turnIsPlayer: game.turn == Player.player &&
-                        game.roundWinner == null,
-                    turnIsOpponent: game.turn == Player.opponent &&
-                        game.roundWinner == null,
+                    turnIsPlayer: playerTurn,
+                    turnIsOpponent: opponentTurn,
                     onDrawTap: _controller.drawOrPass,
                     mustDraw: _controller.mustDraw,
                   ),
