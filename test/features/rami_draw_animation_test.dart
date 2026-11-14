@@ -108,10 +108,9 @@ void main() {
       find.byWidgetPredicate((w) => w is RamiCardView && w.selected),
       findsNothing,
     );
-    // DEBUG temporaire
-    final all = tester.widgetList<RamiCardView>(find.byType(RamiCardView));
-    print('DBG lowest=$id all=${all.map((w) => w.card.id).toList()}');
-    print('DBG sel=${all.where((w) => w.selected).map((w) => w.card.id).toList()}');
+    print('DBG id=$id');
+    print('DBG ${find.byType(RamiCardView).evaluate().length}');
+    print('DBG ${tester.widgetList<RamiCardView>(find.byType(RamiCardView)).map((w) => w.card.id).join(',')}');
     expect(faceOf(), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
