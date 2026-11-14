@@ -87,12 +87,12 @@ class _DominoScreenState extends State<DominoScreen> {
           final game = _controller.game;
           return GameScaffold(
             showAd: !_adFree.value,
+            // Trames du fond : points 4px (opacité 0.2) et rayures verticales 11px (opacité 0.1 × 0.2).
             background: Stack(
               fit: StackFit.expand,
               children: [
                 const ColoredBox(color: Color(0xFF8B4513)),
                 const _WoodBackground(),
-                // Trames du fond : points 4px (opacité 0.2) et rayures verticales 11px (opacité 0.1 × 0.2).
                 const DotPattern(
                   spacing: 4,
                   radius: 1,
