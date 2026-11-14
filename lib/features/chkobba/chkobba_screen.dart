@@ -138,15 +138,15 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
       if ((game.won[p]?.length ?? 0) > (beforeWon[p] ?? 0)) taker = p;
     }
     if (gone.isNotEmpty && taker != null) {
-      final to = rectOfKey(_key('won:${taker.name}'));
+      final winnerKey = _key('won:${taker.name}');
       for (final card in gone) {
         final from = rectOfKey(_key('tbl:${card.id}'));
-        if (to == null || from == null) continue;
+        if (from == null) continue;
         unawaited(
           flyCard(
             context: context,
             from: from,
-            to: to,
+            to: () => rectOfKey(winnerKey),
             child: ChkobbaCardFace(card: card),
           ),
         );
@@ -167,13 +167,12 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         for (final (card, from) in playerStarts) {
-          final to = _targetFor(card.id);
-          if (to == null) continue;
+          if (_targetFor(card.id) == null) continue;
           unawaited(
             flyCard(
               context: context,
               from: from,
-              to: to,
+              to: () => _targetFor(card.id),
               child: ChkobbaCardFace(card: card),
             ),
           );
@@ -196,13 +195,12 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
         if (!mounted) return;
         var i = 0;
         for (final (card, from) in oppStarts) {
-          final to = _targetFor(card.id);
-          if (to == null) continue;
+          if (_targetFor(card.id) == null) continue;
           unawaited(
             flyCard(
               context: context,
               from: from,
-              to: to,
+              to: () => _targetFor(card.id),
               child: ChkobbaCardFace(card: card),
               delay: _stagger * i,
             ),
@@ -238,13 +236,12 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
       final game = _controller.game;
       var i = 0;
       for (final card in game.hands[Player.player]!) {
-        final to = rectOfKey(_key('hand:${card.id}'));
-        if (to == null) continue;
+        if (rectOfKey(_key('hand:${card.id}')) == null) continue;
         unawaited(
           flyCard(
             context: context,
             from: from,
-            to: to,
+            to: () => rectOfKey(_key('hand:${card.id}')),
             child: ChkobbaCardFace(card: card),
             delay: _stagger * i,
           ),
@@ -252,13 +249,12 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
         i++;
       }
       for (final card in game.hands[Player.opponent]!) {
-        final to = rectOfKey(_key('opp:${card.id}'));
-        if (to == null) continue;
+        if (rectOfKey(_key('opp:${card.id}')) == null) continue;
         unawaited(
           flyCard(
             context: context,
             from: from,
-            to: to,
+            to: () => rectOfKey(_key('opp:${card.id}')),
             child: const ChkobbaCardBack(),
             delay: _stagger * i,
           ),
