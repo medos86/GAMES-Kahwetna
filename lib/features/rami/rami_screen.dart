@@ -751,6 +751,10 @@ class _RamiScreenState extends State<RamiScreen>
     );
   }
 
+  /// Combinaison survolée par une carte glissée (surbrillance).
+  bool _isHotMeld(Object? target, String id) =>
+      _c.canPlay && target is RamiDropMeld && target.id == id;
+
   Widget _tableCards(double meldWidth, rules.RamiState g) {
     final c = _c;
     final target = _drag?.target;
@@ -796,10 +800,7 @@ class _RamiScreenState extends State<RamiScreen>
                 child: _MeldView(
                   cards: meld.cards,
                   cardWidth: meldWidth,
-                  hot:
-                      c.canPlay &&
-                      target is RamiDropMeld &&
-                      target.id == meld.id,
+                  hot: _isHotMeld(target, meld.id),
                   eligible: c.layEligible,
                   onTap: c.layEligible
                       ? () => c.layOffSelected(meld.id)

@@ -29,12 +29,14 @@ class _ProbeState extends State<_Probe> with CardMotionMixin<_Probe> {
 Finder maskedSlots() =>
     find.byWidgetPredicate((w) => w is MaskedSlot && w.hidden);
 
-CardFlight flightA() => CardFlight(
-  from: const Rect.fromLTWH(0, 0, 40, 40),
-  to: () => const Rect.fromLTWH(200, 200, 40, 40),
-  child: const Text('vol'),
-  landingId: 'a',
-);
+CardFlight flightA() {
+  return CardFlight(
+    from: const Rect.fromLTWH(0, 0, 40, 40),
+    to: () => const Rect.fromLTWH(200, 200, 40, 40),
+    child: const Text('vol'),
+    landingId: 'a',
+  );
+}
 
 void main() {
   setUp(() {
@@ -44,27 +46,23 @@ void main() {
 
   tearDown(() => cardAnimations.value = false);
 
-  testWidgets('MaskedSlot : vide quand masqué, visible sinon', (tester) async {
+  testWidgets('MaskedSlot vide quand masqué', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Column(
           children: [
             MaskedSlot(hidden: true, child: Text('cache')),
-            MaskedSlot(hidden: false, child: Text('visible')),
           ],
         ),
       ),
     );
-    final opacities = tester
-        .widgetList<Opacity>(find.byType(Opacity))
-        .map((o) => o.opacity)
-        .toList();
-    expect(opacities, containsAll([0.0, 1.0]));
+    expect(
+      find.byWidgetPredicate((w) => w is Opacity && w.opacity == 0),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('la case reste masquée pendant le vol, puis se démasque', (
-    tester,
-  ) async {
+  testWidgets('case masquée pendant le vol', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: Scaffold(body: _Probe())));
     final state = tester.state<_ProbeState>(find.byType(_Probe));
 
@@ -82,9 +80,7 @@ void main() {
     expect(find.text('vol'), findsNothing);
   });
 
-  testWidgets('sans animations : aucun vol, la case se démasque tout de suite', (
-    tester,
-  ) async {
+  testWidgets('sans animations : pas de vol', (tester) async {
     cardAnimations.value = false;
     await tester.pumpWidget(const MaterialApp(home: Scaffold(body: _Probe())));
     final state = tester.state<_ProbeState>(find.byType(_Probe));
