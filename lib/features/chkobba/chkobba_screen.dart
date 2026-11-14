@@ -1304,7 +1304,9 @@ class _CapturePicker extends StatelessWidget {
                 ),
               const SizedBox(height: 4),
               OutlinedButton(
-                style: OutlinedButton.styleFrom(foregroundColor: ScobaPalette.ink),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: ScobaPalette.ink,
+                ),
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text(Strings.actCancel),
               ),
