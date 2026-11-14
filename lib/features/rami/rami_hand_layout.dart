@@ -18,7 +18,10 @@ double ramiGapOffset(int index, int gapAt, double step) =>
 /// Ordre de dessin de la main : de gauche à droite (chaque carte recouvre seulement la
 /// précédente, donc les coins d'index restent visibles), la carte déplacée en dernier.
 List<int> ramiDrawOrder(int count, int? dragged) {
-  final order = [for (var j = 0; j < count; j++) if (j != dragged) j];
+  final order = <int>[];
+  for (var j = 0; j < count; j++) {
+    if (j != dragged) order.add(j);
+  }
   if (dragged != null) order.add(dragged);
   return order;
 }

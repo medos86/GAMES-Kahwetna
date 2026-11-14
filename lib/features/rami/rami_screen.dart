@@ -905,9 +905,7 @@ class _RamiScreenState extends State<RamiScreen>
         }
 
         // Ordre de dessin : de gauche à droite, la carte déplacée en dernier.
-        final dragAt = dragId == null
-            ? -1
-            : shown.indexWhere((card) => card.id == dragId);
+        final dragAt = shown.indexWhere((card) => card.id == dragId);
         final order = ramiDrawOrder(m, dragAt >= 0 ? dragAt : null);
 
         return Center(
