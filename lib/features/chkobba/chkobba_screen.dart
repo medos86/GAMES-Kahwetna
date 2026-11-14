@@ -177,11 +177,11 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
         if (wonNow(card.id) && rectOfKey(key) != null) (card, key),
     ];
     // Position de départ lue maintenant : après le rendu la carte a quitté sa place.
-    final plain = [
-      for (final (card, key) in leaving)
-        if (!wonNow(card.id) && rectOfKey(key) != null)
-          (card, rectOfKey(key)!),
-    ];
+    final plain = <(ChkobbaCard, Rect)>[];
+    for (final (card, key) in leaving) {
+      final from = rectOfKey(key);
+      if (!wonNow(card.id) && from != null) plain.add((card, from));
+    }
 
     for (final (card, key) in captures) {
       final from = rectOfKey(key)!;
