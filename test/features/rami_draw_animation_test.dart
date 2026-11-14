@@ -29,7 +29,8 @@ void main() {
         home: RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
       ),
     );
-    await tester.pump(const Duration(seconds: 1));
+    // Attend la fin de la donne (environ 1,5 s) avant de mesurer.
+    await tester.pump(const Duration(seconds: 2));
 
     final backs = find.byType(RamiBackView);
     final before = backs.evaluate().length;
@@ -57,7 +58,7 @@ void main() {
         home: RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
       ),
     );
-    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 2));
 
     // Piocher d'abord : la défausse n'est possible qu'ensuite.
     await tester.tap(find.byType(RamiBackView).first);
