@@ -129,4 +129,54 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
+
+  testWidgets('carte adverse : vole depuis sa place vers le tapis (#238)', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844) * 3;
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ChkobbaScreen(
+          difficulty: Difficulty.facile,
+          targetScore: 11,
+          initialState: ChkobbaState(
+            targetScore: 11,
+            deck: const [],
+            hands: {
+              Player.player: [card(ChkobbaSuit.batons, 3)],
+              Player.opponent: [card(ChkobbaSuit.deniers, 2)],
+            },
+            table: [card(ChkobbaSuit.coupes, 9)],
+            won: {Player.player: [], Player.opponent: []},
+            chkobbas: {Player.player: 0, Player.opponent: 0},
+            scores: {Player.player: 0, Player.opponent: 0},
+            lastCapturer: null,
+            turn: Player.opponent,
+            starter: Player.opponent,
+            round: 1,
+            winner: null,
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(seconds: 1));
+
+    Finder faceOf(String id) => find.byWidgetPredicate(
+          (w) => w is ChkobbaCardFace && w.card.id == id,
+        );
+
+    // L'adversaire joue son 2 : on attend le vol (une copie en plus du tapis).
+    var sawFlight = false;
+    for (var k = 0; k < 60; k++) {
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(tester.takeException(), isNull);
+      if (faceOf('deniers-2').evaluate().length >= 2) sawFlight = true;
+    }
+    expect(sawFlight, isTrue);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump();
+  });
 }
