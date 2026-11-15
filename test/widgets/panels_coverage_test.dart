@@ -65,7 +65,7 @@ void main() {
       ),
     );
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('11'), findsOneWidget);
+    expect(find.text('11'), findsNWidgets(2)); // contour + remplissage (#351)
   });
   testWidgets('ResultDialog.show ouvre la fenêtre', (tester) async {
     await tester.pumpWidget(MaterialApp(home: Scaffold(body: _opener())));
