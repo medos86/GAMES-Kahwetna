@@ -12,6 +12,7 @@ RamiState inPlay(
   RamiState base, {
   required List<List<RamiCard>> hands,
   String? takenId,
+  bool firstTour = false,
 }) =>
     base.copyWith(
       phase: RamiPhase.play,
@@ -20,6 +21,7 @@ RamiState inPlay(
       opened: [false, false, false, false],
       staged: const [],
       takenId: takenId,
+      firstTour: firstTour,
     );
 
 /// Donne déterministe : le hasard vaut toujours 0.
@@ -242,6 +244,72 @@ void main() {
       expect(next.turn, 1);
       expect(next.phase, RamiPhase.draw);
       expect(next.discard.last.id, 'epees-2');
+    });
+  });
+
+  group('première tournée', () {
+    final run = [
+      c(RamiSuit.epees, 7, 'a'),
+      c(RamiSuit.epees, 8, 'b'),
+      c(RamiSuit.epees, 9, 'c'),
+    ];
+
+    test('la donne commence en première tournée', () {
+      expect(fixedDeal().firstTour, isTrue);
+    });
+
+    test('pas de pose de combinaison pendant la première tournée', () {
+      final s = inPlay(
+        fixedDeal(),
+        hands: [
+          [...run, c(RamiSuit.batons, 2)],
+          [c(RamiSuit.coupes, 2)],
+          [c(RamiSuit.coupes, 3)],
+          [c(RamiSuit.coupes, 4)],
+        ],
+        firstTour: true,
+      );
+      expect(poseMeld(s, ['a', 'b', 'c']), same(s));
+    });
+
+    test('pas de prise de la défausse pendant la première tournée', () {
+      final s = inPlay(
+        fixedDeal(),
+        hands: [
+          [c(RamiSuit.batons, 2)],
+          [c(RamiSuit.coupes, 2)],
+          [c(RamiSuit.coupes, 3)],
+          [c(RamiSuit.coupes, 4)],
+        ],
+        firstTour: true,
+      ).copyWith(phase: RamiPhase.draw);
+      expect(canUseDiscardTop(s), isFalse);
+      expect(drawDiscard(s), same(s));
+    });
+
+    test('la première tournée se termine au passage du donneur', () {
+      RamiState playAt(int seat) {
+        final hands = [
+          [c(RamiSuit.coupes, 2)],
+          [c(RamiSuit.coupes, 3)],
+          [c(RamiSuit.coupes, 4)],
+          [c(RamiSuit.coupes, 5)],
+        ];
+        hands[seat] = [c(RamiSuit.epees, 2, 'x'), c(RamiSuit.coupes, 6, 'y')];
+        final s = inPlay(fixedDeal(), hands: hands, firstTour: true);
+        return s.copyWith(turn: seat);
+      }
+
+      expect(discardCard(playAt(1), 'x').firstTour, isTrue);
+      expect(discardCard(playAt(3), 'x').firstTour, isFalse);
+    });
+
+    test('le drapeau survit à la sérialisation', () {
+      final s = fixedDeal();
+      final back = RamiState.fromJson(
+        jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>,
+      );
+      expect(back.firstTour, isTrue);
     });
   });
 

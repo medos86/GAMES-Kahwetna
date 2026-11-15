@@ -12,6 +12,7 @@ RamiState playing(RamiState base, {required int turn, required int last}) =>
       staged: const [],
       opened: [false, false, false, false],
       lastOpening: last,
+      firstTour: false,
     );
 
 /// Une pose de `points` points : 3 rois (30) et 2 dames (20), plus des as (1 chacun).

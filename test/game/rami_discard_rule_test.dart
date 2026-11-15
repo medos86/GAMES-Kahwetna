@@ -22,6 +22,7 @@ RamiState withDiscard(
       table: table,
       staged: const [],
       takenId: null,
+      firstTour: false,
     );
 
 void main() {
