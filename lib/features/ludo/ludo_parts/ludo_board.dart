@@ -244,6 +244,19 @@ class _HopTokenState extends State<_HopToken>
   // Points du trajet (unités de case), le dernier est la position finale.
   List<({double x, double y})> _path = const [];
 
+  // Longueur cumulée du trajet à chaque point : la vitesse reste constante (#386).
+  List<double> _lengths = const [0];
+
+  void _setPath(List<({double x, double y})> points) {
+    _path = points;
+    _lengths = [0];
+    for (var i = 1; i < points.length; i++) {
+      final dx = points[i].x - points[i - 1].x;
+      final dy = points[i].y - points[i - 1].y;
+      _lengths.add(_lengths.last + math.sqrt(dx * dx + dy * dy));
+    }
+  }
+
   @override
   void didUpdateWidget(covariant _HopToken oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -256,13 +269,13 @@ class _HopTokenState extends State<_HopToken>
       _path = const [];
       return;
     }
-    _path = [
+    _setPath([
       (x: before.x, y: before.y),
       ...ludoHopWaypoints(after.token.color, from, to),
       (x: after.x, y: after.y),
-    ];
+    ]);
     _hop
-      ..duration = Duration(milliseconds: _msPerCell * (_path.length - 1))
+      ..duration = Duration(milliseconds: (_msPerCell * _lengths.last).round())
       ..forward(from: 0);
   }
 
@@ -274,16 +287,19 @@ class _HopTokenState extends State<_HopToken>
 
   /// Décalage visuel par rapport à la position finale, saut compris.
   Offset _offset() {
-    if (_path.length < 2) return Offset.zero;
-    final steps = _path.length - 1;
-    final t = _hop.value * steps;
-    final i = math.min(t.floor(), steps - 1);
-    final local = t - i;
-    final eased = Curves.easeInOut.transform(local);
+    if (_path.length < 2 || _lengths.last == 0) return Offset.zero;
+    // Position le long du trajet, à vitesse constante (distance réelle, pas nombre de cases).
+    final s = _hop.value * _lengths.last;
+    var i = 0;
+    while (i < _path.length - 2 && _lengths[i + 1] < s) {
+      i++;
+    }
+    final segment = _lengths[i + 1] - _lengths[i];
+    final local = segment == 0 ? 0.0 : (s - _lengths[i]) / segment;
     final a = _path[i];
     final b = _path[i + 1];
-    final x = a.x + (b.x - a.x) * eased;
-    final y = a.y + (b.y - a.y) * eased;
+    final x = a.x + (b.x - a.x) * local;
+    final y = a.y + (b.y - a.y) * local;
     final lift = math.sin(math.pi * local) * _jumpHeight;
     final end = _path.last;
     return Offset((x - end.x) * widget.u, (y - lift - end.y) * widget.u);
