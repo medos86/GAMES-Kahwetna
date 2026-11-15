@@ -121,16 +121,20 @@ class ChkobbaBanner extends StatelessWidget {
     required this.text,
     required this.colors,
     this.angle = -0.1,
+    this.burstSize = 150,
   });
 
   final String text;
   final List<Color> colors;
   final double angle;
 
+  /// Taille de l'éclat BD (style comic) : plus petite pour « 7AYA ! » (#364).
+  final double burstSize;
+
   @override
   Widget build(BuildContext context) {
     // Style BD (issue #97) : éclat d'impact au lieu de la bannière dégradée.
-    if (kComicChkobba) return ActionBurst(text: text, size: 150);
+    if (kComicChkobba) return ActionBurst(text: text, size: burstSize);
     final style = GameStyle.current;
     const base = TextStyle(
       fontSize: 24,
