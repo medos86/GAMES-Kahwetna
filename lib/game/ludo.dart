@@ -465,7 +465,11 @@ LudoState moveToken(LudoState state, String tokenId) {
     }
   }
 
-  if (dice == 6 && !finishedNow) return next.copyWith(phase: LudoPhase.roll);
+  // Rejouer après un 6, une capture ou une arrivée au centre (#384, #385).
+  final arrived = progress == ludoFinish;
+  if ((dice == 6 || victims.isNotEmpty || arrived) && !finishedNow) {
+    return next.copyWith(phase: LudoPhase.roll);
+  }
   return _passTurn(next);
 }
 
