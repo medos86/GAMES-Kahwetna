@@ -189,20 +189,25 @@ class _LudoScreenState extends State<LudoScreen> {
                               const SizedBox(width: 12),
                               SizedBox(
                                 width: size.width * 0.42,
-                                child: Column(
-                                  children: [
-                                    _PlayerRow(
-                                      controller: c,
-                                      top: true,
-                                    ),
-                                    const Spacer(),
-                                    _PlayerRow(
-                                      controller: c,
-                                      top: false,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    _Footer(controller: c),
-                                  ],
+                                // Défilable : sur paysage court, la colonne
+                                // déborderait (#340).
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      _PlayerRow(
+                                        controller: c,
+                                        top: true,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      _PlayerRow(
+                                        controller: c,
+                                        top: false,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      _Footer(controller: c),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],

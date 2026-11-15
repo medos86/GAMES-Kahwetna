@@ -171,87 +171,90 @@ class _SeatInfo extends StatelessWidget {
         (round.phase == CoinchePhase.bidding ||
             round.phase == CoinchePhase.playing);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-          decoration: BoxDecoration(
-            color: active ? _goldColor : Colors.black.withValues(alpha: 0.35),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: active ? _frameColor : Colors.black26,
-              width: 2,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                _seatLabel[seat]!,
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 12,
-                  color: active ? const Color(0xFF513B00) : Colors.white,
-                ),
-              ),
-              if (round.dealer == seat) ...[
-                const SizedBox(width: 4),
-                const CircleAvatar(
-                  radius: 8,
-                  backgroundColor: Colors.white,
-                  child: Text(
-                    'D',
-                    style: TextStyle(
-                      fontSize: 9,
-                      color: _inkColor,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        if (call != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: _frameColor, width: 2),
-              ),
-              child: Text(
-                _callText(call),
-                style: const TextStyle(
-                  color: _inkColor,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 12,
-                ),
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: active ? _goldColor : Colors.black.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: active ? _frameColor : Colors.black26,
+                width: 2,
               ),
             ),
-          ),
-        if (count > 0)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CoincheCardView(width: cardWidth),
-                const SizedBox(width: 4),
                 Text(
-                  '×$count',
-                  style: const TextStyle(
+                  _seatLabel[seat]!,
+                  style: TextStyle(
                     fontWeight: FontWeight.w900,
-                    fontSize: 13,
+                    fontSize: 12,
+                    color: active ? const Color(0xFF513B00) : Colors.white,
                   ),
                 ),
+                if (round.dealer == seat) ...[
+                  const SizedBox(width: 4),
+                  const CircleAvatar(
+                    radius: 8,
+                    backgroundColor: Colors.white,
+                    child: Text(
+                      'D',
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: _inkColor,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
-      ],
+          if (call != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: _frameColor, width: 2),
+                ),
+                child: Text(
+                  _callText(call),
+                  style: const TextStyle(
+                    color: _inkColor,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+          if (count > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CoincheCardView(width: cardWidth),
+                  const SizedBox(width: 4),
+                  Text(
+                    '×$count',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
