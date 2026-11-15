@@ -739,16 +739,14 @@ String _chooseDiscard(
   RamiState state,
   int seat,
   RamiAiLevel level,
-  RandomDouble random,
 ) {
   final hand = state.hands[seat];
   final pool = hand.where((card) => card.id != state.takenId).toList();
   final options = pool.isNotEmpty ? pool : hand;
-  if (level == RamiAiLevel.facile) {
-    return options[(random() * options.length).floor()].id;
-  }
 
   double score(RamiCard card) {
+    // Facile : évaluation simple, sans défausse ni notion de cartes utiles à la table (#281).
+    if (level == RamiAiLevel.facile) return _keepValue(card, hand).toDouble();
     // Difficile : évite de jeter une carte que les autres peuvent poser sur la table.
     final useful = level == RamiAiLevel.difficile &&
         state.table.any((meld) => isValidMeld([...meld.cards, card]));
@@ -814,9 +812,8 @@ RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {
   }
   if (state.opened[seat]) {
     final lay = _findLayOff(state, seat, null);
-    // Facile : oublie de poser sur la table une fois sur deux.
-    final forgets = level == RamiAiLevel.facile && draw() < 0.5;
-    if (lay != null && !forgets) return layOff(state, lay.cardId, lay.meldId);
+    // Le facile pose toujours quand c'est légal : pas d'oubli volontaire (#281).
+    if (lay != null) return layOff(state, lay.cardId, lay.meldId);
   }
-  return discardCard(state, _chooseDiscard(state, seat, level, draw));
+  return discardCard(state, _chooseDiscard(state, seat, level));
 }
