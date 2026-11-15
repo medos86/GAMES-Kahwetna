@@ -14,12 +14,11 @@ void main() {
           home: Scaffold(body: GameHeader(onMenu: () {})),
         ),
       );
-      final panel = tester.widget<ComicPanel>(
-        find.descendant(
-          of: find.byType(GameHeader),
-          matching: find.byType(ComicPanel),
-        ).first,
+      final finder = find.descendant(
+        of: find.byType(GameHeader),
+        matching: find.byType(ComicPanel),
       );
+      final panel = tester.widget<ComicPanel>(finder.first);
       expect(panel.outlineColor, ComicPalette.tunisBlue);
     },
   );
