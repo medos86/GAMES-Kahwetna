@@ -1,27 +1,22 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/theme/comic_palette.dart';
 import 'package:kahwetne/core/theme/game_style.dart';
 
-/// Issue #311 : le tapis Chkobba (style cartoon) doit contraster avec ses motifs.
+/// Issue #324 : tapis Chkobba en couleur BD comics, sans motif zellige.
 void main() {
   const style = GameStyle.cartoon;
 
-  test('le tapis n\'est plus violet (teinte bleue tunisienne)', () {
-    final hsl = HSLColor.fromColor(style.felt);
-    expect(hsl.hue, inInclusiveRange(190, 230));
+  test('zellige retiré du tapis', () {
+    expect(style.showZellige, isFalse);
   });
 
-  test('zellige lisible sur le tapis', () {
-    expect(
-      contrastRatio(style.zellige, style.felt),
-      greaterThanOrEqualTo(3.0),
-    );
+  test('tapis en couleur BD (rouge comics)', () {
+    expect(style.felt, ComicPalette.red);
   });
 
-  test('accent blanc lisible sur le tapis', () {
+  test('tapis lisible sur le papier BD', () {
     expect(
-      contrastRatio(style.zelligeAccent, style.felt),
+      contrastRatio(ComicPalette.paper, style.felt),
       greaterThanOrEqualTo(3.0),
     );
   });

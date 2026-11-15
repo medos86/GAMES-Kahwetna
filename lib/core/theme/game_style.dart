@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 /// INTERRUPTEUR ESTHÉTIQUE
-/// true  : style cartoon tunisien (tapis bleu, bordure zellige, fond village, bannières magenta et jaune).
+/// true  : style cartoon tunisien (tapis rouge BD, sans zellige, fond village, bannières magenta et jaune).
 /// false : style d'origine du jeu React (tapis émeraude, cadre brun, fond bois, bannières jaune-orange et sky-indigo).
 /// Réglé sur `true` : palette A (violet-magenta, issue #64). Pour revenir au style React : `false`.
 const bool kCartoonStyle = true;
@@ -56,14 +56,14 @@ class GameStyle {
   final List<Color> chkobbaGradient;
   final List<Color> ayaGradient;
 
-  // Palette A (issue #64, révisée #311) : tapis bleu tunisien, zellige doré, cadre noir, bannières jaune-orange et rose-jaune.
+  // Palette A (issue #64, révisée #311 et #324) : tapis rouge BD comics, sans zellige, cadre noir, bannières jaune-orange et rose-jaune.
   static const cartoon = GameStyle(
-    felt: Color(0xFF1676D2),
+    felt: Color(0xFFE63946),
     frame: Color(0xFF000000),
     zellige: Color(0xFFFFE16B),
     zelligeAccent: Color(0xFFFFFFFF),
     outline: Color(0xFF000000),
-    showZellige: true,
+    showZellige: false,
     villageBackground: true,
     chkobbaGradient: [Color(0xFFFFE14D), Color(0xFFFF8A2B)],
     ayaGradient: [Color(0xFFFF4F9A), Color(0xFFFFE14D)],
