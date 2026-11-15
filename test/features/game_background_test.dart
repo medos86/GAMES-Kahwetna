@@ -6,8 +6,7 @@ import 'package:kahwetne/features/menu/main_menu_screen.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-GameEntry _byName(String name) =>
-    gameEntries.firstWhere((g) => g.name == name);
+GameEntry _byName(String name) => gameEntries.firstWhere((g) => g.name == name);
 
 // Fond photo par jeu sur l'écran de choix du niveau (#335).
 void main() {
