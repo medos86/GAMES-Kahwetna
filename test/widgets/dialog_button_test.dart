@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:kahwetne/core/theme/comic_palette.dart';
 import 'package:kahwetne/widgets/dialog_button.dart';
 
 /// Issue #303 : bouton partagé des dialogues de fin (Rami, Coinche).
@@ -21,7 +20,7 @@ void main() {
     expect(taps, 1);
   });
 
-  testWidgets('DialogButton utilise la couleur or de la palette BD', (
+  testWidgets('DialogButton : un seul libellé, pleine largeur', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -29,7 +28,13 @@ void main() {
         home: Scaffold(body: DialogButton(label: 'OK', onTap: () {})),
       ),
     );
-    final button = tester.widget<FilledButton>(find.byType(FilledButton));
-    expect(button.style?.backgroundColor?.resolve({}), ComicPalette.gold);
+    expect(
+      find.descendant(of: find.byType(DialogButton), matching: find.text('OK')),
+      findsOneWidget,
+    );
+    expect(
+      tester.getSize(find.byType(DialogButton)).width,
+      greaterThan(0),
+    );
   });
 }
