@@ -27,10 +27,10 @@ class GameScaffold extends StatelessWidget {
 
   static const double maxContentWidth = 1100;
 
-  /// Échelle de texte maximale sur les écrans de jeu : le plateau et les
-  /// tableaux de score ont des dimensions fixes (#340). Au-delà, le texte
-  /// déborderait ; le reste de l'app garde l'échelle système.
-  static const double maxGameTextScale = 1.3;
+  /// Échelle de texte sur les écrans de jeu : 1.0, comme la majorité des jeux.
+  /// Le plateau et les tableaux de score ont des dimensions fixes ; le reste
+  /// de l'app garde l'échelle système (#344).
+  static const double maxGameTextScale = 1;
   // Hauteur de la bannière et marge au-dessus : le contenu ne passe pas dessous.
   static const double _adReservedHeight = kAdBannerHeight + 16;
 

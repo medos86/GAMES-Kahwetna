@@ -136,7 +136,7 @@ class _Table extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: sm ? 20 : 8,
-        vertical: sm ? 16 : 12,
+        vertical: sm ? 8 : 12,
       ),
       decoration: BoxDecoration(
         color: const Color(0xFF10B981),
@@ -198,7 +198,7 @@ class _Table extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: sm ? 12 : 8),
+                SizedBox(height: sm ? 6 : 8),
                 Expanded(
                   child: game.chain.isEmpty
                       ? Center(
