@@ -11,6 +11,10 @@ void main() {
     'après le lancement, le menu revient à la liste des jeux',
     (tester) async {
       SharedPreferences.setMockInitialValues({});
+      tester.view.physicalSize = const Size(390, 844) * 3;
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
       LaunchRequest? launched;
       await tester.pumpWidget(
         MaterialApp(
