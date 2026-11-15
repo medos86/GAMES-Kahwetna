@@ -45,30 +45,30 @@ void main() {
   test('noms de fichiers des cartes', () {
     expect(
       ramiCardAsset(const RamiCard(id: 'a', suit: RamiSuit.epees, rank: 1)),
-      'assets/images/cards_rami/ace_of_spades.png',
+      'assets/images/cards_rami/ace_of_spades.webp',
     );
     expect(
       ramiCardAsset(const RamiCard(id: 'b', suit: RamiSuit.batons, rank: 10)),
-      'assets/images/cards_rami/10_of_clubs.png',
+      'assets/images/cards_rami/10_of_clubs.webp',
     );
     expect(
       ramiCardAsset(const RamiCard(id: 'c', suit: RamiSuit.coupes, rank: 13)),
-      'assets/images/cards_rami/king_of_hearts.png',
+      'assets/images/cards_rami/king_of_hearts.webp',
     );
     expect(
       ramiCardAsset(const RamiCard(id: 'd', suit: RamiSuit.deniers, rank: 12)),
-      'assets/images/cards_rami/queen_of_diamonds.png',
+      'assets/images/cards_rami/queen_of_diamonds.webp',
     );
   });
 
   test('les deux jokers ont chacun leur image', () {
     expect(
       ramiCardAsset(const RamiCard(id: 'joker-0', suit: null, rank: 0)),
-      'assets/images/cards_rami/black_joker.png',
+      'assets/images/cards_rami/black_joker.webp',
     );
     expect(
       ramiCardAsset(const RamiCard(id: 'joker-1', suit: null, rank: 0)),
-      'assets/images/cards_rami/red_joker.png',
+      'assets/images/cards_rami/red_joker.webp',
     );
   });
 
@@ -83,7 +83,7 @@ void main() {
     );
     expect(
       _shownAsset(tester),
-      'assets/images/cards_rami/ace_of_spades.png',
+      'assets/images/cards_rami/ace_of_spades.webp',
     );
     expect(find.bySemanticsLabel('A ♠'), findsOneWidget);
   });

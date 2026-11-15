@@ -7,7 +7,7 @@ import '../../core/strings.dart';
 const String ramiCardsFolder = 'assets/images/cards_rami';
 
 /// Dos de carte utilisé pour la pioche et la main adverse.
-const String ramiCardBackAsset = '$ramiCardsFolder/card_back_red.png';
+const String ramiCardBackAsset = '$ramiCardsFolder/card_back_red.webp';
 
 /// Largeur de décodage des PNG (1500 px d'origine) : suffisant pour l'affichage, sans gonfler la mémoire.
 const int _ramiCacheWidth = 600;
@@ -46,15 +46,15 @@ String _ramiRankFileName(int rank) => switch (rank) {
       _ => '$rank',
     };
 
-/// Image d'une carte, par ex. assets/images/cards_rami/ace_of_spades.png.
+/// Image d'une carte, par ex. assets/images/cards_rami/ace_of_spades.webp.
 /// Les deux jokers ont chacun leur couleur : joker-0 noir, joker-1 rouge.
 String ramiCardAsset(rules.RamiCard card) {
   if (card.isJoker) {
     final colour = card.id == 'joker-1' ? 'red' : 'black';
-    return '$ramiCardsFolder/${colour}_joker.png';
+    return '$ramiCardsFolder/${colour}_joker.webp';
   }
   final suit = _ramiSuitFileName(card.suit!);
-  return '$ramiCardsFolder/${_ramiRankFileName(card.rank)}_of_$suit.png';
+  return '$ramiCardsFolder/${_ramiRankFileName(card.rank)}_of_$suit.webp';
 }
 
 /// Carte Rami : image du jeu CC0. Seul le coin haut-gauche est visible dans la main,
