@@ -478,7 +478,9 @@ bool canUseDiscardTop(RamiState state) {
 RamiState drawDiscard(RamiState state) {
   if (state.phase != RamiPhase.draw ||
       state.firstTour ||
-      state.discard.isEmpty) return state;
+      state.discard.isEmpty) {
+    return state;
+  }
   final card = state.discard.last;
   return _setHand(
     state.copyWith(
@@ -516,7 +518,9 @@ RamiState returnTaken(RamiState state) {
 RamiState poseMeld(RamiState state, List<String> cardIds) {
   if (state.phase != RamiPhase.play ||
       state.firstTour ||
-      cardIds.toSet().length != cardIds.length) return state;
+      cardIds.toSet().length != cardIds.length) {
+    return state;
+  }
   final seat = state.turn;
   final hand = state.hands[seat];
   final picked = <RamiCard>[];
