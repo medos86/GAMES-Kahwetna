@@ -265,6 +265,10 @@ class _RamiScreenState extends State<RamiScreen>
                   style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
                 DifficultyChip(difficulty: widget.difficulty),
+                Text(
+                  tf('ramiMinOpen', {'n': '${rules.minOpening(g)}'}),
+                  style: const TextStyle(fontSize: 12),
+                ),
               ],
             ),
           ],
