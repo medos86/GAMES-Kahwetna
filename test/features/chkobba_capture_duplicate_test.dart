@@ -103,7 +103,11 @@ void main() {
         }
       }
     }
-    expect(doubles, isEmpty, reason: '${before.join('\n')}\n${doubles.join('\n')}');
+    expect(
+      doubles,
+      isEmpty,
+      reason: '${before.join('\n')}\n${doubles.join('\n')}',
+    );
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
