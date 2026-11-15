@@ -105,6 +105,7 @@ class RamiState {
     required this.roundResult,
     required this.matchWinner,
     required this.lastOpening,
+    this.firstTour = false,
   });
 
   factory RamiState.fromJson(Map<String, dynamic> json) => RamiState(
@@ -130,6 +131,7 @@ class RamiState {
                 json['roundResult'] as Map<String, dynamic>),
         matchWinner: json['matchWinner'] as int?,
         lastOpening: (json['lastOpening'] as int?) ?? 0,
+        firstTour: (json['firstTour'] as bool?) ?? false,
       );
 
   final int targetScore;
@@ -151,6 +153,9 @@ class RamiState {
   /// Points de la dernière ouverture de la manche (0 : personne n'a ouvert).
   final int lastOpening;
 
+  /// Première tournée : jusqu'au passage du donneur. Pas de pose, pas de prise de la défausse.
+  final bool firstTour;
+
   /// Les champs nullables (takenId, roundResult, matchWinner) se remettent à null avec une valeur explicite.
   RamiState copyWith({
     RamiPhase? phase,
@@ -166,6 +171,7 @@ class RamiState {
     Object? roundResult = _unset,
     Object? matchWinner = _unset,
     int? lastOpening,
+    bool? firstTour,
   }) {
     return RamiState(
       targetScore: targetScore,
@@ -188,6 +194,7 @@ class RamiState {
           ? this.matchWinner
           : matchWinner as int?,
       lastOpening: lastOpening ?? this.lastOpening,
+      firstTour: firstTour ?? this.firstTour,
     );
   }
 
@@ -212,6 +219,7 @@ class RamiState {
         'roundResult': roundResult?.toJson(),
         'matchWinner': matchWinner,
         'lastOpening': lastOpening,
+        'firstTour': firstTour,
       };
 }
 
@@ -377,6 +385,7 @@ RamiState dealRound(
     roundResult: null,
     matchWinner: null,
     lastOpening: 0,
+    firstTour: true,
   );
 }
 
@@ -449,7 +458,7 @@ RamiState drawStock(RamiState state, [RandomDouble? random]) {
 
 /// Vrai si la carte du dessus peut être posée dès ce tour : sinon on ne peut pas la prendre.
 bool canUseDiscardTop(RamiState state) {
-  if (state.discard.isEmpty) return false;
+  if (state.firstTour || state.discard.isEmpty) return false;
   final seat = state.turn;
   final top = state.discard.last;
   final hand = [...state.hands[seat], top];
@@ -467,7 +476,9 @@ bool canUseDiscardTop(RamiState state) {
 /// (avant ouverture) ou la remettre, sinon il ne peut rien défausser d'autre.
 /// L'IA ne prend que les cartes utiles (voir [canUseDiscardTop] et [_aiDraw]).
 RamiState drawDiscard(RamiState state) {
-  if (state.phase != RamiPhase.draw || state.discard.isEmpty) return state;
+  if (state.phase != RamiPhase.draw ||
+      state.firstTour ||
+      state.discard.isEmpty) return state;
   final card = state.discard.last;
   return _setHand(
     state.copyWith(
@@ -503,8 +514,9 @@ RamiState returnTaken(RamiState state) {
 
 /// Hors ouverture, la combinaison part directement sur la table. Pendant l'ouverture, elle est mise de côté.
 RamiState poseMeld(RamiState state, List<String> cardIds) {
-  if (state.phase != RamiPhase.play || cardIds.toSet().length != cardIds.length)
-    return state;
+  if (state.phase != RamiPhase.play ||
+      state.firstTour ||
+      cardIds.toSet().length != cardIds.length) return state;
   final seat = state.turn;
   final hand = state.hands[seat];
   final picked = <RamiCard>[];
@@ -534,6 +546,7 @@ RamiState poseMeld(RamiState state, List<String> cardIds) {
 RamiState commitOpening(RamiState state) {
   final seat = state.turn;
   if (state.phase != RamiPhase.play ||
+      state.firstTour ||
       state.opened[seat] ||
       state.staged.isEmpty) return state;
   final staged = state.staged.fold<int>(
@@ -569,6 +582,7 @@ RamiState cancelStaged(RamiState state) {
 RamiState layOff(RamiState state, String cardId, String meldId) {
   final seat = state.turn;
   if (state.phase != RamiPhase.play ||
+      state.firstTour ||
       !state.opened[seat] ||
       state.staged.isNotEmpty) return state;
   final hand = state.hands[seat];
@@ -617,7 +631,11 @@ RamiState discardCard(RamiState state, String cardId) {
     hand.where((item) => item.id != cardId).toList(),
   );
   if (next.hands[seat].isEmpty) return _finish(next, seat);
-  return next.copyWith(turn: nextSeat(seat), phase: RamiPhase.draw);
+  return next.copyWith(
+    turn: nextSeat(seat),
+    phase: RamiPhase.draw,
+    firstTour: state.firstTour && seat != state.dealer,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -807,6 +825,9 @@ RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {
   if (state.staged.isNotEmpty) return cancelStaged(state);
 
   final seat = state.turn;
+  if (state.firstTour) {
+    return discardCard(state, _chooseDiscard(state, seat, level));
+  }
   final plan = _planMelds(state.hands[seat], state.takenId);
   final planTotal = plan.fold<int>(0, (sum, cards) => sum + pointsOf(cards));
   // Facile : ouvre plus tard que la règle (seuil relevé).
