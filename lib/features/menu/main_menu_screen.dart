@@ -159,10 +159,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
 
   void _launch() {
     final key = savedGameKeys[_selected.route];
+    final chosen = _difficulty;
     if (key != null) {
       unawaited(
         SharedPreferences.getInstance().then(
-          (prefs) => prefs.setString(_difficultyPrefKey(key), _difficulty.name),
+          (prefs) => prefs.setString(_difficultyPrefKey(key), chosen.name),
         ),
       );
     }
@@ -174,6 +175,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         players: _playerCount,
       ),
     );
+    // Au retour du jeu (bouton Menu), on revient à la liste des jeux (#365).
+    setState(() {
+      _screen = _MenuScreen.menu;
+      _difficulty = Difficulty.facile;
+    });
   }
 
   @override
