@@ -460,6 +460,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                         text: '♦ 7AYA !',
                         colors: style.ayaGradient,
                         angle: 0.09,
+                        burstSize: 110,
                       ),
                     ),
                   // Bannière de tour : toujours réservée, visible seulement quand l'adversaire réfléchit.

@@ -55,6 +55,9 @@ class ChkobbaController extends PersistentGameController {
 
   ChkobbaState _game;
   ChkobbaRoundScore? _roundSummary;
+  /// Durée d'affichage de la bannière « 7AYA ! » : courte pour ne pas masquer le plateau (#364).
+  static const hayaDuration = Duration(milliseconds: 1000);
+
   Player? _hayaBy;
   String? _opponentChoice;
 
@@ -164,7 +167,7 @@ class ChkobbaController extends PersistentGameController {
     if (haya != null) {
       _hayaBy = haya;
       _hayaTimer?.cancel();
-      _hayaTimer = Timer(const Duration(milliseconds: 1800), () {
+      _hayaTimer = Timer(hayaDuration, () {
         _hayaBy = null;
         notifyListeners();
       });
