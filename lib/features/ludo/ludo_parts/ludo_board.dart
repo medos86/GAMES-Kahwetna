@@ -78,19 +78,17 @@ class _Board extends StatelessWidget {
                       child: const _CenterPiece(),
                     ),
                     for (final placed in layoutTokens(controller.game.tokens))
-                      AnimatedPositioned(
+                      Positioned(
                         key: ValueKey(placed.token.id),
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeOut,
                         left: placed.x * u - _tokenHitSize(placed.size * u) / 2,
                         top: placed.y * u - _tokenHitSize(placed.size * u) / 2,
                         width: _tokenHitSize(placed.size * u),
                         height: _tokenHitSize(placed.size * u),
-                        child: _TokenButton(
-                          token: placed.token,
+                        child: _HopToken(
+                          placed: placed,
+                          u: u,
                           clickable: legal.contains(placed.token.id),
                           onTap: () => controller.tapToken(placed.token.id),
-                          visualSize: placed.size * u,
                         ),
                       ),
                   ],
@@ -171,37 +169,143 @@ Positioned _trackCell(int index, Cell cell, double u) {
   );
 }
 
+/// Centre du plateau : quatre triangles, un par couleur (arrivée propre à chaque joueur, #378).
 class _CenterPiece extends StatelessWidget {
   const _CenterPiece();
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        shape: BoxShape.rectangle,
-        gradient: SweepGradient(
-          startAngle: -math.pi / 4,
-          colors: [
-            Color(0xFFFFD653),
-            Color(0xFF1676D2),
-            Color(0xFFE43F5F),
-            Color(0xFF49C9A7),
-            Color(0xFFFFD653),
-          ],
-          stops: [0, 0.25, 0.5, 0.75, 1],
-        ),
-      ),
-      child: Center(
-        child: FractionallySizedBox(
-          widthFactor: 0.4,
-          heightFactor: 0.4,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: _cream,
-              shape: BoxShape.circle,
-              border: Border.all(color: _brown, width: 3),
-            ),
-          ),
+    return CustomPaint(painter: const _GoalPainter());
+  }
+}
+
+class _GoalPainter extends CustomPainter {
+  const _GoalPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final centre = Offset(w / 2, h / 2);
+    // Chaque couleur occupe le côté du centre où se trouve sa maison.
+    final sides = <LudoColor, List<Offset>>{
+      LudoColor.red: [Offset(0, 0), Offset(0, h)],
+      LudoColor.green: [Offset(0, 0), Offset(w, 0)],
+      LudoColor.yellow: [Offset(w, 0), Offset(w, h)],
+      LudoColor.blue: [Offset(0, h), Offset(w, h)],
+    };
+    final edge = Paint()
+      ..color = _brown
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    for (final entry in sides.entries) {
+      final points = entry.value;
+      final path = Path()
+        ..moveTo(points[0].dx, points[0].dy)
+        ..lineTo(points[1].dx, points[1].dy)
+        ..lineTo(centre.dx, centre.dy)
+        ..close();
+      canvas.drawPath(path, Paint()..color = _toneOf(entry.key).fill);
+      canvas.drawPath(path, edge);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _GoalPainter oldDelegate) => false;
+}
+
+/// Pion qui saute case par case jusqu'à sa nouvelle position (#378).
+/// Le Positioned du plateau reste à l'arrivée ; seul le décalage visuel anime le trajet.
+class _HopToken extends StatefulWidget {
+  const _HopToken({
+    required this.placed,
+    required this.u,
+    required this.clickable,
+    required this.onTap,
+  });
+
+  final PlacedToken placed;
+  final double u;
+  final bool clickable;
+  final VoidCallback onTap;
+
+  @override
+  State<_HopToken> createState() => _HopTokenState();
+}
+
+class _HopTokenState extends State<_HopToken>
+    with SingleTickerProviderStateMixin {
+  static const _msPerCell = 150;
+  static const _jumpHeight = 0.45; // hauteur du saut, en unités de case
+
+  late final AnimationController _hop =
+      AnimationController(vsync: this, duration: Duration.zero);
+
+  // Points du trajet (unités de case), le dernier est la position finale.
+  List<({double x, double y})> _path = const [];
+
+  @override
+  void didUpdateWidget(covariant _HopToken oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final before = oldWidget.placed;
+    final after = widget.placed;
+    final from = before.token.progress;
+    final to = after.token.progress;
+    if (from == to || to == 0 || MediaQuery.disableAnimationsOf(context)) {
+      _hop.stop();
+      _path = const [];
+      return;
+    }
+    _path = [
+      (x: before.x, y: before.y),
+      ...ludoHopWaypoints(after.token.color, from, to),
+      (x: after.x, y: after.y),
+    ];
+    _hop
+      ..duration = Duration(milliseconds: _msPerCell * (_path.length - 1))
+      ..forward(from: 0);
+  }
+
+  @override
+  void dispose() {
+    _hop.dispose();
+    super.dispose();
+  }
+
+  /// Décalage visuel par rapport à la position finale, saut compris.
+  Offset _offset() {
+    if (_path.length < 2) return Offset.zero;
+    final steps = _path.length - 1;
+    final t = _hop.value * steps;
+    final i = math.min(t.floor(), steps - 1);
+    final local = t - i;
+    final eased = Curves.easeInOut.transform(local);
+    final a = _path[i];
+    final b = _path[i + 1];
+    final x = a.x + (b.x - a.x) * eased;
+    final y = a.y + (b.y - a.y) * eased;
+    final lift = math.sin(math.pi * local) * _jumpHeight;
+    final end = _path.last;
+    return Offset((x - end.x) * widget.u, (y - lift - end.y) * widget.u);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final placed = widget.placed;
+    // Pion jouable : un peu plus grand, avec halo pulsé.
+    final visual = placed.size * widget.u * (widget.clickable ? 1.12 : 1);
+    return AnimatedBuilder(
+      animation: _hop,
+      builder: (context, child) =>
+          Transform.translate(offset: _offset(), child: child),
+      child: PulseGlow(
+        active: widget.clickable,
+        radius: visual / 2,
+        child: _TokenButton(
+          token: placed.token,
+          clickable: widget.clickable,
+          onTap: widget.onTap,
+          visualSize: visual,
         ),
       ),
     );
