@@ -9,6 +9,20 @@ const String ramiCardsFolder = 'assets/images/cards_rami';
 /// Dos de carte utilisé pour la pioche et la main adverse.
 const String ramiCardBackAsset = '$ramiCardsFolder/card_back_red.webp';
 
+/// Dos bleu : le premier jeu de 52 cartes (#372).
+const String ramiCardBackBlueAsset = '$ramiCardsFolder/card_back_blue.webp';
+
+/// Dos de la pioche : celui de la carte du dessus.
+String ramiStockBackAsset(List<rules.RamiCard> stock) =>
+    ramiBackAssetOf(stock.isEmpty ? null : stock.last);
+
+/// Dos de la carte selon son jeu : jeu 0 bleu, jeu 1 rouge (défaut rouge).
+/// Les jokers et une carte absente gardent le dos rouge.
+String ramiBackAssetOf(rules.RamiCard? card) {
+  if (card == null || card.isJoker) return ramiCardBackAsset;
+  return card.id.endsWith('-0') ? ramiCardBackBlueAsset : ramiCardBackAsset;
+}
+
 /// Largeur de décodage des PNG (1500 px d'origine) : suffisant pour l'affichage, sans gonfler la mémoire.
 const int _ramiCacheWidth = 600;
 
@@ -114,9 +128,14 @@ class RamiCardView extends StatelessWidget {
 
 /// Dos d'une carte, pour la pioche.
 class RamiBackView extends StatelessWidget {
-  const RamiBackView({super.key, required this.width});
+  const RamiBackView({
+    super.key,
+    required this.width,
+    this.asset = ramiCardBackAsset,
+  });
 
   final double width;
+  final String asset;
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +152,7 @@ class RamiBackView extends StatelessWidget {
       child: ClipRRect(
         borderRadius: radius,
         child: Image.asset(
-          ramiCardBackAsset,
+          asset,
           fit: BoxFit.fill,
           gaplessPlayback: true,
           cacheWidth: _ramiCacheWidth,
