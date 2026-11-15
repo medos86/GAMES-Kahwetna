@@ -13,6 +13,10 @@ void main() {
     expect(ramiAiFlightDuration, lessThan(ramiAiDelay));
   });
 
+  test('un coup adverse reste affiché au moins 900 ms (#391)', () {
+    expect(ramiAiDelay.inMilliseconds, greaterThanOrEqualTo(900));
+  });
+
   test('un vol sans durée explicite garde 300 ms', () {
     const flight = CardFlight(
       from: Rect.zero,

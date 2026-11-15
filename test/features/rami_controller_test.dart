@@ -22,7 +22,7 @@ void main() {
     );
   });
 
-  test("le tour de l'IA arrive 550 ms après la défausse du joueur", () {
+  test("le tour de l'IA arrive ramiAiDelay après la défausse du joueur", () {
     fakeAsync((async) {
       // Tirage constant 0.0 : l'IA prend la défausse au premier tour.
       final c = RamiController(
@@ -37,7 +37,7 @@ void main() {
       c.discardOne(c.hand.first.id);
       expect(c.game.turn, 1);
 
-      async.elapse(const Duration(milliseconds: 549));
+      async.elapse(ramiAiDelay - const Duration(milliseconds: 1));
       expect(c.game.phase, rules.RamiPhase.draw);
 
       async.elapse(const Duration(milliseconds: 1));
