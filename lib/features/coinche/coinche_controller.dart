@@ -50,7 +50,7 @@ class CoincheController extends PersistentGameController {
   /// Le jeu aléatoire est réservé au niveau facile (même règle que le source).
   bool get randomPlay => difficulty == Difficulty.facile;
 
-  CoincheAiLevel get aiLevel => CoincheAiLevel.values.byName(difficulty.name);
+  CoincheAiLevel get aiLevel => aiLevelFor(CoincheAiLevel.values, difficulty);
 
   bool get isBiddingTurn =>
       _round.phase == CoinchePhase.bidding && _round.turn == Seat.south;

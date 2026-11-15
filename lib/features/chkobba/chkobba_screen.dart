@@ -296,11 +296,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     });
   }
 
-  static ChkobbaAiLevel _levelFor(Difficulty d) => switch (d) {
-        Difficulty.facile => ChkobbaAiLevel.facile,
-        Difficulty.moyen => ChkobbaAiLevel.moyen,
-        Difficulty.difficile => ChkobbaAiLevel.difficile,
-      };
+  static ChkobbaAiLevel _levelFor(Difficulty d) =>
+      aiLevelFor(ChkobbaAiLevel.values, d);
 
   Future<void> _onPlayerCard(String cardId) async {
     _controller.tapPlayerCard(cardId);
