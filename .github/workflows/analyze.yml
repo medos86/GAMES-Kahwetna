@@ -27,8 +27,9 @@ jobs:
 
       - name: DIAG format diff
         run: |
-          dart format lib/features/chkobba/chkobba_screen.dart > /tmp/fmt.dart || true
-          diff lib/features/chkobba/chkobba_screen.dart /tmp/fmt.dart || true
+          cp lib/features/chkobba/chkobba_screen.dart /tmp/orig.dart
+          dart format lib/features/chkobba/chkobba_screen.dart || true
+          diff /tmp/orig.dart lib/features/chkobba/chkobba_screen.dart || true
           echo DIAG_END
       - name: Formatage (dart format)
         # Le pipeline échoue si un fichier Dart n'est pas formaté.
