@@ -16,7 +16,7 @@ class _PlayerChip extends StatelessWidget {
     return Semantics(
       label: '${_seatNames[seat]} : ${game.scores[seat]} points, $opened',
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
         decoration: BoxDecoration(
           color: active ? _goldColor : _creamColor,
           borderRadius: BorderRadius.circular(12),
