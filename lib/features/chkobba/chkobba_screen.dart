@@ -194,9 +194,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
         if (game.table.every((t) => t.id != card.id)) card,
     ];
     // Case de la première carte prise : là où la carte jouée se pose.
-    final landing = gone.isEmpty
-        ? null
-        : rectOfKey(_key('tbl:${gone.first.id}'));
+    final landing =
+        gone.isEmpty ? null : rectOfKey(_key('tbl:${gone.first.id}'));
     if (winnerKey != null) {
       for (final card in gone) {
         final from = rectOfKey(_key('tbl:${card.id}'));
