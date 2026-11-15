@@ -413,7 +413,13 @@ class _RamiScreenState extends State<RamiScreen>
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                _piles(ramiPileWidth(handWidth), g),
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.bottomLeft,
+                    child: _piles(ramiPileWidth(handWidth), g),
+                  ),
+                ),
                 Expanded(child: _contextActions(g)),
               ],
             ),
