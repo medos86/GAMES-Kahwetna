@@ -123,6 +123,14 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
 
   static const _capturePause = Duration(milliseconds: 320);
 
+  /// Cartes prises encore en vol vers le tas : le compteur ne les compte pas (#354).
+  final Set<String> _capturing = {};
+
+  void _release(String id) {
+    if (!mounted) return;
+    setState(() => _capturing.remove(id));
+  }
+
   /// Tout mouvement de carte : cartes jouées, captures, donne (#238).
   /// Une capture se lit en deux temps : la carte se pose sur le tapis,
   /// puis la carte et les cartes prises rejoignent le tas du gagnant.
@@ -157,6 +165,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       for (final card in gone) {
         final from = rectOfKey(_key('tbl:${card.id}'));
         if (from == null) continue;
+        _capturing.add(card.id);
         unawaited(
           flyCard(
             context: context,
@@ -165,7 +174,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
             child: ChkobbaCardFace(card: card),
             delay: _capturePause,
             hold: true,
-          ),
+          ).whenComplete(() => _release(card.id)),
         );
       }
     }
@@ -193,6 +202,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
 
     for (final (card, key) in captures) {
       final from = rectOfKey(key)!;
+      _capturing.add(card.id);
       // Temps 1 : la carte se pose au centre du tapis.
       final posed = flyCard(
         context: context,
@@ -205,9 +215,11 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       // restent au centre pendant la pause (#350).
       unawaited(
         posed.then((_) {
-          if (!mounted || winnerKey == null) return;
           final mid = _centerOn(tableNow, from.size);
-          if (mid == null) return;
+          if (!mounted || winnerKey == null || mid == null) {
+            _release(card.id);
+            return;
+          }
           unawaited(
             flyCard(
               context: context,
@@ -216,7 +228,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
               child: ChkobbaCardFace(card: card),
               delay: _capturePause,
               hold: true,
-            ),
+            ).whenComplete(() => _release(card.id)),
           );
         }),
       );
@@ -428,6 +440,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                 playerWonKey: _key('won:player'),
                 opponentWonKey: _key('won:opponent'),
                 deckKey: _key('deck'),
+                capturing: _capturing,
               ),
             ),
             const SizedBox(height: 8),

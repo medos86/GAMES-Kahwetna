@@ -39,7 +39,11 @@ class _Scoreboard extends StatelessWidget {
     this.playerWonKey,
     this.opponentWonKey,
     this.deckKey,
+    this.capturing = const {},
   });
+
+  /// Cartes encore en vol vers le tas : non comptées tant qu'elles n'arrivent pas (#354).
+  final Set<String> capturing;
 
   /// Clé de la pioche (cible de la donne animée, #238).
   final Key? deckKey;
@@ -49,6 +53,9 @@ class _Scoreboard extends StatelessWidget {
   /// Clés des tas de cartes gagnées (cibles des captures animées, #238).
   final Key? playerWonKey;
   final Key? opponentWonKey;
+
+  int wonShown(Player p) =>
+      game.won[p]!.where((c) => !capturing.contains(c.id)).length;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +86,7 @@ class _Scoreboard extends StatelessWidget {
                 name: t('you'),
                 score: game.scores[Player.player]!,
                 chkobbas: game.chkobbas[Player.player]!,
-                cards: game.won[Player.player]!.length,
+                cards: wonShown(Player.player),
                 color: ScobaPalette.blueText,
               ),
             ),
@@ -96,7 +103,7 @@ class _Scoreboard extends StatelessWidget {
                 name: t('opponent'),
                 score: game.scores[Player.opponent]!,
                 chkobbas: game.chkobbas[Player.opponent]!,
-                cards: game.won[Player.opponent]!.length,
+                cards: wonShown(Player.opponent),
                 color: ScobaPalette.redText,
               ),
             ),
