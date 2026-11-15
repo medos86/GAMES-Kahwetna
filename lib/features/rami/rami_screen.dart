@@ -10,6 +10,7 @@ import '../../widgets/ad_banner.dart';
 import '../../widgets/pulse_glow.dart';
 import '../menu/menu_models.dart';
 import 'rami_card_view.dart';
+import 'rami_discard_shown.dart';
 import 'rami_hand_layout.dart';
 import 'rami_controller.dart';
 import '../../core/strings.dart';
@@ -643,6 +644,9 @@ class _RamiScreenState extends State<RamiScreen>
   Widget _piles(double width, rules.RamiState g) {
     final c = _c;
     final top = c.top;
+    // Le tas garde la carte précédente pendant le vol de la nouvelle (#346).
+    final shown = ramiDiscardShown(g.discard, landing);
+    final covered = top != null && landing.contains(top.id);
     final discardHover = c.canPlay && _drag?.target is RamiDropDiscard;
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -685,7 +689,7 @@ class _RamiScreenState extends State<RamiScreen>
                     ? Border.all(color: _goldColor, width: 3)
                     : null,
               ),
-              child: top == null
+              child: shown == null
                   ? Container(
                       width: width,
                       height: width * 1.4,
@@ -695,11 +699,8 @@ class _RamiScreenState extends State<RamiScreen>
                       ),
                     )
                   : GestureDetector(
-                      onTap: c.canDraw ? c.drawFromDiscard : null,
-                      child: MaskedSlot(
-                        hidden: landing.contains(top.id),
-                        child: RamiCardView(card: top, width: width),
-                      ),
+                      onTap: c.canDraw && !covered ? c.drawFromDiscard : null,
+                      child: RamiCardView(card: shown, width: width),
                     ),
             ),
             Text(
