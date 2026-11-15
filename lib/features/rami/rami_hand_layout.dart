@@ -12,8 +12,8 @@ double ramiPileWidth(double handWidth) => handWidth * ramiPileScale;
 /// Écartement des cartes d'un paquet sur le tapis, en fraction de la largeur d'une carte.
 const double ramiMeldStepRatio = 0.4;
 
-const double _meldPadding = 10;
-const double _meldGap = 6;
+const double _meldPadding = 6;
+const double _meldGap = 3;
 const double _minTableCardWidth = 36;
 
 /// Décalage horizontal de la carte [index] pendant un glissement : à partir de [gapAt],

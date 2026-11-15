@@ -752,8 +752,8 @@ class _RamiScreenState extends State<RamiScreen>
       ),
       child: SingleChildScrollView(
         child: Wrap(
-          spacing: 6,
-          runSpacing: 6,
+          spacing: 3,
+          runSpacing: 3,
           children: [
             if (g.table.isEmpty && g.staged.isEmpty)
               SizedBox(
