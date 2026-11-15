@@ -73,13 +73,15 @@ class _Scoreboard extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _ScoreSide(
-              key: playerWonKey,
-              name: t('you'),
-              score: game.scores[Player.player]!,
-              chkobbas: game.chkobbas[Player.player]!,
-              cards: game.won[Player.player]!.length,
-              color: ScobaPalette.blueText,
+            Flexible(
+              child: _ScoreSide(
+                key: playerWonKey,
+                name: t('you'),
+                score: game.scores[Player.player]!,
+                chkobbas: game.chkobbas[Player.player]!,
+                cards: game.won[Player.player]!.length,
+                color: ScobaPalette.blueText,
+              ),
             ),
             Semantics(
               label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
@@ -88,13 +90,15 @@ class _Scoreboard extends StatelessWidget {
                 child: _DeckPile(count: game.deck.length),
               ),
             ),
-            _ScoreSide(
-              key: opponentWonKey,
-              name: t('opponent'),
-              score: game.scores[Player.opponent]!,
-              chkobbas: game.chkobbas[Player.opponent]!,
-              cards: game.won[Player.opponent]!.length,
-              color: ScobaPalette.redText,
+            Flexible(
+              child: _ScoreSide(
+                key: opponentWonKey,
+                name: t('opponent'),
+                score: game.scores[Player.opponent]!,
+                chkobbas: game.chkobbas[Player.opponent]!,
+                cards: game.won[Player.opponent]!.length,
+                color: ScobaPalette.redText,
+              ),
             ),
           ],
         ),
@@ -150,6 +154,8 @@ class _ScoreSide extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           name.toUpperCase(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
@@ -157,14 +163,17 @@ class _ScoreSide extends StatelessWidget {
             letterSpacing: 0.5,
           ),
         ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.star, size: 12, color: ScobaPalette.blueText),
-            Text(' $chkobbas', style: info),
-            const SizedBox(width: 8),
-            Text(tf('cardCount', {'n': '$cards'}), style: info),
-          ],
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.star, size: 12, color: ScobaPalette.blueText),
+              Text(' $chkobbas', style: info),
+              const SizedBox(width: 8),
+              Text(tf('cardCount', {'n': '$cards'}), style: info),
+            ],
+          ),
         ),
       ],
     );
