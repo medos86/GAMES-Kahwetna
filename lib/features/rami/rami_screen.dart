@@ -21,6 +21,7 @@ import '../../widgets/game_safe_area.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
+import '../../widgets/trophy_badge.dart';
 import '../../widgets/card_motion.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/dialog_button.dart';
@@ -282,27 +283,7 @@ class _RamiScreenState extends State<RamiScreen>
             child: SizedBox(
               width: 48,
               height: 48,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  const Icon(
-                    Icons.emoji_events,
-                    size: 44,
-                    color: Color(0xFFFBBF24),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Text(
-                      '${g.targetScore}',
-                      style: const TextStyle(
-                        color: _inkColor,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              child: Center(child: TrophyBadge(target: g.targetScore)),
             ),
           ),
         ],
