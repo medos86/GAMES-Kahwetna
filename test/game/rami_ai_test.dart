@@ -33,4 +33,31 @@ void main() {
       );
     }
   });
+
+  test('facile mène une partie complète sans bloquer (#281)', () {
+    for (var seed = 0; seed < 5; seed++) {
+      final rng = math.Random(seed).nextDouble;
+      var state = newMatch(100, rng);
+      var steps = 0;
+      const maxSteps = 20000;
+      while (state.matchWinner == null && steps++ < maxSteps) {
+        if (state.phase == RamiPhase.end) {
+          state = nextRound(state, rng);
+          continue;
+        }
+        final before = state;
+        state = aiStep(state, RamiAiLevel.facile, rng);
+        if (identical(state, before) &&
+            state.phase == RamiPhase.play &&
+            state.staged.isEmpty) {
+          break;
+        }
+      }
+      expect(
+        steps,
+        lessThan(maxSteps),
+        reason: 'la partie doit avancer (seed $seed)',
+      );
+    }
+  });
 }
