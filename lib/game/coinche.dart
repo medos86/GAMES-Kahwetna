@@ -777,7 +777,10 @@ BidAction chooseBid(
   return ValueBid(value, bestSuit);
 }
 
-/// Renvoie l'id de la carte choisie. `randomPlay` = jeu aléatoire (difficulté facile).
+/// Probabilité, pour le niveau facile, de jouer une carte au hasard au lieu de l'heuristique (#282).
+const double coincheEasyNoise = 0.35;
+
+/// Renvoie l'id de la carte choisie. `randomPlay` = bruit du facile (voir coincheEasyNoise).
 /// Difficile : quand le partenaire tient le pli, il lui donne la carte la plus chère (points).
 String chooseCard(
   RoundState round,
@@ -788,8 +791,12 @@ String chooseCard(
 ]) {
   final moves = legalCards(round, seat);
   final contract = round.contract;
-  if (randomPlay || contract == null) {
-    final draw = random ?? _defaultRandom.nextDouble;
+  final draw = random ?? _defaultRandom.nextDouble;
+  if (contract == null) {
+    return moves[(draw() * moves.length).floor()].id;
+  }
+  // Facile (#282) : avec probabilité coincheEasyNoise, carte légale au hasard ; sinon l'heuristique simple.
+  if (randomPlay && draw() < coincheEasyNoise) {
     return moves[(draw() * moves.length).floor()].id;
   }
 
