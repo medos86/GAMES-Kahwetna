@@ -25,6 +25,11 @@ jobs:
       - name: Dépendances
         run: flutter pub get
 
+      - name: DIAG format diff
+        run: |
+          dart format lib/features/chkobba/chkobba_screen.dart > /tmp/fmt.dart || true
+          diff lib/features/chkobba/chkobba_screen.dart /tmp/fmt.dart || true
+          echo DIAG_END
       - name: Formatage (dart format)
         # Le pipeline échoue si un fichier Dart n'est pas formaté.
         run: dart format --output=none --set-exit-if-changed .
