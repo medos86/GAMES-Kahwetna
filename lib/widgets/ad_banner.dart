@@ -14,8 +14,8 @@ class AdBanner extends StatelessWidget {
   const AdBanner({super.key});
 
   /// Échelle de texte maximale dans la bannière : au-delà, le texte ne tient
-  /// plus dans la hauteur fixe (#340). Le reste de l'écran garde son échelle.
-  static const double maxTextScale = 1.3;
+  /// plus dans la hauteur fixe de 56 px (#340).
+  static const double maxTextScale = 1.15;
 
   @override
   Widget build(BuildContext context) {

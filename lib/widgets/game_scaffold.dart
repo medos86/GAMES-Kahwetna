@@ -26,6 +26,11 @@ class GameScaffold extends StatelessWidget {
   final List<Widget> overlays;
 
   static const double maxContentWidth = 1100;
+
+  /// Échelle de texte maximale sur les écrans de jeu : le plateau et les
+  /// tableaux de score ont des dimensions fixes (#340). Au-delà, le texte
+  /// déborderait ; le reste de l'app garde l'échelle système.
+  static const double maxGameTextScale = 1.3;
   // Hauteur de la bannière et marge au-dessus : le contenu ne passe pas dessous.
   static const double _adReservedHeight = kAdBannerHeight + 16;
 
@@ -36,7 +41,9 @@ class GameScaffold extends StatelessWidget {
     final width = media.size.width;
     final bottomPadding = showAd ? _adReservedHeight + bottomInset : 12.0;
 
-    return Scaffold(
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: maxGameTextScale,
+      child: Scaffold(
       backgroundColor: Colors.transparent,
       body: Stack(
         fit: StackFit.expand,
@@ -73,6 +80,7 @@ class GameScaffold extends StatelessWidget {
             ),
           ...overlays,
         ],
+      ),
       ),
     );
   }
