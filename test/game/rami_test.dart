@@ -247,6 +247,44 @@ void main() {
     });
   });
 
+  group('points d\'ouverture par joueur (#369)', () {
+    test('ouverture : points du joueur enregistrés', () {
+      final s = inPlay(
+        fixedDeal(),
+        hands: [
+          [c(RamiSuit.batons, 2, 'z')],
+          [c(RamiSuit.coupes, 2)],
+          [c(RamiSuit.coupes, 3)],
+          [c(RamiSuit.coupes, 4)],
+        ],
+      ).copyWith(
+        staged: [
+          [
+            c(RamiSuit.epees, 13, 'k1'),
+            c(RamiSuit.coupes, 13, 'k2'),
+            c(RamiSuit.batons, 13, 'k3'),
+          ],
+          [
+            c(RamiSuit.epees, 12, 'q1'),
+            c(RamiSuit.coupes, 12, 'q2'),
+            c(RamiSuit.deniers, 1, 'a1'),
+          ],
+        ],
+      );
+      final next = commitOpening(s);
+      expect(next.openings, [51, 0, 0, 0]);
+      expect(next.opened[0], isTrue);
+    });
+
+    test('les points d\'ouverture survivent à la sérialisation', () {
+      final s = fixedDeal().copyWith(openings: [60, 0, 52, 0]);
+      final back = RamiState.fromJson(
+        jsonDecode(jsonEncode(s.toJson())) as Map<String, dynamic>,
+      );
+      expect(back.openings, [60, 0, 52, 0]);
+    });
+  });
+
   group('première tournée', () {
     final run = [
       c(RamiSuit.epees, 7, 'a'),
