@@ -50,6 +50,29 @@ class PlacedToken {
   final double size;
 }
 
+/// Emplacement d'arrivée de chaque couleur : un triangle au centre, côté de sa couleur (#378).
+({double x, double y}) ludoGoalSlot(LudoColor color) => switch (color) {
+      LudoColor.red => (x: 6.7, y: 7.5),
+      LudoColor.green => (x: 7.5, y: 6.7),
+      LudoColor.yellow => (x: 8.3, y: 7.5),
+      LudoColor.blue => (x: 7.5, y: 8.3),
+    };
+
+/// Centres des cases traversées de [from] à [to] (exclus). Sert à faire sauter le pion case par case.
+List<({double x, double y})> ludoHopWaypoints(
+  LudoColor color,
+  int from,
+  int to,
+) {
+  final points = <({double x, double y})>[];
+  for (var p = from + 1; p < to; p++) {
+    final cell = cellOf(Token(id: '', color: color, progress: p));
+    if (cell == null) continue;
+    points.add((x: cell.col + 0.5, y: cell.row + 0.5));
+  }
+  return points;
+}
+
 /// Calcule le centre et la taille de chaque pion.
 List<PlacedToken> layoutTokens(List<Token> tokens) {
   final positions = [
@@ -59,7 +82,7 @@ List<PlacedToken> layoutTokens(List<Token> tokens) {
   final counts = <String, int>{};
   for (final p in positions) {
     final cell = p.cell;
-    if (cell == null) continue;
+    if (cell == null || p.token.progress == ludoFinish) continue;
     final key = '${cell.row}:${cell.col}';
     counts[key] = (counts[key] ?? 0) + 1;
   }
@@ -71,9 +94,16 @@ List<PlacedToken> layoutTokens(List<Token> tokens) {
     for (final p in positions)
       if (p.cell == null)
         _basePlacement(p.token, baseSlot)
+      else if (p.token.progress == ludoFinish)
+        _finishPlacement(p.token)
       else
         _trackPlacement(p.token, p.cell!, counts, seen),
   ];
+}
+
+PlacedToken _finishPlacement(Token token) {
+  final slot = ludoGoalSlot(token.color);
+  return PlacedToken(token: token, x: slot.x, y: slot.y, size: 0.5);
 }
 
 PlacedToken _basePlacement(Token token, Map<LudoColor, int> baseSlot) {

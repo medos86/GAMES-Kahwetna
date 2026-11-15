@@ -16,6 +16,7 @@ import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
+import '../../widgets/pulse_glow.dart';
 
 part 'ludo_parts/ludo_header_players.dart';
 part 'ludo_parts/ludo_die.dart';

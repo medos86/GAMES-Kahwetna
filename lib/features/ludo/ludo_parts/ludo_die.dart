@@ -67,11 +67,21 @@ class _RollableDieState extends State<_RollableDie>
           child: Center(
             child: AnimatedBuilder(
               animation: _pulse,
-              child: widget.child,
+              // Halo doré pendant le tour du joueur (#378).
+              child: PulseGlow(
+                active: widget.pulse && !reduce,
+                radius: 16,
+                child: widget.child,
+              ),
               builder: (context, child) {
-                final scale =
-                    (widget.pulse && !reduce) ? 1 + 0.08 * _pulse.value : 1.0;
-                return Transform.scale(scale: scale, child: child);
+                final live = widget.pulse && !reduce;
+                // Dé qui grossit et oscille légèrement tant qu'il peut être lancé.
+                final scale = live ? 1 + 0.14 * _pulse.value : 1.0;
+                final angle = live ? (_pulse.value - 0.5) * 0.12 : 0.0;
+                return Transform.rotate(
+                  angle: angle,
+                  child: Transform.scale(scale: scale, child: child),
+                );
               },
             ),
           ),
