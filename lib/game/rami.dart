@@ -461,9 +461,11 @@ bool canUseDiscardTop(RamiState state) {
   return carries && total >= minOpening(state);
 }
 
+/// Le joueur peut toujours prendre la carte du dessus (#315) : il doit ensuite la poser
+/// (avant ouverture) ou la remettre, sinon il ne peut rien défausser d'autre.
+/// L'IA ne prend que les cartes utiles (voir [canUseDiscardTop] et [_aiDraw]).
 RamiState drawDiscard(RamiState state) {
   if (state.phase != RamiPhase.draw || state.discard.isEmpty) return state;
-  if (!canUseDiscardTop(state)) return state;
   final card = state.discard.last;
   return _setHand(
     state.copyWith(
@@ -596,8 +598,16 @@ RamiState discardCard(RamiState state, String cardId) {
   final index = hand.indexWhere((item) => item.id == cardId);
   if (index < 0) return state;
   final card = hand[index];
-  // La carte prise à la défausse doit rester en main, sauf si c'est la dernière.
-  if (card.id == state.takenId && hand.length > 1) return state;
+  // La carte prise à la défausse doit être posée ou remise : avant ouverture, on ne défausse
+  // rien d'autre tant qu'elle est en main ; après ouverture, elle ne peut pas être défaussée
+  // (sauf si c'est la dernière carte).
+  final takenInHand =
+      state.takenId != null && hand.any((item) => item.id == state.takenId);
+  if (takenInHand &&
+      hand.length > 1 &&
+      (card.id == state.takenId || !state.opened[seat])) {
+    return state;
+  }
 
   final next = _setHand(
     state.copyWith(discard: [...state.discard, card], takenId: null),
