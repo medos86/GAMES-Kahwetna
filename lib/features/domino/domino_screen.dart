@@ -125,7 +125,8 @@ class _DominoScreenState extends State<DominoScreen> {
                     target: game.targetScore,
                     onMenu: () => Navigator.of(context).maybePop(),
                   ),
-                  SizedBox(height: unit),
+                  // Paysage : espacement réduit pour tenir dans la hauteur (#344).
+                  SizedBox(height: sm ? unit * 0.5 : unit),
                   _ScoreStrip(
                     unit: unit,
                     game: game,

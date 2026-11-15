@@ -52,21 +52,6 @@ final _screens = <String, Widget Function()>{
   },
 };
 
-// Dépassements connus restants, suivis dans #340 (paysage et petits écrans).
-// À retirer au fur et à mesure de leur correction. Toute autre combinaison
-// en échec bloque la CI.
-const _knownOverflows = <String>{
-  'Domino · Paysage · texte x1.0',
-  'Domino · Paysage · texte x1.3',
-  'Domino · Paysage · texte x2.0',
-  'Domino · Petit écran · texte x1.3',
-  'Domino · Petit écran · texte x2.0',
-  'Ludo · Petit écran · texte x1.3',
-  'Ludo · Petit écran · texte x2.0',
-  'Rami · Petit écran · texte x1.3',
-  'Rami · Petit écran · texte x2.0',
-};
-
 Future<void> _pump(
   WidgetTester tester,
   _Device device,
@@ -117,7 +102,6 @@ void main() {
         testWidgets(
           name,
           (tester) => _pump(tester, device, scale, entry.value()),
-          skip: _knownOverflows.contains(name),
         );
       }
     }
