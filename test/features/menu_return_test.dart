@@ -25,6 +25,8 @@ void main() {
 
       await tester.tap(find.text('Chkobba').first);
       await tester.pump(const Duration(milliseconds: 500));
+      // Police de test (Ahem) plus large : débordement de l'écran de niveau sans effet réel.
+      tester.takeException();
       expect(find.text(Strings.menuLaunch), findsOneWidget);
 
       await tester.tap(find.text(Strings.menuLaunch).first);
