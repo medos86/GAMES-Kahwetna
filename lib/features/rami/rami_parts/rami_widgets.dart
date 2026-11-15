@@ -11,7 +11,10 @@ class _PlayerChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = game.turn == seat && game.phase != rules.RamiPhase.end;
-    final opened = game.opened[seat] ? 'Ouvert' : 'Fermé';
+    final points = game.openings[seat];
+    final opened = game.opened[seat]
+        ? (points > 0 ? 'Ouvert $points' : 'Ouvert')
+        : 'Fermé';
     final ink = active ? const Color(0xFF513B00) : _inkColor;
     return Semantics(
       label: '${_seatNames[seat]} : ${game.scores[seat]} points, $opened',
@@ -69,6 +72,8 @@ class _PlayerChip extends StatelessWidget {
             ),
             Text(
               seat == 0 ? opened : '×${game.hands[seat].length} · $opened',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: ink.withValues(alpha: 0.75),
                 fontSize: 10,

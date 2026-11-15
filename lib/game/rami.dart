@@ -106,6 +106,7 @@ class RamiState {
     required this.matchWinner,
     required this.lastOpening,
     this.firstTour = false,
+    this.openings = const [0, 0, 0, 0],
   });
 
   factory RamiState.fromJson(Map<String, dynamic> json) => RamiState(
@@ -132,6 +133,9 @@ class RamiState {
         matchWinner: json['matchWinner'] as int?,
         lastOpening: (json['lastOpening'] as int?) ?? 0,
         firstTour: (json['firstTour'] as bool?) ?? false,
+        openings: json['openings'] == null
+            ? const [0, 0, 0, 0]
+            : [for (final o in json['openings'] as List) o as int],
       );
 
   final int targetScore;
@@ -156,6 +160,9 @@ class RamiState {
   /// Première tournée : jusqu'au passage du donneur. Pas de pose, pas de prise de la défausse.
   final bool firstTour;
 
+  /// Points de la première ouverture de chaque joueur cette manche (0 : pas ouvert).
+  final List<int> openings;
+
   /// Les champs nullables (takenId, roundResult, matchWinner) se remettent à null avec une valeur explicite.
   RamiState copyWith({
     RamiPhase? phase,
@@ -172,6 +179,7 @@ class RamiState {
     Object? matchWinner = _unset,
     int? lastOpening,
     bool? firstTour,
+    List<int>? openings,
   }) {
     return RamiState(
       targetScore: targetScore,
@@ -195,6 +203,7 @@ class RamiState {
           : matchWinner as int?,
       lastOpening: lastOpening ?? this.lastOpening,
       firstTour: firstTour ?? this.firstTour,
+      openings: openings ?? this.openings,
     );
   }
 
@@ -220,6 +229,7 @@ class RamiState {
         'matchWinner': matchWinner,
         'lastOpening': lastOpening,
         'firstTour': firstTour,
+        'openings': openings,
       };
 }
 
@@ -386,6 +396,7 @@ RamiState dealRound(
     matchWinner: null,
     lastOpening: 0,
     firstTour: true,
+    openings: [for (final _ in ramiSeats) 0],
   );
 }
 
@@ -566,6 +577,10 @@ RamiState commitOpening(RamiState state) {
     ],
     staged: const [],
     lastOpening: staged,
+    openings: [
+      for (var i = 0; i < state.openings.length; i++)
+        i == seat ? staged : state.openings[i],
+    ],
     opened: [
       for (var i = 0; i < state.opened.length; i++)
         state.opened[i] || i == seat,
