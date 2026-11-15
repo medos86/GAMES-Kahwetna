@@ -108,7 +108,8 @@ class _LudoScreenState extends State<LudoScreen> {
   );
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
 
-  static LudoAiLevel _aiLevel(Difficulty d) => aiLevelFor(LudoAiLevel.values, d);
+  static LudoAiLevel _aiLevel(Difficulty d) =>
+      aiLevelFor(LudoAiLevel.values, d);
 
   @override
   void initState() {
