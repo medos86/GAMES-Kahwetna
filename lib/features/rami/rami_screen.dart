@@ -59,6 +59,8 @@ class _RamiScreenState extends State<RamiScreen>
   final GlobalKey _bodyKey = GlobalKey();
   _Press? _press;
   _Drag? _drag;
+  // Largeur réelle des cartes de la main (la carte glissée garde cette taille).
+  double _handCardWidth = 0;
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
 
   @override
@@ -405,12 +407,17 @@ class _RamiScreenState extends State<RamiScreen>
               },
             ),
           ),
-          // Pioche et défausse en barre horizontale, en bas du tapis (#313).
+          // Pioche et défausse à gauche, boutons d'action à leur côté sur la même ligne.
           Padding(
             padding: const EdgeInsets.only(top: 6),
-            child: _piles(handWidth * 0.3, g),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                _piles(ramiPileWidth(handWidth), g),
+                Expanded(child: _contextActions(g)),
+              ],
+            ),
           ),
-          _contextActions(g),
         ],
       ),
     );
@@ -424,9 +431,9 @@ class _RamiScreenState extends State<RamiScreen>
     final staged = g.staged.isNotEmpty;
     if (!staged && c.selected.isEmpty) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.only(left: 10, bottom: 4),
       child: Wrap(
-        alignment: WrapAlignment.end,
+        alignment: WrapAlignment.start,
         spacing: 4,
         runSpacing: 4,
         children: _actions(staged),
@@ -846,6 +853,7 @@ class _RamiScreenState extends State<RamiScreen>
         final minStep = 0.3;
         final fitWidth = n <= 1 ? cardWidth : maxW / (1 + minStep * (n - 1));
         final width = fitWidth < cardWidth ? fitWidth : cardWidth;
+        _handCardWidth = width;
         // Pas entre deux cartes : 60 % de la largeur, resserré pour tenir sur la largeur.
         final room = n <= 1 ? 0.0 : (maxW - width) / (n - 1);
         final natural = 0.6 * width;
@@ -929,7 +937,8 @@ class _RamiScreenState extends State<RamiScreen>
   Widget _dragOverlay(double handWidth) {
     final drag = _drag!;
     final c = _c;
-    final width = handWidth * 1.15;
+    // Même taille que la carte dans la main (pas d'agrandissement pendant le glissement).
+    final width = _handCardWidth > 0 ? _handCardWidth : handWidth;
     rules.RamiCard? card;
     for (final item in c.hand) {
       if (item.id == drag.id) card = item;
