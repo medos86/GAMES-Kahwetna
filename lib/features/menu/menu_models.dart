@@ -81,8 +81,10 @@ class GameEntry {
 
   final String name;
   final String tunisian;
+
   /// Photo affichée sur l'écran de choix du niveau (avec trame de points).
   final String backgroundAsset;
+
   final Color gradientFrom;
   final Color gradientTo;
   final Color edgeColor;

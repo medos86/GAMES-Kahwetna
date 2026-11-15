@@ -51,30 +51,32 @@ void main() {
     expect(_byName('Rami').backgroundAsset, kMenuBackgroundAsset);
   });
 
-  testWidgets('le choix du niveau affiche la photo du jeu sélectionné',
-      (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    tester.view.physicalSize = const Size(390, 844) * 3;
-    tester.view.devicePixelRatio = 3;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+  testWidgets(
+    'le choix du niveau affiche la photo du jeu sélectionné',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      tester.view.physicalSize = const Size(390, 844) * 3;
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(const MaterialApp(home: MainMenuScreen()));
-    await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpWidget(const MaterialApp(home: MainMenuScreen()));
+      await tester.pump(const Duration(milliseconds: 300));
 
-    // Menu principal : fond commun.
-    expect(find.byKey(const ValueKey(kMenuBackgroundAsset)), findsOneWidget);
+      // Menu principal : fond commun.
+      expect(find.byKey(const ValueKey(kMenuBackgroundAsset)), findsOneWidget);
 
-    await tester.tap(find.text('Chkobba').first);
-    await tester.pump(const Duration(milliseconds: 500));
+      await tester.tap(find.text('Chkobba').first);
+      await tester.pump(const Duration(milliseconds: 500));
 
-    // Écran de niveau : photo de Chkobba.
-    expect(
-      find.byKey(const ValueKey('assets/images/game_bg/chkobba_sfax.webp')),
-      findsOneWidget,
-    );
+      // Écran de niveau : photo de Chkobba.
+      expect(
+        find.byKey(const ValueKey('assets/images/game_bg/chkobba_sfax.webp')),
+        findsOneWidget,
+      );
 
-    await tester.pumpWidget(const SizedBox());
-    await tester.pump();
-  });
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump();
+    },
+  );
 }
