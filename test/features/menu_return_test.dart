@@ -27,13 +27,13 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       // Police de test (Ahem) plus large : débordement de l'écran de niveau sans effet réel.
       tester.takeException();
-      expect(find.text(Strings.menuLaunch), findsOneWidget);
+      expect(find.bySemanticsLabel(Strings.menuLaunch), findsOneWidget);
 
-      await tester.tap(find.text(Strings.menuLaunch).first);
+      await tester.tap(find.bySemanticsLabel(Strings.menuLaunch).first);
       await tester.pump(const Duration(milliseconds: 500));
 
       expect(launched, isNotNull);
-      expect(find.text(Strings.menuLaunch), findsNothing);
+      expect(find.bySemanticsLabel(Strings.menuLaunch), findsNothing);
     },
   );
 }
