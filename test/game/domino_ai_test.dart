@@ -69,4 +69,45 @@ void main() {
     expect(a.tile?.id, b.tile?.id);
     expect(a.side, b.side);
   });
+
+  test('facile joue toujours une tuile et un côté légaux (#280)', () {
+    for (var seed = 0; seed < 30; seed++) {
+      final state = newDominoRound(
+        targetScore: 50,
+        random: math.Random(seed).nextDouble,
+      );
+      if (playableTiles(state, Player.opponent).isEmpty) continue;
+      for (var i = 0; i < 20; i++) {
+        final move = chooseOpponentMove(
+          state,
+          level: DominoAiLevel.facile,
+          random: () => i / 20,
+        );
+        if (move.action != DominoAction.play) continue;
+        expect(
+          playableTiles(state, Player.opponent).map((t) => t.id),
+          contains(move.tile!.id),
+        );
+        expect(canPlace(move.tile!, state, move.side!), isTrue);
+      }
+    }
+  });
+
+  test('facile = moyen hors bruit : tirage au-dessus du seuil (#280)', () {
+    for (var seed = 0; seed < 30; seed++) {
+      final state = newDominoRound(
+        targetScore: 50,
+        random: math.Random(seed).nextDouble,
+      );
+      final facile = chooseOpponentMove(
+        state,
+        level: DominoAiLevel.facile,
+        random: () => 0.99,
+      );
+      final moyen = chooseOpponentMove(state, random: () => 0.99);
+      expect(facile.action, moyen.action);
+      expect(facile.tile?.id, moyen.tile?.id);
+      expect(facile.side, moyen.side);
+    }
+  });
 }
