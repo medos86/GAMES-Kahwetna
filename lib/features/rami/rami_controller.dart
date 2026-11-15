@@ -11,6 +11,9 @@ import '../../core/strings.dart';
 /// Délai d'une action de l'IA (550 ms dans le source).
 const ramiAiDelay = Duration(milliseconds: 550);
 
+/// Durée vol d'un coup adverse (#368) : assez lente pour être suivie, sous [ramiAiDelay].
+const ramiAiFlightDuration = Duration(milliseconds: 480);
+
 /// Tri de la main : par couleur ou par valeur (sortHand du source).
 enum RamiSortMode { suit, rank }
 

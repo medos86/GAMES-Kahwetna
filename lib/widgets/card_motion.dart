@@ -12,6 +12,7 @@ class CardFlight {
     required this.to,
     required this.child,
     this.delay = Duration.zero,
+    this.duration = const Duration(milliseconds: 300),
     this.hold = false,
     this.landingId,
   });
@@ -20,6 +21,7 @@ class CardFlight {
   final Rect? Function() to;
   final Widget child;
   final Duration delay;
+  final Duration duration;
   final bool hold;
   final String? landingId;
 }
@@ -62,6 +64,7 @@ mixin CardMotionMixin<T extends StatefulWidget> on State<T> {
           to: flight.to,
           child: flight.child,
           delay: flight.delay,
+          duration: flight.duration,
           hold: flight.hold,
         );
         if (id == null) continue;

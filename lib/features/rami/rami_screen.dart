@@ -513,6 +513,7 @@ class _RamiScreenState extends State<RamiScreen>
             from: stock,
             to: () => _seatTarget(seat, stock),
             child: RamiBackView(width: stock.width),
+            duration: ramiAiFlightDuration,
           ));
         case RamiAiMove.takeDiscard:
           if (prev.discard.isEmpty) break;
@@ -521,6 +522,7 @@ class _RamiScreenState extends State<RamiScreen>
             from: pile,
             to: () => _seatTarget(seat, pile),
             child: RamiCardView(card: top, width: pile.width),
+            duration: ramiAiFlightDuration,
           ));
         case RamiAiMove.discard:
           final card = next.discard.last;
@@ -533,6 +535,7 @@ class _RamiScreenState extends State<RamiScreen>
             from: from,
             to: () => _rectOf(_key('discard')),
             child: RamiCardView(card: card, width: pile.width),
+            duration: ramiAiFlightDuration,
             landingId: card.id,
           ));
       }
