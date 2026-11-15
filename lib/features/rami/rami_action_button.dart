@@ -49,8 +49,9 @@ class RamiActionButton extends StatelessWidget {
                   label,
                   style: TextStyle(
                     color: foreground,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 11,
+                    fontFamily: 'Bangers',
+                    letterSpacing: 0.4,
+                    fontSize: 12,
                   ),
                 ),
               ],
