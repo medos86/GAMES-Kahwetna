@@ -9,8 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Au lancement d'un jeu, le menu se remet sur la liste des jeux (#365).
 // Bouton « Lancer la partie » : repéré par son libellé d'accessibilité.
 Finder _launchButton() => find.byWidgetPredicate(
-      (w) => w is Pressable && w.semanticLabel == Strings.menuLaunch,
-    );
+  (w) => w is Pressable && w.semanticLabel == Strings.menuLaunch,
+);
 
 void main() {
   testWidgets(
@@ -40,6 +40,10 @@ void main() {
 
       expect(launched, isNotNull);
       expect(_launchButton(), findsNothing);
+
+      // Démontage : termine les animations d'entrée du menu.
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 2));
     },
   );
 }
