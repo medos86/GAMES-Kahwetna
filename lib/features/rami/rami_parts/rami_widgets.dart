@@ -42,15 +42,6 @@ class _PlayerChip extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 4),
-                Text(
-                  '${game.scores[seat]}',
-                  style: TextStyle(
-                    color: ink,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
                 if (game.dealer == seat) ...[
                   const SizedBox(width: 3),
                   const CircleAvatar(
@@ -69,10 +60,18 @@ class _PlayerChip extends StatelessWidget {
               ],
             ),
             Text(
+              '${game.scores[seat]}',
+              style: TextStyle(
+                color: ink,
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            Text(
               seat == 0 ? opened : '×${game.hands[seat].length} · $opened',
               style: TextStyle(
                 color: ink.withValues(alpha: 0.75),
-                fontSize: 9,
+                fontSize: 10,
                 fontWeight: FontWeight.w700,
               ),
             ),
