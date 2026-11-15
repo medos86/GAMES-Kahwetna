@@ -44,43 +44,43 @@ class GameScaffold extends StatelessWidget {
     return MediaQuery.withClampedTextScaling(
       maxScaleFactor: maxGameTextScale,
       child: Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          background ?? const ColoredBox(color: Color(0xFF10234B)),
-          GameSafeArea(
-            bottom: false,
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: maxContentWidth),
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: bottomPadding),
-                  child: child,
-                ),
-              ),
-            ),
-          ),
-          if (showAd)
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: EdgeInsets.only(bottom: bottomInset),
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            background ?? const ColoredBox(color: Color(0xFF10234B)),
+            GameSafeArea(
+              bottom: false,
+              child: Align(
+                alignment: Alignment.topCenter,
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: (width - 16).clamp(0, 624).toDouble(),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: AdBanner(),
+                  constraints: const BoxConstraints(maxWidth: maxContentWidth),
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: bottomPadding),
+                    child: child,
                   ),
                 ),
               ),
             ),
-          ...overlays,
-        ],
-      ),
+            if (showAd)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: bottomInset),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: (width - 16).clamp(0, 624).toDouble(),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: AdBanner(),
+                    ),
+                  ),
+                ),
+              ),
+            ...overlays,
+          ],
+        ),
       ),
     );
   }
