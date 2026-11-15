@@ -493,7 +493,10 @@ class _RamiScreenState extends State<RamiScreen>
           flights.add(CardFlight(
             from: stock,
             to: () => _seatTarget(seat, stock),
-            child: RamiBackView(width: stock.width),
+            child: RamiBackView(
+              width: stock.width,
+              asset: ramiStockBackAsset(prev.stock),
+            ),
             duration: ramiAiFlightDuration,
           ));
         case RamiAiMove.takeDiscard:
@@ -611,7 +614,10 @@ class _RamiScreenState extends State<RamiScreen>
           CardFlight(
             from: from,
             to: () => _seatTarget(seat, from),
-            child: RamiBackView(width: from.width),
+            child: RamiBackView(
+              width: from.width,
+              asset: ramiStockBackAsset(g.stock),
+            ),
             delay: delay,
           ),
         );
@@ -632,7 +638,10 @@ class _RamiScreenState extends State<RamiScreen>
       CardFlight(
         from: from,
         to: () => _rectOf(_key('hand:$id')),
-        child: RamiBackView(width: width),
+        child: RamiBackView(
+          width: width,
+          asset: ramiBackAssetOf(drawn.first),
+        ),
         landingId: id,
       ),
     ]);
@@ -664,7 +673,10 @@ class _RamiScreenState extends State<RamiScreen>
                         ? Border.all(color: _goldColor, width: 3)
                         : null,
                   ),
-                  child: RamiBackView(width: width),
+                  child: RamiBackView(
+                    width: width,
+                    asset: ramiStockBackAsset(g.stock),
+                  ),
                 ),
               ),
             ),
