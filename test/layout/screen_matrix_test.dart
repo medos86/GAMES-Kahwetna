@@ -54,6 +54,9 @@ final _screens = <String, Widget Function()>{
 
 // Dépassements connus, suivis dans #340 : à retirer au fur et à mesure
 // de leur correction. Toute autre combinaison en échec bloque la CI.
+// TEMP (#340) : false = toutes les combinaisons s'exécutent en CI.
+const _skipKnown = false;
+
 const _knownOverflows = <String>{
   'Chkobba · Galaxy S24 · texte x1.0',
   'Chkobba · Galaxy S24 · texte x1.3',
@@ -176,7 +179,7 @@ void main() {
         testWidgets(
           name,
           (tester) => _pump(tester, device, scale, entry.value()),
-          skip: false, // TEMP: tous les cas en CI pendant la correction (#340)
+          skip: _skipKnown && _knownOverflows.contains(name),
         );
       }
     }

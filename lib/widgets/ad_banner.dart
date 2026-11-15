@@ -22,11 +22,11 @@ class AdBanner extends StatelessWidget {
     return MediaQuery.withClampedTextScaling(
       minScaleFactor: 1,
       maxScaleFactor: maxTextScale,
-      child: _buildBanner(),
+      child: _buildBanner(context),
     );
   }
 
-  Widget _buildBanner() {
+  Widget _buildBanner(BuildContext context) {
     return Container(
       // Hauteur fixe : la bannière ne change jamais de taille.
       height: kAdBannerHeight,
