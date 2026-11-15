@@ -114,3 +114,4 @@ void main() {
     expect(c.choiceOpen, isFalse);
     c.dispose();
   });
+}
