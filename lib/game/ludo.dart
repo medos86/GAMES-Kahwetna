@@ -473,6 +473,33 @@ LudoState moveToken(LudoState state, String tokenId) {
   return _passTurn(next);
 }
 
+/// Fin de partie tout de suite (#387) : couleurs restantes classées
+/// par avancée totale de leurs pions, la plus avancée d'abord.
+LudoState endLudoGameNow(LudoState state) {
+  if (state.phase == LudoPhase.end) return state;
+  final remaining = [
+    for (final color in LudoColor.values)
+      if (!state.rankings.contains(color)) color,
+  ];
+  int total(LudoColor color) {
+    var sum = 0;
+    for (final token in state.tokens) {
+      if (token.color == color) sum += token.progress;
+    }
+    return sum;
+  }
+
+  remaining.sort((a, b) {
+    final byProgress = total(b).compareTo(total(a));
+    return byProgress != 0 ? byProgress : a.index.compareTo(b.index);
+  });
+  return state.copyWith(
+    rankings: [...state.rankings, ...remaining],
+    phase: LudoPhase.end,
+    sixes: 0,
+  );
+}
+
 bool _isThreatened(LudoState state, LudoColor color, int index) =>
     state.tokens.any((item) {
       if (item.color == color) return false;

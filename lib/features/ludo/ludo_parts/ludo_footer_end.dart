@@ -262,3 +262,77 @@ class _EndDialog extends StatelessWidget {
     );
   }
 }
+
+/// Tous les humains sont arrivés : finir la partie ou voir la fin (#387).
+class _ChoiceDialog extends StatelessWidget {
+  const _ChoiceDialog({required this.onFinish, required this.onShowEnd});
+
+  final VoidCallback onFinish;
+  final VoidCallback onShowEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: const Color(0xB3052A52),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 380),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0B3F7A),
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: const Color(0xFFFFD653), width: 2),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Tous tes pions sont arrivés !',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Finir la partie avec les autres, ou voir la fin ?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFFFFE17B),
+                        foregroundColor: const Color(0xFF3D351F),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      onPressed: onFinish,
+                      child: const Text(
+                        'Finir la partie',
+                        style: TextStyle(fontWeight: FontWeight.w900),
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: onShowEnd,
+                    child: const Text(
+                      'Voir la fin',
+                      style: TextStyle(color: Colors.white60),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

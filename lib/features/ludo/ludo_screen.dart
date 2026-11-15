@@ -171,6 +171,13 @@ class _LudoScreenState extends State<LudoScreen> {
                     onMenu: () => Navigator.of(context).maybePop(),
                   ),
                 ),
+              if (c.choiceOpen)
+                Positioned.fill(
+                  child: _ChoiceDialog(
+                    onFinish: c.finishGame,
+                    onShowEnd: c.showEnd,
+                  ),
+                ),
             ],
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
