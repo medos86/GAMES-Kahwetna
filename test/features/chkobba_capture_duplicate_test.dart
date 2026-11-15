@@ -56,7 +56,8 @@ void main() {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 400)),
     );
-    await tester.pump(const Duration(seconds: 3));
+    // Donne initiale terminée avant de jouer (sinon son vol se superpose).
+    await tester.pump(const Duration(seconds: 8));
 
     final play = tester.widget<ChkobbaCardFace>(
       find.byWidgetPredicate(
