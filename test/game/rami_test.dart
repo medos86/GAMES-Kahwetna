@@ -274,7 +274,7 @@ void main() {
 
     test('pas de prise de la défausse pendant la première tournée', () {
       final s = inPlay(
-        fixedDeal().copyWith(phase: RamiPhase.draw),
+        fixedDeal(),
         hands: [
           [c(RamiSuit.batons, 2)],
           [c(RamiSuit.coupes, 2)],
@@ -288,20 +288,17 @@ void main() {
     });
 
     test('la première tournée se termine au passage du donneur', () {
-      RamiState playAt(int seat) => inPlay(
-            fixedDeal(),
-            hands: [
-              [c(RamiSuit.coupes, 2)],
-              [c(RamiSuit.coupes, 3)],
-              [c(RamiSuit.coupes, 4)],
-              [c(RamiSuit.coupes, 5)],
-            ]
-              ..[seat] = [
-                c(RamiSuit.epees, 2, 'x'),
-                c(RamiSuit.coupes, 6, 'y'),
-              ],
-            firstTour: true,
-          ).copyWith(turn: seat);
+      RamiState playAt(int seat) {
+        final hands = [
+          [c(RamiSuit.coupes, 2)],
+          [c(RamiSuit.coupes, 3)],
+          [c(RamiSuit.coupes, 4)],
+          [c(RamiSuit.coupes, 5)],
+        ];
+        hands[seat] = [c(RamiSuit.epees, 2, 'x'), c(RamiSuit.coupes, 6, 'y')];
+        final s = inPlay(fixedDeal(), hands: hands, firstTour: true);
+        return s.copyWith(turn: seat);
+      }
 
       expect(discardCard(playAt(1), 'x').firstTour, isTrue);
       expect(discardCard(playAt(3), 'x').firstTour, isFalse);
