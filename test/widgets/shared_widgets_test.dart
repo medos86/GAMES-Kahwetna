@@ -86,7 +86,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: ResultDialog(
-            style: ResultDialogStyle.dark,
+            style: ResultDialogStyle.bd,
             title: 'Victoire !',
             actions: [
               ElevatedButton(onPressed: () {}, child: const Text('Rejouer')),

@@ -2,21 +2,28 @@ import 'dart:ui';
 
 import 'package:material_ui/material_ui.dart';
 
-/// Deux styles de récapitulatif (guide §8).
+import '../core/theme/comic_palette.dart';
+
+/// Style du récapitulatif (issue #295).
+/// Un seul rendu BD désormais : papier, encre noire, titre en Bangers.
+/// Les valeurs [comicGreen] et [dark] sont conservées pour compatibilité et rendent le même style BD.
 enum ResultDialogStyle {
-  /// Vert comic : Chkobba, Coinche, Rami.
+  /// Style BD (à utiliser pour tout nouvel écran).
+  bd,
+
+  /// Ancien style vert comic (obsolète) : rendu identique à [bd].
   comicGreen,
 
-  /// Sombre : Domino, Ludo.
+  /// Ancien style sombre (obsolète) : rendu identique à [bd].
   dark,
 }
 
-/// Boîte de dialogue de fin de manche / de partie.
+/// Boîte de dialogue de fin de manche / de partie, en style BD (issue #295).
 /// Affichée par [ResultDialog.show] sur fond flouté (4 px) et assombri.
 class ResultDialog extends StatelessWidget {
   const ResultDialog({
     super.key,
-    required this.style,
+    this.style = ResultDialogStyle.bd,
     required this.title,
     this.icon,
     this.children = const [],
@@ -60,12 +67,6 @@ class ResultDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isGreen = style == ResultDialogStyle.comicGreen;
-    final background =
-        isGreen ? const Color(0xFF059669) : const Color(0xFF0B3F7A);
-    final border = isGreen ? const Color(0xFF000000) : const Color(0xFFFFD653);
-    final titleColor = isGreen ? Colors.white : const Color(0xFFFFE681);
-
     return Material(
       color: Colors.transparent,
       child: Container(
@@ -73,27 +74,27 @@ class ResultDialog extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
         constraints: const BoxConstraints(maxWidth: 420),
         decoration: BoxDecoration(
-          color: background,
+          color: ComicPalette.paper,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: border, width: 4),
-          boxShadow: isGreen
-              ? const [BoxShadow(color: Colors.black, offset: Offset(0, 7))]
-              : null,
+          border: Border.all(color: ComicPalette.ink, width: 4),
+          boxShadow: const [
+            BoxShadow(color: ComicPalette.ink, offset: Offset(0, 7)),
+          ],
         ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (icon != null) Icon(icon, size: 40, color: titleColor),
+              if (icon != null) Icon(icon, size: 40, color: ComicPalette.ink),
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'RobotoSlab',
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  color: titleColor,
+                style: const TextStyle(
+                  fontFamily: 'Bangers',
+                  fontSize: 32,
+                  letterSpacing: 1,
+                  color: ComicPalette.ink,
                 ),
               ),
               const SizedBox(height: 12),
