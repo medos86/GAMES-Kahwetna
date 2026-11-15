@@ -126,7 +126,7 @@ class _DominoScreenState extends State<DominoScreen> {
                     onMenu: () => Navigator.of(context).maybePop(),
                   ),
                   // Paysage : espacement réduit pour tenir dans la hauteur (#344).
-                  SizedBox(height: sm ? unit * 0.5 : unit),
+                  SizedBox(height: sm ? unit * 0.25 : unit),
                   _ScoreStrip(
                     unit: unit,
                     game: game,
@@ -135,12 +135,12 @@ class _DominoScreenState extends State<DominoScreen> {
                     onDrawTap: _controller.drawOrPass,
                     mustDraw: _controller.mustDraw,
                   ),
-                  SizedBox(height: unit * 0.6),
+                  SizedBox(height: unit * (sm ? 0.3 : 0.6)),
                   _OpponentHand(
                     unit: unit,
                     count: game.hands[Player.opponent]!.length,
                   ),
-                  SizedBox(height: unit * 0.6),
+                  SizedBox(height: unit * (sm ? 0.3 : 0.6)),
                   Expanded(
                     child: _Table(
                       unit: unit,
@@ -148,7 +148,7 @@ class _DominoScreenState extends State<DominoScreen> {
                       controller: _controller,
                     ),
                   ),
-                  SizedBox(height: unit * 0.6),
+                  SizedBox(height: unit * (sm ? 0.3 : 0.6)),
                   _Footer(
                     unit: unit,
                     sm: sm,
