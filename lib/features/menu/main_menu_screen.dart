@@ -206,7 +206,12 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         backgroundColor: const Color(0xFF2BB8EA),
         body: Stack(
           children: [
-            _Background(difficulty: _difficulty),
+            _Background(
+              difficulty: _difficulty,
+              imageAsset: _screen == _MenuScreen.difficulty
+                  ? _selected.backgroundAsset
+                  : kMenuBackgroundAsset,
+            ),
             // Trame de points du menu : radial-gradient(#17203f 1.2px) 7px, opacité 0.07.
             const Positioned.fill(
               child: IgnorePointer(

@@ -61,6 +61,9 @@ final difficultyOptions = <DifficultyOption>[
   ),
 ];
 
+/// Fond commun du menu et des jeux sans photo dédiée.
+const kMenuBackgroundAsset = 'assets/images/background.webp';
+
 class GameEntry {
   const GameEntry({
     required this.name,
@@ -73,10 +76,13 @@ class GameEntry {
     required this.targets,
     required this.defaultTarget,
     this.available = true,
+    this.backgroundAsset = kMenuBackgroundAsset,
   });
 
   final String name;
   final String tunisian;
+  /// Photo affichée sur l'écran de choix du niveau (avec trame de points).
+  final String backgroundAsset;
   final Color gradientFrom;
   final Color gradientTo;
   final Color edgeColor;
@@ -106,6 +112,7 @@ const gameEntries = <GameEntry>[
     route: '/game',
     targets: [11, 21],
     defaultTarget: 11,
+    backgroundAsset: 'assets/images/game_bg/chkobba_sfax.webp',
   ),
   GameEntry(
     name: 'Domino',
@@ -117,6 +124,7 @@ const gameEntries = <GameEntry>[
     route: '/domino',
     targets: [50, 100, 200],
     defaultTarget: 50,
+    backgroundAsset: 'assets/images/game_bg/domino_medina_tunis.webp',
   ),
   GameEntry(
     name: 'Belote',
@@ -128,6 +136,7 @@ const gameEntries = <GameEntry>[
     route: '/coinche',
     targets: [500, 1000],
     defaultTarget: 1000,
+    backgroundAsset: 'assets/images/game_bg/coinche_kairouan.webp',
   ),
   GameEntry(
     name: 'Ludo',
