@@ -99,8 +99,8 @@ class LudoController extends PersistentGameController {
       _timer = Timer(ludoAutoMoveDelay, () => tapToken(tokenId));
       return;
     }
-    final aiTurn = _game.phase == LudoPhase.roll ||
-        _game.phase == LudoPhase.move;
+    final aiTurn =
+        _game.phase == LudoPhase.roll || _game.phase == LudoPhase.move;
     if (!aiTurn) return;
 
     _timer = Timer(ludoRollDelay(difficulty), () {
