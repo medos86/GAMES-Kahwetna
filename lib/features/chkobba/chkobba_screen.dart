@@ -122,6 +122,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
   }
 
   static const _capturePause = Duration(milliseconds: 320);
+
   /// Durée de la pose de la carte jouée sur la carte prise (#394).
   static const _landDuration = Duration(milliseconds: 300);
 
