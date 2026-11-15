@@ -63,4 +63,33 @@ void main() {
       const Duration(milliseconds: 600),
     );
   });
+
+  test('un seul pion jouable avance tout seul après 700 ms (#388)', () {
+    fakeAsync((async) {
+      final c = LudoController(
+        playerCount: 1,
+        difficulty: LudoAiLevel.facile,
+        random: () => 0.0,
+      );
+      final start = newLudoGame(LudoColor.blue);
+      final tokens = [
+        for (final t in start.tokens)
+          t.id == 'blue-0' ? t.copyWith(progress: 5) : t,
+      ];
+      final state = start.copyWith(
+        tokens: tokens,
+        phase: LudoPhase.move,
+        dice: 2,
+      );
+      c.applySnapshot(state.toJson());
+      c.startFresh();
+
+      async.elapse(const Duration(milliseconds: 699));
+      expect(c.game.tokens.firstWhere((t) => t.id == 'blue-0').progress, 5);
+
+      async.elapse(const Duration(milliseconds: 1));
+      expect(c.game.tokens.firstWhere((t) => t.id == 'blue-0').progress, 7);
+      c.dispose();
+    });
+  });
 }
