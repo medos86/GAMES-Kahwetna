@@ -1362,4 +1362,3 @@ class _SummaryDialog extends StatelessWidget {
     );
   }
 }
-
