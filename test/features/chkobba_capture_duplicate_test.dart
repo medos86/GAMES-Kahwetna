@@ -77,8 +77,13 @@ void main() {
         );
         final n = f.evaluate().length;
         if (n > 1) {
-          final pos = [for (var i = 0; i < n; i++) tester.getTopLeft(f.at(i))];
-          doubles.add('t=$t ms $id x$n $pos');
+          final desc = <String>[];
+          for (var i = 0; i < n; i++) {
+            final el = f.at(i).evaluate().first;
+            final inFlight = el.findAncestorWidgetOfExactType<Positioned>() != null;
+            desc.add('${tester.getTopLeft(f.at(i))} ${inFlight ? 'vol' : 'écran'}');
+          }
+          doubles.add('t=$t ms $id x$n $desc');
         }
       }
     }
