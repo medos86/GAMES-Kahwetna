@@ -136,6 +136,33 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     setState(() => _capturing.remove(id));
   }
 
+  /// Carte jouée : elle se pose sur la carte prise, puis part vers le tas (#394).
+  Future<void> _landThenPile(
+    ChkobbaCard card,
+    Rect from,
+    Rect landing,
+    GlobalKey winnerKey,
+  ) async {
+    try {
+      await flyCard(
+        context: context,
+        from: from,
+        to: () => landing,
+        child: ChkobbaCardFace(card: card),
+        duration: _landDuration,
+      );
+      await flyCard(
+        context: context,
+        from: landing,
+        to: () => rectOfKey(winnerKey),
+        child: ChkobbaCardFace(card: card),
+        occluder: _scoreboardRect,
+      );
+    } finally {
+      _release(card.id);
+    }
+  }
+
   /// Tout mouvement de carte : cartes jouées, captures, donne (#238).
   /// Une capture se lit en deux temps : la carte se pose sur le tapis,
   /// puis la carte et les cartes prises rejoignent le tas du gagnant.
@@ -226,24 +253,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
         );
         continue;
       }
-      // Pose sur la carte prise, puis vers le tas avec elle (#394).
-      unawaited(
-        flyCard(
-          context: context,
-          from: from,
-          to: () => landing,
-          child: ChkobbaCardFace(card: card),
-          duration: _landDuration,
-        ).then(
-          (_) => flyCard(
-            context: context,
-            from: landing,
-            to: () => rectOfKey(winnerKey),
-            child: ChkobbaCardFace(card: card),
-            occluder: _scoreboardRect,
-          ),
-        ).whenComplete(() => _release(card.id)),
-      );
+      unawaited(_landThenPile(card, from, landing, winnerKey));
     }
 
     // Cartes posées sans capture : vers leur case du tapis (après le rendu).
