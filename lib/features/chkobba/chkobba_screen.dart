@@ -126,6 +126,9 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
   /// Cartes prises encore en vol vers le tas : le compteur ne les compte pas (#354).
   final Set<String> _capturing = {};
 
+  /// Zone du tableau de score : les cartes qui vont au tas s'y enfoncent (#357).
+  Rect? _scoreboardRect() => rectOfKey(_key('scoreboard'));
+
   void _release(String id) {
     if (!mounted) return;
     setState(() => _capturing.remove(id));
@@ -174,6 +177,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
             child: ChkobbaCardFace(card: card),
             delay: _capturePause,
             hold: true,
+            occluder: _scoreboardRect,
           ).whenComplete(() => _release(card.id)),
         );
       }
@@ -228,6 +232,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
               child: ChkobbaCardFace(card: card),
               delay: _capturePause,
               hold: true,
+              occluder: _scoreboardRect,
             ).whenComplete(() => _release(card.id)),
           );
         }),
@@ -434,6 +439,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
               ),
             ),
             Padding(
+              key: _key('scoreboard'),
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
               child: _Scoreboard(
                 game: game,
