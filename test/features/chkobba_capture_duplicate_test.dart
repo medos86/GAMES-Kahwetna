@@ -65,29 +65,24 @@ void main() {
     );
     play.onTap!();
 
-    // Échantillonne chaque image pendant toute la capture.
-    var worst = {'batons-5': 0, 'coupes-5': 0};
-    var where = '';
+    // Échantillonne chaque image pendant toute la capture : on note chaque
+    // image où une carte apparaît plus d'une fois, avec la position des copies.
+    final doubles = <String>[];
     for (var t = 0; t < 1500; t += 25) {
       await tester.pump(const Duration(milliseconds: 25));
       expect(tester.takeException(), isNull);
-      for (final id in worst.keys) {
+      for (final id in ['batons-5', 'coupes-5']) {
         final f = find.byWidgetPredicate(
           (w) => w is ChkobbaCardFace && w.card.id == id,
         );
         final n = f.evaluate().length;
-        if (n > worst[id]!) {
-          worst[id] = n;
-          // Positions des copies à l'instant du pic, pour diagnostic.
-          where = '$id à t=$t ms : ${[
-            for (final e in f.evaluate())
-              tester.getTopLeft(find.byElementPredicate((x) => x == e)),
-          ]}';
+        if (n > 1) {
+          final pos = [for (var i = 0; i < n; i++) tester.getTopLeft(f.at(i))];
+          doubles.add('t=$t ms $id x$n $pos');
         }
       }
     }
-    expect(worst['batons-5'], lessThanOrEqualTo(1), reason: where);
-    expect(worst['coupes-5'], lessThanOrEqualTo(1), reason: where);
+    expect(doubles, isEmpty, reason: doubles.join('\n'));
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
