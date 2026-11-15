@@ -56,11 +56,11 @@ class GameStyle {
   final List<Color> chkobbaGradient;
   final List<Color> ayaGradient;
 
-  // Palette A (issue #64) : tapis violet-magenta, cadre noir, bannières jaune-orange et rose-jaune.
+  // Palette A (issue #64, révisée #311) : tapis bleu tunisien, zellige doré, cadre noir, bannières jaune-orange et rose-jaune.
   static const cartoon = GameStyle(
-    felt: Color(0xFF5B2BD6),
+    felt: Color(0xFF1676D2),
     frame: Color(0xFF000000),
-    zellige: Color(0xFF8E1AB8),
+    zellige: Color(0xFFFFE16B),
     zelligeAccent: Color(0xFFFFFFFF),
     outline: Color(0xFF000000),
     showZellige: true,
