@@ -256,7 +256,8 @@ class RamiController extends PersistentGameController {
       onMessage?.call(Strings.ramiFinishOrCancel);
       return;
     }
-    final failure = cardId == _game.takenId
+    // Carte prise non posée (ou la carte prise elle-même) : la défausse est bloquée.
+    final failure = _game.takenId != null
         ? Strings.ramiCannotDiscardTaken
         : Strings.ramiDiscardRefused;
     _apply(rules.discardCard(_game, cardId), failure);

@@ -1,5 +1,6 @@
-// Règle de la défausse : on ne prend la carte du dessus que si on peut la poser ce tour,
-// elle doit être posée, et elle peut être remise sur la défausse tant qu'elle n'est pas posée.
+// Règle de la défausse (#315) : le joueur peut toujours prendre la carte du dessus.
+// Avant ouverture, il doit la poser ou la remettre (rien d'autre ne se défausse en attendant).
+// Après ouverture, il n'est pas obligé de la poser. L'IA garde sa règle (canUseDiscardTop).
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/game/rami.dart';
 
@@ -35,8 +36,16 @@ void main() {
   ];
   final queenTop = c(RamiSuit.deniers, 12, 'qd');
 
+  final table = [
+    Meld(id: 'm1', cards: [
+      c(RamiSuit.epees, 5, 'e5'),
+      c(RamiSuit.epees, 6, 'e6'),
+      c(RamiSuit.epees, 7, 'e7'),
+    ]),
+  ];
+
   group('prise de la défausse', () {
-    test('refusée si la carte du dessus ne sert à rien', () {
+    test('acceptée même si la carte ne sert à rien (#315)', () {
       final state = withDiscard(
         [
           [c(RamiSuit.epees, 3, 'a'), c(RamiSuit.coupes, 5, 'b')],
@@ -46,8 +55,9 @@ void main() {
         ],
         c(RamiSuit.deniers, 2, 'top'),
       );
-      expect(canUseDiscardTop(state), isFalse);
-      expect(drawDiscard(state), same(state));
+      final drawn = drawDiscard(state);
+      expect(drawn.phase, RamiPhase.play);
+      expect(drawn.takenId, 'top');
     });
 
     test('hors ouverture, acceptée si elle ouvre avec la main', () {
@@ -60,56 +70,7 @@ void main() {
       expect(drawn.discard, isEmpty);
     });
 
-    test('hors ouverture, refusée si les points sont insuffisants', () {
-      // Seule la dame du dessus forme un brelan avec deux dames : 30 pts < 51.
-      final state = withDiscard(
-        [
-          [
-            c(RamiSuit.epees, 12, 'qs'),
-            c(RamiSuit.coupes, 12, 'qh'),
-            c(RamiSuit.epees, 3, 'x'),
-          ],
-          [],
-          [],
-          [],
-        ],
-        c(RamiSuit.batons, 12, 'qc'),
-      );
-      expect(canUseDiscardTop(state), isFalse);
-      expect(drawDiscard(state), same(state));
-    });
-
-    test('après ouverture, acceptée si elle se pose sur la table', () {
-      final table = [
-        Meld(id: 'm1', cards: [
-          c(RamiSuit.epees, 5, 'e5'),
-          c(RamiSuit.epees, 6, 'e6'),
-          c(RamiSuit.epees, 7, 'e7'),
-        ]),
-      ];
-      final state = withDiscard(
-        [
-          [c(RamiSuit.coupes, 2, 'h2'), c(RamiSuit.batons, 9, 'c9')],
-          [],
-          [],
-          [],
-        ],
-        c(RamiSuit.epees, 8, 'e8'),
-        opened: [true, false, false, false],
-        table: table,
-      );
-      expect(canUseDiscardTop(state), isTrue);
-      expect(drawDiscard(state).takenId, 'e8');
-    });
-
-    test('après ouverture, refusée si elle ne se pose nulle part', () {
-      final table = [
-        Meld(id: 'm1', cards: [
-          c(RamiSuit.epees, 5, 'e5'),
-          c(RamiSuit.epees, 6, 'e6'),
-          c(RamiSuit.epees, 7, 'e7'),
-        ]),
-      ];
+    test('après ouverture, acceptée même si elle ne se pose nulle part', () {
       final state = withDiscard(
         [
           [c(RamiSuit.coupes, 2, 'h2'), c(RamiSuit.batons, 9, 'c9')],
@@ -121,8 +82,7 @@ void main() {
         opened: [true, false, false, false],
         table: table,
       );
-      expect(canUseDiscardTop(state), isFalse);
-      expect(drawDiscard(state), same(state));
+      expect(drawDiscard(state).takenId, 'd2');
     });
   });
 
@@ -141,7 +101,6 @@ void main() {
         [openHand, [], [], []],
         queenTop,
       ));
-      // Après la prise, la carte est en main : on la pose en combinaison puis on tente de la remettre.
       final posed = poseMeld(drawn, ['qd', 'qs', 'qh']);
       expect(posed.hands[0].any((card) => card.id == 'qd'), isFalse);
       expect(returnTaken(posed), same(posed));
@@ -158,10 +117,41 @@ void main() {
     });
   });
 
-  group('la carte prise doit être posée', () {
+  group('blocage tant que la carte prise est en main', () {
+    test('hors ouverture, défausser une autre carte est refusé', () {
+      final drawn = drawDiscard(withDiscard(
+        [
+          [c(RamiSuit.epees, 3, 'a'), c(RamiSuit.coupes, 5, 'b')],
+          [],
+          [],
+          [],
+        ],
+        c(RamiSuit.deniers, 2, 'top'),
+      ));
+      expect(discardCard(drawn, 'a'), same(drawn));
+    });
+
     test('défausser la carte prise est refusé tant qu’elle est en main', () {
       final drawn = drawDiscard(withDiscard([openHand, [], [], []], queenTop));
       expect(discardCard(drawn, 'qd'), same(drawn));
+    });
+
+    test('après ouverture, défausser une autre carte reste permis', () {
+      final drawn = drawDiscard(withDiscard(
+        [
+          [c(RamiSuit.coupes, 2, 'h2'), c(RamiSuit.batons, 9, 'c9')],
+          [],
+          [],
+          [],
+        ],
+        c(RamiSuit.deniers, 2, 'd2'),
+        opened: [true, false, false, false],
+        table: table,
+      ));
+      final next = discardCard(drawn, 'h2');
+      expect(next, isNot(same(drawn)));
+      expect(next.phase, RamiPhase.draw);
+      expect(next.discard.last.id, 'h2');
     });
   });
 
@@ -181,13 +171,6 @@ void main() {
     });
 
     test("l'IA prend une défausse posable et la pose sur la table", () {
-      final table = [
-        Meld(id: 'm1', cards: [
-          c(RamiSuit.epees, 5, 'e5'),
-          c(RamiSuit.epees, 6, 'e6'),
-          c(RamiSuit.epees, 7, 'e7'),
-        ]),
-      ];
       final state = withDiscard(
         [
           [c(RamiSuit.coupes, 2, 'h2'), c(RamiSuit.batons, 9, 'c9')],
