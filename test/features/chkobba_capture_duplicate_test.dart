@@ -64,6 +64,18 @@ void main() {
         (w) => w is ChkobbaCardFace && w.card.id == 'batons-5',
       ),
     );
+    // Avant de jouer : aucune copie ne doit exister (sinon, vol de donne).
+    final before = <String>[];
+    for (var t = 0; t < 1000; t += 100) {
+      await tester.pump(const Duration(milliseconds: 100));
+      final n = find
+          .byWidgetPredicate(
+            (w) => w is ChkobbaCardFace && w.card.id == 'batons-5',
+          )
+          .evaluate()
+          .length;
+      if (n > 0) before.add('avant jeu t=$t ms batons-5 x$n');
+    }
     play.onTap!();
 
     // Échantillonne chaque image pendant toute la capture : on note chaque
@@ -91,7 +103,7 @@ void main() {
         }
       }
     }
-    expect(doubles, isEmpty, reason: doubles.join('\n'));
+    expect(doubles, isEmpty, reason: '${before.join('\n')}\n${doubles.join('\n')}');
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
