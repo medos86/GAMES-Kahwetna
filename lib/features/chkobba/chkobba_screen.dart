@@ -214,7 +214,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       if (from == null || winnerKey == null) continue;
       _capturing.add(card.id);
       if (landing == null) {
-        // Rien à poser sur le tapis : la carte jouée rejoint directement le tas.
+        // Rien à poser : la carte jouée rejoint directement le tas.
         unawaited(
           flyCard(
             context: context,
@@ -226,7 +226,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
         );
         continue;
       }
-      // La carte jouée se pose sur la carte prise, puis part avec elle vers le tas (#394).
+      // Pose sur la carte prise, puis vers le tas avec elle (#394).
       unawaited(
         flyCard(
           context: context,

@@ -51,7 +51,9 @@ class ChkobbaTable extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                DecoratedBox(decoration: BoxDecoration(color: ScobaPalette.tapisVert)),
+                DecoratedBox(
+                  decoration: BoxDecoration(color: ScobaPalette.tapisVert),
+                ),
                 CustomPaint(painter: _DotsPainter()),
                 if (style.showZellige)
                   CustomPaint(painter: _ComicBorderPainter(style)),
