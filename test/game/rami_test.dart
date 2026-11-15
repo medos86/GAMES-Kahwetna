@@ -142,20 +142,32 @@ void main() {
 
   group('donne', () {
     test(
-      'quatre mains de 13, une pioche et une défausse, 106 cartes au total',
+      'quatre mains de 13, une pioche et une défausse, 108 cartes au total',
       () {
         final s = fixedDeal();
         expect([for (final h in s.hands) h.length], [13, 13, 13, 13]);
         expect(s.discard.length, 1);
-        expect(s.stock.length, 53);
+        expect(s.stock.length, 55);
         final ids = {
           for (final h in s.hands) ...h.map((card) => card.id),
           ...s.stock.map((card) => card.id),
           ...s.discard.map((card) => card.id),
         };
-        expect(ids.length, 106);
+        expect(ids.length, 108);
       },
     );
+
+    test('quatre jokers dans le jeu', () {
+      final s = fixedDeal();
+      final all = [
+        for (final h in s.hands) ...h,
+        ...s.stock,
+        ...s.discard,
+      ];
+      final jokers = all.where((card) => card.suit == null).toList();
+      expect(jokers.length, 4);
+      expect(jokers.map((card) => card.id).toSet().length, 4);
+    });
   });
 
   group('ouverture', () {
