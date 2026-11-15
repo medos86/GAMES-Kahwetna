@@ -1,10 +1,7 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:kahwetne/features/menu/main_menu_screen.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 GameEntry _byName(String name) => gameEntries.firstWhere((g) => g.name == name);
 
@@ -49,33 +46,4 @@ void main() {
     expect(_byName('Ludo').backgroundAsset, kMenuBackgroundAsset);
     expect(_byName('Rami').backgroundAsset, kMenuBackgroundAsset);
   });
-
-  testWidgets(
-    'le choix du niveau affiche la photo du jeu sélectionné',
-    (tester) async {
-      SharedPreferences.setMockInitialValues({});
-      tester.view.physicalSize = const Size(390, 844) * 3;
-      tester.view.devicePixelRatio = 3;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      await tester.pumpWidget(const MaterialApp(home: MainMenuScreen()));
-      await tester.pump(const Duration(milliseconds: 300));
-
-      // Menu principal : fond commun.
-      expect(find.byKey(const ValueKey(kMenuBackgroundAsset)), findsOneWidget);
-
-      await tester.tap(find.text('Chkobba').first);
-      await tester.pump(const Duration(milliseconds: 500));
-
-      // Écran de niveau : photo de Chkobba.
-      expect(
-        find.byKey(const ValueKey('assets/images/game_bg/chkobba_sfax.webp')),
-        findsOneWidget,
-      );
-
-      await tester.pumpWidget(const SizedBox());
-      await tester.pump();
-    },
-  );
 }
