@@ -250,6 +250,8 @@ List<RamiCard> _createDeck(RandomDouble random) {
   }
   cards.add(const RamiCard(id: 'joker-0', suit: null, rank: 0));
   cards.add(const RamiCard(id: 'joker-1', suit: null, rank: 0));
+  cards.add(const RamiCard(id: 'joker-2', suit: null, rank: 0));
+  cards.add(const RamiCard(id: 'joker-3', suit: null, rank: 0));
   return shuffled(cards, random);
 }
 
