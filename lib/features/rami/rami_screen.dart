@@ -21,6 +21,7 @@ import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/card_motion.dart';
 import '../../widgets/difficulty_chip.dart';
+import '../../widgets/dialog_button.dart';
 import '../../widgets/game_header.dart';
 import 'rami_action_button.dart';
 
@@ -1104,7 +1105,7 @@ class _RamiScreenState extends State<RamiScreen>
                   ),
                   const SizedBox(height: 20),
                   if (matchWinner != null) ...[
-                    _DialogButton(
+                    DialogButton(
                       label: Strings.replay,
                       onTap: () => _deal(_c.restart),
                     ),
@@ -1116,7 +1117,7 @@ class _RamiScreenState extends State<RamiScreen>
                       ),
                     ),
                   ] else
-                    _DialogButton(
+                    DialogButton(
                       label: Strings.nextRoundButton,
                       onTap: () => _deal(_c.nextRound),
                     ),
@@ -1273,25 +1274,3 @@ class _MeldView extends StatelessWidget {
   }
 }
 
-class _DialogButton extends StatelessWidget {
-  const _DialogButton({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: FilledButton(
-        style: FilledButton.styleFrom(
-          backgroundColor: _goldColor,
-          foregroundColor: const Color(0xFF3D351F),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-        ),
-        onPressed: onTap,
-        child: Text(label, style: const TextStyle(fontWeight: FontWeight.w900)),
-      ),
-    );
-  }
-}
