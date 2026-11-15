@@ -14,6 +14,9 @@ const ludoHumanOrder = [
   LudoColor.green,
 ];
 
+/// Délai avant qu'un pion unique jouable avance seul (#388).
+const ludoAutoMoveDelay = Duration(milliseconds: 700);
+
 /// Délai d'un tour de l'IA selon le niveau (valeurs du source : 1100 / 850 / 600 ms).
 Duration ludoRollDelay(LudoAiLevel level) => switch (level) {
       LudoAiLevel.facile => const Duration(milliseconds: 1100),
@@ -84,13 +87,20 @@ class LudoController extends PersistentGameController {
     notifyListeners();
   }
 
-  /// Une seule action IA programmée à la fois, reprogrammée après chaque changement.
+  /// Une seule action programmée à la fois, reprogrammée après chaque changement.
   void _reschedule() {
     _timer?.cancel();
     _timer = null;
     if (_disposed) return;
-    final aiTurn = !humanTurn &&
-        (_game.phase == LudoPhase.roll || _game.phase == LudoPhase.move);
+    if (humanTurn) {
+      // Un seul pion jouable : il avance tout seul après un court instant (#388).
+      if (_game.phase != LudoPhase.move || legalIds.length != 1) return;
+      final tokenId = legalIds.first;
+      _timer = Timer(ludoAutoMoveDelay, () => tapToken(tokenId));
+      return;
+    }
+    final aiTurn = _game.phase == LudoPhase.roll ||
+        _game.phase == LudoPhase.move;
     if (!aiTurn) return;
 
     _timer = Timer(ludoRollDelay(difficulty), () {
