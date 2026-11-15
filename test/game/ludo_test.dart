@@ -207,4 +207,38 @@ void main() {
       );
     });
   });
+
+  group('rejouer', () {
+    test('une capture donne un nouveau lancer au même joueur (#384)', () {
+      final state = makeState(
+        turn: LudoColor.blue,
+        dice: 1,
+        progress: {'blue-0': 22, 'red-0': 10},
+      );
+      final next = moveToken(state, 'blue-0');
+      expect(next.turn, LudoColor.blue);
+      expect(next.phase, LudoPhase.roll);
+    });
+
+    test('un pion qui arrive au centre donne un nouveau lancer (#385)', () {
+      final state = makeState(
+        turn: LudoColor.blue,
+        dice: 3,
+        progress: {'blue-0': 54},
+      );
+      final next = moveToken(state, 'blue-0');
+      expect(next.turn, LudoColor.blue);
+      expect(next.phase, LudoPhase.roll);
+    });
+
+    test('un coup sans capture ni arrivée passe le tour', () {
+      final state = makeState(
+        turn: LudoColor.blue,
+        dice: 2,
+        progress: {'blue-0': 5},
+      );
+      final next = moveToken(state, 'blue-0');
+      expect(next.turn, LudoColor.red);
+    });
+  });
 }
