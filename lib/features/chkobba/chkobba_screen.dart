@@ -194,28 +194,32 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     for (final (card, key) in captures) {
       final from = rectOfKey(key)!;
       // Temps 1 : la carte se pose au centre du tapis.
-      unawaited(
-        flyCard(
-          context: context,
-          from: from,
-          to: () => _centerOn(tableNow, from.size),
-          child: ChkobbaCardFace(card: card),
-        ),
+      final posed = flyCard(
+        context: context,
+        from: from,
+        to: () => _centerOn(tableNow, from.size),
+        child: ChkobbaCardFace(card: card),
       );
-      // Temps 2 : elle rejoint le tas avec les cartes prises.
-      final mid = _centerOn(tableNow, from.size);
-      if (mid != null && winnerKey != null) {
-        unawaited(
-          flyCard(
-            context: context,
-            from: mid,
-            to: () => rectOfKey(winnerKey),
-            child: ChkobbaCardFace(card: card),
-            delay: _capturePause,
-            hold: true,
-          ),
-        );
-      }
+      // Temps 2 : elle rejoint le tas avec les cartes prises. Le second vol
+      // part seulement quand le premier est arrivé : sinon deux copies
+      // restent au centre pendant la pause (#350).
+      unawaited(
+        posed.then((_) {
+          if (!mounted || winnerKey == null) return;
+          final mid = _centerOn(tableNow, from.size);
+          if (mid == null) return;
+          unawaited(
+            flyCard(
+              context: context,
+              from: mid,
+              to: () => rectOfKey(winnerKey),
+              child: ChkobbaCardFace(card: card),
+              delay: _capturePause,
+              hold: true,
+            ),
+          );
+        }),
+      );
     }
 
     // Cartes posées sans capture : vers leur case du tapis (après le rendu).
