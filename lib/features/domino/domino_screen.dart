@@ -135,12 +135,12 @@ class _DominoScreenState extends State<DominoScreen> {
                     onDrawTap: _controller.drawOrPass,
                     mustDraw: _controller.mustDraw,
                   ),
-                  SizedBox(height: unit * (sm ? 0.3 : 0.6)),
+                  SizedBox(height: unit * (sm ? 0.2 : 0.6)),
                   _OpponentHand(
                     unit: unit,
                     count: game.hands[Player.opponent]!.length,
                   ),
-                  SizedBox(height: unit * (sm ? 0.3 : 0.6)),
+                  SizedBox(height: unit * (sm ? 0.2 : 0.6)),
                   Expanded(
                     child: _Table(
                       unit: unit,
@@ -148,7 +148,7 @@ class _DominoScreenState extends State<DominoScreen> {
                       controller: _controller,
                     ),
                   ),
-                  SizedBox(height: unit * (sm ? 0.3 : 0.6)),
+                  SizedBox(height: unit * (sm ? 0.2 : 0.6)),
                   _Footer(
                     unit: unit,
                     sm: sm,
