@@ -95,7 +95,7 @@ class _DominoScreenState extends State<DominoScreen> {
               fit: StackFit.expand,
               children: [
                 const ColoredBox(color: Color(0xFF8B4513)),
-                const _WoodBackground(),
+                const _WoodShadeBackground(),
                 const DotPattern(
                   spacing: 4,
                   radius: 1,
@@ -169,8 +169,8 @@ class _DominoScreenState extends State<DominoScreen> {
   }
 }
 
-class _WoodBackground extends StatelessWidget {
-  const _WoodBackground();
+class _WoodShadeBackground extends StatelessWidget {
+  const _WoodShadeBackground();
 
   @override
   Widget build(BuildContext context) {
