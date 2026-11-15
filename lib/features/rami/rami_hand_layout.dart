@@ -1,3 +1,5 @@
+import '../../game/rami.dart' as rules;
+
 /// Facteur d'agrandissement des cartes de la main (#314 : plus grandes, lisibles).
 const double ramiHandCardScale = 1.6;
 
@@ -78,4 +80,21 @@ double ramiTableCardWidth(
     }
   }
   return lo;
+}
+
+/// Coup d'un adversaire (#316) : détecté en comparant l'état avant et après.
+enum RamiAiMove { drawStock, takeDiscard, discard }
+
+/// Coups joués par l'adversaire qui vient de jouer (`prev.turn`), pour animer sa pioche
+/// et sa défausse. Vide si c'était le tour du joueur ou si rien n'a bougé dans la pioche/défausse.
+List<RamiAiMove> ramiAiMoves(rules.RamiState prev, rules.RamiState next) {
+  if (prev.turn == 0) return const [];
+  final moves = <RamiAiMove>[];
+  if (next.stock.length < prev.stock.length) moves.add(RamiAiMove.drawStock);
+  if (next.discard.length < prev.discard.length) {
+    moves.add(RamiAiMove.takeDiscard);
+  } else if (next.discard.length > prev.discard.length) {
+    moves.add(RamiAiMove.discard);
+  }
+  return moves;
 }

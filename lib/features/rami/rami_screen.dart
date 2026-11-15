@@ -472,7 +472,54 @@ class _RamiScreenState extends State<RamiScreen>
         if (!still.contains(card.id)) card,
     ];
     if (leaving.isNotEmpty) _flyLeaving(leaving);
-    if (_dealPending) _distribute();
+    if (_dealPending) {
+      _distribute();
+    } else if (prevGame != null) {
+      _flyAiMoves(prevGame, g);
+    }
+  }
+
+  /// Coups des adversaires (#316) : pioche et défausse volent depuis / vers leur place.
+  void _flyAiMoves(rules.RamiState prev, rules.RamiState next) {
+    final seat = prev.turn;
+    final chip = _rectOf(_key('seat:$seat'));
+    final pile = _rectOf(_key('discard'));
+    if (chip == null || pile == null) return;
+    final flights = <CardFlight>[];
+    for (final move in ramiAiMoves(prev, next)) {
+      switch (move) {
+        case RamiAiMove.drawStock:
+          final stock = _rectOf(_key('stock'));
+          if (stock == null) break;
+          flights.add(CardFlight(
+            from: stock,
+            to: () => _seatTarget(seat, stock),
+            child: RamiBackView(width: stock.width),
+          ));
+        case RamiAiMove.takeDiscard:
+          if (prev.discard.isEmpty) break;
+          final top = prev.discard.last;
+          flights.add(CardFlight(
+            from: pile,
+            to: () => _seatTarget(seat, pile),
+            child: RamiCardView(card: top, width: pile.width),
+          ));
+        case RamiAiMove.discard:
+          final card = next.discard.last;
+          final from = Rect.fromCenter(
+            center: chip.center,
+            width: pile.width,
+            height: pile.height,
+          );
+          flights.add(CardFlight(
+            from: from,
+            to: () => _rectOf(_key('discard')),
+            child: RamiCardView(card: card, width: pile.width),
+            landingId: card.id,
+          ));
+      }
+    }
+    if (flights.isNotEmpty) flyAfterRender(flights);
   }
 
   /// Vol des cartes qui quittent la main vers leur destination (défausse, combinaison, tapis).
