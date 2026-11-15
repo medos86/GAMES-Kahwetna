@@ -122,6 +122,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
   }
 
   static const _capturePause = Duration(milliseconds: 320);
+  /// Durée de la pose de la carte jouée sur la carte prise (#394).
+  static const _landDuration = Duration(milliseconds: 300);
 
   /// Cartes prises encore en vol vers le tas : le compteur ne les compte pas (#354).
   final Set<String> _capturing = {};
@@ -158,11 +160,16 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     bool wonNow(String id) =>
         taker != null && (game.won[taker]?.any((c) => c.id == id) ?? false);
 
-    // Cartes prises : elles quittent le tapis vers le tas du gagnant, après la pose.
+    // Cartes prises : la carte jouée se pose sur la carte du tapis (#394),
+    // puis cartes jouées et cartes prises rejoignent le tas du gagnant.
     final gone = [
       for (final card in beforeTable)
         if (game.table.every((t) => t.id != card.id)) card,
     ];
+    // Case de la première carte prise : là où la carte jouée se pose.
+    final landing = gone.isEmpty
+        ? null
+        : rectOfKey(_key('tbl:${gone.first.id}'));
     if (winnerKey != null) {
       for (final card in gone) {
         final from = rectOfKey(_key('tbl:${card.id}'));
@@ -174,7 +181,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
             from: from,
             to: () => rectOfKey(winnerKey),
             child: ChkobbaCardFace(card: card),
-            delay: _capturePause,
+            delay: landing == null ? _capturePause : _landDuration,
             hold: true,
             occluder: _scoreboardRect,
           ).whenComplete(() => _release(card.id)),
@@ -206,14 +213,35 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       final from = rectOfKey(key);
       if (from == null || winnerKey == null) continue;
       _capturing.add(card.id);
-      // La carte jouée rejoint directement le tas du gagnant (#362).
+      if (landing == null) {
+        // Rien à poser sur le tapis : la carte jouée rejoint directement le tas.
+        unawaited(
+          flyCard(
+            context: context,
+            from: from,
+            to: () => rectOfKey(winnerKey),
+            child: ChkobbaCardFace(card: card),
+            occluder: _scoreboardRect,
+          ).whenComplete(() => _release(card.id)),
+        );
+        continue;
+      }
+      // La carte jouée se pose sur la carte prise, puis part avec elle vers le tas (#394).
       unawaited(
         flyCard(
           context: context,
           from: from,
-          to: () => rectOfKey(winnerKey),
+          to: () => landing,
           child: ChkobbaCardFace(card: card),
-          occluder: _scoreboardRect,
+          duration: _landDuration,
+        ).then(
+          (_) => flyCard(
+            context: context,
+            from: landing,
+            to: () => rectOfKey(winnerKey),
+            child: ChkobbaCardFace(card: card),
+            occluder: _scoreboardRect,
+          ),
         ).whenComplete(() => _release(card.id)),
       );
     }

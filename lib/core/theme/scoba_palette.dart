@@ -9,6 +9,9 @@ abstract final class ScobaPalette {
   static const Color felt = Color(0xFF56CCF2);
   static const Color feltDeep = Color(0xFF2F9BD6);
 
+  /// Tapis de Chkobba : vert franc (#393).
+  static const Color tapisVert = Color(0xFF2E9E5B);
+
   /// Fond des panneaux (cartes de manche, choix de prise).
   static const Color panel = ComicPalette.paper;
   static const Color ink = ComicPalette.ink;

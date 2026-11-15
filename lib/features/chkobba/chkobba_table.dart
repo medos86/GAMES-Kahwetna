@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/theme/game_style.dart';
+import '../../core/theme/scoba_palette.dart';
 import '../../widgets/comic/action_burst.dart';
 
 const double _zelligeBand = 6;
@@ -50,7 +51,7 @@ class ChkobbaTable extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                DecoratedBox(decoration: BoxDecoration(color: style.felt)),
+                DecoratedBox(decoration: BoxDecoration(color: ScobaPalette.tapisVert)),
                 CustomPaint(painter: _DotsPainter()),
                 if (style.showZellige)
                   CustomPaint(painter: _ComicBorderPainter(style)),
