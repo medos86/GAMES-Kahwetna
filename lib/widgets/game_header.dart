@@ -47,10 +47,8 @@ class GameHeader extends StatelessWidget {
   }
 }
 
-// Mêmes couleurs que le bouton retour du menu (menu_header.dart) : case sombre, contour bleu.
-const Color _backCeramic = Color(0xFFFFF8E7);
-
-/// Bouton retour des jeux : même style que le bouton retour du menu.
+/// Bouton retour des jeux : même style que le bouton retour du menu (menu_header.dart),
+/// dimensionné sur [unit] pour rester dans l'en-tête.
 class _MenuPill extends StatelessWidget {
   const _MenuPill({required this.unit});
 
@@ -58,31 +56,35 @@ class _MenuPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-      child: ComicPanel(
-        color: ComicPalette.ink.withAlpha(0xE6),
-        outlineColor: ComicPalette.tunisBlue,
-        radius: 14,
-        shadowOffset: const Offset(3, 3),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: DefaultTextStyle.merge(
-          style: const TextStyle(color: _backCeramic),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.arrow_back, size: 20, color: _backCeramic),
-              const SizedBox(width: 8),
-              Text(
-                Strings.menuLabel,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 16,
-                  color: _backCeramic,
-                ),
+    return ComicPanel(
+      color: ComicPalette.ink.withAlpha(0xE6),
+      outlineColor: ComicPalette.tunisBlue,
+      radius: 14,
+      shadowOffset: const Offset(3, 3),
+      padding: EdgeInsets.symmetric(
+        horizontal: unit * 0.7,
+        vertical: unit * 0.5,
+      ),
+      child: DefaultTextStyle.merge(
+        style: const TextStyle(color: ComicPalette.paper),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.arrow_back,
+              size: unit * 1.1,
+              color: ComicPalette.paper,
+            ),
+            SizedBox(width: unit * 0.35),
+            Text(
+              Strings.menuLabel,
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: unit * 0.85,
+                color: ComicPalette.paper,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
