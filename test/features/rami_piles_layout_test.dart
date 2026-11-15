@@ -25,4 +25,20 @@ void main() {
       expect((pioche.center.dy - defausse.center.dy).abs(), lessThan(4));
     },
   );
+
+  testWidgets(
+    'Rami : pioche et défausse placées à gauche du tapis',
+    (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: RamiScreen(difficulty: Difficulty.facile, targetScore: 100),
+        ),
+      );
+      await tester.pump();
+
+      final pioche = tester.getRect(find.textContaining('Pioche ·'));
+      final width = tester.getSize(find.byType(MaterialApp)).width;
+      expect(pioche.center.dx, lessThan(width / 2));
+    },
+  );
 }
