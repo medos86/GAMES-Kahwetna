@@ -19,7 +19,7 @@ String ramiStockBackAsset(List<rules.RamiCard> stock) =>
 /// Dos de la carte selon son jeu : jeu 0 bleu, jeu 1 rouge (défaut rouge).
 /// Les jokers et une carte absente gardent le dos rouge.
 String ramiBackAssetOf(rules.RamiCard? card) {
-  if (card == null) return ramiCardBackAsset;
+  if (card == null || card.isJoker) return ramiCardBackAsset;
   return card.id.endsWith('-0') ? ramiCardBackBlueAsset : ramiCardBackAsset;
 }
 
