@@ -155,7 +155,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       if ((game.won[p]?.length ?? 0) > (beforeWon[p] ?? 0)) taker = p;
     }
     final winnerKey = taker == null ? null : _key('won:${taker.name}');
-    final tableKey = _key('table');
     bool wonNow(String id) =>
         taker != null && (game.won[taker]?.any((c) => c.id == id) ?? false);
 
@@ -192,7 +191,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       for (final c in beforeOpp)
         if (!stillOpp.contains(c.id)) (c, _key('opp:${c.id}')),
     ];
-    final tableNow = tableKey;
     final captures = [
       for (final (card, key) in leaving)
         if (wonNow(card.id) && rectOfKey(key) != null) (card, key),
@@ -205,37 +203,18 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     }
 
     for (final (card, key) in captures) {
-      final from = rectOfKey(key)!;
+      final from = rectOfKey(key);
+      if (from == null || winnerKey == null) continue;
       _capturing.add(card.id);
-      // Temps 1 : la carte se pose au centre du tapis.
-      final posed = flyCard(
-        context: context,
-        from: from,
-        to: () => _centerOn(tableNow, from.size),
-        child: ChkobbaCardFace(card: card),
-      );
-      // Temps 2 : elle rejoint le tas avec les cartes prises. Le second vol
-      // part seulement quand le premier est arrivé : sinon deux copies
-      // restent au centre pendant la pause (#350).
+      // La carte jouée rejoint directement le tas du gagnant (#362).
       unawaited(
-        posed.then((_) {
-          final mid = _centerOn(tableNow, from.size);
-          if (!mounted || winnerKey == null || mid == null) {
-            _release(card.id);
-            return;
-          }
-          unawaited(
-            flyCard(
-              context: context,
-              from: mid,
-              to: () => rectOfKey(winnerKey),
-              child: ChkobbaCardFace(card: card),
-              delay: _capturePause,
-              hold: true,
-              occluder: _scoreboardRect,
-            ).whenComplete(() => _release(card.id)),
-          );
-        }),
+        flyCard(
+          context: context,
+          from: from,
+          to: () => rectOfKey(winnerKey),
+          child: ChkobbaCardFace(card: card),
+          occluder: _scoreboardRect,
+        ).whenComplete(() => _release(card.id)),
       );
     }
 
@@ -258,17 +237,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     }
 
     if (_dealPending) _distribute();
-  }
-
-  /// Rectangle de taille [size] centré sur le widget [key].
-  Rect? _centerOn(GlobalKey key, Size size) {
-    final r = rectOfKey(key);
-    if (r == null) return null;
-    return Rect.fromCenter(
-      center: r.center,
-      width: size.width,
-      height: size.height,
-    );
   }
 
   /// Destination exacte d'une carte : sa case du tapis, ou le tas de celui qui l'a prise.
