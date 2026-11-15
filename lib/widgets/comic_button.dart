@@ -88,8 +88,10 @@ class _ComicButtonState extends State<ComicButton> {
               widget.label,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'RobotoSlab',
-                fontSize: 16,
+                // Bouton : titre BD (Bangers), comme le menu.
+                fontFamily: 'Bangers',
+                fontSize: 20,
+                letterSpacing: 0.8,
                 fontWeight: FontWeight.w800,
                 color: look.text,
               ),

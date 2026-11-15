@@ -136,9 +136,9 @@ class _RoundOverlay extends StatelessWidget {
                 title,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontFamily: 'RobotoSlab',
-                  fontSize: 30,
-                  fontWeight: FontWeight.w900,
+                  fontFamily: 'Bangers',
+                  fontSize: 36,
+                  letterSpacing: 1,
                   color: Colors.white,
                 ),
               ),

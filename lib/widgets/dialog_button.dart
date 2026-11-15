@@ -21,7 +21,14 @@ class DialogButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
         onPressed: onTap,
-        child: Text(label, style: const TextStyle(fontWeight: FontWeight.w900)),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Bangers',
+            fontSize: 22,
+            letterSpacing: 0.8,
+          ),
+        ),
       ),
     );
   }
