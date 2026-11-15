@@ -30,4 +30,19 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('texte agrandi x2 : bannière toujours à sa hauteur fixe', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: MediaQuery(
+          data: MediaQueryData(textScaler: TextScaler.linear(2)),
+          child: Align(alignment: Alignment.bottomCenter, child: AdBanner()),
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(AdBanner)).height, kAdBannerHeight);
+  });
 }

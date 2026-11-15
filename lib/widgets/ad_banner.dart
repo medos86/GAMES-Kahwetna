@@ -13,8 +13,20 @@ const double kAdBannerHeight = 56;
 class AdBanner extends StatelessWidget {
   const AdBanner({super.key});
 
+  /// Échelle de texte maximale dans la bannière : au-delà, le texte ne tient
+  /// plus dans la hauteur fixe (#340). Le reste de l'écran garde son échelle.
+  static const double maxTextScale = 1.3;
+
   @override
   Widget build(BuildContext context) {
+    return MediaQuery.withClampedTextScaling(
+      minScaleFactor: 1,
+      maxScaleFactor: maxTextScale,
+      child: _buildBanner(),
+    );
+  }
+
+  Widget _buildBanner() {
     return Container(
       // Hauteur fixe : la bannière ne change jamais de taille.
       height: kAdBannerHeight,

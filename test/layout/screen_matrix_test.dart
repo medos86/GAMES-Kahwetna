@@ -176,7 +176,7 @@ void main() {
         testWidgets(
           name,
           (tester) => _pump(tester, device, scale, entry.value()),
-          skip: _knownOverflows.contains(name),
+          skip: false, // TEMP: tous les cas en CI pendant la correction (#340)
         );
       }
     }
