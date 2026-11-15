@@ -136,7 +136,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     setState(() => _capturing.remove(id));
   }
 
-  /// Carte jouée : elle se pose sur la carte prise, puis part vers le tas (#394).
+  /// Carte jouée : pose sur la carte prise, puis vers le tas (#394).
   Future<void> _landThenPile(
     ChkobbaCard card,
     Rect from,
