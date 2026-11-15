@@ -6,6 +6,11 @@ import '../../core/strings.dart';
 
 enum Difficulty { facile, moyen, difficile }
 
+/// Niveau IA d'un jeu pour une difficulté donnée (issue #303).
+/// Les enums IA portent les mêmes noms que [Difficulty] : une seule conversion pour tous les jeux.
+T aiLevelFor<T extends Enum>(Iterable<T> levels, Difficulty difficulty) =>
+    levels.byName(difficulty.name);
+
 class DifficultyOption {
   const DifficultyOption({
     required this.difficulty,

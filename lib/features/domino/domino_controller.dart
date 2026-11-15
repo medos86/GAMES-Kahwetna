@@ -190,7 +190,7 @@ class DominoController extends PersistentGameController {
   void _aiStep() {
     final move = chooseOpponentMove(
       _game,
-      level: DominoAiLevel.values.byName(difficulty.name),
+      level: aiLevelFor(DominoAiLevel.values, difficulty),
     );
     switch (move.action) {
       case DominoAction.play:

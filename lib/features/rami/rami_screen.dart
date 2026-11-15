@@ -125,7 +125,7 @@ class _RamiScreenState extends State<RamiScreen>
   late final RamiController _c = RamiController(
     store: const SharedPreferencesSavedGameStore(),
     targetScore: widget.targetScore,
-    difficulty: rules.RamiAiLevel.values.byName(widget.difficulty.name),
+    difficulty: aiLevelFor(rules.RamiAiLevel.values, widget.difficulty),
     onMessage: _showMessage,
   );
 
