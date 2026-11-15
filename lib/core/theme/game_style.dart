@@ -26,10 +26,8 @@ const bool kComicChkobba = true;
 /// THÈME BD DU DOMINO (issue #97) : bouton « Menu » en case BD. Règles inchangées.
 const bool kComicDomino = true;
 
-/// THÈME BD DE LA COINCHE, DU LUDO ET DU RAMI (issue #97) : bouton « Menu » en case BD.
+/// THÈME BD DE LA COINCHE (issue #97) : bouton « Menu » en case BD.
 const bool kComicCoinche = true;
-const bool kComicLudo = true;
-const bool kComicRami = true;
 
 class GameStyle {
   const GameStyle({

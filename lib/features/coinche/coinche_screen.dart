@@ -19,6 +19,7 @@ import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
+import '../../widgets/dialog_button.dart';
 import '../../widgets/game_header.dart';
 import '../../widgets/card_flight.dart';
 import '../../widgets/card_motion.dart';
@@ -1336,7 +1337,7 @@ class _SummaryDialog extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   if (winner != null) ...[
-                    _DialogButton(
+                    DialogButton(
                       label: t('replay'),
                       onTap: controller.restart,
                     ),
@@ -1348,7 +1349,7 @@ class _SummaryDialog extends StatelessWidget {
                       ),
                     ),
                   ] else
-                    _DialogButton(
+                    DialogButton(
                       label: t('nextRound'),
                       onTap: controller.nextRound,
                     ),
@@ -1357,29 +1358,6 @@ class _SummaryDialog extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _DialogButton extends StatelessWidget {
-  const _DialogButton({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: FilledButton(
-        style: FilledButton.styleFrom(
-          backgroundColor: _goldColor,
-          foregroundColor: const Color(0xFF3D351F),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-        ),
-        onPressed: onTap,
-        child: Text(label, style: const TextStyle(fontWeight: FontWeight.w900)),
       ),
     );
   }
