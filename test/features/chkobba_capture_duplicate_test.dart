@@ -58,11 +58,6 @@ void main() {
     );
     await tester.pump(const Duration(seconds: 3));
 
-    int copies(String id) => find
-        .byWidgetPredicate((w) => w is ChkobbaCardFace && w.card.id == id)
-        .evaluate()
-        .length;
-
     final play = tester.widget<ChkobbaCardFace>(
       find.byWidgetPredicate(
         (w) => w is ChkobbaCardFace && w.card.id == 'batons-5',
@@ -72,16 +67,27 @@ void main() {
 
     // Échantillonne chaque image pendant toute la capture.
     var worst = {'batons-5': 0, 'coupes-5': 0};
+    var where = '';
     for (var t = 0; t < 1500; t += 25) {
       await tester.pump(const Duration(milliseconds: 25));
       expect(tester.takeException(), isNull);
       for (final id in worst.keys) {
-        final n = copies(id);
-        if (n > worst[id]!) worst[id] = n;
+        final f = find.byWidgetPredicate(
+          (w) => w is ChkobbaCardFace && w.card.id == id,
+        );
+        final n = f.evaluate().length;
+        if (n > worst[id]!) {
+          worst[id] = n;
+          // Positions des copies à l'instant du pic, pour diagnostic.
+          where = '$id à t=$t ms : ${[
+            for (final e in f.evaluate())
+              tester.getTopLeft(find.byElementPredicate((x) => x == e)),
+          ]}';
+        }
       }
     }
-    expect(worst['batons-5'], lessThanOrEqualTo(1), reason: 'batons-5 doublon');
-    expect(worst['coupes-5'], lessThanOrEqualTo(1), reason: 'coupes-5 doublon');
+    expect(worst['batons-5'], lessThanOrEqualTo(1), reason: where);
+    expect(worst['coupes-5'], lessThanOrEqualTo(1), reason: where);
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
