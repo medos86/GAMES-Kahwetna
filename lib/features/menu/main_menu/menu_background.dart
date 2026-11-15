@@ -1,9 +1,14 @@
 part of '../main_menu_screen.dart';
 
 class _Background extends StatelessWidget {
-  const _Background({required this.difficulty});
+  const _Background({
+    required this.difficulty,
+    this.imageAsset = kMenuBackgroundAsset,
+  });
 
   final Difficulty difficulty;
+  // Photo du jeu (écran de niveau) ou fond commun du menu.
+  final String imageAsset;
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +31,14 @@ class _Background extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Fond commun au menu et au choix du niveau : assets/images/background.webp
+        // Fond commun au menu, ou photo du jeu sur l'écran de niveau.
         Transform.scale(
           scale: scale,
           child: ColorFiltered(
             colorFilter: filter,
             child: Image.asset(
-              'assets/images/background.webp',
+              imageAsset,
+              key: ValueKey(imageAsset),
               semanticLabel: Strings.menuBackgroundAlt,
               fit: BoxFit.cover,
               alignment: Alignment.center,
