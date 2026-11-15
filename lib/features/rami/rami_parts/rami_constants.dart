@@ -1,7 +1,7 @@
 part of '../rami_screen.dart';
 
-/// Facteur d'agrandissement des cartes Rami (lisibilité sur téléphone).
-const double _ramiCardScale = 1.35;
+/// Facteur d'agrandissement des cartes Rami (lisibilité sur téléphone), défini dans rami_hand_layout.dart (#314).
+const double _ramiCardScale = ramiHandCardScale;
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
 const _feltColor = Color(0xFF10B981);

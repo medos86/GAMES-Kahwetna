@@ -1,3 +1,6 @@
+/// Facteur d'agrandissement des cartes de la main (#314 : plus grandes, lisibles).
+const double ramiHandCardScale = 1.6;
+
 /// Écartement des cartes d'un paquet sur le tapis, en fraction de la largeur d'une carte.
 const double ramiMeldStepRatio = 0.4;
 
