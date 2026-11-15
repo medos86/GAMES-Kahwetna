@@ -386,9 +386,6 @@ class _RamiScreenState extends State<RamiScreen>
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
-                const gap = 6.0;
-                final pileWidth = handWidth * 0.6;
-                final areaWidth = constraints.maxWidth - pileWidth - gap;
                 final sizes = [
                   for (final meld in g.table) meld.cards.length,
                   for (final cards in g.staged) cards.length,
@@ -396,23 +393,18 @@ class _RamiScreenState extends State<RamiScreen>
                 // Zoom adaptatif : les cartes du tapis rétrécissent pour que tous les paquets tiennent.
                 final meldWidth = ramiTableCardWidth(
                   sizes,
-                  areaWidth - 16,
+                  constraints.maxWidth - 16,
                   constraints.maxHeight - 12,
                   handWidth * 0.8,
                 );
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(child: _tableCards(meldWidth, g)),
-                    const SizedBox(width: gap),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: _piles(pileWidth, g),
-                    ),
-                  ],
-                );
+                return _tableCards(meldWidth, g);
               },
             ),
+          ),
+          // Pioche et défausse en barre horizontale, en bas du tapis (#313).
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: _piles(handWidth * 0.3, g),
           ),
           _contextActions(g),
         ],
@@ -601,56 +593,69 @@ class _RamiScreenState extends State<RamiScreen>
     final c = _c;
     final top = c.top;
     final discardHover = c.canPlay && _drag?.target is RamiDropDiscard;
-    return Column(
+    return Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        PulseGlow(
-          active: c.canDraw,
-          child: GestureDetector(
-            onTap: c.canDraw ? () => _drawFromStock(width) : null,
-            child: Container(
-              key: _key('stock'),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(width * 0.14),
-                border:
-                    c.canDraw ? Border.all(color: _goldColor, width: 3) : null,
-              ),
-              child: RamiBackView(width: width),
-            ),
-          ),
-        ),
-        Text(
-          'Pioche · ${g.stock.length}',
-          style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900),
-        ),
-        const SizedBox(height: 6),
-        Container(
-          key: _key('discard'),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(width * 0.14),
-            border:
-                discardHover ? Border.all(color: _goldColor, width: 3) : null,
-          ),
-          child: top == null
-              ? Container(
-                  width: width,
-                  height: width * 1.4,
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            PulseGlow(
+              active: c.canDraw,
+              child: GestureDetector(
+                onTap: c.canDraw ? () => _drawFromStock(width) : null,
+                child: Container(
+                  key: _key('stock'),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(width * 0.14),
-                    border: Border.all(color: Colors.white54, width: 2),
+                    border: c.canDraw
+                        ? Border.all(color: _goldColor, width: 3)
+                        : null,
                   ),
-                )
-              : GestureDetector(
-                  onTap: c.canDraw ? c.drawFromDiscard : null,
-                  child: MaskedSlot(
-                    hidden: landing.contains(top.id),
-                    child: RamiCardView(card: top, width: width),
-                  ),
+                  child: RamiBackView(width: width),
                 ),
+              ),
+            ),
+            Text(
+              'Pioche · ${g.stock.length}',
+              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900),
+            ),
+          ],
         ),
-        Text(
-          'Défausse · ${g.discard.length}',
-          style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900),
+        const SizedBox(width: 12),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              key: _key('discard'),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(width * 0.14),
+                border: discardHover
+                    ? Border.all(color: _goldColor, width: 3)
+                    : null,
+              ),
+              child: top == null
+                  ? Container(
+                      width: width,
+                      height: width * 1.4,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(width * 0.14),
+                        border: Border.all(color: Colors.white54, width: 2),
+                      ),
+                    )
+                  : GestureDetector(
+                      onTap: c.canDraw ? c.drawFromDiscard : null,
+                      child: MaskedSlot(
+                        hidden: landing.contains(top.id),
+                        child: RamiCardView(card: top, width: width),
+                      ),
+                    ),
+            ),
+            Text(
+              'Défausse · ${g.discard.length}',
+              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900),
+            ),
+          ],
         ),
       ],
     );
