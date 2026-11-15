@@ -92,4 +92,26 @@ void main() {
       c.dispose();
     });
   });
+
+  test('quand tous les humains ont fini, le choix est proposé (#387)', () {
+    final c = LudoController(
+      playerCount: 1,
+      difficulty: LudoAiLevel.facile,
+      random: () => 0.0,
+    );
+    final start = newLudoGame(LudoColor.red);
+    final state = start.copyWith(
+      rankings: [LudoColor.blue],
+      phase: LudoPhase.roll,
+    );
+    c.applySnapshot(state.toJson());
+    c.startFresh();
+    expect(c.humansDone, isTrue);
+    expect(c.choiceOpen, isTrue);
+
+    c.showEnd();
+    expect(c.roundOver, isTrue);
+    expect(c.choiceOpen, isFalse);
+    c.dispose();
+  });
 }
