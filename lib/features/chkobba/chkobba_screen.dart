@@ -383,7 +383,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
               padding: const EdgeInsets.fromLTRB(10, 6, 10, 0),
               child: GameHeader(
                 unit: 14,
-                onMenu: () => Navigator.of(context).pop(),
+                onMenu: () => Navigator.of(context).maybePop(),
                 center: Expanded(
                   child: Center(
                     child: DifficultyChip(difficulty: widget.difficulty),
