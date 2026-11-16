@@ -40,7 +40,7 @@ void main() {
     );
     await tester.pump();
     final direction = Directionality.of(
-      tester.element(find.textContaining('Ouverture min.')),
+      tester.element(find.byKey(const Key('ramiMinOpeningShield'))),
     );
     expect(direction, TextDirection.ltr);
     expect(tester.takeException(), isNull);

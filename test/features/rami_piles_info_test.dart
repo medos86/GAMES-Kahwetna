@@ -25,7 +25,7 @@ void main() {
 
     expect(find.textContaining('Pioche ·'), findsNothing);
     expect(find.textContaining('Défausse ·'), findsNothing);
-    expect(find.textContaining('Ouverture min.'), findsOneWidget);
+    expect(find.byKey(const Key('ramiMinOpeningShield')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

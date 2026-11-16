@@ -11,6 +11,7 @@ import '../../widgets/pulse_glow.dart';
 import '../menu/menu_models.dart';
 import 'rami_card_view.dart';
 import 'rami_discard_shown.dart';
+import 'rami_min_opening_shield.dart';
 import 'rami_hand_layout.dart';
 import 'rami_round_summary.dart';
 import 'rami_round_reveal.dart';
@@ -425,12 +426,11 @@ class _RamiScreenState extends State<RamiScreen>
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(left: 10),
-                        child: Text(
-                          tf('ramiMinOpen', {'n': '${rules.minOpening(g)}'}),
-                          style: const TextStyle(
-                            fontFamily: 'Bangers',
-                            fontSize: 20,
-                            color: _inkColor,
+                        child: RamiMinOpeningShield(
+                          minimum: rules.minOpening(g),
+                          label: tf(
+                            'ramiMinOpen',
+                            {'n': '${rules.minOpening(g)}'},
                           ),
                         ),
                       ),
