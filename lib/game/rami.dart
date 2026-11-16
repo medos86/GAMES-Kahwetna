@@ -888,6 +888,36 @@ String _chooseDiscard(
   return best.id;
 }
 
+/// Seuil d'ouverture de l'IA : le facile ouvre plus tard que la règle (#281).
+int _aiOpenMin(RamiState state, RamiAiLevel level) =>
+    minOpening(state) + (level == RamiAiLevel.facile ? 15 : 0);
+
+/// L'IA ne prend la carte de la défausse que si elle peut la poser ce tour, au seuil de son niveau.
+/// Sinon elle resterait en main sans pouvoir être défaussée (blocage).
+bool _aiCanUseTop(RamiState state, RamiCard top, RamiAiLevel level) {
+  if (state.opened[state.turn]) return true;
+  final hand = state.hands[state.turn];
+  final plan = _planMelds([...hand, top], top.id);
+  final total = plan.fold<int>(0, (sum, cards) => sum + pointsOf(cards));
+  return total >= _aiOpenMin(state, level);
+}
+
+/// Défausse de l'IA. Ne doit jamais rester bloquée : si la carte choisie est refusée,
+/// on remet d'abord la carte prise, puis on tente une autre carte légale.
+RamiState _aiDiscard(RamiState state, int seat, RamiAiLevel level) {
+  final chosen = discardCard(state, _chooseDiscard(state, seat, level));
+  if (!identical(chosen, state)) return chosen;
+  if (state.takenId != null) {
+    final returned = returnTaken(state);
+    if (!identical(returned, state)) return returned;
+  }
+  for (final card in state.hands[seat]) {
+    final other = discardCard(state, card.id);
+    if (!identical(other, state)) return other;
+  }
+  return state;
+}
+
 RamiState _aiDraw(RamiState state, RamiAiLevel level, RandomDouble random) {
   final seat = state.turn;
   if (state.discard.isEmpty) return drawStock(state, random);
@@ -899,7 +929,9 @@ RamiState _aiDraw(RamiState state, RamiAiLevel level, RandomDouble random) {
   final take = level == RamiAiLevel.facile
       ? random() < 0.5
       : isJoker(top) || improves || layable;
-  if (take && canUseDiscardTop(state)) return drawDiscard(state);
+  if (take && canUseDiscardTop(state) && _aiCanUseTop(state, top, level)) {
+    return drawDiscard(state);
+  }
   return drawStock(state, random);
 }
 
@@ -918,12 +950,12 @@ RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {
 
   final seat = state.turn;
   if (state.firstTour) {
-    return discardCard(state, _chooseDiscard(state, seat, level));
+    return _aiDiscard(state, seat, level);
   }
   final plan = _planMelds(state.hands[seat], state.takenId);
   final planTotal = plan.fold<int>(0, (sum, cards) => sum + pointsOf(cards));
   // Facile : ouvre plus tard que la règle (seuil relevé).
-  final openMin = minOpening(state) + (level == RamiAiLevel.facile ? 15 : 0);
+  final openMin = _aiOpenMin(state, level);
   if (state.opened[seat] && plan.isNotEmpty) return _poseAll(state, plan);
   if (!state.opened[seat] && planTotal >= openMin) {
     return commitOpening(_poseAll(state, plan));
@@ -940,5 +972,5 @@ RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {
     // Le facile pose toujours quand c'est légal : pas d'oubli volontaire (#281).
     if (lay != null) return layOff(state, lay.cardId, lay.meldId);
   }
-  return discardCard(state, _chooseDiscard(state, seat, level));
+  return _aiDiscard(state, seat, level);
 }
