@@ -13,7 +13,7 @@ void main() {
     final targets = {
       LudoAiLevel.facile: 0.30,
       LudoAiLevel.moyen: 0.50,
-      LudoAiLevel.difficile: 0.90,
+      LudoAiLevel.difficile: 0.80,
     };
 
     for (final entry in targets.entries) {

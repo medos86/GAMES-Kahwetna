@@ -43,9 +43,14 @@ class _FinalCard extends StatelessWidget {
   }
 }
 
-/// Récapitulatif de manche, comme la carte « Manche N » du source.
-class _RoundCard extends StatelessWidget {
-  const _RoundCard({required this.summary, required this.onContinue});
+/// Récapitulatif de manche Chkobba en style BD, via [ResultDialog] (issue #295).
+/// Seul le contenu (points par catégorie, totaux, action) est propre à Chkobba.
+class ChkobbaRoundCard extends StatelessWidget {
+  const ChkobbaRoundCard({
+    super.key,
+    required this.summary,
+    required this.onContinue,
+  });
 
   final ChkobbaRoundScore summary;
   final VoidCallback onContinue;
@@ -68,39 +73,32 @@ class _RoundCard extends StatelessWidget {
 
   static String _show(int v) => v == 0 ? '—' : '$v';
 
+  /// Une ligne du tableau : libellé, points du joueur, points de l'adversaire.
+  /// Texte en encre noire sur papier (contraste ≥ 4,5), sans couleur de joueur.
   Widget _row(
     String label,
     String player,
     String opponent, {
-    TextStyle? style,
-    double pad = 8,
+    bool strong = false,
+    double size = 14,
   }) {
-    final base = style ??
-        const TextStyle(
-          fontWeight: FontWeight.w900,
-          fontSize: 14,
-          color: ScobaPalette.ink,
-        );
+    final style = TextStyle(
+      fontWeight: strong ? FontWeight.w900 : FontWeight.w700,
+      fontSize: size,
+      color: ComicPalette.ink,
+    );
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: pad),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: base)),
+          Expanded(child: Text(label, style: style)),
           SizedBox(
             width: 64,
-            child: Text(
-              player,
-              textAlign: TextAlign.center,
-              style: base.copyWith(color: ScobaPalette.blueText),
-            ),
+            child: Text(player, textAlign: TextAlign.center, style: style),
           ),
           SizedBox(
             width: 76,
-            child: Text(
-              opponent,
-              textAlign: TextAlign.center,
-              style: base.copyWith(color: ScobaPalette.redText),
-            ),
+            child: Text(opponent, textAlign: TextAlign.center, style: style),
           ),
         ],
       ),
@@ -110,192 +108,88 @@ class _RoundCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = summary.state;
-    final winner = state.winner;
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 420),
-      decoration: BoxDecoration(
-        color: ScobaPalette.panel,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.black, width: 4),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 7))],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [ScobaPalette.felt, ScobaPalette.feltDeep],
-                ),
-                border: Border(
-                  bottom: BorderSide(color: Colors.black, width: 4),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFE16B),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.black, width: 2),
-                    ),
-                    child: const Text(
-                      'RÉCAPITULATIF',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2,
-                        color: ScobaPalette.ink,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Manche ${state.round}',
-                    style: const TextStyle(
-                      color: ScobaPalette.ink,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 24,
-                    ),
-                  ),
-                ],
-              ),
+    final hasWinner = state.winner != null;
+    return ResultDialog(
+      title: 'Manche ${state.round}',
+      children: [
+        _row(t('roundPoints'), t('you'), t('opponent'), strong: true),
+        for (final category in _categories)
+          _row(
+            t(category.key),
+            _show(_pointsFor(Player.player, category.matches)),
+            _show(_pointsFor(Player.opponent, category.matches)),
+          ),
+        Container(
+          height: 2,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          color: ComicPalette.ink,
+        ),
+        _row(
+          'Score de la manche',
+          '+${_total(Player.player)}',
+          '+${_total(Player.opponent)}',
+          strong: true,
+        ),
+        _row(
+          'Score total',
+          '${state.scores[Player.player]}',
+          '${state.scores[Player.opponent]}',
+          strong: true,
+          size: 18,
+        ),
+        Text(
+          'Objectif : ${state.targetScore} points',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 13,
+            color: ComicPalette.ink,
+          ),
+        ),
+      ],
+      actions: [
+        _ComicButton(
+          label: hasWinner ? 'Voir le résultat final' : 'Manche suivante →',
+          onTap: onContinue,
+        ),
+      ],
+    );
+  }
+}
+
+/// Bouton d'action en style BD : fond or, contour encre, ombre portée.
+class _ComicButton extends StatelessWidget {
+  const _ComicButton({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: label,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: ComicPalette.gold,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: ComicPalette.ink, width: 3),
+            boxShadow: const [
+              BoxShadow(color: ComicPalette.ink, offset: Offset(0, 5)),
+            ],
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 16,
+              color: ComicPalette.ink,
             ),
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _row(
-                    t('roundPoints'),
-                    t('you'),
-                    t('opponent'),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 11,
-                      color: ScobaPalette.ink,
-                    ),
-                    pad: 0,
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFFDF5),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black, width: 3),
-                    ),
-                    child: Column(
-                      children: [
-                        for (var i = 0; i < _categories.length; i++)
-                          Container(
-                            decoration: BoxDecoration(
-                              border: i == 0
-                                  ? null
-                                  : const Border(
-                                      top: BorderSide(
-                                        color: ScobaPalette.ink,
-                                        width: 2,
-                                      ),
-                                    ),
-                            ),
-                            child: _row(
-                              t(_categories[i].key),
-                              _show(
-                                _pointsFor(
-                                  Player.player,
-                                  _categories[i].matches,
-                                ),
-                              ),
-                              _show(
-                                _pointsFor(
-                                  Player.opponent,
-                                  _categories[i].matches,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: ScobaPalette.felt,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black, width: 3),
-                    ),
-                    child: _row(
-                      'Score de la manche',
-                      '+${_total(Player.player)}',
-                      '+${_total(Player.opponent)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 14,
-                        color: ScobaPalette.ink,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFFE16B), Color(0xFFFFC24B)],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black, width: 3),
-                    ),
-                    child: _row(
-                      'Score total',
-                      '${state.scores[Player.player]}',
-                      '${state.scores[Player.opponent]}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 18,
-                        color: ScobaPalette.ink,
-                      ),
-                      pad: 10,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  GestureDetector(
-                    onTap: onContinue,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFFFE16B), Color(0xFFFFB43C)],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.black, width: 3),
-                        boxShadow: const [
-                          BoxShadow(color: Colors.black, offset: Offset(0, 5)),
-                        ],
-                      ),
-                      child: Text(
-                        winner == null
-                            ? 'Manche suivante →'
-                            : 'Voir le résultat final',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                          color: ScobaPalette.ink,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

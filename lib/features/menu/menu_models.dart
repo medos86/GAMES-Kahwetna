@@ -164,6 +164,16 @@ const gameEntries = <GameEntry>[
   ),
 ];
 
+/// Difficulté mémorisée (#113) : Facile si rien ou une valeur inconnue n'est enregistrée.
+Difficulty difficultyFromPrefs(String? name) => Difficulty.values.firstWhere(
+      (d) => d.name == name,
+      orElse: () => Difficulty.facile,
+    );
+
+/// Score cible mémorisé (#113) : repris seulement s'il fait partie des choix du jeu.
+int targetFromPrefs(GameEntry game, int? saved) =>
+    saved != null && game.targets.contains(saved) ? saved : game.defaultTarget;
+
 /// Paramètres transmis à l'écran de jeu. `location` reprend le format du web.
 class LaunchRequest {
   const LaunchRequest({

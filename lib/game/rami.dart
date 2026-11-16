@@ -679,6 +679,8 @@ RamiState takeJoker(RamiState state, String cardId, String meldId) {
   final meld = state.table[meldIndex];
   final jokerIndex = meld.cards.indexWhere((item) => item.isJoker);
   if (jokerIndex < 0) return state;
+  // Un brelan de 3 cartes (joker compris) garde son joker : on ne le reprend qu'à partir de 4 (#443).
+  if (meld.cards.length < 4 && _isSet(meld.cards)) return state;
   final joker = meld.cards[jokerIndex];
 
   final replaced = [...meld.cards]..[jokerIndex] = card;

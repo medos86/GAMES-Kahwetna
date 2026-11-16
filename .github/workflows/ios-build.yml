@@ -1,0 +1,33 @@
+# Build iOS sans signature (#175) : détecte tôt les erreurs de compilation iOS.
+# Planifié toutes les 6 heures, séparé de analyze.yml pour ne pas ralentir chaque push/PR.
+name: Build iOS
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ios-build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+
+      - name: Générer le dossier ios/
+        # Le dépôt ne contient pas ios/ : on le génère ici, sans toucher à lib/ ni à pubspec.yaml.
+        run: flutter create --platforms=ios --project-name kahwetne --org com.kahwetne .
+
+      - name: Dépendances
+        run: flutter pub get
+
+      - name: Build iOS (sans signature)
+        run: flutter build ios --no-codesign --debug

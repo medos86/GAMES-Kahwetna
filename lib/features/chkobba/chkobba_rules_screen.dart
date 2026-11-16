@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../../widgets/game_safe_area.dart';
 import '../../widgets/texture_patterns.dart';
 import '../../core/strings.dart';
 
@@ -70,47 +71,50 @@ class ChkobbaRulesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _woodColor,
-      body: Stack(
-        children: [
-          const Positioned.fill(
-            child: DecoratedBox(decoration: BoxDecoration(color: _woodColor)),
-          ),
-          const Positioned.fill(
-            child: IgnorePointer(
-              child: Opacity(
-                opacity: 0.2,
-                child: DotPattern(spacing: 4, radius: 1, color: Colors.black),
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: 1,
+      child: Scaffold(
+        backgroundColor: _woodColor,
+        body: Stack(
+          children: [
+            const Positioned.fill(
+              child: DecoratedBox(decoration: BoxDecoration(color: _woodColor)),
+            ),
+            const Positioned.fill(
+              child: IgnorePointer(
+                child: Opacity(
+                  opacity: 0.2,
+                  child: DotPattern(spacing: 4, radius: 1, color: Colors.black),
+                ),
               ),
             ),
-          ),
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 640),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: _BackButton(
-                          onTap: () => Navigator.of(context).pop(),
+            GameSafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 640),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: _BackButton(
+                            onTap: () => Navigator.of(context).pop(),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      const _TitleCard(),
-                      const SizedBox(height: 16),
-                      _SectionsCard(sections: _chkobbaRules),
-                    ],
+                        const SizedBox(height: 12),
+                        const _TitleCard(),
+                        const SizedBox(height: 16),
+                        _SectionsCard(sections: _chkobbaRules),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

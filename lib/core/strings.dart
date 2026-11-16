@@ -16,7 +16,6 @@ abstract final class Strings {
   static String get menuBack => t('menuBack');
   static String get menuToggleSound => t('menuToggleSound');
   static String get menuOpenSettings => t('menuOpenSettings');
-  static String get menuCoinBalance => t('menuCoinBalance');
   static String get menuTagline => t('menuTagline');
   static String get menuChooseTable => t('menuChooseTable');
   static String get menuStart => t('menuStart');

@@ -24,6 +24,7 @@ import '../../core/services/saved_game_store.dart';
 import '../../widgets/comic_button.dart';
 import '../../widgets/resume_game.dart';
 import '../../core/services/toast.dart';
+import '../../widgets/game_safe_area.dart';
 
 part 'main_menu/menu_background.dart';
 part 'main_menu/menu_header.dart';
@@ -123,14 +124,12 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         if (resume == true) {
           markResumeConfirmed(key);
           final prefs = await SharedPreferences.getInstance();
-          final name = prefs.getString(_difficultyPrefKey(key));
           setState(() {
             _selected = game;
-            _difficulty = Difficulty.values.firstWhere(
-              (d) => d.name == name,
-              orElse: () => Difficulty.facile,
+            _difficulty = difficultyFromPrefs(
+              prefs.getString(_difficultyPrefKey(key)),
             );
-            _target = game.defaultTarget;
+            _target = targetFromPrefs(game, prefs.getInt(_targetPrefKey(key)));
           });
           _launch();
           return;
@@ -139,14 +138,24 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         await store.clear(key);
       }
     }
+    // Difficulté et score cible mémorisés par jeu (#113), proposés à la prochaine ouverture.
+    final prefs = key == null ? null : await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _selected = game;
-      _target = game.defaultTarget;
+      _difficulty = difficultyFromPrefs(
+        prefs?.getString(_difficultyPrefKey(key!)),
+      );
+      _target = targetFromPrefs(
+        game,
+        prefs?.getInt(_targetPrefKey(key!)),
+      );
       _screen = _MenuScreen.difficulty;
     });
   }
 
   static String _difficultyPrefKey(String key) => 'kahwetne-difficulty-$key';
+  static String _targetPrefKey(String key) => 'kahwetne-target-$key';
 
   void _launch() {
     final key = savedGameKeys[_selected.route];
@@ -155,6 +164,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       unawaited(
         SharedPreferences.getInstance().then(
           (prefs) => prefs.setString(_difficultyPrefKey(key), chosen.name),
+        ),
+      );
+      unawaited(
+        SharedPreferences.getInstance().then(
+          (prefs) => prefs.setInt(_targetPrefKey(key), _target),
         ),
       );
     }
@@ -199,63 +213,68 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         );
         if (leave == true) await SystemNavigator.pop();
       },
-      child: Scaffold(
-        backgroundColor: const Color(0xFF2BB8EA),
-        body: Stack(
-          children: [
-            _Background(
-              difficulty: _difficulty,
-              imageAsset: _screen == _MenuScreen.difficulty
-                  ? _selected.backgroundAsset
-                  : kMenuBackgroundAsset,
-            ),
-            // Trame de points du menu : radial-gradient(#17203f 1.2px) 7px, opacité 0.07.
-            const Positioned.fill(
-              child: IgnorePointer(
-                child: DotPattern(
-                  spacing: 7,
-                  radius: 1.2,
-                  color: Color(0x1217203F),
+      child: MediaQuery.withClampedTextScaling(
+        maxScaleFactor: 1,
+        child: Scaffold(
+          backgroundColor: const Color(0xFF2BB8EA),
+          body: Stack(
+            children: [
+              _Background(
+                difficulty: _difficulty,
+                imageAsset: _screen == _MenuScreen.difficulty
+                    ? _selected.backgroundAsset
+                    : kMenuBackgroundAsset,
+              ),
+              // Trame de points du menu : radial-gradient(#17203f 1.2px) 7px, opacité 0.07.
+              const Positioned.fill(
+                child: IgnorePointer(
+                  child: DotPattern(
+                    spacing: 7,
+                    radius: 1.2,
+                    color: Color(0x1217203F),
+                  ),
                 ),
               ),
-            ),
-            SafeArea(
-              minimum: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-              child: LayoutBuilder(
-                builder: (context, c) {
-                  final contentWidth = math.min(640.0, c.maxWidth);
-                  final padding = sm ? 28.0 : 16.0;
-                  return Align(
-                    alignment: Alignment.topCenter,
-                    child: SizedBox(
-                      width: contentWidth,
-                      height: c.maxHeight,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: padding),
-                        child: Column(
-                          children: [
-                            _Header(
-                              difficulty: _difficulty,
-                              screen: _screen,
-                              onBack: () => setState(() {
-                                _difficulty = Difficulty.facile;
-                                _screen = _MenuScreen.menu;
-                              }),
+              GameSafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+                  child: LayoutBuilder(
+                    builder: (context, c) {
+                      final contentWidth = math.min(640.0, c.maxWidth);
+                      final padding = sm ? 28.0 : 16.0;
+                      return Align(
+                        alignment: Alignment.topCenter,
+                        child: SizedBox(
+                          width: contentWidth,
+                          height: c.maxHeight,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: padding),
+                            child: Column(
+                              children: [
+                                _Header(
+                                  difficulty: _difficulty,
+                                  screen: _screen,
+                                  onBack: () => setState(() {
+                                    _difficulty = Difficulty.facile;
+                                    _screen = _MenuScreen.menu;
+                                  }),
+                                ),
+                                Expanded(
+                                  child: _screen == _MenuScreen.menu
+                                      ? _buildMenu(vw: vw, sm: sm, md: md)
+                                      : _buildDifficulty(vw: vw, sm: sm),
+                                ),
+                              ],
                             ),
-                            Expanded(
-                              child: _screen == _MenuScreen.menu
-                                  ? _buildMenu(vw: vw, sm: sm, md: md)
-                                  : _buildDifficulty(vw: vw, sm: sm),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                  );
-                },
+                      );
+                    },
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kahwetne/features/chkobba/chkobba_rules_screen.dart';
 import 'package:kahwetne/features/chkobba/chkobba_screen.dart';
 import 'package:kahwetne/features/coinche/coinche_screen.dart';
 import 'package:kahwetne/features/domino/domino_screen.dart';
 import 'package:kahwetne/features/ludo/ludo_screen.dart';
+import 'package:kahwetne/features/menu/main_menu_screen.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:kahwetne/features/rami/rami_screen.dart';
+import 'package:kahwetne/features/splash/splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Matrice de mise en page (#337) : chaque écran se rend sans dépassement
@@ -20,13 +23,13 @@ class _Device {
   final double topInset;
 }
 
+// L'application est verrouillée en portrait (main.dart) : pas de gabarit paysage.
 const _devices = <_Device>[
   _Device('Galaxy S24', Size(360, 780)),
   _Device('iPhone 15', Size(393, 852), topInset: 59),
   _Device('iPhone SE', Size(375, 667)),
   _Device('Petit écran', Size(320, 568)),
   _Device('Tablette', Size(768, 1024)),
-  _Device('Paysage', Size(852, 393)),
 ];
 
 const _textScales = <double>[1.0, 1.3, 2.0];
@@ -49,6 +52,16 @@ final _screens = <String, Widget Function()>{
   },
   'Chkobba': () {
     return const ChkobbaScreen(difficulty: Difficulty.facile, targetScore: 11);
+  },
+  // Écrans à zone sûre commune (#204).
+  'Règles Chkobba': () {
+    return const ChkobbaRulesScreen();
+  },
+  'Menu principal': () {
+    return const MainMenuScreen();
+  },
+  'Ouverture': () {
+    return const SplashScreen(next: SizedBox());
   },
 };
 
