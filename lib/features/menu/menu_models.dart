@@ -159,8 +159,8 @@ const gameEntries = <GameEntry>[
     edgeColor: Color(0xFF214597),
     iconAsset: 'assets/icons/game_rami.svg',
     route: '/rami',
-    targets: [100, 200],
-    defaultTarget: 100,
+    targets: [301, 401, 501, 601],
+    defaultTarget: 301,
   ),
 ];
 
