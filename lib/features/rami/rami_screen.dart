@@ -12,6 +12,7 @@ import '../menu/menu_models.dart';
 import 'rami_card_view.dart';
 import 'rami_discard_shown.dart';
 import 'rami_hand_layout.dart';
+import 'rami_round_reveal.dart';
 import 'rami_controller.dart';
 import '../../core/strings.dart';
 import '../../core/i18n/app_language.dart';
@@ -239,7 +240,13 @@ class _RamiScreenState extends State<RamiScreen>
                     ),
                   if (_drag != null) _dragOverlay(handWidth),
                   if (g.phase == rules.RamiPhase.end && g.roundResult != null)
-                    Positioned.fill(child: _summary(g)),
+                    Positioned.fill(
+                      child: RamiRoundReveal(
+                        key: ValueKey('end-${g.round}'),
+                        burst: _revealBurst(g),
+                        child: _summary(g),
+                      ),
+                    ),
                 ],
               );
             },
@@ -1000,6 +1007,13 @@ class _RamiScreenState extends State<RamiScreen>
   }
 
   /// Récapitulatif de manche, ou de partie quand un joueur atteint l'objectif.
+  /// Texte de l'éclat d'annonce : qui a gagné la manche (#417).
+  String _revealBurst(rules.RamiState g) {
+    final winner = g.roundResult?.winner;
+    if (winner == null) return 'FIN !';
+    return winner == 0 ? 'GAGNÉ !' : '${_seatNames[winner]} GAGNE !';
+  }
+
   Widget _summary(rules.RamiState g) {
     final result = g.roundResult!;
     final winner = result.winner;
