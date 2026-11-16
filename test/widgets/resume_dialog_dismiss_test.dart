@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:kahwetne/widgets/exit_guard.dart';
 
 /// Issue #409 : cliquer à côté du dialogue « Partie en cours » le ferme sans choix (résultat null).
@@ -10,6 +10,10 @@ void main() {
     Object? answer = 'pas encore';
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: const [
+          DefaultMaterialLocalizations.delegate,
+          DefaultWidgetsLocalizations.delegate,
+        ],
         home: Builder(
           builder: (context) => Scaffold(
             body: ElevatedButton(
