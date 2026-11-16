@@ -17,8 +17,8 @@ RandomDouble _seeded(int seed) {
 }
 
 /// Joue un match complet à quatre. [levelSeat] joue au niveau [level], les trois autres au moyen.
-/// Retourne le siège vainqueur, ou null si l'IA se bloque (aucun coup possible).
-int? playRamiMatch(RamiAiLevel level, int levelSeat, int seed) {
+/// Retourne le siège vainqueur. Lève une erreur détaillée si l'IA se bloque.
+int playRamiMatch(RamiAiLevel level, int levelSeat, int seed) {
   final rnd = _seeded(seed);
   var state = newMatch(ramiSimTargetScore, rnd);
   var steps = 0;
@@ -33,13 +33,24 @@ int? playRamiMatch(RamiAiLevel level, int levelSeat, int seed) {
     final lvl = state.turn == levelSeat ? level : RamiAiLevel.moyen;
     final before = state;
     state = aiStep(state, lvl, rnd);
-    if (identical(state, before)) return null;
+    if (identical(state, before)) {
+      final t = state.turn;
+      throw StateError(
+        'IA bloquée (graine $seed, niveau ${level.name}, siège $levelSeat) : '
+        'phase ${state.phase}, tour $t, ouvert ${state.opened[t]}, '
+        'premierTour ${state.firstTour}, pris ${state.takenId}, '
+        'staged ${state.staged.length}, main ${state.hands[t].length} '
+        '[${state.hands[t].map((c) => c.id).join(',')}], '
+        'defausse ${state.discard.length}, pioche ${state.stock.length}, '
+        'dessus ${state.discard.isEmpty ? '-' : state.discard.last.id}, '
+        'table ${state.table.length}',
+      );
+    }
   }
   return state.matchWinner!;
 }
 
 /// Part des matchs gagnés par le niveau [level], sièges alternés pour éviter le biais de donne.
-/// Un match bloqué compte comme une défaite pour le niveau testé.
 double ramiWinRate(RamiAiLevel level, {required int games}) {
   var wins = 0;
   for (var seed = 0; seed < games; seed++) {
