@@ -19,7 +19,7 @@ void main() {
 
   testWidgets('au toucher, libellé visible puis masqué', (tester) async {
     await tester.pumpWidget(host(67));
-    await tester.tap(find.byKey(const Key('ramiMinOpeningShield')));
+    await tester.tap(find.text('67'));
     await tester.pump();
     expect(find.text('Ouverture minimale : 67'), findsOneWidget);
     await tester.pump(const Duration(seconds: 4));
