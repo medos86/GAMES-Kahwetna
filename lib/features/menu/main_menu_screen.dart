@@ -117,9 +117,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           cancelLabel: Strings.resumeNew,
           confirmLabel: Strings.resumeContinue,
           confirmVariant: ComicButtonVariant.primary,
-          dismissible: false,
         );
         if (!mounted) return;
+        if (resume == null) return;
         if (resume == true) {
           markResumeConfirmed(key);
           final prefs = await SharedPreferences.getInstance();

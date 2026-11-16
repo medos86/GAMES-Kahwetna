@@ -29,13 +29,14 @@ Future<void> offerResume(
       cancelLabel: Strings.resumeNew,
       confirmLabel: Strings.resumeContinue,
       confirmVariant: ComicButtonVariant.primary,
-      dismissible: false,
     );
     if (!context.mounted) return;
     if (resume == true) {
       controller.resume();
       return;
     }
+    // Clic ailleurs (null) : on ferme sans rien changer, la partie reste sauvegardée (#409).
+    if (resume == null) return;
     final sure = await showConfirmDialog(
       context,
       title: Strings.resumeNewTitle,
