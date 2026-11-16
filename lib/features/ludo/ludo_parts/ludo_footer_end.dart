@@ -153,109 +153,73 @@ class _EndDialog extends StatelessWidget {
         : '${_colorName(first, solo)} gagne';
 
     return ColoredBox(
-      color: const Color(0xB3052A52),
+      color: Colors.black54,
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 380),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: const Color(0xFF0B3F7A),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: const Color(0xFFFFD653), width: 2),
+          padding: const EdgeInsets.all(16),
+          child: ResultDialog(
+            title: title,
+            children: [
+              const Text(
+                'PARTIE TERMINÉE',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: ComicPalette.ink,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.5,
+                ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.emoji_events,
-                    size: 48,
-                    color: Color(0xFFFFD653),
+              const SizedBox(height: 14),
+              for (var i = 0; i < game.rankings.length; i++)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'PARTIE TERMINÉE',
-                    style: TextStyle(
-                      color: Color(0xFFFFD653),
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900,
-                    ),
+                  decoration: BoxDecoration(
+                    color: i == 0 ? ComicPalette.gold : ComicPalette.paper,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: ComicPalette.ink, width: 3),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  for (var i = 0; i < game.rankings.length; i++)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white10,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 13,
-                            backgroundColor: _toneOf(game.rankings[i]).fill,
-                            child: Text(
-                              '${i + 1}',
-                              style: const TextStyle(
-                                color: _ink,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 13,
+                        backgroundColor: _toneOf(game.rankings[i]).fill,
+                        child: Text(
+                          '${i + 1}',
+                          style: const TextStyle(
+                            color: _ink,
+                            fontWeight: FontWeight.w900,
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              _colorName(game.rankings[i], solo),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _colorName(game.rankings[i], solo),
+                          style: const TextStyle(
+                            color: ComicPalette.ink,
+                            fontWeight: FontWeight.w900,
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFFFFE17B),
-                        foregroundColor: const Color(0xFF3D351F),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      onPressed: controller.restart,
-                      child: Text(
-                        t('replay'),
-                        style: TextStyle(fontWeight: FontWeight.w900),
-                      ),
-                    ),
+                    ],
                   ),
-                  TextButton(
-                    onPressed: onMenu,
-                    child: Text(
-                      t('backToMenu'),
-                      style: TextStyle(color: Colors.white60),
-                    ),
-                  ),
-                ],
+                ),
+            ],
+            actions: [
+              DialogButton(label: t('replay'), onTap: controller.restart),
+              TextButton(
+                onPressed: onMenu,
+                child: Text(
+                  t('backToMenu'),
+                  style: const TextStyle(color: ComicPalette.ink),
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
