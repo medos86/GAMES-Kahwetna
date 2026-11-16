@@ -46,7 +46,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Paramètres : l\'interrupteur garde sa place en FR et en AR', (tester) async {
+  testWidgets('Paramètres : interrupteur à la même place', (tester) async {
     Future<Offset> switchCenter(AppLanguage language) async {
       appLanguage.value = language;
       await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
