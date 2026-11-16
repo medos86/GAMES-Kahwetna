@@ -99,10 +99,7 @@ void main() {
     );
     await tester.pump(const Duration(seconds: 3));
 
-    // Piocher d'abord : la défausse n'est accessible qu'ensuite.
-    await tester.tap(find.byType(RamiBackView).first);
-    await tester.pump(const Duration(seconds: 3));
-
+    // La défausse se pioche en phase de pioche, avant la pioche dans le talon.
     // Carte de la défausse : celle qui n'est pas dans une main (sans Listener).
     final pile = find.descendant(
       of: find.byType(GestureDetector),
