@@ -124,14 +124,12 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         if (resume == true) {
           markResumeConfirmed(key);
           final prefs = await SharedPreferences.getInstance();
-          final name = prefs.getString(_difficultyPrefKey(key));
           setState(() {
             _selected = game;
-            _difficulty = Difficulty.values.firstWhere(
-              (d) => d.name == name,
-              orElse: () => Difficulty.facile,
+            _difficulty = difficultyFromPrefs(
+              prefs.getString(_difficultyPrefKey(key)),
             );
-            _target = game.defaultTarget;
+            _target = targetFromPrefs(game, prefs.getInt(_targetPrefKey(key)));
           });
           _launch();
           return;
@@ -140,14 +138,24 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         await store.clear(key);
       }
     }
+    // Difficulté et score cible mémorisés par jeu (#113), proposés à la prochaine ouverture.
+    final prefs = key == null ? null : await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _selected = game;
-      _target = game.defaultTarget;
+      _difficulty = difficultyFromPrefs(
+        prefs?.getString(_difficultyPrefKey(key!)),
+      );
+      _target = targetFromPrefs(
+        game,
+        prefs?.getInt(_targetPrefKey(key!)),
+      );
       _screen = _MenuScreen.difficulty;
     });
   }
 
   static String _difficultyPrefKey(String key) => 'kahwetne-difficulty-$key';
+  static String _targetPrefKey(String key) => 'kahwetne-target-$key';
 
   void _launch() {
     final key = savedGameKeys[_selected.route];
@@ -156,6 +164,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       unawaited(
         SharedPreferences.getInstance().then(
           (prefs) => prefs.setString(_difficultyPrefKey(key), chosen.name),
+        ),
+      );
+      unawaited(
+        SharedPreferences.getInstance().then(
+          (prefs) => prefs.setInt(_targetPrefKey(key), _target),
         ),
       );
     }
