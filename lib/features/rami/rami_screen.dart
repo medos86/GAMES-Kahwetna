@@ -265,10 +265,6 @@ class _RamiScreenState extends State<RamiScreen>
                   style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
                 DifficultyChip(difficulty: widget.difficulty),
-                Text(
-                  tf('ramiMinOpen', {'n': '${rules.minOpening(g)}'}),
-                  style: const TextStyle(fontSize: 12),
-                ),
               ],
             ),
           ],
@@ -406,7 +402,26 @@ class _RamiScreenState extends State<RamiScreen>
                     child: _piles(ramiPileWidth(handWidth), g),
                   ),
                 ),
-                Expanded(child: _contextActions(g)),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Text(
+                          tf('ramiMinOpen', {'n': '${rules.minOpening(g)}'}),
+                          style: const TextStyle(
+                            fontFamily: 'Bangers',
+                            fontSize: 20,
+                            color: _inkColor,
+                          ),
+                        ),
+                      ),
+                      _contextActions(g),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -684,10 +699,6 @@ class _RamiScreenState extends State<RamiScreen>
                 ),
               ),
             ),
-            Text(
-              'Pioche · ${g.stock.length}',
-              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900),
-            ),
           ],
         ),
         const SizedBox(width: 12),
@@ -715,10 +726,6 @@ class _RamiScreenState extends State<RamiScreen>
                       onTap: c.canDraw && !covered ? c.drawFromDiscard : null,
                       child: RamiCardView(card: shown, width: width),
                     ),
-            ),
-            Text(
-              'Défausse · ${g.discard.length}',
-              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900),
             ),
           ],
         ),

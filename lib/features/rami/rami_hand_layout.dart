@@ -4,7 +4,7 @@ import '../../game/rami.dart' as rules;
 const double ramiHandCardScale = 1.6;
 
 /// Pioche et défausse, en fraction de la largeur d'une carte de la main (plus grandes qu'avant).
-const double ramiPileScale = 0.5;
+const double ramiPileScale = 0.6;
 
 /// Largeur d'une carte de la pioche ou de la défausse.
 double ramiPileWidth(double handWidth) => handWidth * ramiPileScale;
