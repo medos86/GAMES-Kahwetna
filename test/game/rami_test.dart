@@ -371,7 +371,7 @@ void main() {
             cards: [
               c(RamiSuit.batons, 12, 'd1'),
               c(RamiSuit.coupes, 12, 'd2'),
-              c(RamiSuit.coupes, 12, 'd4'),
+              c(RamiSuit.deniers, 12, 'd4'),
               joker,
             ],
           ),
