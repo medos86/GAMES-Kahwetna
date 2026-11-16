@@ -27,6 +27,8 @@ import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
 import '../../widgets/game_scaffold.dart';
+import '../../widgets/dialog_button.dart';
+import '../../widgets/result_dialog.dart';
 
 part 'domino_parts/domino_header_score.dart';
 part 'domino_parts/domino_table.dart';

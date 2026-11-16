@@ -85,127 +85,49 @@ class _RoundOverlay extends StatelessWidget {
     final canContinue = game.roundWinner != null && game.matchWinner == null;
 
     return ColoredBox(
-      color: const Color(0xB3071B20),
+      color: Colors.black54,
       child: Center(
-        child: Container(
-          margin: const EdgeInsets.all(20),
-          padding: const EdgeInsets.all(28),
-          constraints: const BoxConstraints(maxWidth: 384),
-          decoration: BoxDecoration(
-            color: const Color(0xFF11343A),
-            borderRadius: BorderRadius.circular(32),
-            border: Border.all(color: const Color(0xFFF4D28A), width: 2),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x80000000),
-                offset: Offset(0, 20),
-                blurRadius: 70,
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ResultDialog(
+            icon: matchOver ? Icons.emoji_events : Icons.radio_button_checked,
+            title: title,
             children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF4D28A),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(
-                  matchOver ? Icons.emoji_events : Icons.radio_button_checked,
-                  size: 32,
-                  color: const Color(0xFF694B13),
-                ),
-              ),
-              const SizedBox(height: 20),
               Text(
                 matchOver
                     ? Strings.dominoMatchOver.toUpperCase()
                     : 'MANCHE ${game.round} TERMINÉE',
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
-                  letterSpacing: 2.6,
-                  color: Color(0xFFF4D28A),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontFamily: 'Bangers',
-                  fontSize: 36,
-                  letterSpacing: 1,
-                  color: Colors.white,
+                  letterSpacing: 1.5,
+                  color: ComicPalette.ink,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Score ${game.scores[Player.player]} – ${game.scores[Player.opponent]} · +$points point${points == 1 ? '' : 's'}',
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
-                  color: Color(0xB3FFFFFF),
-                ),
-              ),
-              const SizedBox(height: 24),
-              _OverlayButton(
-                label: canContinue ? t('nextRound') : t('replay'),
-                onTap: canContinue ? onNext : onRestart,
-              ),
-              const SizedBox(height: 16),
-              Pressable(
-                semanticLabel: t('backToMenu'),
-                onTap: onMenu,
-                child: Text(
-                  t('backToMenu'),
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0x99FFFFFF),
-                  ),
+                  color: ComicPalette.ink,
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _OverlayButton extends StatelessWidget {
-  const _OverlayButton({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Pressable(
-      semanticLabel: label,
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFFE17B), Color(0xFFF2B74E)],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(color: Color(0xFFAE7131), offset: Offset(0, 5)),
-          ],
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 16,
-            color: Color(0xFF3D351F),
+            actions: [
+              DialogButton(
+                label: canContinue ? t('nextRound') : t('replay'),
+                onTap: canContinue ? onNext : onRestart,
+              ),
+              TextButton(
+                onPressed: onMenu,
+                child: Text(
+                  t('backToMenu'),
+                  style: const TextStyle(color: ComicPalette.ink),
+                ),
+              ),
+            ],
           ),
         ),
       ),
