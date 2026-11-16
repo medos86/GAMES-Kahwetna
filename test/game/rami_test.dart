@@ -415,4 +415,34 @@ void main() {
       expect(jsonEncode(back.toJson()), jsonEncode(s.toJson()));
     });
   });
+  group('score de manche (#416)', () {
+    test('gagnant -10, perdant sans paquet +100', () {
+      final s = inPlay(
+        fixedDeal(),
+        hands: [
+          [c(RamiSuit.batons, 2, 'z')],
+          [c(RamiSuit.coupes, 2)],
+          [c(RamiSuit.coupes, 3)],
+          [c(RamiSuit.coupes, 4)],
+        ],
+      ).copyWith(scores: [0, 0, 0, 0]);
+      final next = discardCard(s, 'z');
+      expect(next.phase, RamiPhase.end);
+      expect(next.scores, [-10, 100, 100, 100]);
+    });
+
+    test('perdant ayant posé : points des cartes en main', () {
+      final s = inPlay(
+        fixedDeal(),
+        hands: [
+          [c(RamiSuit.batons, 2, 'z')],
+          [joker, c(RamiSuit.coupes, 10), c(RamiSuit.coupes, 2)],
+          [c(RamiSuit.coupes, 3)],
+          [c(RamiSuit.coupes, 4)],
+        ],
+      ).copyWith(scores: [0, 0, 0, 0], opened: [false, true, false, false]);
+      final next = discardCard(s, 'z');
+      expect(next.scores, [-10, 32, 100, 100]);
+    });
+  });
 }

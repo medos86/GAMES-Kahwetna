@@ -415,9 +415,15 @@ RamiState nextRound(RamiState state, [RandomDouble? random]) {
 }
 
 RamiState _finish(RamiState state, int? winner) {
+  // Gagnant : -10. Perdant sans paquet posé : +100. Perdant ayant posé : points des cartes en main (#416).
   final penalties = [
     for (final seat in ramiSeats)
-      seat == winner ? 0 : pointsOf(state.hands[seat]),
+      if (seat == winner)
+        -10
+      else if (!state.opened[seat])
+        100
+      else
+        pointsOf(state.hands[seat]),
   ];
   final scores = [
     for (final seat in ramiSeats) state.scores[seat] + penalties[seat],
