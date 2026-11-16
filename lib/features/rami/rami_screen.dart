@@ -426,7 +426,10 @@ class _RamiScreenState extends State<RamiScreen>
                         padding: const EdgeInsets.only(left: 10),
                         child: RamiMinOpeningShield(
                           minimum: rules.minOpening(g),
-                          label: tf('ramiMinOpen', {'n': '${rules.minOpening(g)}'}),
+                          label: tf(
+                            'ramiMinOpen',
+                            {'n': '${rules.minOpening(g)}'},
+                          ),
                         ),
                       ),
                       _contextActions(g),

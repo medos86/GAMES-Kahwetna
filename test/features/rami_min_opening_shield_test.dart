@@ -11,13 +11,13 @@ void main() {
         ),
       );
 
-  testWidgets('affiche le seuil et masque le libellé par défaut', (tester) async {
+  testWidgets('affiche le seuil, libellé masqué', (tester) async {
     await tester.pumpWidget(host(76));
     expect(find.text('76'), findsOneWidget);
     expect(find.byKey(const Key('ramiMinOpeningLabel')), findsNothing);
   });
 
-  testWidgets('au toucher, le libellé apparaît puis disparaît', (tester) async {
+  testWidgets('au toucher, libellé visible puis masqué', (tester) async {
     await tester.pumpWidget(host(67));
     await tester.tap(find.byKey(const Key('ramiMinOpeningShield')));
     await tester.pump();
