@@ -60,6 +60,10 @@ class ChkobbaController extends PersistentGameController {
   static const hayaDuration = Duration(milliseconds: 1000);
 
   Player? _hayaBy;
+
+  /// Qui vient de faire une Chkobba (table vidée hors dernier coup) : bannière au centre du tapis (#176).
+  Player? _chkobbaBy;
+  Timer? _chkobbaTimer;
   String? _opponentChoice;
 
   /// Décision de l'adversaire : prend-il une prise s'il en a une (facile seulement).
@@ -83,6 +87,8 @@ class ChkobbaController extends PersistentGameController {
 
   ChkobbaRoundScore? get roundSummary => _roundSummary;
   Player? get hayaBy => _hayaBy;
+
+  Player? get chkobbaBy => _chkobbaBy;
   PendingCapture? get pendingCapture => _pendingCapture;
 
   /// Carte que l'adversaire a montrée et va jouer (phase 1 terminée).
@@ -131,6 +137,7 @@ class ChkobbaController extends PersistentGameController {
     _apply(
       result.state,
       haya: result.haya ? Player.player : null,
+      chkobba: result.chkobba ? Player.player : null,
       sfx: Sfx.place,
     );
   }
@@ -162,9 +169,22 @@ class ChkobbaController extends PersistentGameController {
     _update();
   }
 
-  void _apply(ChkobbaState next, {Player? haya, Sfx? sfx}) {
+  void _apply(
+    ChkobbaState next, {
+    Player? haya,
+    Player? chkobba,
+    Sfx? sfx,
+  }) {
     _game = next;
     _opponentChoice = null;
+    if (chkobba != null) {
+      _chkobbaBy = chkobba;
+      _chkobbaTimer?.cancel();
+      _chkobbaTimer = Timer(hayaDuration, () {
+        _chkobbaBy = null;
+        notifyListeners();
+      });
+    }
     if (haya != null) {
       _hayaBy = haya;
       _hayaTimer?.cancel();
@@ -237,6 +257,7 @@ class ChkobbaController extends PersistentGameController {
         _apply(
           result.state,
           haya: result.haya ? Player.opponent : null,
+          chkobba: result.chkobba ? Player.opponent : null,
           sfx: Sfx.place,
         );
       });
@@ -261,6 +282,7 @@ class ChkobbaController extends PersistentGameController {
   void dispose() {
     _timer?.cancel();
     _hayaTimer?.cancel();
+    _chkobbaTimer?.cancel();
     super.dispose();
   }
 }
