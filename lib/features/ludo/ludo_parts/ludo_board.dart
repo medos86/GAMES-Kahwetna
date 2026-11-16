@@ -79,7 +79,9 @@ class _Board extends StatelessWidget {
                     ),
                     for (final placed in layoutTokens(controller.game.tokens))
                       Positioned(
-                        key: ValueKey('${placed.token.id}-${controller.jumpRevision}'),
+                        key: ValueKey(
+                          '${placed.token.id}-${controller.jumpRevision}',
+                        ),
                         left: placed.x * u - _tokenHitSize(placed.size * u) / 2,
                         top: placed.y * u - _tokenHitSize(placed.size * u) / 2,
                         width: _tokenHitSize(placed.size * u),
