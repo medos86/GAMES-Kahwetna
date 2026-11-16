@@ -76,7 +76,10 @@ class _SplashScreenState extends State<SplashScreen> {
                       child: Text(
                         'Fond introuvable : $error',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   ),
@@ -109,7 +112,10 @@ class _SplashScreenState extends State<SplashScreen> {
                         height: 1,
                         color: Color(0xFFFFF8E7),
                         shadows: [
-                          Shadow(offset: Offset(0, 5), color: Color(0xFF173A79)),
+                          Shadow(
+                            offset: Offset(0, 5),
+                            color: Color(0xFF173A79),
+                          ),
                           Shadow(
                             offset: Offset(0, 9),
                             blurRadius: 18,
