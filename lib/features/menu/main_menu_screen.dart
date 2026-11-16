@@ -135,16 +135,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           _launch();
           return;
         }
-        final sure = await showConfirmDialog(
-          context,
-          title: Strings.resumeNewTitle,
-          body: Strings.resumeNewBody,
-          cancelLabel: Strings.exitStay,
-          confirmLabel: Strings.resumeNew,
-          dismissible: false,
-        );
-        if (!mounted) return;
-        if (sure != true) return;
+        // « Nouvelle partie » efface la sauvegarde sans second écran (#410).
         await store.clear(key);
       }
     }
