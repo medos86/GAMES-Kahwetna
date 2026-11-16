@@ -23,13 +23,13 @@ class _Device {
   final double topInset;
 }
 
+// L'application est verrouillée en portrait (main.dart) : pas de gabarit paysage.
 const _devices = <_Device>[
   _Device('Galaxy S24', Size(360, 780)),
   _Device('iPhone 15', Size(393, 852), topInset: 59),
   _Device('iPhone SE', Size(375, 667)),
   _Device('Petit écran', Size(320, 568)),
   _Device('Tablette', Size(768, 1024)),
-  _Device('Paysage', Size(852, 393)),
 ];
 
 const _textScales = <double>[1.0, 1.3, 2.0];
