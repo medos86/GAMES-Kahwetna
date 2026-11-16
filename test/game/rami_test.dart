@@ -144,10 +144,10 @@ void main() {
 
   group('donne', () {
     test(
-      'quatre mains de 13, une pioche et une défausse, 108 cartes au total',
+      'quatre mains de 14, une pioche et une défausse, 112 cartes au total',
       () {
         final s = fixedDeal();
-        expect([for (final h in s.hands) h.length], [13, 13, 13, 13]);
+        expect([for (final h in s.hands) h.length], [14, 14, 14, 14]);
         expect(s.discard.length, 1);
         expect(s.stock.length, 55);
         final ids = {

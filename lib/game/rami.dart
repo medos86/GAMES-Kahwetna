@@ -23,7 +23,7 @@ const ramiOpenMin = 51;
 /// Seuil de la prochaine ouverture : 51 pour la première, puis strictement plus que la précédente.
 int minOpening(RamiState state) =>
     state.lastOpening == 0 ? ramiOpenMin : state.lastOpening + 1;
-const _handSize = 13;
+const _handSize = 14;
 const _aceHigh = 14;
 
 /// rank : 1 = As, 11 = Valet, 12 = Dame, 13 = Roi. Le joker a rank 0.
