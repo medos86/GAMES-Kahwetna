@@ -3,6 +3,10 @@ import '../../game/rami.dart' as rules;
 /// Facteur d'agrandissement des cartes de la main (#314 : plus grandes, lisibles).
 const double ramiHandCardScale = 1.6;
 
+/// Écart vertical entre le tapis et la main du joueur (#319) : 2 px au-dessus de la main,
+/// soit 4 px au total (au lieu de 12 px avant).
+const double ramiHandGap = 2;
+
 /// Pioche et défausse, en fraction de la largeur d'une carte de la main (plus grandes qu'avant).
 const double ramiPileScale = 0.6;
 

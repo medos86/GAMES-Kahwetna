@@ -232,7 +232,8 @@ class _RamiScreenState extends State<RamiScreen>
                           _scores(g),
                           const SizedBox(height: 6),
                           Expanded(child: _tableSection(handWidth, g)),
-                          const SizedBox(height: 6),
+                          // Main collée au tapis (#319).
+                          const SizedBox(height: ramiHandGap),
                           _footer(handWidth),
                         ],
                       ),
@@ -812,7 +813,7 @@ class _RamiScreenState extends State<RamiScreen>
   /// Pied : seulement la main (#121 : plus de tri, de compteur ni de libellé de paquets).
   Widget _footer(double handWidth) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
+      padding: const EdgeInsets.fromLTRB(8, ramiHandGap, 8, 8),
       decoration: BoxDecoration(
         color: _creamColor,
         borderRadius: BorderRadius.circular(14),

@@ -58,6 +58,12 @@ void main() {
     expect(many, greaterThanOrEqualTo(36));
   });
 
+  test('main : écart avec le tapis resserré (#319)', () {
+    expect(ramiHandGap, greaterThan(0));
+    // Écart total = SizedBox + padding haut du footer : doit rester sous 6 px (avant : 12 px).
+    expect(ramiHandGap * 2, lessThan(6));
+  });
+
   test('tapis : la largeur calculée fait tenir tous les paquets', () {
     const area = 320.0;
     const height = 260.0;
