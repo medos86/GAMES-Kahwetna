@@ -8,6 +8,10 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   testWidgets('menu principal sans solde de pièces', (tester) async {
+    tester.view.physicalSize = const Size(390, 844) * 3;
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(const MaterialApp(home: MainMenuScreen()));
     await tester.pump(const Duration(seconds: 1));
     expect(find.text('1 250'), findsNothing);
