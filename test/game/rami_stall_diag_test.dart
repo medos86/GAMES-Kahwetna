@@ -26,12 +26,20 @@ void main() {
       final before = state;
       state = aiStep(state, RamiAiLevel.difficile, rng);
       final same = identical(state, before);
+      if (state.lastOpening != before.lastOpening) {
+        print('OUVERTURE seat=${before.turn} valeur=${state.lastOpening}');
+        for (final cards in state.table.skip(before.table.length)) {
+          final vals = cards.cards.map((c) => c.isJoker ? 'J' : '${c.rank}');
+          print('  paquet=${vals.toList()} points=${pointsOf(cards.cards)}');
+        }
+      }
       final main = state.hands.map((h) => h.length).toList();
       recent.add('${state.phase.name} tour=${state.turn} main=$main '
           'pioche=${state.stock.length} def=${state.discard.length} '
           'posés=${state.table.length} staged=${state.staged.length} '
           'lastOp=${state.lastOpening} same=$same');
       if (recent.length > 12) recent.removeAt(0);
+      if (steps > 3000) break;
     }
     print('FIN steps=$steps manches=$rounds gagnant=${state.matchWinner}');
     for (final line in recent) {
