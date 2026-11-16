@@ -33,9 +33,7 @@ Widget _host(Widget child) => MaterialApp(
 );
 
 void main() {
-  testWidgets('affiche le total de manche, le score total et l\'objectif', (
-    tester,
-  ) async {
+  testWidgets('affiche totaux et objectif', (tester) async {
     await tester.pumpWidget(
       _host(ChkobbaRoundCard(summary: _summary(), onContinue: () {})),
     );
@@ -48,9 +46,7 @@ void main() {
     expect(find.text('Objectif : 11 points'), findsOneWidget);
   });
 
-  testWidgets('l\'action « Manche suivante » déclenche onContinue', (
-    tester,
-  ) async {
+  testWidgets('Manche suivante déclenche onContinue', (tester) async {
     var continued = 0;
     await tester.pumpWidget(
       _host(
@@ -62,9 +58,7 @@ void main() {
     expect(continued, 1);
   });
 
-  testWidgets('partie terminée : l\'action mène au résultat final', (
-    tester,
-  ) async {
+  testWidgets('partie finie : action vers le résultat', (tester) async {
     var continued = 0;
     await tester.pumpWidget(
       _host(
