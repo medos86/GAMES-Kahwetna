@@ -12,6 +12,7 @@ import '../menu/menu_models.dart';
 import 'rami_card_view.dart';
 import 'rami_discard_shown.dart';
 import 'rami_hand_layout.dart';
+import 'rami_round_summary.dart';
 import 'rami_round_reveal.dart';
 import 'rami_controller.dart';
 import '../../core/strings.dart';
@@ -1078,9 +1079,9 @@ class _RamiScreenState extends State<RamiScreen>
                     title,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
+                      fontFamily: 'Bangers',
                       color: Colors.white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.w900,
+                      fontSize: 34,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -1106,11 +1107,21 @@ class _RamiScreenState extends State<RamiScreen>
                                   ),
                                 ),
                                 Text(
-                                  '+${result.penalties[seat]}',
+                                  ramiPenaltyText(result.penalties[seat]),
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
                                     fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                                Text(
+                                  ramiSeatReason(
+                                    isWinner: winner == seat,
+                                    opened: g.opened[seat],
+                                  ),
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 10,
                                   ),
                                 ),
                                 Text(
