@@ -285,6 +285,61 @@ void main() {
     });
   });
 
+  group('reprise d\'un joker sur la table (#390)', () {
+    // Table : suite 4-5-[joker]-7 de bâtons, ouvert, tour du joueur 0.
+    RamiState withRun(List<RamiCard> hand) => inPlay(
+          fixedDeal(),
+          hands: [
+            hand,
+            [c(RamiSuit.coupes, 2)],
+            [c(RamiSuit.coupes, 3)],
+            [c(RamiSuit.coupes, 4)],
+          ],
+        ).copyWith(
+          opened: [true, false, false, false],
+          table: [
+            Meld(
+              id: 'm1',
+              cards: [
+                c(RamiSuit.batons, 4, 'b4'),
+                c(RamiSuit.batons, 5, 'b5'),
+                joker,
+                c(RamiSuit.batons, 7, 'b7'),
+              ],
+            ),
+          ],
+        );
+
+    test('la carte naturelle prend la place du joker, le joker revient', () {
+      final s = withRun([
+        c(RamiSuit.batons, 6, 'b6'),
+        c(RamiSuit.coupes, 9, 'x'),
+      ]);
+      final next = layOff(s, 'b6', 'm1');
+      expect(next.table.single.cards.length, 4);
+      expect(next.table.single.cards.any((card) => card.isJoker), isFalse);
+      expect(next.hands[0].any((card) => card.isJoker), isTrue);
+      expect(next.hands[0].any((card) => card.id == 'b6'), isFalse);
+    });
+
+    test('une carte qui ne convient pas au paquet ne reprend rien', () {
+      final s = withRun([
+        c(RamiSuit.coupes, 9, 'x'),
+        c(RamiSuit.coupes, 2, 'y'),
+      ]);
+      final next = layOff(s, 'x', 'm1');
+      expect(identical(next, s), isTrue);
+    });
+
+    test('pas de reprise avant ouverture', () {
+      final s = withRun([c(RamiSuit.batons, 6, 'b6')]).copyWith(
+        opened: [false, false, false, false],
+      );
+      final next = takeJoker(s, 'b6', 'm1');
+      expect(identical(next, s), isTrue);
+    });
+  });
+
   group('première tournée', () {
     final run = [
       c(RamiSuit.epees, 7, 'a'),

@@ -611,6 +611,10 @@ RamiState layOff(RamiState state, String cardId, String meldId) {
   final card = hand[cardIndex];
   final meld = state.table[meldIndex];
 
+  // D'abord reprendre un joker du paquet, s'il peut être remplacé (#390).
+  final taken = takeJoker(state, cardId, meldId);
+  if (!identical(taken, state)) return taken;
+
   final cards = arrangeMeld([...meld.cards, card]);
   if (!isValidMeld(cards)) return state;
 
@@ -624,6 +628,41 @@ RamiState layOff(RamiState state, String cardId, String meldId) {
     hand.where((item) => item.id != cardId).toList(),
   );
   return next.hands[seat].isEmpty ? _finish(next, seat) : next;
+}
+
+/// Reprise d'un joker posé sur la table (#390) : la carte naturelle de la main
+/// prend sa place dans le paquet, s'il reste valide ; le joker revient en main.
+RamiState takeJoker(RamiState state, String cardId, String meldId) {
+  final seat = state.turn;
+  if (state.phase != RamiPhase.play ||
+      state.firstTour ||
+      !state.opened[seat] ||
+      state.staged.isNotEmpty) return state;
+  final hand = state.hands[seat];
+  final cardIndex = hand.indexWhere((item) => item.id == cardId);
+  final meldIndex = state.table.indexWhere((item) => item.id == meldId);
+  if (cardIndex < 0 || meldIndex < 0) return state;
+  final card = hand[cardIndex];
+  if (card.isJoker) return state;
+  final meld = state.table[meldIndex];
+  final jokerIndex = meld.cards.indexWhere((item) => item.isJoker);
+  if (jokerIndex < 0) return state;
+  final joker = meld.cards[jokerIndex];
+
+  final replaced = [...meld.cards]..[jokerIndex] = card;
+  final cards = arrangeMeld(replaced);
+  if (!isValidMeld(cards)) return state;
+
+  final table = [
+    for (final item in state.table)
+      item.id == meldId ? Meld(id: item.id, cards: cards) : item,
+  ];
+  final newHand = [
+    for (final item in hand)
+      if (item.id != cardId) item,
+    joker,
+  ];
+  return _setHand(state.copyWith(table: table), seat, newHand);
 }
 
 RamiState discardCard(RamiState state, String cardId) {
