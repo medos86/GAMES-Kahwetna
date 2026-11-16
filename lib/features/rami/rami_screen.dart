@@ -659,6 +659,23 @@ class _RamiScreenState extends State<RamiScreen>
     flyAfterRender(flights);
   }
 
+  /// Pioche dans la défausse : la carte prise vole de la défausse vers la main (#224).
+  void _drawFromDiscard() {
+    final top = _c.top;
+    final from = _rectOf(_key('discard'));
+    _c.drawFromDiscard();
+    if (top == null || from == null) return;
+    if (!_c.hand.any((card) => card.id == top.id)) return;
+    flyAfterRender([
+      CardFlight(
+        from: from,
+        to: () => _rectOf(_key('hand:${top.id}')),
+        child: RamiCardView(card: top, width: from.width),
+        landingId: top.id,
+      ),
+    ]);
+  }
+
   void _drawFromStock(double width) {
     final from = _rectOf(_key('stock'));
     final before = {for (final card in _c.hand) card.id};
@@ -737,7 +754,9 @@ class _RamiScreenState extends State<RamiScreen>
                       ),
                     )
                   : GestureDetector(
-                      onTap: c.canDraw && !covered ? c.drawFromDiscard : null,
+                      onTap: c.canDraw && !covered
+                          ? () => _drawFromDiscard()
+                          : null,
                       child: RamiCardView(card: shown, width: width),
                     ),
             ),

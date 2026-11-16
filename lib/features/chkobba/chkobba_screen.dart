@@ -299,6 +299,20 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       if (!mounted) return;
       final game = _controller.game;
       var i = 0;
+      // Cartes posées sur le tapis à la donne (#224), avant les mains.
+      for (final card in game.table) {
+        if (rectOfKey(_key('tbl:${card.id}')) == null) continue;
+        unawaited(
+          flyCard(
+            context: context,
+            from: from,
+            to: () => rectOfKey(_key('tbl:${card.id}')),
+            child: ChkobbaCardFace(card: card),
+            delay: _stagger * i,
+          ),
+        );
+        i++;
+      }
       for (final card in game.hands[Player.player]!) {
         if (rectOfKey(_key('hand:${card.id}')) == null) continue;
         unawaited(
