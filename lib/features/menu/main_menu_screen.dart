@@ -24,6 +24,7 @@ import '../../core/services/saved_game_store.dart';
 import '../../widgets/comic_button.dart';
 import '../../widgets/resume_game.dart';
 import '../../core/services/toast.dart';
+import '../../widgets/game_safe_area.dart';
 
 part 'main_menu/menu_background.dart';
 part 'main_menu/menu_header.dart';
@@ -219,40 +220,42 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                 ),
               ),
             ),
-            SafeArea(
-              minimum: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-              child: LayoutBuilder(
-                builder: (context, c) {
-                  final contentWidth = math.min(640.0, c.maxWidth);
-                  final padding = sm ? 28.0 : 16.0;
-                  return Align(
-                    alignment: Alignment.topCenter,
-                    child: SizedBox(
-                      width: contentWidth,
-                      height: c.maxHeight,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: padding),
-                        child: Column(
-                          children: [
-                            _Header(
-                              difficulty: _difficulty,
-                              screen: _screen,
-                              onBack: () => setState(() {
-                                _difficulty = Difficulty.facile;
-                                _screen = _MenuScreen.menu;
-                              }),
-                            ),
-                            Expanded(
-                              child: _screen == _MenuScreen.menu
-                                  ? _buildMenu(vw: vw, sm: sm, md: md)
-                                  : _buildDifficulty(vw: vw, sm: sm),
-                            ),
-                          ],
+            GameSafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+                child: LayoutBuilder(
+                  builder: (context, c) {
+                    final contentWidth = math.min(640.0, c.maxWidth);
+                    final padding = sm ? 28.0 : 16.0;
+                    return Align(
+                      alignment: Alignment.topCenter,
+                      child: SizedBox(
+                        width: contentWidth,
+                        height: c.maxHeight,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: padding),
+                          child: Column(
+                            children: [
+                              _Header(
+                                difficulty: _difficulty,
+                                screen: _screen,
+                                onBack: () => setState(() {
+                                  _difficulty = Difficulty.facile;
+                                  _screen = _MenuScreen.menu;
+                                }),
+                              ),
+                              Expanded(
+                                child: _screen == _MenuScreen.menu
+                                    ? _buildMenu(vw: vw, sm: sm, md: md)
+                                    : _buildDifficulty(vw: vw, sm: sm),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
           ],
