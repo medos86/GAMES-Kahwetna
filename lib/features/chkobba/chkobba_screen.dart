@@ -487,7 +487,16 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                           key: _key('table'),
                           cards: slots,
                           columns: columns,
-                          emptyLabel: 'Chkobba !',
+                        ),
+                      ),
+                    ),
+                  if (_controller.chkobbaBy != null)
+                    Positioned.fill(
+                      child: Center(
+                        child: ChkobbaBanner(
+                          text: 'Chkobba !',
+                          colors: style.chkobbaGradient,
+                          angle: -0.1,
                         ),
                       ),
                     ),
