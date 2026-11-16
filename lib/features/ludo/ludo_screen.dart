@@ -17,6 +17,9 @@ import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
 import '../../widgets/pulse_glow.dart';
+import '../../core/theme/comic_palette.dart';
+import '../../widgets/dialog_button.dart';
+import '../../widgets/result_dialog.dart';
 
 part 'ludo_parts/ludo_header_players.dart';
 part 'ludo_parts/ludo_die.dart';
