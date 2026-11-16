@@ -23,7 +23,7 @@ const ramiOpenMin = 51;
 /// Seuil de la prochaine ouverture : 51 pour la première, puis strictement plus que la précédente.
 int minOpening(RamiState state) =>
     state.lastOpening == 0 ? ramiOpenMin : state.lastOpening + 1;
-const _handSize = 13;
+const _handSize = 14;
 const _aceHigh = 14;
 
 /// rank : 1 = As, 11 = Valet, 12 = Dame, 13 = Roi. Le joker a rank 0.
@@ -250,10 +250,33 @@ int nextSeat(int seat) => (seat + 1) % 4;
 List<RamiCard> _naturalsOf(List<RamiCard> cards) =>
     cards.where((c) => !c.isJoker).toList();
 
+/// Valeur d'une carte en main (fin de manche, #416) : joker 20, as 1, 2 à 9 leur chiffre, figures 10.
 int cardValue(RamiCard card) => card.isJoker ? 20 : math.min(card.rank, 10);
 
-int pointsOf(List<RamiCard> cards) =>
+/// Points des cartes restées en main (fin de manche).
+int handPointsOf(List<RamiCard> cards) =>
     cards.fold<int>(0, (sum, card) => sum + cardValue(card));
+
+/// Valeur d'une position de suite : as haut (14) = 10, as bas (1) = 1, figures 10.
+int _valueAtPosition(int pos) => pos == _aceHigh ? 10 : math.min(pos, 10);
+
+/// Points d'un paquet posé sur la table (#422) : selon sa position,
+/// l'as vaut 10 côté roi ou dans un brelan d'as, 1 côté 2 ; le joker vaut la carte qu'il remplace.
+/// Un ensemble invalide compte ses cartes en main.
+int pointsOf(List<RamiCard> cards) {
+  if (!isValidMeld(cards)) return handPointsOf(cards);
+  if (_isSet(cards)) {
+    final rank = _naturalsOf(cards).first.rank;
+    final value = rank == 1 ? 10 : math.min(rank, 10);
+    return cards.length * value;
+  }
+  final span = _runSpan(cards)!;
+  var sum = 0;
+  for (var i = 0; i < span.order.length; i++) {
+    sum += _valueAtPosition(span.low + i);
+  }
+  return sum;
+}
 
 List<RamiCard> _createDeck(RandomDouble random) {
   final cards = <RamiCard>[];
@@ -279,7 +302,10 @@ List<RamiCard> _createDeck(RandomDouble random) {
 
 /// Suite : une seule couleur, rangs distincts qui se suivent (As bas ou haut, sans boucler).
 /// Les jokers comblent les trous. Renvoie l'ordre des cartes, ou null.
-List<RamiCard>? _runOrder(List<RamiCard> cards) {
+List<RamiCard>? _runOrder(List<RamiCard> cards) => _runSpan(cards)?.order;
+
+/// Ordre d'une suite et position (1 à 14) de sa première carte.
+({List<RamiCard> order, int low})? _runSpan(List<RamiCard> cards) {
   final naturals = _naturalsOf(cards);
   final jokers = cards.where((c) => c.isJoker).toList();
   if (naturals.length < 2 ||
@@ -308,7 +334,7 @@ List<RamiCard>? _runOrder(List<RamiCard> cards) {
       }
       order.add(slotCard ?? jokers[joker++]);
     }
-    return order;
+    return (order: order, low: low);
   }
   return null;
 }
@@ -423,7 +449,7 @@ RamiState _finish(RamiState state, int? winner) {
       else if (!state.opened[seat])
         100
       else
-        pointsOf(state.hands[seat]),
+        handPointsOf(state.hands[seat]),
   ];
   final scores = [
     for (final seat in ramiSeats) state.scores[seat] + penalties[seat],
