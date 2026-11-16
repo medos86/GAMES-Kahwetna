@@ -34,8 +34,14 @@ class GameScaffold extends StatelessWidget {
   // Hauteur de la bannière et marge au-dessus : le contenu ne passe pas dessous.
   static const double _adReservedHeight = kAdBannerHeight + 16;
 
+  /// Mise en page toujours en LTR, même en arabe : les boutons gardent leur place (#241).
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Directionality(
+        textDirection: TextDirection.ltr,
+        child: _buildBody(context),
+      );
+
+  Widget _buildBody(BuildContext context) {
     final media = MediaQuery.of(context);
     final bottomInset = media.padding.bottom;
     final width = media.size.width;
