@@ -12,11 +12,11 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Direction explicite sur cet écran (#157) : la flèche et les libellés suivent la langue choisie.
+    // Mise en page en LTR même en arabe (#241) : les réglages gardent leur place d'une langue à l'autre.
     return ValueListenableBuilder<AppLanguage>(
       valueListenable: appLanguage,
       builder: (context, language, _) => Directionality(
-        textDirection: isRtl(language) ? TextDirection.rtl : TextDirection.ltr,
+        textDirection: TextDirection.ltr,
         child: Scaffold(
           backgroundColor: ComicPalette.paper,
           appBar: AppBar(
