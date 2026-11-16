@@ -8,7 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  testWidgets('Rami : compteurs retirés, ouverture min. en bas', (tester) async {
+  testWidgets('Rami : compteurs retirés, ouverture min. en bas', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(360, 780) * 3;
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.resetPhysicalSize);
