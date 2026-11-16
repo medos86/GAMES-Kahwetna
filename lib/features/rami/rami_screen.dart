@@ -1033,8 +1033,9 @@ class _RamiScreenState extends State<RamiScreen>
             : winner == null
                 ? Strings.drawExhausted
                 : '${_seatNames[winner]} gagne la manche';
+    final isOver = matchWinner != null;
     return RoundEndPanel(
-      badge: matchWinner != null ? Strings.matchOver : 'MANCHE ${g.round}',
+      badge: isOver ? Strings.matchOver : 'MANCHE ${g.round}',
       title: title,
       rows: [
         for (var seat = 0; seat < 4; seat++)
@@ -1049,13 +1050,10 @@ class _RamiScreenState extends State<RamiScreen>
             highlight: winner == seat,
           ),
       ],
-      primaryLabel:
-          matchWinner != null ? Strings.replay : Strings.nextRoundButton,
-      onPrimary: () => _deal(matchWinner != null ? _c.restart : _c.nextRound),
-      secondaryLabel: matchWinner != null ? Strings.backToMenu : null,
-      onSecondary: matchWinner != null
-          ? () => Navigator.of(context).maybePop()
-          : null,
+      primaryLabel: isOver ? Strings.replay : Strings.nextRoundButton,
+      onPrimary: () => _deal(isOver ? _c.restart : _c.nextRound),
+      secondaryLabel: isOver ? Strings.backToMenu : null,
+      onSecondary: isOver ? () => Navigator.of(context).maybePop() : null,
     );
   }
 }

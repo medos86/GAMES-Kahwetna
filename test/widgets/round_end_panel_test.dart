@@ -31,7 +31,12 @@ void main() {
               reason: 'Gagnant',
               highlight: true,
             ),
-            RoundEndRow(name: 'Ali', delta: 100, total: 200, reason: 'Pas ouvert'),
+            RoundEndRow(
+              name: 'Ali',
+              delta: 100,
+              total: 200,
+              reason: 'Pas ouvert',
+            ),
           ],
           primaryLabel: 'Suivant',
           onPrimary: () => tapped = true,
