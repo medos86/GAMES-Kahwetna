@@ -67,11 +67,17 @@ abstract class PersistentGameController extends ChangeNotifier {
     startFresh();
   }
 
+  int _jumpRevision = 0;
+
+  /// Change à chaque « Reprendre » : les pions reprennent leur place sans animation de trajet.
+  int get jumpRevision => _jumpRevision;
+
   /// « Reprendre » : remet la partie sauvegardée en place.
   void resume() {
     final json = _saved;
     if (json == null) return;
     _saved = null;
+    _jumpRevision++;
     applySnapshot(json);
     startFresh();
     notifyListeners();
