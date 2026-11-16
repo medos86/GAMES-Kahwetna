@@ -23,7 +23,9 @@ import '../../widgets/game_safe_area.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
-import '../../widgets/round_end_panel.dart';
+import '../../core/theme/comic_palette.dart';
+import '../../widgets/dialog_button.dart';
+import '../../widgets/result_dialog.dart';
 import '../../widgets/trophy_badge.dart';
 import '../../widgets/card_motion.dart';
 import '../../widgets/difficulty_chip.dart';
@@ -1033,26 +1035,61 @@ class _RamiScreenState extends State<RamiScreen>
                 ? Strings.drawExhausted
                 : '${_seatNames[winner]} gagne la manche';
     final isOver = matchWinner != null;
-    return RoundEndPanel(
-      badge: isOver ? Strings.matchOver : 'MANCHE ${g.round}',
-      title: title,
-      rows: [
-        for (var seat = 0; seat < 4; seat++)
-          RoundEndRow(
-            name: _seatNames[seat],
-            delta: result.penalties[seat],
-            total: g.scores[seat],
-            reason: ramiSeatReason(
-              isWinner: winner == seat,
-              opened: g.opened[seat],
-            ),
-            highlight: winner == seat,
+    final badge = isOver ? Strings.matchOver : 'MANCHE ${g.round}';
+    return ColoredBox(
+      color: Colors.black54,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ResultDialog(
+            title: title,
+            children: [
+              Text(
+                badge,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: ComicPalette.ink,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  for (var seat = 0; seat < 4; seat++)
+                    Expanded(
+                      child: ResultScoreBox(
+                        name: _seatNames[seat],
+                        value: signedScore(result.penalties[seat]),
+                        total: '${g.scores[seat]}',
+                        reason: ramiSeatReason(
+                          isWinner: winner == seat,
+                          opened: g.opened[seat],
+                        ),
+                        highlight: winner == seat,
+                      ),
+                    ),
+                ],
+              ),
+            ],
+            actions: [
+              DialogButton(
+                label: isOver ? Strings.replay : Strings.nextRoundButton,
+                onTap: () => _deal(isOver ? _c.restart : _c.nextRound),
+              ),
+              if (isOver)
+                TextButton(
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  child: Text(
+                    Strings.backToMenu,
+                    style: const TextStyle(color: ComicPalette.ink),
+                  ),
+                ),
+            ],
           ),
-      ],
-      primaryLabel: isOver ? Strings.replay : Strings.nextRoundButton,
-      onPrimary: () => _deal(isOver ? _c.restart : _c.nextRound),
-      secondaryLabel: isOver ? Strings.backToMenu : null,
-      onSecondary: isOver ? () => Navigator.of(context).maybePop() : null,
+        ),
+      ),
     );
   }
 }
