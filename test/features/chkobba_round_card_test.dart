@@ -5,32 +5,38 @@ import 'package:kahwetne/game/chkobba.dart';
 import 'package:kahwetne/game/common.dart';
 
 // Issue #295 : le récapitulatif de manche Chkobba est affiché via ResultDialog.
-ChkobbaState _state({Player? winner}) => ChkobbaState(
-  targetScore: 11,
-  deck: const [],
-  hands: {Player.player: [], Player.opponent: []},
-  table: const [],
-  won: {Player.player: [], Player.opponent: []},
-  chkobbas: {Player.player: 0, Player.opponent: 0},
-  scores: {Player.player: 4, Player.opponent: 3},
-  lastCapturer: null,
-  turn: Player.player,
-  starter: Player.player,
-  round: 1,
-  winner: winner,
-);
+ChkobbaState _state({Player? winner}) {
+  return ChkobbaState(
+    targetScore: 11,
+    deck: const [],
+    hands: {Player.player: [], Player.opponent: []},
+    table: const [],
+    won: {Player.player: [], Player.opponent: []},
+    chkobbas: {Player.player: 0, Player.opponent: 0},
+    scores: {Player.player: 4, Player.opponent: 3},
+    lastCapturer: null,
+    turn: Player.player,
+    starter: Player.player,
+    round: 1,
+    winner: winner,
+  );
+}
 
-ChkobbaRoundScore _summary({Player? winner}) => ChkobbaRoundScore(
-  state: _state(winner: winner),
-  points: {
-    Player.player: [const RoundPoint('Cartes', 2)],
-    Player.opponent: [const RoundPoint('Deniers', 1)],
-  },
-);
+ChkobbaRoundScore _summary({Player? winner}) {
+  return ChkobbaRoundScore(
+    state: _state(winner: winner),
+    points: {
+      Player.player: [const RoundPoint('Cartes', 2)],
+      Player.opponent: [const RoundPoint('Deniers', 1)],
+    },
+  );
+}
 
-Widget _host(Widget child) => MaterialApp(
-  home: Scaffold(body: SingleChildScrollView(child: child)),
-);
+Widget _host(Widget child) {
+  return MaterialApp(
+    home: Scaffold(body: SingleChildScrollView(child: child)),
+  );
+}
 
 void main() {
   testWidgets('affiche totaux et objectif', (tester) async {
