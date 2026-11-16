@@ -47,3 +47,25 @@ jobs:
           }' coverage/lcov.info
           echo "Fichiers avec le plus de lignes non couvertes (non couvertes, couvertes/total, fichier) :"
           awk -F: '/^SF:/{f=substr($0,4)} /^LF:/{lf=$2} /^LH:/{lh=$2} /^end_of_record/{printf "%d\t%d/%d\t%s\n", lf-lh, lh, lf, f}' coverage/lcov.info | sort -rn | head -25
+
+  # Build iOS sans signature (#175) : détecte tôt les erreurs de compilation iOS.
+  ios-build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+
+      - name: Générer le dossier ios/
+        # Le dépôt ne contient pas ios/ : on le génère ici, sans toucher à lib/ ni à pubspec.yaml.
+        run: flutter create --platforms=ios --project-name kahwetne --org com.kahwetne .
+
+      - name: Dépendances
+        run: flutter pub get
+
+      - name: Build iOS (sans signature)
+        run: flutter build ios --no-codesign --debug
