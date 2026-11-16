@@ -7,6 +7,10 @@ const double ramiHandCardScale = 1.6;
 /// soit 4 px au total (au lieu de 12 px avant).
 const double ramiHandGap = 2;
 
+/// Espace gagné sous le tapis par #319 (12 px avant, 4 px après) : le calcul des cartes du tapis
+/// garde sa hauteur d'avant pour que le rendu ne change pas.
+const double ramiHandGapSaved = 8;
+
 /// Pioche et défausse, en fraction de la largeur d'une carte de la main (plus grandes qu'avant).
 const double ramiPileScale = 0.6;
 

@@ -397,7 +397,8 @@ class _RamiScreenState extends State<RamiScreen>
                 final meldWidth = ramiTableCardWidth(
                   sizes,
                   constraints.maxWidth - 16,
-                  constraints.maxHeight - 12,
+                  // Hauteur d'avant #319 : le gain d'espace reste en marge, les cartes du tapis ne grossissent pas.
+                  constraints.maxHeight - 12 - ramiHandGapSaved,
                   handWidth * 0.8,
                 );
                 return _tableCards(meldWidth, g);

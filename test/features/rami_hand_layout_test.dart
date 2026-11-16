@@ -62,6 +62,8 @@ void main() {
     expect(ramiHandGap, greaterThan(0));
     // Écart total = SizedBox + padding haut du footer : doit rester sous 6 px (avant : 12 px).
     expect(ramiHandGap * 2, lessThan(6));
+    // L'espace gagné correspond à l'ancien écart (12 px) moins le nouveau (4 px).
+    expect(ramiHandGapSaved, 12 - ramiHandGap * 2);
   });
 
   test('tapis : la largeur calculée fait tenir tous les paquets', () {
