@@ -9,6 +9,7 @@ import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
 import '../../core/theme/game_style.dart';
 import '../../core/theme/scoba_palette.dart';
+import '../../core/theme/comic_palette.dart';
 import '../../game/chkobba.dart';
 import '../../game/common.dart';
 import '../menu/menu_models.dart';
@@ -17,6 +18,7 @@ import 'chkobba_controller.dart';
 import 'chkobba_rules_screen.dart';
 import 'chkobba_table.dart';
 import '../../widgets/exit_guard.dart';
+import '../../widgets/result_dialog.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
@@ -546,7 +548,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
               child: Center(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
-                  child: _RoundCard(
+                  child: ChkobbaRoundCard(
                     summary: summary,
                     onContinue: () => _deal(_controller.continueAfterRound),
                   ),
