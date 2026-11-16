@@ -97,3 +97,69 @@ class ResultDialog extends StatelessWidget {
     );
   }
 }
+
+/// Formate une variation de score avec son signe : +100, -10, 0.
+String signedScore(int value) => value > 0 ? '+$value' : '$value';
+
+/// Carte de score d'un joueur ou d'une équipe dans un [ResultDialog] (issue #295).
+/// Affiche le nom, la variation signée, le motif éventuel et le total.
+class ResultScoreBox extends StatelessWidget {
+  const ResultScoreBox({
+    super.key,
+    required this.name,
+    required this.value,
+    required this.total,
+    this.reason,
+    this.highlight = false,
+  });
+
+  final String name;
+  final String value;
+  final String total;
+  final String? reason;
+  final bool highlight;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 3),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: highlight ? ComicPalette.gold : ComicPalette.paper,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: ComicPalette.ink, width: 3),
+      ),
+      child: Column(
+        children: [
+          Text(
+            name.toUpperCase(),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: ComicPalette.ink,
+              fontWeight: FontWeight.w900,
+              fontSize: 11,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              color: ComicPalette.ink,
+              fontFamily: 'Bangers',
+              fontSize: 26,
+            ),
+          ),
+          if (reason != null)
+            Text(
+              reason!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: ComicPalette.ink, fontSize: 10),
+            ),
+          Text(
+            'Total $total',
+            style: const TextStyle(color: ComicPalette.ink, fontSize: 10),
+          ),
+        ],
+      ),
+    );
+  }
+}

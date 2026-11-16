@@ -23,10 +23,12 @@ import '../../widgets/game_safe_area.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
+import '../../core/theme/comic_palette.dart';
+import '../../widgets/dialog_button.dart';
+import '../../widgets/result_dialog.dart';
 import '../../widgets/trophy_badge.dart';
 import '../../widgets/card_motion.dart';
 import '../../widgets/difficulty_chip.dart';
-import '../../widgets/dialog_button.dart';
 import '../../widgets/game_header.dart';
 import 'rami_action_button.dart';
 
@@ -1032,132 +1034,59 @@ class _RamiScreenState extends State<RamiScreen>
             : winner == null
                 ? Strings.drawExhausted
                 : '${_seatNames[winner]} gagne la manche';
-
+    final isOver = matchWinner != null;
+    final badge = isOver ? Strings.matchOver : 'MANCHE ${g.round}';
     return ColoredBox(
       color: Colors.black54,
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF059669),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.black, width: 4),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black, offset: Offset(0, 7)),
-                ],
+          child: ResultDialog(
+            title: title,
+            children: [
+              Text(
+                badge,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: ComicPalette.ink,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.5,
+                ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+              const SizedBox(height: 14),
+              Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _goldColor,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.black, width: 2),
-                    ),
-                    child: Text(
-                      matchWinner != null
-                          ? Strings.matchOver
-                          : 'MANCHE ${g.round}',
-                      style: const TextStyle(
-                        color: Color(0xFF17213D),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontFamily: 'Bangers',
-                      color: Colors.white,
-                      fontSize: 34,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      for (var seat = 0; seat < 4; seat++)
-                        Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 3),
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.black26,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  _seatNames[seat].toUpperCase(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                                Text(
-                                  ramiPenaltyText(result.penalties[seat]),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                                Text(
-                                  ramiSeatReason(
-                                    isWinner: winner == seat,
-                                    opened: g.opened[seat],
-                                  ),
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                                Text(
-                                  'Total ${g.scores[seat]}',
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                  for (var seat = 0; seat < 4; seat++)
+                    Expanded(
+                      child: ResultScoreBox(
+                        name: _seatNames[seat],
+                        value: signedScore(result.penalties[seat]),
+                        total: '${g.scores[seat]}',
+                        reason: ramiSeatReason(
+                          isWinner: winner == seat,
+                          opened: g.opened[seat],
                         ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  if (matchWinner != null) ...[
-                    DialogButton(
-                      label: Strings.replay,
-                      onTap: () => _deal(_c.restart),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).maybePop(),
-                      child: Text(
-                        Strings.backToMenu,
-                        style: TextStyle(color: Colors.white70),
+                        highlight: winner == seat,
                       ),
-                    ),
-                  ] else
-                    DialogButton(
-                      label: Strings.nextRoundButton,
-                      onTap: () => _deal(_c.nextRound),
                     ),
                 ],
               ),
-            ),
+            ],
+            actions: [
+              DialogButton(
+                label: isOver ? Strings.replay : Strings.nextRoundButton,
+                onTap: () => _deal(isOver ? _c.restart : _c.nextRound),
+              ),
+              if (isOver)
+                TextButton(
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  child: Text(
+                    Strings.backToMenu,
+                    style: const TextStyle(color: ComicPalette.ink),
+                  ),
+                ),
+            ],
           ),
         ),
       ),
