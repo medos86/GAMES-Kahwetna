@@ -331,6 +331,58 @@ void main() {
       expect(identical(next, s), isTrue);
     });
 
+    // Table : brelan de dames [dame, dame, joker] (#443).
+    RamiState withSet(List<RamiCard> hand) => inPlay(
+          fixedDeal(),
+          hands: [
+            hand,
+            [c(RamiSuit.coupes, 2)],
+            [c(RamiSuit.coupes, 3)],
+            [c(RamiSuit.coupes, 4)],
+          ],
+        ).copyWith(
+          opened: [true, false, false, false],
+          table: [
+            Meld(
+              id: 'm1',
+              cards: [
+                c(RamiSuit.batons, 12, 'd1'),
+                c(RamiSuit.coupes, 12, 'd2'),
+                joker,
+              ],
+            ),
+          ],
+        );
+
+    test('brelan dame dame joker : une dame posée ne reprend pas le joker', () {
+      final s = withSet([c(RamiSuit.epees, 12, 'd3')]);
+      final next = takeJoker(s, 'd3', 'm1');
+      expect(identical(next, s), isTrue);
+      final laid = layOff(s, 'd3', 'm1');
+      expect(laid.table.single.cards.any((card) => card.isJoker), isTrue);
+      expect(laid.table.single.cards.length, 4);
+    });
+
+    test('carré dame dame dame joker : une dame posée reprend le joker', () {
+      final s = withSet([c(RamiSuit.epees, 12, 'd3')]).copyWith(
+        table: [
+          Meld(
+            id: 'm1',
+            cards: [
+              c(RamiSuit.batons, 12, 'd1'),
+              c(RamiSuit.coupes, 12, 'd2'),
+              c(RamiSuit.coupes, 12, 'd4'),
+              joker,
+            ],
+          ),
+        ],
+      );
+      final next = takeJoker(s, 'd3', 'm1');
+      expect(identical(next, s), isFalse);
+      expect(next.table.single.cards.any((card) => card.isJoker), isFalse);
+      expect(next.hands[0].any((card) => card.isJoker), isTrue);
+    });
+
     test('pas de reprise avant ouverture', () {
       final s = withRun([c(RamiSuit.batons, 6, 'b6')]).copyWith(
         opened: [false, false, false, false],
