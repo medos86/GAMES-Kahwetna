@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/strings.dart';
+import '../../widgets/game_safe_area.dart';
 
 /// Écran d'ouverture : fond du village, titre et message, puis passage au widget `next`.
 /// Un appui sur l'écran passe directement à la suite.
@@ -93,7 +94,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
               ),
             ),
-            SafeArea(
+            GameSafeArea(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

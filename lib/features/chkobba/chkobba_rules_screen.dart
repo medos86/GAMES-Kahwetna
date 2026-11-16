@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../../widgets/game_safe_area.dart';
 import '../../widgets/texture_patterns.dart';
 import '../../core/strings.dart';
 
@@ -85,7 +86,7 @@ class ChkobbaRulesScreen extends StatelessWidget {
               ),
             ),
           ),
-          SafeArea(
+          GameSafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
               child: Center(
