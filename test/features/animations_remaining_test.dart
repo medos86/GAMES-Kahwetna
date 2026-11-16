@@ -12,6 +12,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Animations restantes de #224 : pioche dans la défausse (Rami) et
 // cartes posées sur le tapis à la donne (Chkobba).
+/// Plus grand nombre de copies de [finder] vues image par image pendant [frames] images.
+Future<int> _peak(WidgetTester tester, Finder finder, int frames) async {
+  var peak = 0;
+  for (var i = 0; i < frames; i++) {
+    await tester.pump(const Duration(milliseconds: 20));
+    final count = finder.evaluate().length;
+    if (count > peak) peak = count;
+  }
+  return peak;
+}
+
 ChkobbaCard _card(ChkobbaSuit suit, int rank) =>
     ChkobbaCard(suit: suit, rank: rank, id: '${suit.name}-$rank');
 
@@ -59,15 +70,14 @@ void main() {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 400)),
     );
-    await tester.pump();
-    Finder faceOf() => find.byWidgetPredicate(
-          (w) => w is ChkobbaCardFace && w.card.id == tableCard.id,
-        );
-    // Pendant le vol : une copie de plus de la carte du tapis à l'écran.
-    final during = faceOf().evaluate().length;
+    final faceOf = find.byWidgetPredicate(
+      (w) => w is ChkobbaCardFace && w.card.id == tableCard.id,
+    );
+    // Pendant la donne : une copie de plus de la carte du tapis en vol.
+    final peak = await _peak(tester, faceOf, 150);
     await tester.pump(const Duration(seconds: 3));
     expect(tester.takeException(), isNull);
-    expect(during, greaterThan(faceOf().evaluate().length));
+    expect(peak, greaterThan(faceOf.evaluate().length));
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
@@ -100,16 +110,14 @@ void main() {
     );
     if (pile.evaluate().isEmpty) return;
     final topId = tester.widget<RamiCardView>(pile.first).card.id;
-    Finder faceOf() => find.byWidgetPredicate(
-          (w) => w is RamiCardView && w.card.id == topId,
-        );
+    final faceOf = find.byWidgetPredicate(
+      (w) => w is RamiCardView && w.card.id == topId,
+    );
     await tester.tap(pile.first);
-    await tester.pump(const Duration(milliseconds: 50));
-    expect(tester.takeException(), isNull);
-    final during = faceOf().evaluate().length;
+    final peak = await _peak(tester, faceOf, 100);
     await tester.pump(const Duration(seconds: 3));
     expect(tester.takeException(), isNull);
-    expect(during, greaterThan(faceOf().evaluate().length));
+    expect(peak, greaterThan(faceOf.evaluate().length));
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
