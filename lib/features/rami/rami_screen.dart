@@ -185,8 +185,14 @@ class _RamiScreenState extends State<RamiScreen>
   // Construction
   // -------------------------------------------------------------------------
 
+  /// Mise en page en LTR, même en arabe : les boutons gardent leur place (#241).
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Directionality(
+        textDirection: TextDirection.ltr,
+        child: _buildScreen(context),
+      );
+
+  Widget _buildScreen(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     final metrics = DeviceMetrics(width: size.width, height: size.height);
     // Cartes agrandies sur l'écran Rami (la formule de DeviceMetrics reste celle du source).
