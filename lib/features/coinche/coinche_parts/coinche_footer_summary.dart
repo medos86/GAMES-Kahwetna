@@ -124,7 +124,8 @@ class _SummaryDialog extends StatelessWidget {
     final summary = controller.summary!;
     final match = controller.match;
     final winner = match.winner;
-    final title = winner != null
+    final ended = winner != null;
+    final title = ended
         ? (winner == Team.ns ? 'Victoire !' : 'Défaite')
         : summary.made
             ? (summary.capot ? 'Capot !' : 'Contrat réussi')
@@ -138,130 +139,99 @@ class _SummaryDialog extends StatelessWidget {
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF059669),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.black, width: 4),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black, offset: Offset(0, 7)),
-                ],
+          child: ResultDialog(
+            title: title,
+            children: [
+              Text(
+                ended ? 'PARTIE TERMINÉE' : 'MANCHE ${match.round - 1}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: ComicPalette.ink,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.5,
+                ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+              const SizedBox(height: 4),
+              Text(
+                '${summary.contract.value} ${coincheSuitSymbol(summary.contract.mode)}$multiplier'
+                ' · ${_teamLabel[teamOf(summary.contract.seat)]}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: ComicPalette.ink,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _goldColor,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.black, width: 2),
-                    ),
-                    child: Text(
-                      winner != null
-                          ? 'PARTIE TERMINÉE'
-                          : 'MANCHE ${match.round - 1}',
-                      style: const TextStyle(
-                        color: Color(0xFF17213D),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${summary.contract.value} ${coincheSuitSymbol(summary.contract.mode)}$multiplier'
-                    ' · ${_teamLabel[teamOf(summary.contract.seat)]}',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      for (final team in Team.values)
-                        Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.black26,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  _teamLabel[team]!.toUpperCase(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                                Text(
-                                  '+${summary.awarded[team]}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                                Text(
-                                  'Cartes ${summary.points[team]}',
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                                Text(
-                                  'Total ${match.scores[team]}',
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                  for (final team in Team.values)
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: ComicPalette.paper,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: ComicPalette.ink, width: 3),
                         ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  if (winner != null) ...[
-                    DialogButton(
-                      label: t('replay'),
-                      onTap: controller.restart,
-                    ),
-                    TextButton(
-                      onPressed: onMenu,
-                      child: Text(
-                        t('backToMenu'),
-                        style: TextStyle(color: Colors.white70),
+                        child: Column(
+                          children: [
+                            Text(
+                              _teamLabel[team]!.toUpperCase(),
+                              style: const TextStyle(
+                                color: ComicPalette.ink,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            Text(
+                              '+${summary.awarded[team]}',
+                              style: const TextStyle(
+                                color: ComicPalette.ink,
+                                fontFamily: 'Bangers',
+                                fontSize: 28,
+                              ),
+                            ),
+                            Text(
+                              'Cartes ${summary.points[team]}',
+                              style: const TextStyle(
+                                color: ComicPalette.ink,
+                                fontSize: 11,
+                              ),
+                            ),
+                            Text(
+                              'Total ${match.scores[team]}',
+                              style: const TextStyle(
+                                color: ComicPalette.ink,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ] else
-                    DialogButton(
-                      label: t('nextRound'),
-                      onTap: controller.nextRound,
                     ),
                 ],
               ),
-            ),
+            ],
+            actions: [
+              if (ended) ...[
+                DialogButton(
+                  label: t('replay'),
+                  onTap: controller.restart,
+                ),
+                TextButton(
+                  onPressed: onMenu,
+                  child: Text(
+                    t('backToMenu'),
+                    style: const TextStyle(color: ComicPalette.ink),
+                  ),
+                ),
+              ] else
+                DialogButton(
+                  label: t('nextRound'),
+                  onTap: controller.nextRound,
+                ),
+            ],
           ),
         ),
       ),
