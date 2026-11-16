@@ -15,9 +15,8 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        if (screen == _MenuScreen.menu)
-          const _CoinsPill()
-        else
+        // Pas de solde affiché : aucune économie n'est définie (#118).
+        if (screen != _MenuScreen.menu)
           _GlassButton(
             onTap: onBack,
             semanticLabel: Strings.menuBackToGames,
@@ -54,46 +53,6 @@ class _Header extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-class _CoinsPill extends StatelessWidget {
-  const _CoinsPill();
-
-  @override
-  Widget build(BuildContext context) {
-    return _GlassButton(
-      semanticLabel: Strings.menuCoinBalance,
-      onTap: () {},
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 28,
-            height: 28,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Color(0xFFFFD74A),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.monetization_on,
-                size: 16,
-                color: Color(0xFF7C4A00),
-              ),
-            ),
-          ),
-          SizedBox(width: 8),
-          Text(
-            '1 250',
-            style: TextStyle(
-              fontWeight: FontWeight.w900,
-              fontFeatures: [FontFeature.tabularFigures()],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

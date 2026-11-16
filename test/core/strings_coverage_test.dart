@@ -11,7 +11,6 @@ void main() {
     expect(Strings.menuBack, isNotEmpty);
     expect(Strings.menuToggleSound, isNotEmpty);
     expect(Strings.menuOpenSettings, isNotEmpty);
-    expect(Strings.menuCoinBalance, isNotEmpty);
     expect(Strings.menuTagline, isNotEmpty);
     expect(Strings.menuChooseTable, isNotEmpty);
     expect(Strings.menuStart, isNotEmpty);
