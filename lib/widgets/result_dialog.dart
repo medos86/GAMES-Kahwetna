@@ -4,33 +4,17 @@ import 'package:material_ui/material_ui.dart';
 
 import '../core/theme/comic_palette.dart';
 
-/// Style du récapitulatif (issue #295).
-/// Un seul rendu BD désormais : papier, encre noire, titre en Bangers.
-/// Les valeurs [comicGreen] et [dark] sont conservées pour compatibilité et rendent le même style BD.
-enum ResultDialogStyle {
-  /// Style BD (à utiliser pour tout nouvel écran).
-  bd,
-
-  /// Ancien style vert comic (obsolète) : rendu identique à [bd].
-  comicGreen,
-
-  /// Ancien style sombre (obsolète) : rendu identique à [bd].
-  dark,
-}
-
 /// Boîte de dialogue de fin de manche / de partie, en style BD (issue #295).
 /// Affichée par [ResultDialog.show] sur fond flouté (4 px) et assombri.
 class ResultDialog extends StatelessWidget {
   const ResultDialog({
     super.key,
-    this.style = ResultDialogStyle.bd,
     required this.title,
     this.icon,
     this.children = const [],
     this.actions = const [],
   });
 
-  final ResultDialogStyle style;
   final String title;
   final IconData? icon;
   final List<Widget> children;

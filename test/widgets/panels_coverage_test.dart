@@ -7,12 +7,11 @@ import 'package:kahwetne/widgets/trophy_badge.dart';
 // Fenêtre de résultat, motifs de fond et trophée du score cible (#167 : couverture).
 void main() {
   testWidgets('fenêtre de résultat dans chaque style', (tester) async {
-    for (final style in ResultDialogStyle.values) {
+    {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: ResultDialog(
-              style: style,
               title: 'Bravo',
               icon: Icons.emoji_events,
               children: const [Text('Contenu')],
@@ -88,7 +87,6 @@ Widget _opener() {
       onPressed: () => ResultDialog.show<void>(
         context,
         builder: (_) => const ResultDialog(
-          style: ResultDialogStyle.comicGreen,
           title: 'Fin',
         ),
       ),

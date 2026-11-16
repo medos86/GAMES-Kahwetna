@@ -5,33 +5,30 @@ import 'package:kahwetne/widgets/result_dialog.dart';
 
 /// Issue #295 : le récapitulatif de fin de manche/partie est en style BD, pour tous les styles.
 void main() {
-  for (final style in ResultDialogStyle.values) {
-    testWidgets('ResultDialog ${style.name} : fond papier', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ResultDialog(
-              style: style,
-              title: 'Bravo',
-              children: const [Text('Contenu')],
-            ),
+  testWidgets('ResultDialog : fond papier', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ResultDialog(
+            title: 'Bravo',
+            children: const [Text('Contenu')],
           ),
         ),
-      );
-      final box = tester.widget<Container>(
-        find
-            .descendant(
-              of: find.byType(ResultDialog),
-              matching: find.byType(Container),
-            )
-            .first,
-      );
-      final decoration = box.decoration as BoxDecoration;
-      expect(decoration.color, ComicPalette.paper);
-      final border = decoration.border as Border;
-      expect(border.top.color, ComicPalette.ink);
-    });
-  }
+      ),
+    );
+    final box = tester.widget<Container>(
+      find
+          .descendant(
+            of: find.byType(ResultDialog),
+            matching: find.byType(Container),
+          )
+          .first,
+    );
+    final decoration = box.decoration as BoxDecoration;
+    expect(decoration.color, ComicPalette.paper);
+    final border = decoration.border as Border;
+    expect(border.top.color, ComicPalette.ink);
+  });
 
   testWidgets('ResultDialog : titre en Bangers, encre noire', (tester) async {
     await tester.pumpWidget(
