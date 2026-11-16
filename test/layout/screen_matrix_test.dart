@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kahwetne/features/chkobba/chkobba_rules_screen.dart';
 import 'package:kahwetne/features/chkobba/chkobba_screen.dart';
 import 'package:kahwetne/features/coinche/coinche_screen.dart';
 import 'package:kahwetne/features/domino/domino_screen.dart';
 import 'package:kahwetne/features/ludo/ludo_screen.dart';
+import 'package:kahwetne/features/menu/main_menu_screen.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:kahwetne/features/rami/rami_screen.dart';
+import 'package:kahwetne/features/splash/splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Matrice de mise en page (#337) : chaque écran se rend sans dépassement
@@ -49,6 +52,16 @@ final _screens = <String, Widget Function()>{
   },
   'Chkobba': () {
     return const ChkobbaScreen(difficulty: Difficulty.facile, targetScore: 11);
+  },
+  // Écrans à zone sûre commune (#204).
+  'Règles Chkobba': () {
+    return const ChkobbaRulesScreen();
+  },
+  'Menu principal': () {
+    return const MainMenuScreen();
+  },
+  'Ouverture': () {
+    return const SplashScreen(next: SizedBox());
   },
 };
 
