@@ -31,6 +31,7 @@ class _PlayerChip extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Nom et score sur une même ligne, état dessous : hauteur réduite pour la table (#422).
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -60,15 +61,16 @@ class _PlayerChip extends StatelessWidget {
                     ),
                   ),
                 ],
+                const SizedBox(width: 4),
+                Text(
+                  '${game.scores[seat]}',
+                  style: TextStyle(
+                    color: ink,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
               ],
-            ),
-            Text(
-              '${game.scores[seat]}',
-              style: TextStyle(
-                color: ink,
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-              ),
             ),
             Text(
               seat == 0 ? opened : '×${game.hands[seat].length} · $opened',
