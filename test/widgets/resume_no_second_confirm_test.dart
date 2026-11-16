@@ -23,9 +23,9 @@ class _Store implements SavedGameStore {
   }
 }
 
-/// Issue #410 : « Nouvelle partie » efface la sauvegarde sans second écran de vérification.
+/// Issue #410 : « Nouvelle partie » abandonne la sauvegarde sans second écran de vérification.
 void main() {
-  testWidgets('Nouvelle partie : pas de second dialogue, sauvegarde effacée', (
+  testWidgets('Nouvelle partie : pas de second dialogue', (
     tester,
   ) async {
     final store = _Store();
@@ -68,7 +68,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(Strings.resumeNewTitle), findsNothing);
-    expect(store.saved, isNull);
+    expect(controller.awaitingResume, isFalse);
     controller.dispose();
   });
 }
