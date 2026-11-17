@@ -25,7 +25,7 @@ int playRamiMatch(RamiAiLevel level, int levelSeat, int seed) {
   final trace = <String>[];
   while (state.matchWinner == null) {
     if (++steps > _maxSteps) {
-      final tail = trace.sublist(trace.length > 12 ? trace.length - 12 : 0);
+      final tail = List<String>.of(trace);
       throw StateError(
         'match non terminé (graine $seed, niveau ${level.name}, siège $levelSeat) : '
         'manche ${state.round}, scores ${state.scores}, cible ${state.targetScore}, '
@@ -43,6 +43,7 @@ int playRamiMatch(RamiAiLevel level, int levelSeat, int seed) {
     final lvl = state.turn == levelSeat ? level : RamiAiLevel.moyen;
     final before = state;
     state = aiStep(state, lvl, rnd);
+    if (trace.length >= 12) trace.removeAt(0);
     trace.add(
       'j${before.turn}:${before.phase.name}->${state.phase.name} '
       'pris=${before.takenId} dessus=${before.discard.isEmpty ? '-' : before.discard.last.id} '
