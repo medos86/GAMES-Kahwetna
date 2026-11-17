@@ -7,7 +7,6 @@ import 'app/game_routes.dart';
 import 'core/audio/sounds.dart';
 import 'core/layout/device_metrics.dart';
 import 'core/services/ad_free_service.dart';
-import 'core/services/ads_service.dart';
 import 'core/services/card_animations.dart';
 import 'core/services/toast.dart';
 import 'core/i18n/app_language.dart';
@@ -46,7 +45,7 @@ Future<void> main() async {
   // Échéance du mode sans pub relue avant le premier écran : pas de bannière qui clignote au démarrage.
   await AdFreeService.instance.load();
   // SDK publicitaire initialisé sans bloquer le jeu : une erreur d'init ne doit jamais empêcher de jouer.
-  unawaited(AdsService.instance.initialize().catchError((Object _) {}));
+  // DIAG : initialisation AdMob désactivée temporairement pour isoler le crash au lancement.
   runApp(const KahwetneApp());
 }
 
