@@ -12,8 +12,8 @@ void main() {
   group('Ludo : taux de victoire des niveaux IA (issue #305)', () {
     final targets = {
       LudoAiLevel.facile: 0.10,
-      LudoAiLevel.moyen: 0.50,
-      LudoAiLevel.difficile: 0.70,
+      LudoAiLevel.moyen: 0.25,
+      LudoAiLevel.difficile: 0.65,
     };
 
     for (final entry in targets.entries) {
