@@ -52,8 +52,7 @@ class AdPolicy {
     if (_gamesFinished < config.minGamesBeforeInterstitial) return false;
     if (_interstitialsShown >= config.maxInterstitialsPerSession) return false;
     final last = _lastInterstitialAt;
-    if (last != null &&
-        _now().difference(last) < config.interstitialCooldown) {
+    if (last != null && _now().difference(last) < config.interstitialCooldown) {
       return false;
     }
     return true;
