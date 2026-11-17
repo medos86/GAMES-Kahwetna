@@ -88,7 +88,7 @@ void main() {
     );
     final five = c(RamiSuit.batons, 5, 'n');
 
-    test('pas de reprise de joker tant que le seuil n\'est pas dépassé', () {
+    test("pas de reprise de joker tant que le seuil n'est pas dépassé", () {
       final s = play([[five], noCards, noCards, noCards], [run]);
       expect(identical(takeJoker(s, 'n', 'm1'), s), isTrue);
     });
