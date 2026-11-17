@@ -87,6 +87,18 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     _startCountdown();
   }
 
+  /// Propose la vidéo ; le mode sans pub ne s'active qu'après visionnage complet (issue #470).
+  Future<void> _onAdFreeTap() async {
+    final earned = await RewardedVideoService.instance.watch();
+    if (!earned || !mounted) return;
+    _adFree.activate();
+    showToast(
+      context,
+      Strings.menuAdFreeToastTitle,
+      description: Strings.menuAdFreeToastBody,
+    );
+  }
+
   /// Décompte d'une seconde, actif seulement tant qu'il reste du temps (comme le useEffect source).
   void _startCountdown() {
     _timer?.cancel();
@@ -308,23 +320,14 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         // Issue #470 : le bouton n'apparaît que si une vidéo est prête (ou si le mode est déjà actif).
         ValueListenableBuilder<bool>(
           valueListenable: RewardedVideoService.instance.ready,
-          builder: (context, ready, _) => ready || _adFreeLeft > 0
-              ? _AdFreeButton(
-                  sm: sm,
-                  secondsLeft: _adFreeLeft,
-                  onTap: () async {
-                    // La récompense n'est accordée qu'après visionnage complet de la vidéo.
-                    final earned = await RewardedVideoService.instance.watch();
-                    if (!earned || !mounted) return;
-                    _adFree.activate();
-                    showToast(
-                      context,
-                      Strings.menuAdFreeToastTitle,
-                      description: Strings.menuAdFreeToastBody,
-                    );
-                  },
-                )
-              : const SizedBox.shrink(),
+          builder: (context, ready, _) {
+            if (!ready && _adFreeLeft <= 0) return const SizedBox.shrink();
+            return _AdFreeButton(
+              sm: sm,
+              secondsLeft: _adFreeLeft,
+              onTap: _onAdFreeTap,
+            );
+          },
         ),
       ],
     );
