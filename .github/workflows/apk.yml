@@ -32,6 +32,35 @@ jobs:
       - name: IDs AdMob (Android)
         run: bash tool/patch_ad_app_ids.sh android
 
+      # Crash au lancement en release : R8 supprime une classe de WorkManager (WorkDatabase_Impl).
+      # On désactive la réduction R8 du build release, sans toucher au code.
+      - name: Désactiver R8 en release
+        run: |
+          python3 - <<'PYEOF'
+          import os, re
+          for f in ['android/app/build.gradle.kts', 'android/app/build.gradle']:
+              if not os.path.exists(f):
+                  continue
+              s = open(f, encoding='utf-8').read()
+              if re.search(r'isMinifyEnabled\s*=\s*true', s):
+                  s = re.sub(r'isMinifyEnabled\s*=\s*true', 'isMinifyEnabled = false', s)
+              elif re.search(r'minifyEnabled\s+true', s):
+                  s = re.sub(r'minifyEnabled\s+true', 'minifyEnabled false', s)
+              else:
+                  is_kts = f.endswith('.kts')
+                  line = 'isMinifyEnabled = false' if is_kts else 'minifyEnabled false'
+                  s = re.sub(r'(release\s*\{)', r'\1\n            ' + line, s, count=1)
+              s = re.sub(r'(isShrinkResources|shrinkResources)(\s*=\s*|\s+)true', r'\1\2false', s)
+              if not re.search(r'(isShrinkResources|shrinkResources)', s):
+                  s = re.sub(r'(release\s*\{)', r'\1\n            ' + ('isShrinkResources = false' if f.endswith('.kts') else 'shrinkResources false'), s, count=1)
+              print('--- lignes minify/shrink dans ' + f)
+              print('\n'.join(l for l in s.splitlines() if re.search(r'minify|shrink', l, re.I)))
+              open(f, 'w', encoding='utf-8').write(s)
+              print('--- ' + f)
+              m = re.search(r'release\s*\{[^}]*\}', s)
+              print(m.group(0) if m else 'release block introuvable')
+          PYEOF
+
       # Bug du lint Android (plugin webview_flutter_android) qui fait échouer assembleRelease :
       # on désactive les tâches lintVital, sans toucher au code ni aux dépendances.
       - name: Désactiver le lint bloquant
