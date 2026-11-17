@@ -24,7 +24,14 @@ int playRamiMatch(RamiAiLevel level, int levelSeat, int seed) {
   var steps = 0;
   while (state.matchWinner == null) {
     if (++steps > _maxSteps) {
-      throw StateError('match non terminé (graine $seed)');
+      throw StateError(
+        'match non terminé (graine $seed, niveau ${level.name}, siège $levelSeat) : '
+        'manche ${state.round}, scores ${state.scores}, cible ${state.targetScore}, '
+        'phase ${state.phase}, pioche ${state.stock.length}, '
+        'défausse ${state.discard.length}, table ${state.table.length}, '
+        'ouverts ${state.opened}, premierTour ${state.firstTour}, '
+        'mains ${state.hands.map((h) => h.length).toList()}',
+      );
     }
     if (state.phase == RamiPhase.end) {
       state = nextRound(state, rnd);
