@@ -419,7 +419,13 @@ class _RamiScreenState extends State<RamiScreen>
                     child: _piles(ramiPileWidth(handWidth), g),
                   ),
                 ),
-                Expanded(child: _contextActions(g)),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.bottomRight,
+                    child: _contextActions(g),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.only(left: 6),
                   child: RamiMinOpeningShield(

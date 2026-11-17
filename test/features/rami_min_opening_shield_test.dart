@@ -31,6 +31,7 @@ void main() {
       Directionality(
         textDirection: TextDirection.ltr,
         child: Align(
+          key: const Key('corner'),
           alignment: Alignment.bottomRight,
           child: RamiMinOpeningShield(
             minimum: 67,
@@ -43,7 +44,7 @@ void main() {
     expect(size.width, lessThanOrEqualTo(32));
     expect(size.height, lessThanOrEqualTo(40));
     final shield = find.byKey(const Key('ramiMinOpeningShield'));
-    final corner = tester.getBottomRight(find.byType(Align));
+    final corner = tester.getBottomRight(find.byKey(const Key('corner')));
     expect(tester.getBottomRight(shield), corner);
   });
 }
