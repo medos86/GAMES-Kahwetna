@@ -11,9 +11,9 @@ const _games = 2000;
 void main() {
   group('Chkobba : taux de victoire des niveaux IA (issue #92)', () {
     final targets = {
-      ChkobbaAiLevel.facile: 0.30,
+      ChkobbaAiLevel.facile: 0.10,
       ChkobbaAiLevel.moyen: 0.50,
-      ChkobbaAiLevel.difficile: 0.90,
+      ChkobbaAiLevel.difficile: 0.70,
     };
 
     for (final entry in targets.entries) {

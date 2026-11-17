@@ -11,9 +11,9 @@ const _games = 2000;
 void main() {
   group('Rami : taux de victoire des niveaux IA (issue #305)', () {
     final targets = {
-      RamiAiLevel.facile: 0.30,
+      RamiAiLevel.facile: 0.10,
       RamiAiLevel.moyen: 0.50,
-      RamiAiLevel.difficile: 0.90,
+      RamiAiLevel.difficile: 0.70,
     };
 
     for (final entry in targets.entries) {
