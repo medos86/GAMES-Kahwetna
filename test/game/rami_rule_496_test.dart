@@ -1,4 +1,4 @@
-// Issue #496 : pose sans bouton, seuil automatique, jokers et défausse obligatoire.
+// Issue #496 : pose sans bouton, seuil automatique, jokers, défausse.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/game/rami.dart';
 
@@ -6,15 +6,15 @@ RamiCard c(RamiSuit suit, int rank, String id) =>
     RamiCard(id: id, suit: suit, rank: rank);
 
 const joker = RamiCard(id: 'joker', suit: null, rank: 0);
-
 const noCards = <RamiCard>[];
 
-RamiState play(List<List<RamiCard>> hands, {List<Meld>? table}) {
-  return dealRound([0, 0, 0, 0], 3, 1, 100, () => 0.0).copyWith(
+RamiState play(List<List<RamiCard>> hands, List<Meld> table) {
+  final base = dealRound([0, 0, 0, 0], 3, 1, 100, () => 0.0);
+  return base.copyWith(
     phase: RamiPhase.play,
     turn: 0,
     hands: hands,
-    table: table ?? const [],
+    table: table,
     opened: [false, false, false, false],
     staged: const [],
     takenId: null,
@@ -23,54 +23,38 @@ RamiState play(List<List<RamiCard>> hands, {List<Meld>? table}) {
   );
 }
 
+RamiState solo(List<RamiCard> hand) =>
+    play([hand, noCards, noCards, noCards], const []);
+
 final kings = [
   c(RamiSuit.epees, 13, 'ks'),
   c(RamiSuit.coupes, 13, 'kh'),
   c(RamiSuit.batons, 13, 'kc'),
 ];
-
 final queens = [
   c(RamiSuit.epees, 12, 'qs'),
   c(RamiSuit.coupes, 12, 'qh'),
   c(RamiSuit.batons, 12, 'qb'),
 ];
-
 final spare = c(RamiSuit.batons, 2, 'z');
 
 void main() {
   group('pose sous le seuil (#496)', () {
     test('une pose sous le seuil reste en attente', () {
-      final s = play([
-        [...kings, spare],
-        noCards,
-        noCards,
-        noCards,
-      ]);
-      final next = poseMeld(s, ['ks', 'kh', 'kc']);
+      final next = poseMeld(solo([...kings, spare]), ['ks', 'kh', 'kc']);
       expect(next.opened[0], isFalse);
       expect(next.staged.length, 1);
       expect(next.hands[0].map((x) => x.id), ['z']);
     });
 
     test('on ne peut pas poser sa dernière carte', () {
-      final s = play([
-        [...kings],
-        noCards,
-        noCards,
-        noCards,
-      ]);
+      final s = solo([...kings]);
       expect(identical(poseMeld(s, ['ks', 'kh', 'kc']), s), isTrue);
     });
 
     test('défausser sous le seuil fixe les poses sans ouvrir', () {
       final y = c(RamiSuit.coupes, 2, 'y');
-      final s = play([
-        [...kings, spare, y],
-        noCards,
-        noCards,
-        noCards,
-      ]);
-      final staged = poseMeld(s, ['ks', 'kh', 'kc']);
+      final staged = poseMeld(solo([...kings, spare, y]), ['ks', 'kh', 'kc']);
       final next = discardCard(staged, 'z');
       expect(next.staged, isEmpty);
       expect(next.table.length, 1);
@@ -82,12 +66,7 @@ void main() {
 
   group('franchir le seuil (#496)', () {
     test('dépasser 51 ouvre automatiquement, sans bouton', () {
-      final s = play([
-        [...kings, ...queens, spare],
-        noCards,
-        noCards,
-        noCards,
-      ]);
+      final s = solo([...kings, ...queens, spare]);
       final afterKings = poseMeld(s, ['ks', 'kh', 'kc']);
       final next = poseMeld(afterKings, ['qs', 'qh', 'qb']);
       expect(next.opened[0], isTrue);
@@ -110,22 +89,13 @@ void main() {
     final five = c(RamiSuit.batons, 5, 'n');
 
     test('pas de reprise de joker tant que le seuil n\'est pas dépassé', () {
-      final s = play([
-        [five],
-        noCards,
-        noCards,
-        noCards,
-      ], table: [run]);
+      final s = play([[five], noCards, noCards, noCards], [run]);
       expect(identical(takeJoker(s, 'n', 'm1'), s), isTrue);
     });
 
     test('après ouverture, le joker posé avant revient dans la main', () {
-      final s = play([
-        [five],
-        noCards,
-        noCards,
-        noCards,
-      ], table: [run]).copyWith(opened: [true, false, false, false]);
+      final base = play([[five], noCards, noCards, noCards], [run]);
+      final s = base.copyWith(opened: [true, false, false, false]);
       final next = takeJoker(s, 'n', 'm1');
       expect(next.hands[0].any((x) => x.isJoker), isTrue);
     });
