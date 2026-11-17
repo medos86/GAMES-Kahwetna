@@ -27,7 +27,7 @@ void main() {
     expect(ramiMeldRows(const [], 40, 200), 0);
   });
 
-  test('l\'ordre d\'affichage regroupe chaque rangée et garde l\'ordre interne', () {
+  test('ordre d\'affichage : rangées regroupées', () {
     expect(ramiPackedOrder([0, 1, 0]), [0, 2, 1]);
     expect(ramiPackedOrder([2, 0, 1, 0]), [1, 3, 2, 0]);
     expect(ramiPackedOrder(const []), isEmpty);
@@ -52,7 +52,7 @@ void main() {
     }
   });
 
-  test('le rangement ne prend jamais plus de rangées que le remplissage séquentiel', () {
+  test('rangement : pas plus de rangées qu\'en séquentiel', () {
     final random = Random(7);
     for (var trial = 0; trial < 200; trial++) {
       final sizes = [for (var i = 0; i < 10; i++) 1 + random.nextInt(5)];
