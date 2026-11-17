@@ -22,15 +22,18 @@ int playRamiMatch(RamiAiLevel level, int levelSeat, int seed) {
   final rnd = _seeded(seed);
   var state = newMatch(ramiSimTargetScore, rnd);
   var steps = 0;
+  final trace = <String>[];
   while (state.matchWinner == null) {
     if (++steps > _maxSteps) {
+      final tail = trace.sublist(trace.length > 12 ? trace.length - 12 : 0);
       throw StateError(
         'match non terminé (graine $seed, niveau ${level.name}, siège $levelSeat) : '
         'manche ${state.round}, scores ${state.scores}, cible ${state.targetScore}, '
         'phase ${state.phase}, pioche ${state.stock.length}, '
         'défausse ${state.discard.length}, table ${state.table.length}, '
         'ouverts ${state.opened}, premierTour ${state.firstTour}, '
-        'mains ${state.hands.map((h) => h.length).toList()}',
+        'mains ${state.hands.map((h) => h.length).toList()}\n'
+        'trace: ${tail.join(' | ')}',
       );
     }
     if (state.phase == RamiPhase.end) {
@@ -40,6 +43,11 @@ int playRamiMatch(RamiAiLevel level, int levelSeat, int seed) {
     final lvl = state.turn == levelSeat ? level : RamiAiLevel.moyen;
     final before = state;
     state = aiStep(state, lvl, rnd);
+    trace.add(
+      'j${before.turn}:${before.phase.name}->${state.phase.name} '
+      'pris=${before.takenId} dessus=${before.discard.isEmpty ? '-' : before.discard.last.id} '
+      'main=${state.hands[before.turn].length} ouvert=${state.opened[before.turn]}',
+    );
     if (identical(state, before)) {
       final t = state.turn;
       throw StateError(
