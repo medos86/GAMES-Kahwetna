@@ -93,6 +93,23 @@ void main() {
       expect(next.turn, LudoColor.blue);
     });
 
+    test('difficile relance un lancer inutile, pas le moyen', () {
+      final state = makeState(
+        turn: LudoColor.blue,
+        phase: LudoPhase.roll,
+        progress: {'blue-0': 1},
+      );
+      // Dé = 1 : le pion avance sur une case non sûre, sans capture (inutile).
+      final draws = [0.0, 0.0, 0.99];
+      var i = 0;
+      final hard = rollDice(state, () => draws[i++], LudoAiLevel.difficile);
+      expect(hard.dice, 6);
+      final draws2 = [0.0, 0.0];
+      var j = 0;
+      final moyen = rollDice(state, () => draws2[j++], LudoAiLevel.moyen);
+      expect(moyen.dice, 1);
+    });
+
     test('aucun coup possible : tour passé et note NoMoveNote', () {
       final state = makeState(turn: LudoColor.blue, phase: LudoPhase.roll);
       final next = rollDice(state, () => 0.0); // dé = 1, aucun pion ne sort
