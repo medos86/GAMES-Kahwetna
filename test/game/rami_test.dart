@@ -355,7 +355,10 @@ void main() {
         );
 
     test('brelan dame dame joker : une dame posée ne reprend pas le joker', () {
-      final s = withSet([c(RamiSuit.epees, 12, 'd3')]);
+      final s = withSet([
+        c(RamiSuit.epees, 12, 'd3'),
+        c(RamiSuit.coupes, 2, 'x'),
+      ]);
       final next = takeJoker(s, 'd3', 'm1');
       expect(identical(next, s), isTrue);
       final laid = layOff(s, 'd3', 'm1');
