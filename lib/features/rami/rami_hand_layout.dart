@@ -36,25 +36,51 @@ List<int> ramiDrawOrder(int count, int? dragged) {
 double _meldWidth(int count, double cardWidth) =>
     cardWidth + cardWidth * ramiMeldStepRatio * (count - 1) + _meldPadding;
 
-/// Nombre de rangées nécessaires pour ranger les paquets de [sizes] (de gauche à droite,
-/// comme un Wrap). Renvoie null si un paquet seul ne tient pas dans [areaWidth].
-int? ramiMeldRows(List<int> sizes, double cardWidth, double areaWidth) {
-  var rows = 0;
-  var used = 0.0;
+/// Range les paquets de [sizes] dans des rangées : chaque paquet va dans la première rangée
+/// où il tient, donc les trous du haut sont remplis. Renvoie, pour chaque paquet, l'index de
+/// sa rangée. Renvoie null si un paquet seul ne tient pas dans [areaWidth].
+List<int>? ramiPackMelds(List<int> sizes, double cardWidth, double areaWidth) {
+  final rowUsed = <double>[];
+  final rowOf = <int>[];
   for (final count in sizes) {
     final width = _meldWidth(count, cardWidth);
     if (width > areaWidth) return null;
-    if (rows == 0) {
-      rows = 1;
-      used = width;
-    } else if (used + _meldGap + width <= areaWidth) {
-      used += _meldGap + width;
-    } else {
-      rows++;
-      used = width;
+    var placed = -1;
+    for (var r = 0; r < rowUsed.length; r++) {
+      if (rowUsed[r] + _meldGap + width <= areaWidth) {
+        placed = r;
+        break;
+      }
     }
+    if (placed == -1) {
+      rowUsed.add(width);
+      placed = rowUsed.length - 1;
+    } else {
+      rowUsed[placed] += _meldGap + width;
+    }
+    rowOf.add(placed);
   }
-  return rows;
+  return rowOf;
+}
+
+/// Ordre d'affichage des paquets, groupés par rangée (ordre d'origine conservé dans chaque
+/// rangée) : un Wrap reproduit alors exactement le rangement de [ramiPackMelds].
+List<int> ramiPackedOrder(List<int> rowOf) {
+  final order = List<int>.generate(rowOf.length, (i) => i);
+  order.sort((a, b) {
+    final byRow = rowOf[a].compareTo(rowOf[b]);
+    return byRow != 0 ? byRow : a.compareTo(b);
+  });
+  return order;
+}
+
+/// Nombre de rangées nécessaires pour ranger les paquets de [sizes]. Renvoie null si un
+/// paquet seul ne tient pas dans [areaWidth].
+int? ramiMeldRows(List<int> sizes, double cardWidth, double areaWidth) {
+  final rowOf = ramiPackMelds(sizes, cardWidth, areaWidth);
+  if (rowOf == null) return null;
+  if (rowOf.isEmpty) return 0;
+  return rowOf.reduce((a, b) => a > b ? a : b) + 1;
 }
 
 /// Largeur de carte du tapis : la plus grande (entre le minimum et [maxWidth]) pour que
