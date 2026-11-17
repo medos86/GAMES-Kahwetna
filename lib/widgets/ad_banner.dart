@@ -1,128 +1,74 @@
+import 'package:flutter/foundation.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:material_ui/material_ui.dart';
 
-import 'pressable.dart';
-import '../core/services/toast.dart';
-import '../core/strings.dart';
+import '../core/services/ads_service.dart';
 
-/// Hauteur fixe de la bannière (proche du format standard 50 px, avec le texte sur trois lignes).
+/// Hauteur fixe de la bannière : la table ne bouge jamais (issue #469).
 const double kAdBannerHeight = 56;
 
-/// Bannière publicitaire réutilisable (aspect de la bannière du source React).
-/// Contenu de démonstration : à remplacer par le SDK publicitaire réel avant publication.
-/// Placée en bas de chaque écran de jeu, sauf pendant le mode sans pub.
-class AdBanner extends StatelessWidget {
+/// Vraie bannière AdMob (issue #469).
+///
+/// Tant que la pub n'est pas chargée, ou si elle échoue, la zone reste vide à hauteur fixe :
+/// aucune fausse publicité n'est affichée, et le jeu n'est jamais bloqué.
+class AdBanner extends StatefulWidget {
   const AdBanner({super.key});
 
-  /// Échelle de texte maximale dans la bannière : au-delà, le texte ne tient
-  /// plus dans la hauteur fixe de 56 px (#340).
-  static const double maxTextScale = 1.15;
+  @override
+  State<AdBanner> createState() => _AdBannerState();
+}
+
+class _AdBannerState extends State<AdBanner> {
+  BannerAd? _ad;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final ad = BannerAd(
+        adUnitId: AdUnitIds.banner(defaultTargetPlatform),
+        size: AdSize.banner,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (_) {
+            if (mounted) setState(() => _loaded = true);
+          },
+          onAdFailedToLoad: (failed, _) => failed.dispose(),
+        ),
+      );
+      _ad = ad;
+      await ad.load();
+    } catch (_) {
+      // La pub est optionnelle : une erreur ici ne doit jamais bloquer le jeu.
+    }
+  }
+
+  @override
+  void dispose() {
+    _ad?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MediaQuery.withClampedTextScaling(
-      minScaleFactor: 1,
-      maxScaleFactor: maxTextScale,
-      child: _buildBanner(context),
-    );
-  }
-
-  Widget _buildBanner(BuildContext context) {
-    return Container(
-      // Hauteur fixe : la bannière ne change jamais de taille.
+    final ad = _ad;
+    return SizedBox(
       height: kAdBannerHeight,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xF210254C),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0x59FFFFFF)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFD858),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.campaign,
-              size: 20,
-              color: Color(0xFF513800),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  Strings.adLabel,
-                  style: TextStyle(
-                    fontSize: 9,
-                    height: 1.1,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 2,
-                    color: Color(0xFFFFE681),
-                  ),
-                ),
-                Text(
-                  Strings.adTitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 1.1,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  Strings.adSponsored,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 10,
-                    height: 1.1,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0x8CFFFFFF),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Pressable(
-            semanticLabel: Strings.adSeeSemantic,
-            onTap: () => showToast(context, Strings.adDemoToast),
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 40),
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: const Color(0x1AFFFFFF),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0x33FFFFFF)),
+      width: double.infinity,
+      child: _loaded && ad != null
+          ? Center(
+              child: SizedBox(
+                width: ad.size.width.toDouble(),
+                height: ad.size.height.toDouble(),
+                child: AdWidget(ad: ad),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    Strings.adSee,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(width: 4),
-                  Icon(Icons.open_in_new, size: 14, color: Colors.white),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+            )
+          : const SizedBox.shrink(),
     );
   }
 }
