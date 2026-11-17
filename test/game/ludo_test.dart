@@ -82,7 +82,7 @@ void main() {
       expect(next.note?.color, LudoColor.blue);
     });
 
-    test('fluidité : bloqué au premier dé, une seconde chance sans passer', () {
+    test('fluidité : seconde chance au dé si bloqué', () {
       final state = makeState(turn: LudoColor.blue, phase: LudoPhase.roll);
       // Premier dé = 1 (bloqué), second dé = 6 (sort un pion).
       final draws = [0.0, 0.99];
