@@ -419,23 +419,15 @@ class _RamiScreenState extends State<RamiScreen>
                     child: _piles(ramiPileWidth(handWidth), g),
                   ),
                 ),
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: RamiMinOpeningShield(
-                          minimum: rules.minOpening(g),
-                          label: tf(
-                            'ramiMinOpen',
-                            {'n': '${rules.minOpening(g)}'},
-                          ),
-                        ),
-                      ),
-                      _contextActions(g),
-                    ],
+                Expanded(child: _contextActions(g)),
+                Padding(
+                  padding: const EdgeInsets.only(left: 6),
+                  child: RamiMinOpeningShield(
+                    minimum: rules.minOpening(g),
+                    label: tf(
+                      'ramiMinOpen',
+                      {'n': '${rules.minOpening(g)}'},
+                    ),
                   ),
                 ),
               ],
