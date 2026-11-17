@@ -30,7 +30,7 @@ jobs:
         run: flutter create --platforms=android --project-name kahwetne --org com.kahwetne .
 
       - name: IDs AdMob (Android)
-        run: bash tool/patch_ad_app_ids.sh android
+        run: echo DIAG sans App ID natif
 
       # Bug du lint Android (plugin webview_flutter_android) qui fait échouer assembleRelease :
       # on désactive les tâches lintVital, sans toucher au code ni aux dépendances.
