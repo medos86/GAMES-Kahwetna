@@ -389,7 +389,7 @@ LudoState _passTurn(LudoState state) =>
 int _dieValue(RandomDouble draw) => (draw() * 6).floor() + 1;
 
 /// Probabilité, pour le difficile, de relancer un dé qui n'offre aucun coup utile (#305).
-const double ludoHardRerollChance = 0.6;
+const double ludoHardRerollChance = 0.95;
 
 /// Un lancer est utile s'il permet de sortir, d'atteindre une case sûre, d'arriver ou de capturer.
 bool _isUsefulRoll(LudoState state, int dice) =>
