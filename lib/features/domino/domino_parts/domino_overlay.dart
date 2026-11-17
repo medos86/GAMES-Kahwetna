@@ -64,6 +64,7 @@ class _HandTile extends StatelessWidget {
 
 class DominoRoundOverlay extends StatelessWidget {
   const DominoRoundOverlay({
+    super.key,
     required this.game,
     required this.onNext,
     required this.onRestart,

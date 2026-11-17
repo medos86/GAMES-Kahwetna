@@ -7,10 +7,13 @@ import 'package:kahwetne/game/domino.dart';
 
 /// Issue #295 : le récapitulatif Domino affiche le score et appelle la bonne action.
 DominoState _roundEnded({required Player winner, Player? matchWinner}) {
-  final base = newDominoRound(targetScore: 50, random: () => 0.5);
-  return base.copyWith(
+  final base = newDominoRound(
+    targetScore: 50,
     scores: {Player.player: 12, Player.opponent: 8},
     round: 2,
+    random: () => 0.5,
+  );
+  return base.copyWith(
     roundWinner: winner,
     matchWinner: matchWinner,
     pointsAwarded: 12,
