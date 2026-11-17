@@ -16,6 +16,11 @@ class AdUnitIds {
       'ca-app-pub-3940256099942544/6300978111';
   static const String _testBannerIos = 'ca-app-pub-3940256099942544/2934735716';
 
+  static const String _testRewardedAndroid =
+      'ca-app-pub-3940256099942544/5224354917';
+  static const String _testRewardedIos =
+      'ca-app-pub-3940256099942544/1712485313';
+
   /// Identifiant de bannière pour la plateforme donnée.
   static String banner(TargetPlatform platform) {
     if (!useTestIds) {
@@ -24,6 +29,18 @@ class AdUnitIds {
       );
     }
     return platform == TargetPlatform.iOS ? _testBannerIos : _testBannerAndroid;
+  }
+
+  /// Identifiant de vidéo récompensée pour la plateforme donnée (issue #470).
+  static String rewarded(TargetPlatform platform) {
+    if (!useTestIds) {
+      throw StateError(
+        'Identifiants de production non configurés (voir #466).',
+      );
+    }
+    return platform == TargetPlatform.iOS
+        ? _testRewardedIos
+        : _testRewardedAndroid;
   }
 }
 
