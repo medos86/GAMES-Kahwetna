@@ -25,7 +25,11 @@ RamiState drawState({
 void main() {
   group('Rami facile : pioche (#439)', () {
     final top = c(RamiSuit.epees, 9);
-    final hand = [c(RamiSuit.epees, 7), c(RamiSuit.epees, 8), c(RamiSuit.coupes, 2)];
+    final hand = [
+      c(RamiSuit.epees, 7),
+      c(RamiSuit.epees, 8),
+      c(RamiSuit.coupes, 2),
+    ];
 
     test('prend la défausse utile quand le tirage est favorable', () {
       final state = drawState(top: top, hand: hand);
