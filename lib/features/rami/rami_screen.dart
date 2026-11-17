@@ -381,7 +381,7 @@ class _RamiScreenState extends State<RamiScreen>
                   constraints.maxHeight - 12,
                   handWidth * 0.8,
                 );
-                return _tableCards(meldWidth, g);
+                return _tableCards(meldWidth, constraints.maxWidth - 16, g);
               },
             ),
           ),
@@ -730,11 +730,35 @@ class _RamiScreenState extends State<RamiScreen>
   bool _isHotMeld(Object? target, String id) =>
       _c.canPlay && target is RamiDropMeld && target.id == id;
 
-  Widget _tableCards(double meldWidth, rules.RamiState g) {
+  Widget _tableCards(double meldWidth, double areaWidth, rules.RamiState g) {
     final c = _c;
     final target = _drag?.target;
     final hover = c.canPlay && target is RamiDropTable;
     final dropping = c.canPlay && _drag != null;
+    // Paquets posés puis en cours de pose ; rangés pour remplir les trous du haut.
+    final melds = [
+      for (final meld in g.table)
+        MaskedSlot(
+          key: _key('meld:${meld.id}'),
+          hidden: meld.cards.any((card) => landing.contains(card.id)),
+          child: _MeldView(
+            cards: meld.cards,
+            cardWidth: meldWidth,
+            hot: _isHotMeld(target, meld.id),
+            eligible: c.layEligible,
+            onTap: c.layEligible ? () => c.layOffSelected(meld.id) : null,
+          ),
+        ),
+      for (final cards in g.staged)
+        _MeldView(cards: cards, cardWidth: meldWidth, staged: true),
+    ];
+    final sizes = [
+      for (final meld in g.table) meld.cards.length,
+      for (final cards in g.staged) cards.length,
+    ];
+    final rowOf = ramiPackMelds(sizes, meldWidth, areaWidth) ??
+        List<int>.generate(sizes.length, (i) => i);
+    final ordered = [for (final i in ramiPackedOrder(rowOf)) melds[i]];
     return Container(
       key: _key('table'),
       width: double.infinity,
@@ -768,20 +792,7 @@ class _RamiScreenState extends State<RamiScreen>
                   ),
                 ),
               ),
-            for (final meld in g.table)
-              MaskedSlot(
-                key: _key('meld:${meld.id}'),
-                hidden: meld.cards.any((card) => landing.contains(card.id)),
-                child: _MeldView(
-                  cards: meld.cards,
-                  cardWidth: meldWidth,
-                  hot: _isHotMeld(target, meld.id),
-                  eligible: c.layEligible,
-                  onTap: c.layEligible ? () => c.layOffSelected(meld.id) : null,
-                ),
-              ),
-            for (final cards in g.staged)
-              _MeldView(cards: cards, cardWidth: meldWidth, staged: true),
+            ...ordered,
           ],
         ),
       ),
