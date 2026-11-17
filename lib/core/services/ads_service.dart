@@ -14,8 +14,7 @@ class AdUnitIds {
 
   static const String _testBannerAndroid =
       'ca-app-pub-3940256099942544/6300978111';
-  static const String _testBannerIos =
-      'ca-app-pub-3940256099942544/2934735716';
+  static const String _testBannerIos = 'ca-app-pub-3940256099942544/2934735716';
 
   /// Identifiant de bannière pour la plateforme donnée.
   static String banner(TargetPlatform platform) {
