@@ -83,8 +83,18 @@ class _DeckPile extends StatelessWidget {
   }
 }
 
-/// Rangée de trois emplacements fixes : les cartes ne se décalent pas quand la main diminue.
-class _Hand extends StatelessWidget {
+/// Place chaque carte dans son emplacement (0 à 2) ; `null` = emplacement vide.
+List<ChkobbaCard?> handLayout(Map<String, int> slots, List<ChkobbaCard> cards) {
+  final layout = List<ChkobbaCard?>.filled(3, null);
+  for (final card in cards) {
+    final slot = slots[card.id];
+    if (slot != null && slot < layout.length) layout[slot] = card;
+  }
+  return layout;
+}
+
+/// Trois emplacements fixes : une carte garde sa place quand une autre part (#494).
+class _Hand extends StatefulWidget {
   const _Hand({
     required this.cards,
     required this.width,
@@ -98,16 +108,27 @@ class _Hand extends StatelessWidget {
   final Widget Function(ChkobbaCard card) builder;
 
   @override
+  State<_Hand> createState() => _HandState();
+}
+
+class _HandState extends State<_Hand> {
+  Map<String, int> _slots = {};
+
+  @override
   Widget build(BuildContext context) {
+    _slots = assignTableSlots(_slots, [for (final c in widget.cards) c.id]);
+    final layout = handLayout(_slots, widget.cards);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        for (var i = 0; i < 3; i++) ...[
+        for (var i = 0; i < layout.length; i++) ...[
           if (i > 0) const SizedBox(width: 8),
           SizedBox(
-            width: width,
-            height: height,
-            child: i < cards.length ? builder(cards[i]) : const _EmptySlot(),
+            width: widget.width,
+            height: widget.height,
+            child: layout[i] != null
+                ? widget.builder(layout[i]!)
+                : const _EmptySlot(),
           ),
         ],
       ],
