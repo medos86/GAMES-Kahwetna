@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../core/services/ads_config.dart';
+import '../core/services/ads_service.dart';
 
 /// Hauteur fixe de la bannière : la table ne bouge jamais (issue #469).
 const double kAdBannerHeight = 56;
