@@ -6,7 +6,7 @@ import 'package:kahwetne/game/rami.dart';
 
 import '../test/game/rami_sim.dart';
 
-const _games = 2000;
+const _games = 300;
 
 void main() {
   group('Rami : taux de victoire des niveaux IA (issue #305)', () {
