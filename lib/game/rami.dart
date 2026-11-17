@@ -107,6 +107,7 @@ class RamiState {
     required this.lastOpening,
     this.firstTour = false,
     this.openings = const [0, 0, 0, 0],
+    this.pendingPoints = const [0, 0, 0, 0],
   });
 
   factory RamiState.fromJson(Map<String, dynamic> json) => RamiState(
@@ -136,6 +137,9 @@ class RamiState {
         openings: json['openings'] == null
             ? const [0, 0, 0, 0]
             : [for (final o in json['openings'] as List) o as int],
+        pendingPoints: json['pendingPoints'] == null
+            ? const [0, 0, 0, 0]
+            : [for (final o in json['pendingPoints'] as List) o as int],
       );
 
   final int targetScore;
@@ -163,6 +167,9 @@ class RamiState {
   /// Points de la première ouverture de chaque joueur cette manche (0 : pas ouvert).
   final List<int> openings;
 
+  /// Points des poses faites sous le seuil (pas encore ouvert), par joueur (#496).
+  final List<int> pendingPoints;
+
   /// Les champs nullables (takenId, roundResult, matchWinner) se remettent à null avec une valeur explicite.
   RamiState copyWith({
     RamiPhase? phase,
@@ -180,6 +187,7 @@ class RamiState {
     int? lastOpening,
     bool? firstTour,
     List<int>? openings,
+    List<int>? pendingPoints,
   }) {
     return RamiState(
       targetScore: targetScore,
@@ -204,6 +212,7 @@ class RamiState {
       lastOpening: lastOpening ?? this.lastOpening,
       firstTour: firstTour ?? this.firstTour,
       openings: openings ?? this.openings,
+      pendingPoints: pendingPoints ?? this.pendingPoints,
     );
   }
 
@@ -230,6 +239,7 @@ class RamiState {
         'lastOpening': lastOpening,
         'firstTour': firstTour,
         'openings': openings,
+        'pendingPoints': pendingPoints,
       };
 }
 
@@ -504,7 +514,8 @@ bool canUseDiscardTop(RamiState state) {
     return carries ||
         state.table.any((meld) => isValidMeld([...meld.cards, top]));
   }
-  final total = plan.fold<int>(0, (sum, cards) => sum + pointsOf(cards));
+  final total = plan.fold<int>(0, (sum, cards) => sum + pointsOf(cards)) +
+      state.pendingPoints[seat];
   return carries && total >= minOpening(state);
 }
 
@@ -569,19 +580,27 @@ RamiState poseMeld(RamiState state, List<String> cardIds) {
 
   final cards = arrangeMeld(picked);
   final rest = hand.where((card) => !cardIds.contains(card.id)).toList();
+  // Il faut garder une carte pour défausser : on ne pose jamais sa dernière carte (#496).
+  if (rest.isEmpty) return state;
   final next = _setHand(state, seat, rest);
   if (!state.opened[seat]) {
-    return next.copyWith(staged: [...state.staged, cards]);
+    final staged = next.copyWith(staged: [...state.staged, cards]);
+    final total = pendingTotal(staged, seat);
+    return total >= minOpening(staged) ? commitOpening(staged) : staged;
   }
 
-  final updated = next.copyWith(
+  return next.copyWith(
     table: [
       ...state.table,
       Meld(id: _newMeldId(state.table, cards), cards: cards),
     ],
   );
-  return rest.isEmpty ? _finish(updated, seat) : updated;
 }
+
+/// Points des poses de ce joueur : déjà sur la table sous le seuil, plus celles en attente.
+int pendingTotal(RamiState state, int seat) =>
+    state.pendingPoints[seat] +
+    state.staged.fold<int>(0, (sum, cards) => sum + pointsOf(cards));
 
 RamiState commitOpening(RamiState state) {
   final seat = state.turn;
@@ -589,10 +608,7 @@ RamiState commitOpening(RamiState state) {
       state.firstTour ||
       state.opened[seat] ||
       state.staged.isEmpty) return state;
-  final staged = state.staged.fold<int>(
-    0,
-    (sum, cards) => sum + pointsOf(cards),
-  );
+  final staged = pendingTotal(state, seat);
   if (staged < minOpening(state)) return state;
 
   var table = [...state.table];
@@ -611,8 +627,12 @@ RamiState commitOpening(RamiState state) {
       for (var i = 0; i < state.opened.length; i++)
         state.opened[i] || i == seat,
     ],
+    pendingPoints: [
+      for (var i = 0; i < state.pendingPoints.length; i++)
+        i == seat ? 0 : state.pendingPoints[i],
+    ],
   );
-  return next.hands[seat].isEmpty ? _finish(next, seat) : next;
+  return next;
 }
 
 RamiState cancelStaged(RamiState state) {
@@ -648,12 +668,28 @@ RamiState layOff(RamiState state, String cardId, String meldId) {
     for (final item in state.table)
       item.id == meldId ? Meld(id: item.id, cards: cards) : item,
   ];
-  final next = _setHand(
+  if (hand.length < 2) return state;
+  return _setHand(
     state.copyWith(table: table),
     seat,
     hand.where((item) => item.id != cardId).toList(),
   );
-  return next.hands[seat].isEmpty ? _finish(next, seat) : next;
+}
+
+/// Pose les combinaisons en attente sur la table, sans ouverture (#496).
+RamiState _flushStaged(RamiState state, int seat) {
+  var table = [...state.table];
+  for (final cards in state.staged) {
+    table = [...table, Meld(id: _newMeldId(table, cards), cards: cards)];
+  }
+  return state.copyWith(
+    table: table,
+    staged: const [],
+    pendingPoints: [
+      for (var i = 0; i < state.pendingPoints.length; i++)
+        i == seat ? pendingTotal(state, seat) : state.pendingPoints[i],
+    ],
+  );
 }
 
 /// Reprise d'un joker posé sur la table (#390) : la carte naturelle de la main
@@ -695,7 +731,9 @@ RamiState takeJoker(RamiState state, String cardId, String meldId) {
 
 RamiState discardCard(RamiState state, String cardId) {
   final seat = state.turn;
-  if (state.phase != RamiPhase.play || state.staged.isNotEmpty) return state;
+  if (state.phase != RamiPhase.play) return state;
+  // Fin du tour sous le seuil : les poses en attente restent sur la table, sans reprise possible (#496).
+  if (state.staged.isNotEmpty) state = _flushStaged(state, seat);
   final hand = state.hands[seat];
   final index = hand.indexWhere((item) => item.id == cardId);
   if (index < 0) return state;
@@ -1034,7 +1072,6 @@ RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {
   final draw = random ?? _defaultRandom.nextDouble;
   if (state.phase == RamiPhase.draw) return _aiDraw(state, level, draw);
   if (state.phase != RamiPhase.play) return state;
-  if (state.staged.isNotEmpty) return cancelStaged(state);
 
   final seat = state.turn;
   if (state.firstTour) return _aiDiscard(state, seat, level);

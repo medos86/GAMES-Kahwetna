@@ -819,13 +819,13 @@ class _RamiScreenState extends State<RamiScreen>
       icon: Icons.check,
       onTap: c.pose,
       enabled: c.selectionIsMeld,
-      primary: !staged,
+      primary: true,
     );
     final discard = RamiActionButton(
       label: Strings.actDiscard,
       icon: Icons.south,
       onTap: c.discardSelected,
-      enabled: c.selected.length == 1 && !staged,
+      enabled: c.selected.length == 1,
       danger: true,
     );
     final returnTaken = RamiActionButton(
@@ -834,27 +834,9 @@ class _RamiScreenState extends State<RamiScreen>
       onTap: c.returnTaken,
       enabled: c.canReturnTaken,
     );
-    if (!staged && c.canReturnTaken) return [pose, returnTaken, discard];
-    if (!staged) return [pose, discard];
-    return [
-      RamiActionButton(
-        label: tf('validate', {
-          'cur': '${c.stagedPoints}',
-          'min': '${c.openMinimum}',
-        }),
-        icon: Icons.done_all,
-        onTap: c.commit,
-        enabled: c.stagedPoints >= c.openMinimum,
-        primary: true,
-      ),
-      pose,
-      RamiActionButton(
-        label: Strings.actCancel,
-        icon: Icons.close,
-        onTap: c.cancel,
-      ),
-      discard,
-    ];
+    // Pas de bouton « Valider » ni « Annuler » : l'ouverture se fait dès le seuil atteint (#496).
+    if (c.canReturnTaken && !staged) return [pose, returnTaken, discard];
+    return [pose, discard];
   }
 
   /// Main du joueur (#141) : les cartes se chevauchent. La carte sélectionnée ou déplacée
