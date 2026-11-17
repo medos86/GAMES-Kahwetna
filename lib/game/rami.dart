@@ -875,7 +875,8 @@ int _keepValue(RamiCard card, List<RamiCard> hand) {
   return total;
 }
 
-String _chooseDiscard(
+/// Défausses classées de la meilleure à la moins bonne (score croissant, ordre stable).
+List<String> _rankDiscards(
   RamiState state,
   int seat,
   RamiAiLevel level,
@@ -899,12 +900,22 @@ String _chooseDiscard(
         (useful ? 4 : 0);
   }
 
-  var best = options.first;
-  for (final card in options.skip(1)) {
-    if (score(card) < score(best)) best = card;
-  }
-  return best.id;
+  final scores = [for (final card in options) score(card)];
+  // Tri stable : à score égal, l'ordre de la main est conservé.
+  final order = List<int>.generate(options.length, (i) => i)
+    ..sort((a, b) {
+      final byScore = scores[a].compareTo(scores[b]);
+      return byScore != 0 ? byScore : a.compareTo(b);
+    });
+  return [for (final i in order) options[i].id];
 }
+
+String _chooseDiscard(
+  RamiState state,
+  int seat,
+  RamiAiLevel level,
+) =>
+    _rankDiscards(state, seat, level).first;
 
 /// Seuil d'ouverture de l'IA : le facile ouvre plus tard que la règle (#281).
 int _aiOpenMin(RamiState state, RamiAiLevel level) =>
@@ -920,10 +931,61 @@ bool _aiCanUseTop(RamiState state, RamiCard top, RamiAiLevel level) {
   return total >= _aiOpenMin(state, level);
 }
 
+/// Difficile (#304) : nombre de défausses candidates évaluées par simulation, et de parties simulées.
+const int ramiMcCandidates = 3;
+const int ramiMcRollouts = 4;
+const int ramiMcHorizon = 60;
+
+/// Simulation courte de la suite de la manche (coups moyens), puis valeur pour [seat] : plus bas = mieux.
+double _rolloutValue(RamiState start, int seat, int seed) {
+  var s = start;
+  var x = seed;
+  RandomDouble rnd = () {
+    x = (x * 1103515245 + 12345) & 0x7fffffff;
+    return x / 0x80000000;
+  };
+  for (var i = 0; i < ramiMcHorizon && s.phase != RamiPhase.end; i++) {
+    final next = aiStep(s, RamiAiLevel.moyen, rnd);
+    if (identical(next, s)) break;
+    s = next;
+  }
+  final points = handPointsOf(s.hands[seat]).toDouble();
+  if (s.phase == RamiPhase.end) {
+    return s.roundResult?.winner == seat ? -50 : points;
+  }
+  return points + (s.opened[seat] ? 0 : 30);
+}
+
+/// Défausse du difficile : parmi les meilleures candidates, celle qui laisse la meilleure moyenne de simulations.
+String _mcDiscard(RamiState state, int seat) {
+  final candidates = _rankDiscards(state, seat, RamiAiLevel.difficile)
+      .take(ramiMcCandidates);
+  var best = candidates.first;
+  var bestValue = double.infinity;
+  var seedBase = state.round * 131 + seat * 17 + state.discard.length;
+  for (final id in candidates) {
+    final after = discardCard(state, id);
+    if (identical(after, state)) continue;
+    var total = 0.0;
+    for (var k = 0; k < ramiMcRollouts; k++) {
+      total += _rolloutValue(after, seat, seedBase + k * 7919 + 1);
+    }
+    if (total < bestValue) {
+      bestValue = total;
+      best = id;
+    }
+    seedBase += 1;
+  }
+  return best;
+}
+
 /// Défausse de l'IA. Ne doit jamais rester bloquée : si la carte choisie est refusée,
 /// on remet d'abord la carte prise, puis on tente une autre carte légale.
 RamiState _aiDiscard(RamiState state, int seat, RamiAiLevel level) {
-  final chosen = discardCard(state, _chooseDiscard(state, seat, level));
+  final pick = level == RamiAiLevel.difficile
+      ? _mcDiscard(state, seat)
+      : _chooseDiscard(state, seat, level);
+  final chosen = discardCard(state, pick);
   if (!identical(chosen, state)) return chosen;
   if (state.takenId != null) {
     final returned = returnTaken(state);
