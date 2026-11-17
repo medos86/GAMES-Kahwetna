@@ -20,6 +20,7 @@ import 'game_icons.dart';
 import 'menu_models.dart';
 import '../../core/strings.dart';
 import '../../core/services/ad_free_service.dart';
+import '../../core/services/rewarded_video_service.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/comic_button.dart';
 import '../../widgets/resume_game.dart';
@@ -67,6 +68,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     _adFreeLeft = _secondsLeft();
     _adFree.active.addListener(_syncAdFree);
     _startCountdown();
+    RewardedVideoService.instance.preload(); // Issue #470 : vidéo prête pour le bouton.
   }
 
   @override
@@ -303,17 +305,26 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        _AdFreeButton(
-          sm: sm,
-          secondsLeft: _adFreeLeft,
-          onTap: () {
-            _adFree.activate();
-            showToast(
-              context,
-              Strings.menuAdFreeToastTitle,
-              description: Strings.menuAdFreeToastBody,
-            );
-          },
+        // Issue #470 : le bouton n'apparaît que si une vidéo est prête (ou si le mode est déjà actif).
+        ValueListenableBuilder<bool>(
+          valueListenable: RewardedVideoService.instance.ready,
+          builder: (context, ready, _) => ready || _adFreeLeft > 0
+              ? _AdFreeButton(
+                  sm: sm,
+                  secondsLeft: _adFreeLeft,
+                  onTap: () async {
+                    // La récompense n'est accordée qu'après visionnage complet de la vidéo.
+                    final earned = await RewardedVideoService.instance.watch();
+                    if (!earned || !mounted) return;
+                    _adFree.activate();
+                    showToast(
+                      context,
+                      Strings.menuAdFreeToastTitle,
+                      description: Strings.menuAdFreeToastBody,
+                    );
+                  },
+                )
+              : const SizedBox.shrink(),
         ),
       ],
     );
