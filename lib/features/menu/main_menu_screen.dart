@@ -68,7 +68,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     _adFreeLeft = _secondsLeft();
     _adFree.active.addListener(_syncAdFree);
     _startCountdown();
-    RewardedVideoService.instance.preload(); // Issue #470 : vidéo prête pour le bouton.
+    // Issue #470 : la vidéo récompensée est préchargée pour le bouton.
+    RewardedVideoService.instance.preload();
   }
 
   @override
