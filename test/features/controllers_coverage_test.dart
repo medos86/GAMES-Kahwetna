@@ -66,8 +66,6 @@ void main() {
       c.sortBy(RamiSortMode.rank);
       c.sortBy(RamiSortMode.suit);
       c.pose();
-      c.commit();
-      c.cancel();
       c.layOffSelected('m1');
       c.layOffCard(first, 'm1');
       c.discardSelected();

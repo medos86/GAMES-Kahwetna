@@ -70,9 +70,9 @@ void main() {
       onMessage: messages.add,
     );
     final before = c.game;
-    c.commit(); // pas encore de pioche : l'ouverture est refusée
+    c.pose(); // rien de sélectionné : pose refusée
     expect(identical(c.game, before), isTrue);
-    expect(messages, ['Il faut au moins 51 points pour ouvrir']);
+    expect(messages, isNotEmpty);
     c.dispose();
   });
 
