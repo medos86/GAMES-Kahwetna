@@ -943,6 +943,9 @@ RamiState _aiDiscard(RamiState state, int seat, RamiAiLevel level) {
   return state;
 }
 
+/// Probabilité, pour le facile, de prendre la défausse quand elle est utile (#439).
+const double ramiEasyDrawAccuracy = 0.8;
+
 RamiState _aiDraw(RamiState state, RamiAiLevel level, RandomDouble random) {
   final seat = state.turn;
   if (state.discard.isEmpty) return drawStock(state, random);
@@ -951,9 +954,11 @@ RamiState _aiDraw(RamiState state, RamiAiLevel level, RandomDouble random) {
   final improves = _planValue([...hand, top]) > _planValue(hand);
   final layable = state.opened[seat] &&
       state.table.any((meld) => isValidMeld([...meld.cards, top]));
+  final useful = isJoker(top) || improves || layable;
+  // Facile : prend une carte utile seulement dans la proportion ci-dessous, sans piocher au hasard (#439).
   final take = level == RamiAiLevel.facile
-      ? random() < 0.5
-      : isJoker(top) || improves || layable;
+      ? useful && random() < ramiEasyDrawAccuracy
+      : useful;
   if (take && canUseDiscardTop(state) && _aiCanUseTop(state, top, level)) {
     return drawDiscard(state);
   }
