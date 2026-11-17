@@ -26,6 +26,9 @@ jobs:
         # Le dépôt ne contient pas ios/ : on le génère ici, sans toucher à lib/ ni à pubspec.yaml.
         run: flutter create --platforms=ios --project-name kahwetne --org com.kahwetne .
 
+      - name: IDs AdMob (iOS)
+        run: bash tool/patch_ad_app_ids.sh ios
+
       - name: Dépendances
         run: flutter pub get
 
