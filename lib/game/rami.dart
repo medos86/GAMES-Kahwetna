@@ -584,7 +584,7 @@ RamiState poseMeld(RamiState state, List<String> cardIds) {
   final updated = next.copyWith(
     table: [
       ...state.table,
-      Meld(id: cards.first.id, cards: cards),
+      Meld(id: _newMeldId(state.table, cards), cards: cards),
     ],
   );
   return rest.isEmpty ? _finish(updated, seat) : updated;
@@ -602,11 +602,12 @@ RamiState commitOpening(RamiState state) {
   );
   if (staged < minOpening(state)) return state;
 
+  var table = [...state.table];
+  for (final cards in state.staged) {
+    table = [...table, Meld(id: _newMeldId(table, cards), cards: cards)];
+  }
   final next = state.copyWith(
-    table: [
-      ...state.table,
-      for (final cards in state.staged) Meld(id: cards.first.id, cards: cards),
-    ],
+    table: table,
     staged: const [],
     lastOpening: staged,
     openings: [
@@ -826,6 +827,28 @@ List<List<RamiCard>> _planMelds(List<RamiCard> hand, [String? firstId]) {
 int _planValue(List<RamiCard> cards) =>
     _planMelds(cards).fold<int>(0, (sum, meld) => sum + pointsOf(meld));
 
+/// Première combinaison de la table portant cet id (celle que layOff cible).
+Meld? _firstWithId(List<Meld> table, String id) {
+  for (final meld in table) {
+    if (meld.id == id) return meld;
+  }
+  return null;
+}
+
+/// Id unique pour une nouvelle combinaison : première carte pas encore utilisée comme id (#450).
+/// Un joker repris peut garder un id déjà utilisé sur la table : on ne le réutilise pas.
+String _newMeldId(List<Meld> table, List<RamiCard> cards) {
+  final used = {for (final meld in table) meld.id};
+  for (final card in cards) {
+    if (!used.contains(card.id)) return card.id;
+  }
+  var n = table.length;
+  while (used.contains('meld-$n')) {
+    n++;
+  }
+  return 'meld-$n';
+}
+
 ({String cardId, String meldId})? _findLayOff(
   RamiState state,
   int seat,
@@ -834,7 +857,9 @@ int _planValue(List<RamiCard> cards) =>
   for (final card in state.hands[seat]) {
     if (onlyCardId != null && card.id != onlyCardId) continue;
     for (final meld in state.table) {
-      if (isValidMeld([...meld.cards, card]))
+      // Même test que layOff (arrangeMeld), et seulement sur la combinaison que layOff retrouve par son id (#450).
+      if (!identical(_firstWithId(state.table, meld.id), meld)) continue;
+      if (isValidMeld(arrangeMeld([...meld.cards, card])))
         return (cardId: card.id, meldId: meld.id);
     }
   }
