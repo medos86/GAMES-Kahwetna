@@ -66,10 +66,10 @@ class KahwetneApp extends StatelessWidget {
       valueListenable: appLanguage,
       builder: (context, language, _) => MaterialApp(
         locale: localeOf(language),
-        // Arabe : mise en page en RTL. Les cartes et le plateau restent gérés par leurs écrans.
+        // Mise en page toujours en LTR, même en arabe : les boutons gardent leur place (#241).
+        // Les textes arabes gardent leur sens propre (bidi du moteur de texte).
         builder: (context, child) => Directionality(
-          textDirection:
-              isRtl(language) ? TextDirection.rtl : TextDirection.ltr,
+          textDirection: TextDirection.ltr,
           child: child!,
         ),
         navigatorKey: _navigatorKey,

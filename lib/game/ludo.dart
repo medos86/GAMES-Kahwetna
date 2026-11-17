@@ -465,8 +465,39 @@ LudoState moveToken(LudoState state, String tokenId) {
     }
   }
 
-  if (dice == 6 && !finishedNow) return next.copyWith(phase: LudoPhase.roll);
+  // Rejouer après un 6, une capture ou une arrivée au centre (#384, #385).
+  final arrived = progress == ludoFinish;
+  if ((dice == 6 || victims.isNotEmpty || arrived) && !finishedNow) {
+    return next.copyWith(phase: LudoPhase.roll);
+  }
   return _passTurn(next);
+}
+
+/// Fin de partie tout de suite (#387) : couleurs restantes classées
+/// par avancée totale de leurs pions, la plus avancée d'abord.
+LudoState endLudoGameNow(LudoState state) {
+  if (state.phase == LudoPhase.end) return state;
+  final remaining = [
+    for (final color in LudoColor.values)
+      if (!state.rankings.contains(color)) color,
+  ];
+  int total(LudoColor color) {
+    var sum = 0;
+    for (final token in state.tokens) {
+      if (token.color == color) sum += token.progress;
+    }
+    return sum;
+  }
+
+  remaining.sort((a, b) {
+    final byProgress = total(b).compareTo(total(a));
+    return byProgress != 0 ? byProgress : a.index.compareTo(b.index);
+  });
+  return state.copyWith(
+    rankings: [...state.rankings, ...remaining],
+    phase: LudoPhase.end,
+    sixes: 0,
+  );
 }
 
 bool _isThreatened(LudoState state, LudoColor color, int index) =>
@@ -551,13 +582,19 @@ double _scoreHard(LudoState state, Token token, int dice) {
   return score;
 }
 
-/// Id du pion à déplacer (null si aucun coup). Facile : au hasard ; moyen : scores ; difficile : scores anticipés.
+/// Probabilité, pour le niveau facile, de jouer un pion au hasard au lieu du meilleur coup (#279).
+const double ludoEasyNoise = 0.35;
+
+/// Id du pion à déplacer (null si aucun coup). Facile : meilleur coup du moyen, avec bruit contrôlé
+/// (#279) ; moyen : scores ; difficile : scores anticipés.
 String? chooseMove(LudoState state, LudoAiLevel level, [RandomDouble? random]) {
   final options = legalTokenIds(state);
   if (options.isEmpty) return null;
   if (level == LudoAiLevel.facile) {
     final draw = random ?? _defaultRandom.nextDouble;
-    return options[(draw() * options.length).floor()];
+    if (draw() < ludoEasyNoise) {
+      return options[(draw() * options.length).floor()];
+    }
   }
 
   final dice = state.dice ?? 0;

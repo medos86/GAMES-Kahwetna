@@ -218,38 +218,75 @@ void main() {
       }
     });
 
+    test('facile : sans prise possible, il défausse une carte', () {
+      final s = makeState(
+        hands: {
+          Player.player: [card(1)],
+          Player.opponent: [card(2)],
+        },
+        table: [card(9, ChkobbaSuit.coupes)],
+      );
+      final move = chooseOpponentMove(
+        s,
+        ChkobbaAiLevel.facile,
+        random: () => 0.0,
+      );
+      expect(move.cardId, 'batons-2');
+      expect(move.capture, isFalse);
+
+      final result = playCard(
+        s,
+        Player.opponent,
+        move.cardId,
+        discardOnly: true,
+      );
+      expect(result.captured, isEmpty);
+      expect(
+        result.state.table.map((c) => c.id),
+        containsAll(['coupes-9', 'batons-2']),
+      );
+    });
+
     test(
-      'facile : sans prise quand r() est bas, la carte reste sur le tapis',
+      'facile : capture toujours quand une prise existe (#278), quel que soit le tirage',
       () {
         final s = makeState(
           hands: {
             Player.player: [card(1)],
-            Player.opponent: [card(6)],
+            Player.opponent: [card(6), card(2)],
           },
           table: [card(6, ChkobbaSuit.coupes)],
         );
-        // Tirages à 0 : carte 0, et décision « ne pas prendre » (0 < 0,4).
+        for (var i = 0; i < 100; i++) {
+          final move = chooseOpponentMove(
+            s,
+            ChkobbaAiLevel.facile,
+            random: () => i / 100,
+          );
+          // La seule carte qui capture est le 6 : le facile doit la jouer en capturant.
+          expect(move.cardId, 'batons-6');
+          expect(move.capture, isTrue);
+        }
+      },
+    );
+
+    test('facile : ne propose jamais une non-capture si une prise existe', () {
+      final s = makeState(
+        hands: {
+          Player.player: [card(1)],
+          Player.opponent: [card(6), card(2), card(4)],
+        },
+        table: [card(6, ChkobbaSuit.coupes), card(4, ChkobbaSuit.deniers)],
+      );
+      for (var i = 0; i < 100; i++) {
         final move = chooseOpponentMove(
           s,
           ChkobbaAiLevel.facile,
-          random: () => 0.0,
+          random: () => i / 100,
         );
-        expect(move.cardId, 'batons-6');
-        expect(move.capture, isFalse);
-
-        final result = playCard(
-          s,
-          Player.opponent,
-          move.cardId,
-          discardOnly: true,
-        );
-        expect(result.captured, isEmpty);
-        expect(
-          result.state.table.map((c) => c.id),
-          containsAll(['coupes-6', 'batons-6']),
-        );
-      },
-    );
+        expect(move.capture, isTrue);
+      }
+    });
 
     test('moyen : priorité au 7 de carreau capturé', () {
       final s = makeState(

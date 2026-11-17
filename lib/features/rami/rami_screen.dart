@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
@@ -9,96 +8,32 @@ import '../../core/services/toast.dart';
 import '../../game/rami.dart' as rules;
 import '../menu/menu_models.dart';
 import 'rami_card_view.dart';
+import 'rami_discard_shown.dart';
+import 'rami_min_opening_shield.dart';
+import 'rami_hand_layout.dart';
+import 'rami_round_summary.dart';
+import 'rami_round_reveal.dart';
 import 'rami_controller.dart';
 import '../../core/strings.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/game_scaffold.dart';
+import '../../widgets/pulse_glow.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
-import '../../widgets/card_flight.dart';
+import '../../core/theme/comic_palette.dart';
+import '../../widgets/dialog_button.dart';
+import '../../widgets/result_dialog.dart';
+import '../../widgets/trophy_badge.dart';
+import '../../widgets/card_motion.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
+import 'rami_action_button.dart';
 
-/// Facteur d'agrandissement des cartes Rami (lisibilité sur téléphone).
-const double _ramiCardScale = 1.35;
-
-/// Clé partagée avec le mode sans pub (même nom que le web).
-const _feltColor = Color(0xFF10B981);
-const _frameColor = Color(0xFF4A2A10);
-const _creamColor = Color(0xFFFFF8E7);
-const _inkColor = Color(0xFF20284B);
-const _goldColor = Color(0xFFFFE16B);
-const _woodColor = Color(0xFF8B4513);
-const _dragThreshold = 8.0;
-
-const _seatNames = ['Toi', 'Ali', 'Karim', 'Sami'];
-const _groupColors = [
-  Color(0xFFE43F5F),
-  Color(0xFF1676D2),
-  Color(0xFFF49B32),
-  Color(0xFF9B8CFF),
-  Color(0xFF14705B),
-];
-
-final _ramiRules = <({String title, String text})>[
-  (
-    title: 'Le jeu',
-    text:
-        '4 joueurs chacun pour soi : toi contre 3 IA. 2 jeux de 52 cartes + 2 jokers, 13 cartes chacun.',
-  ),
-  (
-    title: 'Combinaisons',
-    text: 'Suite : 3 cartes ou plus de même couleur qui se suivent (As bas ou haut, sans boucler). '
-        'Brelan ou carré : 3 ou 4 cartes de même valeur et de couleurs différentes.',
-  ),
-  (
-    title: Strings.jokerLabel,
-    text:
-        "Remplace n'importe quelle carte dans une combinaison, avec au moins 2 vraies cartes.",
-  ),
-  (
-    title: 'Ouverture',
-    text:
-        'Ta première pose doit totaliser ${rules.ramiOpenMin} points minimum, en une seule fois. '
-            'As = 1, figures = 10, joker = 20.',
-  ),
-  (
-    title: 'Ton tour',
-    text: 'Pioche dans la pioche ou prends la défausse. Pose tes combinaisons, ajoute des cartes sur '
-        'celles de la table (une fois ouvert), puis défausse. La carte prise à la défausse ne peut pas '
-        'être défaussée tout de suite.',
-  ),
-  (
-    title: 'Glisser-déposer',
-    text: 'Fais glisser tes cartes pour les ranger : une barre colorée sous des cartes voisines indique '
-        'un paquet valide. Glisse un paquet sur la table pour le poser, une carte sur une combinaison '
-        'pour l\'ajouter, ou sur la défausse pour finir ton tour. Un simple appui sélectionne une carte.',
-  ),
-  (
-    title: 'Fin de manche',
-    text:
-        'Le premier qui vide sa main gagne la manche. Les autres comptent les points des cartes qui '
-            'leur restent.',
-  ),
-  (
-    title: 'Partie',
-    text:
-        "Les points de pénalité s'additionnent jusqu'à 100 ou 200. Le plus petit total gagne.",
-  ),
-];
-
-String _statusText(rules.RamiState g, int stagedPoints) {
-  if (g.phase == rules.RamiPhase.end) return '';
-  if (g.turn != 0) return '${_seatNames[g.turn]} réfléchit…';
-  if (g.phase == rules.RamiPhase.draw) return Strings.ramiYourDraw;
-  if (g.staged.isNotEmpty) {
-    return 'Ouverture : $stagedPoints / ${rules.ramiOpenMin} pts. Valide quand c\'est bon';
-  }
-  if (g.opened[0]) return Strings.ramiSlideThenDiscard;
-  return 'Ouvre avec ${rules.ramiOpenMin} pts : glisse tes paquets sur la table';
-}
+part 'rami_parts/rami_constants.dart';
+part 'rami_parts/rami_gestures.dart';
+part 'rami_parts/rami_widgets.dart';
 
 /// Écran du Rami. Logique dans RamiController et lib/game/rami.dart.
 class RamiScreen extends StatefulWidget {
@@ -115,29 +50,12 @@ class RamiScreen extends StatefulWidget {
   State<RamiScreen> createState() => _RamiScreenState();
 }
 
-/// Appui en cours sur une carte de la main ; devient un glisser après [_dragThreshold] px.
-class _Press {
-  _Press(this.id, this.start);
-
-  final String id;
-  final Offset start;
-  bool active = false;
-}
-
-/// Carte en cours de glisser : position dans le corps de l'écran et cible survolée.
-class _Drag {
-  const _Drag(this.id, this.local, this.target);
-
-  final String id;
-  final Offset local;
-  final RamiDropTarget? target;
-}
-
-class _RamiScreenState extends State<RamiScreen> {
+class _RamiScreenState extends State<RamiScreen>
+    with CardMotionMixin<RamiScreen> {
   late final RamiController _c = RamiController(
     store: const SharedPreferencesSavedGameStore(),
     targetScore: widget.targetScore,
-    difficulty: rules.RamiAiLevel.values.byName(widget.difficulty.name),
+    difficulty: aiLevelFor(rules.RamiAiLevel.values, widget.difficulty),
     onMessage: _showMessage,
   );
 
@@ -146,6 +64,8 @@ class _RamiScreenState extends State<RamiScreen> {
   final GlobalKey _bodyKey = GlobalKey();
   _Press? _press;
   _Drag? _drag;
+  // Largeur réelle des cartes de la main (la carte glissée garde cette taille).
+  double _handCardWidth = 0;
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
 
   @override
@@ -194,11 +114,14 @@ class _RamiScreenState extends State<RamiScreen> {
 
   RamiDropTarget? _targetAt(Offset point) {
     RamiDropTarget? table;
+    var inHandRow = false;
     for (final entry in _keys.entries) {
       final rect = _rectOf(entry.value);
       if (rect == null || !rect.contains(point)) continue;
       final name = entry.key;
-      if (name == 'table') {
+      if (name == 'handrow') {
+        inHandRow = true;
+      } else if (name == 'table') {
         table = const RamiDropTable();
       } else if (name == 'discard') {
         return const RamiDropDiscard();
@@ -211,6 +134,9 @@ class _RamiScreenState extends State<RamiScreen> {
         );
       }
     }
+    // Entre deux cartes, les cartes s'écartent : la cible de la main reste celle d'avant.
+    final previous = _drag?.target;
+    if (inHandRow && previous is RamiDropHand) return previous;
     return table;
   }
 
@@ -261,8 +187,14 @@ class _RamiScreenState extends State<RamiScreen> {
   // Construction
   // -------------------------------------------------------------------------
 
+  /// Mise en page en LTR, même en arabe : les boutons gardent leur place (#241).
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Directionality(
+        textDirection: TextDirection.ltr,
+        child: _buildScreen(context),
+      );
+
+  Widget _buildScreen(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     final metrics = DeviceMetrics(width: size.width, height: size.height);
     // Cartes agrandies sur l'écran Rami (la formule de DeviceMetrics reste celle du source).
@@ -279,7 +211,13 @@ class _RamiScreenState extends State<RamiScreen> {
             background: const ColoredBox(color: _woodColor),
             overlays: [
               if (g.phase == rules.RamiPhase.end && g.roundResult != null)
-                Positioned.fill(child: _summary(g)),
+                Positioned.fill(
+                  child: RamiRoundReveal(
+                    key: ValueKey('end-${g.round}'),
+                    burst: _revealBurst(g),
+                    child: _summary(g),
+                  ),
+                ),
             ],
             child: Stack(
               key: _bodyKey,
@@ -341,27 +279,7 @@ class _RamiScreenState extends State<RamiScreen> {
             child: SizedBox(
               width: 48,
               height: 48,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  const Icon(
-                    Icons.emoji_events,
-                    size: 44,
-                    color: Color(0xFFFBBF24),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Text(
-                      '${g.targetScore}',
-                      style: const TextStyle(
-                        color: _inkColor,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              child: Center(child: TrophyBadge(target: g.targetScore)),
             ),
           ),
         ],
@@ -449,17 +367,57 @@ class _RamiScreenState extends State<RamiScreen> {
       ),
       child: Column(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _piles(handWidth * 1.1, g),
-              const SizedBox(width: 8),
-              Expanded(child: _statusBubble(g)),
-            ],
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final sizes = [
+                  for (final meld in g.table) meld.cards.length,
+                  for (final cards in g.staged) cards.length,
+                ];
+                // Zoom adaptatif : les cartes du tapis rétrécissent pour que tous les paquets tiennent.
+                final meldWidth = ramiTableCardWidth(
+                  sizes,
+                  constraints.maxWidth - 16,
+                  constraints.maxHeight - 12,
+                  handWidth * 0.8,
+                );
+                return _tableCards(meldWidth, g);
+              },
+            ),
           ),
-          const SizedBox(height: 8),
-          Expanded(child: _tableCards(handWidth * 0.8, g)),
-          _contextActions(g),
+          // Pioche et défausse à gauche, boutons d'action à leur côté sur la même ligne.
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.bottomLeft,
+                    child: _piles(ramiPileWidth(handWidth), g),
+                  ),
+                ),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.bottomRight,
+                    child: _contextActions(g),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 6),
+                  child: RamiMinOpeningShield(
+                    minimum: rules.minOpening(g),
+                    label: tf(
+                      'ramiMinOpen',
+                      {'n': '${rules.minOpening(g)}'},
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -473,11 +431,11 @@ class _RamiScreenState extends State<RamiScreen> {
     final staged = g.staged.isNotEmpty;
     if (!staged && c.selected.isEmpty) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.only(left: 10, bottom: 4),
       child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 6,
-        runSpacing: 6,
+        alignment: WrapAlignment.start,
+        spacing: 4,
+        runSpacing: 4,
         children: _actions(staged),
       ),
     );
@@ -525,34 +483,80 @@ class _RamiScreenState extends State<RamiScreen> {
         if (!still.contains(card.id)) card,
     ];
     if (leaving.isNotEmpty) _flyLeaving(leaving);
-    if (_dealPending) _distribute();
+    if (_dealPending) {
+      _distribute();
+    } else if (prevGame != null) {
+      _flyAiMoves(prevGame, g);
+    }
+  }
+
+  /// Coups des adversaires (#316) : pioche et défausse volent depuis / vers leur place.
+  void _flyAiMoves(rules.RamiState prev, rules.RamiState next) {
+    final seat = prev.turn;
+    final chip = _rectOf(_key('seat:$seat'));
+    final pile = _rectOf(_key('discard'));
+    if (chip == null || pile == null) return;
+    final flights = <CardFlight>[];
+    for (final move in ramiAiMoves(prev, next)) {
+      switch (move) {
+        case RamiAiMove.drawStock:
+          final stock = _rectOf(_key('stock'));
+          if (stock == null) break;
+          flights.add(CardFlight(
+            from: stock,
+            to: () => _seatTarget(seat, stock),
+            child: RamiBackView(
+              width: stock.width,
+              asset: ramiStockBackAsset(prev.stock),
+            ),
+            duration: ramiAiFlightDuration,
+          ));
+        case RamiAiMove.takeDiscard:
+          if (prev.discard.isEmpty) break;
+          final top = prev.discard.last;
+          flights.add(CardFlight(
+            from: pile,
+            to: () => _seatTarget(seat, pile),
+            child: RamiCardView(card: top, width: pile.width),
+            duration: ramiAiFlightDuration,
+          ));
+        case RamiAiMove.discard:
+          final card = next.discard.last;
+          final from = Rect.fromCenter(
+            center: chip.center,
+            width: pile.width,
+            height: pile.height,
+          );
+          flights.add(CardFlight(
+            from: from,
+            to: () => _rectOf(_key('discard')),
+            child: RamiCardView(card: card, width: pile.width),
+            duration: ramiAiFlightDuration,
+            landingId: card.id,
+          ));
+      }
+    }
+    if (flights.isNotEmpty) flyAfterRender(flights);
   }
 
   /// Vol des cartes qui quittent la main vers leur destination (défausse, combinaison, tapis).
   void _flyLeaving(List<rules.RamiCard> leaving) {
-    final starts = <(rules.RamiCard, Rect)>[];
+    final flights = <CardFlight>[];
     for (final card in leaving) {
       final from = _rectOf(_key('hand:${card.id}'));
-      if (from != null) starts.add((card, from));
+      if (from == null) continue;
+      flights.add(
+        CardFlight(
+          from: from,
+          to: () => _targetFor(card.id, from),
+          child: RamiCardView(card: card, width: from.width),
+          delay: _flightStagger * flights.length,
+          landingId: card.id,
+        ),
+      );
     }
-    if (starts.isEmpty) return;
     // Destinations lues après le rendu : la nouvelle position existe alors.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      var i = 0;
-      for (final (card, from) in starts) {
-        unawaited(
-          flyCard(
-            context: context,
-            from: from,
-            to: () => _targetFor(card.id, from),
-            child: RamiCardView(card: card, width: from.width),
-            delay: _flightStagger * i,
-          ),
-        );
-        i++;
-      }
-    });
+    flyAfterRender(flights);
   }
 
   Rect? _targetFor(String id, Rect from) {
@@ -594,43 +598,44 @@ class _RamiScreenState extends State<RamiScreen> {
   void _distribute() {
     final from = _rectOf(_key('stock'));
     if (from == null) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final g = _c.game;
-      // Tour de table : à chaque tour, une carte pour chaque siège, comme une vraie donne.
-      final mine = _c.hand;
-      var rounds = mine.length;
+    final g = _c.game;
+    // Tour de table : à chaque tour, une carte pour chaque siège, comme une vraie donne.
+    final mine = _c.hand;
+    var rounds = mine.length;
+    for (var seat = 1; seat < 4; seat++) {
+      rounds = math.max(rounds, g.hands[seat].length);
+    }
+    final flights = <CardFlight>[];
+    for (var k = 0; k < rounds; k++) {
+      final delay = _dealStep * k;
+      if (k < mine.length) {
+        final card = mine[k];
+        flights.add(
+          CardFlight(
+            from: from,
+            to: () => _rectOf(_key('hand:${card.id}')),
+            child: RamiCardView(card: card, width: from.width),
+            delay: delay,
+            landingId: card.id,
+          ),
+        );
+      }
       for (var seat = 1; seat < 4; seat++) {
-        rounds = math.max(rounds, g.hands[seat].length);
-      }
-      for (var k = 0; k < rounds; k++) {
-        final delay = _dealStep * k;
-        if (k < mine.length) {
-          final card = mine[k];
-          unawaited(
-            flyCard(
-              context: context,
-              from: from,
-              to: () => _rectOf(_key('hand:${card.id}')),
-              child: RamiCardView(card: card, width: from.width),
-              delay: delay,
+        if (k >= g.hands[seat].length) continue;
+        flights.add(
+          CardFlight(
+            from: from,
+            to: () => _seatTarget(seat, from),
+            child: RamiBackView(
+              width: from.width,
+              asset: ramiStockBackAsset(g.stock),
             ),
-          );
-        }
-        for (var seat = 1; seat < 4; seat++) {
-          if (k >= g.hands[seat].length) continue;
-          unawaited(
-            flyCard(
-              context: context,
-              from: from,
-              to: () => _seatTarget(seat, from),
-              child: RamiBackView(width: from.width),
-              delay: delay,
-            ),
-          );
-        }
+            delay: delay,
+          ),
+        );
       }
-    });
+    }
+    flyAfterRender(flights);
   }
 
   void _drawFromStock(double width) {
@@ -638,53 +643,58 @@ class _RamiScreenState extends State<RamiScreen> {
     final before = {for (final card in _c.hand) card.id};
     _c.drawFromStock();
     if (from == null) return;
-    // La carte piochée n'existe dans la main qu'après le prochain rendu :
-    // on lit sa position réelle à ce moment-là (#238).
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final drawn = _c.hand.where((card) => !before.contains(card.id));
-      if (drawn.isEmpty) return;
-      final id = drawn.first.id;
-      unawaited(
-        flyCard(
-          context: context,
-          from: from,
-          to: () => _rectOf(_key('hand:$id')),
-          child: RamiBackView(width: width),
+    final drawn = _c.hand.where((card) => !before.contains(card.id));
+    if (drawn.isEmpty) return;
+    final id = drawn.first.id;
+    flyAfterRender([
+      CardFlight(
+        from: from,
+        to: () => _rectOf(_key('hand:$id')),
+        child: RamiBackView(
+          width: width,
+          asset: ramiBackAssetOf(drawn.first),
         ),
-      );
-    });
+        landingId: id,
+      ),
+    ]);
   }
 
   Widget _piles(double width, rules.RamiState g) {
     final c = _c;
     final top = c.top;
+    // Le tas garde la carte précédente pendant le vol de la nouvelle (#346).
+    final shown = ramiDiscardShown(g.discard, landing);
+    final covered = top != null && landing.contains(top.id);
     final discardHover = c.canPlay && _drag?.target is RamiDropDiscard;
     return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            GestureDetector(
-              onTap: c.canDraw ? () => _drawFromStock(width) : null,
-              child: Container(
-                key: _key('stock'),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(width * 0.14),
-                  border: c.canDraw
-                      ? Border.all(color: _goldColor, width: 3)
-                      : null,
+            PulseGlow(
+              active: c.canDraw,
+              child: GestureDetector(
+                onTap: c.canDraw ? () => _drawFromStock(width) : null,
+                child: Container(
+                  key: _key('stock'),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(width * 0.14),
+                    border: c.canDraw
+                        ? Border.all(color: _goldColor, width: 3)
+                        : null,
+                  ),
+                  child: RamiBackView(
+                    width: width,
+                    asset: ramiStockBackAsset(g.stock),
+                  ),
                 ),
-                child: RamiBackView(width: width),
               ),
-            ),
-            Text(
-              'Pioche · ${g.stock.length}',
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
             ),
           ],
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 12),
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -692,11 +702,11 @@ class _RamiScreenState extends State<RamiScreen> {
               key: _key('discard'),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(width * 0.14),
-                border: discardHover || c.canDraw
+                border: discardHover
                     ? Border.all(color: _goldColor, width: 3)
                     : null,
               ),
-              child: top == null
+              child: shown == null
                   ? Container(
                       width: width,
                       height: width * 1.4,
@@ -706,13 +716,9 @@ class _RamiScreenState extends State<RamiScreen> {
                       ),
                     )
                   : GestureDetector(
-                      onTap: c.canDraw ? c.drawFromDiscard : null,
-                      child: RamiCardView(card: top, width: width),
+                      onTap: c.canDraw && !covered ? c.drawFromDiscard : null,
+                      child: RamiCardView(card: shown, width: width),
                     ),
-            ),
-            Text(
-              'Défausse · ${g.discard.length}',
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
             ),
           ],
         ),
@@ -720,30 +726,9 @@ class _RamiScreenState extends State<RamiScreen> {
     );
   }
 
-  Widget _statusBubble(rules.RamiState g) {
-    final text = _statusText(g, _c.stagedPoints);
-    if (text.isEmpty) return const SizedBox.shrink();
-    final myTurn = _c.myTurn;
-    return Semantics(
-      liveRegion: true,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        decoration: BoxDecoration(
-          color: myTurn ? _goldColor : const Color(0xFFF97316),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.black, width: 2),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: myTurn ? const Color(0xFF3D351F) : Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 13,
-          ),
-        ),
-      ),
-    );
-  }
+  /// Combinaison survolée par une carte glissée (surbrillance).
+  bool _isHotMeld(Object? target, String id) =>
+      _c.canPlay && target is RamiDropMeld && target.id == id;
 
   Widget _tableCards(double meldWidth, rules.RamiState g) {
     final c = _c;
@@ -767,8 +752,8 @@ class _RamiScreenState extends State<RamiScreen> {
       ),
       child: SingleChildScrollView(
         child: Wrap(
-          spacing: 6,
-          runSpacing: 6,
+          spacing: 3,
+          runSpacing: 3,
           children: [
             if (g.table.isEmpty && g.staged.isEmpty)
               SizedBox(
@@ -784,14 +769,16 @@ class _RamiScreenState extends State<RamiScreen> {
                 ),
               ),
             for (final meld in g.table)
-              _MeldView(
+              MaskedSlot(
                 key: _key('meld:${meld.id}'),
-                cards: meld.cards,
-                cardWidth: meldWidth,
-                hot:
-                    c.canPlay && target is RamiDropMeld && target.id == meld.id,
-                eligible: c.layEligible,
-                onTap: c.layEligible ? () => c.layOffSelected(meld.id) : null,
+                hidden: meld.cards.any((card) => landing.contains(card.id)),
+                child: _MeldView(
+                  cards: meld.cards,
+                  cardWidth: meldWidth,
+                  hot: _isHotMeld(target, meld.id),
+                  eligible: c.layEligible,
+                  onTap: c.layEligible ? () => c.layOffSelected(meld.id) : null,
+                ),
               ),
             for (final cards in g.staged)
               _MeldView(cards: cards, cardWidth: meldWidth, staged: true),
@@ -816,32 +803,46 @@ class _RamiScreenState extends State<RamiScreen> {
 
   List<Widget> _actions(bool staged) {
     final c = _c;
+    final pose = RamiActionButton(
+      label: Strings.actPose,
+      icon: Icons.check,
+      onTap: c.pose,
+      enabled: c.selectionIsMeld,
+      primary: !staged,
+    );
+    final discard = RamiActionButton(
+      label: Strings.actDiscard,
+      icon: Icons.south,
+      onTap: c.discardSelected,
+      enabled: c.selected.length == 1 && !staged,
+      danger: true,
+    );
+    final returnTaken = RamiActionButton(
+      label: Strings.actReturnTaken,
+      icon: Icons.undo,
+      onTap: c.returnTaken,
+      enabled: c.canReturnTaken,
+    );
+    if (!staged && c.canReturnTaken) return [pose, returnTaken, discard];
+    if (!staged) return [pose, discard];
     return [
-      if (!staged)
-        _ActionButton(
-          label: Strings.actPose,
-          onTap: c.pose,
-          enabled: c.selectionIsMeld,
-          primary: true,
-        )
-      else ...[
-        _ActionButton(
-          label: tf('validate', {
-            'cur': '${c.stagedPoints}',
-            'min': '${rules.ramiOpenMin}',
-          }),
-          onTap: c.commit,
-          enabled: c.stagedPoints >= rules.ramiOpenMin,
-          primary: true,
-        ),
-        _ActionButton(label: Strings.actCancel, onTap: c.cancel),
-      ],
-      _ActionButton(
-        label: Strings.actDiscard,
-        onTap: _c.discardSelected,
-        enabled: c.selected.length == 1 && !staged,
-        danger: true,
+      RamiActionButton(
+        label: tf('validate', {
+          'cur': '${c.stagedPoints}',
+          'min': '${c.openMinimum}',
+        }),
+        icon: Icons.done_all,
+        onTap: c.commit,
+        enabled: c.stagedPoints >= c.openMinimum,
+        primary: true,
       ),
+      pose,
+      RamiActionButton(
+        label: Strings.actCancel,
+        icon: Icons.close,
+        onTap: c.cancel,
+      ),
+      discard,
     ];
   }
 
@@ -852,7 +853,6 @@ class _RamiScreenState extends State<RamiScreen> {
       builder: (context, constraints) {
         final c = _c;
         final hand = c.displayed;
-        final groupOf = c.groupOf;
         final selected = c.selected;
         final n = hand.length;
         final maxW = constraints.maxWidth;
@@ -860,6 +860,7 @@ class _RamiScreenState extends State<RamiScreen> {
         final minStep = 0.3;
         final fitWidth = n <= 1 ? cardWidth : maxW / (1 + minStep * (n - 1));
         final width = fitWidth < cardWidth ? fitWidth : cardWidth;
+        _handCardWidth = width;
         // Pas entre deux cartes : 60 % de la largeur, resserré pour tenir sur la largeur.
         final room = n <= 1 ? 0.0 : (maxW - width) / (n - 1);
         final natural = 0.6 * width;
@@ -867,31 +868,47 @@ class _RamiScreenState extends State<RamiScreen> {
         final total = n == 0 ? 0.0 : width + step * (n - 1);
         final height = width * 1.4 + 8;
 
-        // Ordre de dessin : cartes non sélectionnées d'abord, sélectionnées ou déplacées en dernier.
-        final order = [
-          for (var i = 0; i < n; i++)
-            if (!selected.contains(hand[i].id) && _drag?.id != hand[i].id) i,
-          for (var i = 0; i < n; i++)
-            if (selected.contains(hand[i].id) || _drag?.id == hand[i].id) i,
-        ];
+        // Glisser au-dessus de la main : la carte quitte sa place, les autres s'écartent
+        // à l'endroit où elle va atterrir.
+        final dragId = _drag?.id;
+        final target = _drag?.target;
+        final RamiDropHand? hover =
+            target is RamiDropHand && target.id != dragId ? target : null;
+        final shown = hover == null
+            ? hand
+            : hand.where((card) => card.id != dragId).toList();
+        final m = shown.length;
+        var gapAt = -1;
+        if (hover != null) {
+          final at = shown.indexWhere((card) => card.id == hover.id);
+          if (at >= 0) {
+            gapAt = hover.after ? at + 1 : at;
+          }
+        }
+
+        // Ordre de dessin : de gauche à droite, la carte déplacée en dernier.
+        final dragAt = shown.indexWhere((card) => card.id == dragId);
+        final order = ramiDrawOrder(m, dragAt >= 0 ? dragAt : null);
 
         return Center(
           child: SizedBox(
+            key: _key('handrow'),
             width: total,
             height: height,
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                for (final i in order)
-                  Positioned(
-                    key: ValueKey('pos:${hand[i].id}'),
-                    left: i * step,
+                for (final j in order)
+                  AnimatedPositioned(
+                    key: ValueKey('pos:${shown[j].id}'),
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOut,
+                    left: j * step + ramiGapOffset(j, gapAt, step),
                     top: 0,
                     child: _handCard(
-                      hand[i],
+                      shown[j],
                       width,
-                      selected: selected.contains(hand[i].id),
-                      group: groupOf[hand[i].id],
+                      selected: selected.contains(shown[j].id),
                     ),
                   ),
               ],
@@ -906,15 +923,9 @@ class _RamiScreenState extends State<RamiScreen> {
     rules.RamiCard card,
     double width, {
     required bool selected,
-    required int? group,
   }) {
-    final drag = _drag;
-    final target = drag?.target;
-    final dragged = drag?.id == card.id;
-    final insert = target is RamiDropHand && target.id == card.id && !dragged
-        ? target
-        : null;
-
+    final dragged = _drag?.id == card.id;
+    final arriving = landing.contains(card.id);
     return Listener(
       key: _key('hand:${card.id}'),
       behavior: HitTestBehavior.opaque,
@@ -922,41 +933,9 @@ class _RamiScreenState extends State<RamiScreen> {
       onPointerMove: _onPointerMove,
       onPointerUp: _onPointerUp,
       onPointerCancel: (_) => _onPointerCancel(),
-      child: SizedBox(
-        width: width,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Opacity(
-                  opacity: dragged ? 0.3 : 1,
-                  child: RamiCardView(
-                    card: card,
-                    width: width,
-                    selected: selected,
-                  ),
-                ),
-                if (insert != null)
-                  Positioned(
-                    top: 0,
-                    bottom: 0,
-                    left: insert.after ? null : -3,
-                    right: insert.after ? -3 : null,
-                    child: Container(width: 3, color: const Color(0xFFE43F5F)),
-                  ),
-              ],
-            ),
-            Container(
-              margin: const EdgeInsets.only(top: 3),
-              height: 5,
-              color: group == null
-                  ? Colors.transparent
-                  : _groupColors[group % _groupColors.length],
-            ),
-          ],
-        ),
+      child: Opacity(
+        opacity: dragged ? 0.3 : (arriving ? 0 : 1),
+        child: RamiCardView(card: card, width: width, selected: selected),
       ),
     );
   }
@@ -965,7 +944,8 @@ class _RamiScreenState extends State<RamiScreen> {
   Widget _dragOverlay(double handWidth) {
     final drag = _drag!;
     final c = _c;
-    final width = handWidth * 1.15;
+    // Même taille que la carte dans la main (pas d'agrandissement pendant le glissement).
+    final width = _handCardWidth > 0 ? _handCardWidth : handWidth;
     rules.RamiCard? card;
     for (final item in c.hand) {
       if (item.id == drag.id) card = item;
@@ -1013,6 +993,13 @@ class _RamiScreenState extends State<RamiScreen> {
   }
 
   /// Récapitulatif de manche, ou de partie quand un joueur atteint l'objectif.
+  /// Texte de l'éclat d'annonce : qui a gagné la manche (#417).
+  String _revealBurst(rules.RamiState g) {
+    final winner = g.roundResult?.winner;
+    if (winner == null) return 'FIN !';
+    return winner == 0 ? 'GAGNÉ !' : '${_seatNames[winner]} GAGNE !';
+  }
+
   Widget _summary(rules.RamiState g) {
     final result = g.roundResult!;
     final winner = result.winner;
@@ -1024,264 +1011,57 @@ class _RamiScreenState extends State<RamiScreen> {
             : winner == null
                 ? Strings.drawExhausted
                 : '${_seatNames[winner]} gagne la manche';
-
+    final isOver = matchWinner != null;
+    final badge = isOver ? Strings.matchOver : 'MANCHE ${g.round}';
     return ColoredBox(
       color: Colors.black54,
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF059669),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.black, width: 4),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black, offset: Offset(0, 7)),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _goldColor,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.black, width: 2),
-                    ),
-                    child: Text(
-                      matchWinner != null
-                          ? Strings.matchOver
-                          : 'MANCHE ${g.round}',
-                      style: const TextStyle(
-                        color: Color(0xFF17213D),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      for (var seat = 0; seat < 4; seat++)
-                        Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 3),
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.black26,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  _seatNames[seat].toUpperCase(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                                Text(
-                                  '+${result.penalties[seat]}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                                Text(
-                                  'Total ${g.scores[seat]}',
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  if (matchWinner != null) ...[
-                    _DialogButton(
-                      label: Strings.replay,
-                      onTap: () => _deal(_c.restart),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).maybePop(),
-                      child: Text(
-                        Strings.backToMenu,
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    ),
-                  ] else
-                    _DialogButton(
-                      label: Strings.nextRoundButton,
-                      onTap: () => _deal(_c.nextRound),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Widgets auxiliaires
-// ---------------------------------------------------------------------------
-
-class _PlayerChip extends StatelessWidget {
-  const _PlayerChip({required this.seat, required this.game});
-
-  final int seat;
-  final rules.RamiState game;
-
-  @override
-  Widget build(BuildContext context) {
-    final active = game.turn == seat && game.phase != rules.RamiPhase.end;
-    final opened = game.opened[seat] ? 'Ouvert' : 'Fermé';
-    final ink = active ? const Color(0xFF513B00) : _inkColor;
-    return Semantics(
-      label: '${_seatNames[seat]} : ${game.scores[seat]} points, $opened',
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-        decoration: BoxDecoration(
-          color: active ? _goldColor : _creamColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: _frameColor.withValues(alpha: active ? 1 : 0.6),
-            width: 2,
-          ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    _seatNames[seat].toUpperCase(),
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: ink,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-                if (game.dealer == seat) ...[
-                  const SizedBox(width: 3),
-                  const CircleAvatar(
-                    radius: 7,
-                    backgroundColor: _inkColor,
-                    child: Text(
-                      'D',
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            Text(
-              '${game.scores[seat]}',
-              style: TextStyle(
-                color: ink,
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            Text(
-              seat == 0 ? opened : '×${game.hands[seat].length} · $opened',
-              style: TextStyle(
-                color: ink.withValues(alpha: 0.75),
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Combinaison de la table : cartes qui se chevauchent, comme les piles du source.
-class _MeldView extends StatelessWidget {
-  const _MeldView({
-    super.key,
-    required this.cards,
-    required this.cardWidth,
-    this.hot = false,
-    this.eligible = false,
-    this.staged = false,
-    this.onTap,
-  });
-
-  final List<rules.RamiCard> cards;
-  final double cardWidth;
-  final bool hot;
-  final bool eligible;
-  final bool staged;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final step = cardWidth * 0.58;
-    final width = cardWidth + step * (cards.length - 1);
-    final height = cardWidth * 1.4;
-    final Color border = hot || eligible
-        ? _goldColor
-        : staged
-            ? _goldColor.withValues(alpha: 0.8)
-            : Colors.white24;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: hot
-              ? _goldColor.withValues(alpha: 0.3)
-              : Colors.black.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: border, width: 2),
-        ),
-        child: SizedBox(
-          width: width,
-          height: height,
-          child: Stack(
+          child: ResultDialog(
+            title: title,
             children: [
-              for (var i = 0; i < cards.length; i++)
-                Positioned(
-                  left: step * i,
-                  top: 0,
-                  child: RamiCardView(card: cards[i], width: cardWidth),
+              Text(
+                badge,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: ComicPalette.ink,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  for (var seat = 0; seat < 4; seat++)
+                    Expanded(
+                      child: ResultScoreBox(
+                        name: _seatNames[seat],
+                        value: signedScore(result.penalties[seat]),
+                        total: '${g.scores[seat]}',
+                        reason: ramiSeatReason(
+                          isWinner: winner == seat,
+                          opened: g.opened[seat],
+                        ),
+                        highlight: winner == seat,
+                      ),
+                    ),
+                ],
+              ),
+            ],
+            actions: [
+              DialogButton(
+                label: isOver ? Strings.replay : Strings.nextRoundButton,
+                onTap: () => _deal(isOver ? _c.restart : _c.nextRound),
+              ),
+              if (isOver)
+                TextButton(
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  child: Text(
+                    Strings.backToMenu,
+                    style: const TextStyle(color: ComicPalette.ink),
+                  ),
                 ),
             ],
           ),
@@ -1291,75 +1071,5 @@ class _MeldView extends StatelessWidget {
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.label,
-    required this.onTap,
-    this.primary = false,
-    this.danger = false,
-    this.enabled = true,
-  });
-
-  final String label;
-  final VoidCallback onTap;
-  final bool primary;
-  final bool danger;
-  final bool enabled;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color background = danger
-        ? const Color(0xFFD71920)
-        : primary
-            ? const Color(0xFFF2B74E)
-            : Colors.white;
-    final Color foreground = danger ? Colors.white : _inkColor;
-    return Opacity(
-      opacity: enabled ? 1 : 0.4,
-      child: Material(
-        color: background,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: enabled ? onTap : null,
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 40, minWidth: 64),
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Text(
-              label,
-              style: TextStyle(
-                color: foreground,
-                fontWeight: FontWeight.w900,
-                fontSize: 13,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _DialogButton extends StatelessWidget {
-  const _DialogButton({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: FilledButton(
-        style: FilledButton.styleFrom(
-          backgroundColor: _goldColor,
-          foregroundColor: const Color(0xFF3D351F),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-        ),
-        onPressed: onTap,
-        child: Text(label, style: const TextStyle(fontWeight: FontWeight.w900)),
-      ),
-    );
-  }
-}
+// ---------------------------------------------------------------------------
+// Widgets auxiliaires

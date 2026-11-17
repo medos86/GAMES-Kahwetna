@@ -14,6 +14,12 @@ const ludoHumanOrder = [
   LudoColor.green,
 ];
 
+/// Délai de l'IA quand la fin de partie est accélérée (#387).
+const ludoFastAiDelay = Duration(milliseconds: 150);
+
+/// Délai avant qu'un pion unique jouable avance seul (#388).
+const ludoAutoMoveDelay = Duration(milliseconds: 700);
+
 /// Délai d'un tour de l'IA selon le niveau (valeurs du source : 1100 / 850 / 600 ms).
 Duration ludoRollDelay(LudoAiLevel level) => switch (level) {
       LudoAiLevel.facile => const Duration(milliseconds: 1100),
@@ -54,6 +60,30 @@ class LudoController extends PersistentGameController {
 
   bool get roundOver => _game.phase == LudoPhase.end;
 
+  /// Tous les joueurs humains sont arrivés : l'IA finit seule (#387).
+  bool get humansDone =>
+      humans.every((color) => _game.rankings.contains(color));
+
+  /// Proposer le choix « finir la partie » ou « voir la fin ».
+  bool get choiceOpen => humansDone && !roundOver && !_choiceMade;
+
+  bool _choiceMade = false;
+  bool _fastAi = false;
+
+  /// L'IA enchaîne vite jusqu'à la fin (#387).
+  void finishGame() {
+    _choiceMade = true;
+    _fastAi = true;
+    _reschedule();
+    notifyListeners();
+  }
+
+  /// La partie se termine tout de suite, avec le classement actuel (#387).
+  void showEnd() {
+    _choiceMade = true;
+    _setGame(endLudoGameNow(_game));
+  }
+
   /// Pions jouables au tour de l'humain.
   Set<String> get legalIds =>
       humanTurn ? legalTokenIds(_game).toSet() : const <String>{};
@@ -75,7 +105,11 @@ class LudoController extends PersistentGameController {
   }
 
   /// Nouvelle partie, mêmes joueurs et niveau.
-  void restart() => _setGame(newLudoGame());
+  void restart() {
+    _choiceMade = false;
+    _fastAi = false;
+    _setGame(newLudoGame());
+  }
 
   void _setGame(LudoState next) {
     if (identical(next, _game)) return;
@@ -84,16 +118,24 @@ class LudoController extends PersistentGameController {
     notifyListeners();
   }
 
-  /// Une seule action IA programmée à la fois, reprogrammée après chaque changement.
+  /// Une seule action programmée à la fois, reprogrammée après chaque changement.
   void _reschedule() {
     _timer?.cancel();
     _timer = null;
     if (_disposed) return;
-    final aiTurn = !humanTurn &&
-        (_game.phase == LudoPhase.roll || _game.phase == LudoPhase.move);
+    if (humanTurn) {
+      // Un seul pion jouable : il avance tout seul après un court instant (#388).
+      if (_game.phase != LudoPhase.move || legalIds.length != 1) return;
+      final tokenId = legalIds.first;
+      _timer = Timer(ludoAutoMoveDelay, () => tapToken(tokenId));
+      return;
+    }
+    final aiTurn =
+        _game.phase == LudoPhase.roll || _game.phase == LudoPhase.move;
     if (!aiTurn) return;
 
-    _timer = Timer(ludoRollDelay(difficulty), () {
+    final delay = _fastAi ? ludoFastAiDelay : ludoRollDelay(difficulty);
+    _timer = Timer(delay, () {
       if (_game.phase == LudoPhase.roll) {
         _setGame(rollDice(_game, _random));
         return;

@@ -47,16 +47,19 @@ DominoAiMove chooseOpponentMove(
   if (moves.isNotEmpty) {
     if (level == DominoAiLevel.facile) {
       final r = random ?? _defaultRandom.nextDouble;
-      final tile = moves[(r() * moves.length).floor()];
-      final sides = [
-        for (final side in DominoSide.values)
-          if (canPlace(tile, state, side)) side,
-      ];
-      final sideIndex = (r() * sides.length).floor();
-      final side = sides.isEmpty
-          ? DominoSide.left
-          : sides[sideIndex >= sides.length ? sides.length - 1 : sideIndex];
-      return DominoAiMove.play(tile, side);
+      // Bruit contrôlé (#280) : avec probabilité dominoEasyNoise, tuile et côté au hasard ; sinon heuristique du moyen.
+      if (r() < dominoEasyNoise) {
+        final tile = moves[(r() * moves.length).floor()];
+        final sides = [
+          for (final side in DominoSide.values)
+            if (canPlace(tile, state, side)) side,
+        ];
+        final sideIndex = (r() * sides.length).floor();
+        final side = sides.isEmpty
+            ? DominoSide.left
+            : sides[sideIndex >= sides.length ? sides.length - 1 : sideIndex];
+        return DominoAiMove.play(tile, side);
+      }
     }
 
     if (level == DominoAiLevel.difficile) return _difficileMove(state, moves);
@@ -70,6 +73,9 @@ DominoAiMove chooseOpponentMove(
   if (state.boneyard.isNotEmpty) return const DominoAiMove.draw();
   return const DominoAiMove.pass();
 }
+
+/// Probabilité, pour le niveau facile, de jouer au hasard au lieu du meilleur coup (#280).
+const double dominoEasyNoise = 0.35;
 
 int _score(DominoTile tile, DominoAiLevel level) => _pips(tile);
 

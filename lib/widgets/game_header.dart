@@ -37,6 +37,7 @@ class GameHeader extends StatelessWidget {
         Pressable(
           semanticLabel: Strings.menuLabel,
           onTap: onMenu,
+          pressedScale: 0.92,
           child: _MenuPill(unit: unit),
         ),
         center ?? const Spacer(),
@@ -46,7 +47,8 @@ class GameHeader extends StatelessWidget {
   }
 }
 
-/// Bouton Menu en case BD : contour encre, libellé en Bangers.
+/// Bouton retour des jeux : même style que le bouton retour du menu (menu_header.dart),
+/// dimensionné sur [unit] pour rester dans l'en-tête.
 class _MenuPill extends StatelessWidget {
   const _MenuPill({required this.unit});
 
@@ -55,26 +57,35 @@ class _MenuPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ComicPanel(
-      color: ComicPalette.paper,
-      outlineColor: ComicPalette.ink,
-      radius: 12,
+      color: ComicPalette.ink.withAlpha(0xE6),
+      outlineColor: ComicPalette.tunisBlue,
+      radius: 14,
       shadowOffset: const Offset(3, 3),
-      padding: EdgeInsets.symmetric(horizontal: unit, vertical: unit * 0.55),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.arrow_back, size: unit, color: ComicPalette.ink),
-          SizedBox(width: unit * 0.4),
-          Text(
-            Strings.menuLabel,
-            style: TextStyle(
-              fontFamily: 'Bangers',
-              fontSize: unit * 0.95,
-              letterSpacing: 1,
-              color: ComicPalette.ink,
+      padding: EdgeInsets.symmetric(
+        horizontal: unit * 0.7,
+        vertical: unit * 0.5,
+      ),
+      child: DefaultTextStyle.merge(
+        style: const TextStyle(color: ComicPalette.paper),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.arrow_back,
+              size: unit * 1.1,
+              color: ComicPalette.paper,
             ),
-          ),
-        ],
+            SizedBox(width: unit * 0.35),
+            Text(
+              Strings.menuLabel,
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: unit * 0.85,
+                color: ComicPalette.paper,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

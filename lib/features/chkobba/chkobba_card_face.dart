@@ -36,12 +36,12 @@ String _assetSuitName(ChkobbaSuit suit) => switch (suit) {
     };
 
 const String _cardsFolder = 'assets/images/cards_cartoon';
-const String cardBackAsset = '$_cardsFolder/Chkobba_back.png';
+const String cardBackAsset = '$_cardsFolder/Chkobba_back.webp';
 
-/// Chemin de l'image cartoon d'une carte, par ex. assets/images/cards_cartoon/Chkobba_pique_08.png.
+/// Chemin de l'image cartoon d'une carte, par ex. assets/images/cards_cartoon/Chkobba_pique_08.webp.
 String chkobbaCardAsset(ChkobbaCard card) {
   final num = card.rank.toString().padLeft(2, '0');
-  return '$_cardsFolder/Chkobba_${_assetSuitName(card.suit)}_$num.png';
+  return '$_cardsFolder/Chkobba_${_assetSuitName(card.suit)}_$num.webp';
 }
 
 /// Face d'une carte : image cartoon de la carte.

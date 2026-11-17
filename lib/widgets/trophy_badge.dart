@@ -1,3 +1,4 @@
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// Trophée affichant le score cible, avec un halo pulsé (guide §8).
@@ -40,26 +41,45 @@ class _TrophyBadgeState extends State<TrophyBadge>
   @override
   Widget build(BuildContext context) {
     final size = widget.size;
+    // Coupe BD (assets/icons/trophy_bd.svg, viewBox 100) : le centre du bol est à y = 34/100.
+    // Le score est centré sur ce point, avec un contour d'encre pour rester lisible.
+    final scoreStyle = TextStyle(
+      fontFamily: 'Bangers',
+      fontSize: size * 0.24,
+      height: 1,
+    );
     final badge = Stack(
       alignment: Alignment.center,
       children: [
-        Icon(Icons.emoji_events, size: size, color: const Color(0xFFFBBF24)),
-        // Chiffre centré dans la coupe de l'icône (#153) : la coupe occupe le haut de l'icône,
-        // donc le centre se trouve un peu au-dessus du centre géométrique.
-        // Réduit s'il dépasse la largeur de la coupe (« 1000 » reste dans l'icône).
+        SvgPicture.asset(
+          'assets/icons/trophy_bd.svg',
+          width: size,
+          height: size,
+          excludeFromSemantics: true,
+        ),
         Align(
-          alignment: const Alignment(0, -0.25),
+          alignment: const Alignment(0, -0.32),
           child: SizedBox(
             width: size * 0.6,
             child: FittedBox(
               fit: BoxFit.scaleDown,
-              child: Text(
-                '${widget.target}',
-                style: TextStyle(
-                  fontSize: size * 0.2,
-                  fontWeight: FontWeight.w900,
-                  color: const Color(0xFF92400E),
-                ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Text(
+                    '${widget.target}',
+                    style: scoreStyle.copyWith(
+                      foreground: Paint()
+                        ..style = PaintingStyle.stroke
+                        ..strokeWidth = size * 0.07
+                        ..color = const Color(0xFF1B1B1B),
+                    ),
+                  ),
+                  Text(
+                    '${widget.target}',
+                    style: scoreStyle.copyWith(color: const Color(0xFFFFF7D6)),
+                  ),
+                ],
               ),
             ),
           ),

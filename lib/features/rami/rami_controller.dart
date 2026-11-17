@@ -8,8 +8,11 @@ import '../../game/rami.dart' as rules;
 import '../../core/audio/sounds.dart';
 import '../../core/strings.dart';
 
-/// Délai d'une action de l'IA (550 ms dans le source).
-const ramiAiDelay = Duration(milliseconds: 550);
+/// Délai d'une action de l'IA (#391 : 950 ms pour suivre les coups adverses).
+const ramiAiDelay = Duration(milliseconds: 950);
+
+/// Durée vol d'un coup adverse (#368) : assez lente pour être suivie, sous [ramiAiDelay].
+const ramiAiFlightDuration = Duration(milliseconds: 800);
 
 /// Tri de la main : par couleur ou par valeur (sortHand du source).
 enum RamiSortMode { suit, rank }
@@ -149,6 +152,9 @@ class RamiController extends PersistentGameController {
   int get stagedPoints =>
       _game.staged.fold(0, (sum, cards) => sum + rules.pointsOf(cards));
 
+  /// Seuil de l'ouverture en cours : 51, puis strictement plus que la précédente.
+  int get openMinimum => rules.minOpening(_game);
+
   List<rules.RamiCard> get selectedCards => [
         for (final card in displayed)
           if (_selected.contains(card.id)) card,
@@ -158,6 +164,15 @@ class RamiController extends PersistentGameController {
       selectedCards.length >= 3 && rules.isValidMeld(selectedCards);
 
   bool get layEligible => canPlay && opened && _selected.length == 1;
+
+  /// Vrai si la carte prise à la défausse est encore en main et qu'aucune pose n'a été faite.
+  bool get canReturnTaken {
+    final taken = _game.takenId;
+    return canPlay &&
+        _game.staged.isEmpty &&
+        taken != null &&
+        hand.any((card) => card.id == taken);
+  }
 
   /// Paquet à poser pour une carte glissée : la sélection si elle est valide, sinon le paquet voisin.
   List<rules.RamiCard> groupFor(String id) {
@@ -194,8 +209,12 @@ class RamiController extends PersistentGameController {
     if (!canDraw) return;
     Sounds.play(Sfx.draw);
     _keepOrder();
-    _apply(rules.drawDiscard(_game));
+    _apply(rules.drawDiscard(_game), Strings.ramiDiscardNeedsLay);
   }
+
+  /// Remet la carte prise à la défausse, si elle n'a pas encore été posée.
+  void returnTaken() =>
+      _apply(rules.returnTaken(_game), Strings.ramiReturnRefused);
 
   /// Fige l'ordre affiché avant une pioche : la carte piochée arrive alors à la fin de la main.
   void _keepOrder() {
@@ -206,17 +225,17 @@ class RamiController extends PersistentGameController {
   void pose() =>
       _apply(rules.poseMeld(_game, List.of(_selected)), Strings.notAMeld);
 
-  /// Valide l'ouverture (51 points minimum).
+  /// Valide l'ouverture (seuil : voir openMinimum).
   void commit() => _apply(
         rules.commitOpening(_game),
-        'Il faut au moins ${rules.ramiOpenMin} points pour ouvrir',
+        'Il faut au moins $openMinimum points pour ouvrir',
       );
 
   void cancel() => _apply(rules.cancelStaged(_game));
 
   void layOffCard(String cardId, String meldId) {
     if (!opened) {
-      onMessage?.call("Ouvre d'abord avec ${rules.ramiOpenMin} points");
+      onMessage?.call("Ouvre d'abord avec $openMinimum points");
       return;
     }
     if (_game.staged.isNotEmpty) {
@@ -240,7 +259,8 @@ class RamiController extends PersistentGameController {
       onMessage?.call(Strings.ramiFinishOrCancel);
       return;
     }
-    final failure = cardId == _game.takenId
+    // Carte prise non posée (ou la carte prise elle-même) : la défausse est bloquée.
+    final failure = _game.takenId != null
         ? Strings.ramiCannotDiscardTaken
         : Strings.ramiDiscardRefused;
     _apply(rules.discardCard(_game, cardId), failure);

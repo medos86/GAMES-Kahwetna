@@ -6,6 +6,11 @@ import '../../core/strings.dart';
 
 enum Difficulty { facile, moyen, difficile }
 
+/// Niveau IA d'un jeu pour une difficulté donnée (issue #303).
+/// Les enums IA portent les mêmes noms que [Difficulty] : une seule conversion pour tous les jeux.
+T aiLevelFor<T extends Enum>(Iterable<T> levels, Difficulty difficulty) =>
+    levels.byName(difficulty.name);
+
 class DifficultyOption {
   const DifficultyOption({
     required this.difficulty,
@@ -56,6 +61,9 @@ final difficultyOptions = <DifficultyOption>[
   ),
 ];
 
+/// Fond commun du menu et des jeux sans photo dédiée.
+const kMenuBackgroundAsset = 'assets/images/background.webp';
+
 class GameEntry {
   const GameEntry({
     required this.name,
@@ -68,10 +76,15 @@ class GameEntry {
     required this.targets,
     required this.defaultTarget,
     this.available = true,
+    this.backgroundAsset = kMenuBackgroundAsset,
   });
 
   final String name;
   final String tunisian;
+
+  /// Photo affichée sur l'écran de choix du niveau (avec trame de points).
+  final String backgroundAsset;
+
   final Color gradientFrom;
   final Color gradientTo;
   final Color edgeColor;
@@ -101,6 +114,7 @@ const gameEntries = <GameEntry>[
     route: '/game',
     targets: [11, 21],
     defaultTarget: 11,
+    backgroundAsset: 'assets/images/game_bg/chkobba_sfax.webp',
   ),
   GameEntry(
     name: 'Domino',
@@ -112,6 +126,7 @@ const gameEntries = <GameEntry>[
     route: '/domino',
     targets: [50, 100, 200],
     defaultTarget: 50,
+    backgroundAsset: 'assets/images/game_bg/domino_medina_tunis.webp',
   ),
   GameEntry(
     name: 'Belote',
@@ -123,6 +138,7 @@ const gameEntries = <GameEntry>[
     route: '/coinche',
     targets: [500, 1000],
     defaultTarget: 1000,
+    backgroundAsset: 'assets/images/game_bg/coinche_kairouan.webp',
   ),
   GameEntry(
     name: 'Ludo',
@@ -143,10 +159,20 @@ const gameEntries = <GameEntry>[
     edgeColor: Color(0xFF214597),
     iconAsset: 'assets/icons/game_rami.svg',
     route: '/rami',
-    targets: [100, 200],
-    defaultTarget: 100,
+    targets: [301, 401, 501, 601],
+    defaultTarget: 301,
   ),
 ];
+
+/// Difficulté mémorisée (#113) : Facile si rien ou une valeur inconnue n'est enregistrée.
+Difficulty difficultyFromPrefs(String? name) => Difficulty.values.firstWhere(
+      (d) => d.name == name,
+      orElse: () => Difficulty.facile,
+    );
+
+/// Score cible mémorisé (#113) : repris seulement s'il fait partie des choix du jeu.
+int targetFromPrefs(GameEntry game, int? saved) =>
+    saved != null && game.targets.contains(saved) ? saved : game.defaultTarget;
 
 /// Paramètres transmis à l'écran de jeu. `location` reprend le format du web.
 class LaunchRequest {

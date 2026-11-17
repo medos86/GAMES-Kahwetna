@@ -21,33 +21,21 @@ Future<void> offerResume(
     controller.resume();
     return;
   }
-  while (true) {
-    final resume = await showConfirmDialog(
-      context,
-      title: Strings.resumeTitle,
-      body: Strings.resumeBody,
-      cancelLabel: Strings.resumeNew,
-      confirmLabel: Strings.resumeContinue,
-      confirmVariant: ComicButtonVariant.primary,
-      dismissible: false,
-    );
-    if (!context.mounted) return;
-    if (resume == true) {
-      controller.resume();
-      return;
-    }
-    final sure = await showConfirmDialog(
-      context,
-      title: Strings.resumeNewTitle,
-      body: Strings.resumeNewBody,
-      cancelLabel: Strings.exitStay,
-      confirmLabel: Strings.resumeNew,
-      dismissible: false,
-    );
-    if (!context.mounted) return;
-    if (sure == true) {
-      await controller.discardSaved();
-      return;
-    }
+  final resume = await showConfirmDialog(
+    context,
+    title: Strings.resumeTitle,
+    body: Strings.resumeBody,
+    cancelLabel: Strings.resumeNew,
+    confirmLabel: Strings.resumeContinue,
+    confirmVariant: ComicButtonVariant.primary,
+  );
+  if (!context.mounted) return;
+  // Clic ailleurs (null) : la partie reste sauvegardée (#409).
+  if (resume == null) return;
+  if (resume == true) {
+    controller.resume();
+    return;
   }
+  // « Nouvelle partie » efface la sauvegarde sans second écran (#410).
+  await controller.discardSaved();
 }

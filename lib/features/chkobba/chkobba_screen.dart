@@ -8,6 +8,8 @@ import '../../core/services/ad_free_service.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
 import '../../core/theme/game_style.dart';
+import '../../core/theme/scoba_palette.dart';
+import '../../core/theme/comic_palette.dart';
 import '../../game/chkobba.dart';
 import '../../game/common.dart';
 import '../menu/menu_models.dart';
@@ -16,12 +18,19 @@ import 'chkobba_controller.dart';
 import 'chkobba_rules_screen.dart';
 import 'chkobba_table.dart';
 import '../../widgets/exit_guard.dart';
+import '../../widgets/result_dialog.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
 import '../../widgets/card_flight.dart';
+import '../../widgets/card_motion.dart';
+
+part 'chkobba_parts/chkobba_backgrounds.dart';
+part 'chkobba_parts/chkobba_scoreboard.dart';
+part 'chkobba_parts/chkobba_table_parts.dart';
+part 'chkobba_parts/chkobba_round_cards.dart';
 
 /// Écran de jeu de la Chkobba, fidèle à GameScreen.tsx : scores, pioche, tapis, mains,
 /// bannière de tour, Haya, choix de prise et récapitulatif de manche.
@@ -47,7 +56,8 @@ class ChkobbaScreen extends StatefulWidget {
   State<ChkobbaScreen> createState() => _ChkobbaScreenState();
 }
 
-class _ChkobbaScreenState extends State<ChkobbaScreen> {
+class _ChkobbaScreenState extends State<ChkobbaScreen>
+    with CardMotionMixin<ChkobbaScreen> {
   late final ChkobbaController _controller;
 
   @override
@@ -115,6 +125,47 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
 
   static const _capturePause = Duration(milliseconds: 320);
 
+  /// Durée de la pose de la carte jouée sur la carte prise (#394).
+  static const _landDuration = Duration(milliseconds: 300);
+
+  /// Cartes prises encore en vol vers le tas : le compteur ne les compte pas (#354).
+  final Set<String> _capturing = {};
+
+  /// Zone du tableau de score : les cartes qui vont au tas s'y enfoncent (#357).
+  Rect? _scoreboardRect() => rectOfKey(_key('scoreboard'));
+
+  void _release(String id) {
+    if (!mounted) return;
+    setState(() => _capturing.remove(id));
+  }
+
+  /// Carte jouée : pose sur la carte prise, puis vers le tas (#394).
+  Future<void> _landThenPile(
+    ChkobbaCard card,
+    Rect from,
+    Rect landing,
+    GlobalKey winnerKey,
+  ) async {
+    try {
+      await flyCard(
+        context: context,
+        from: from,
+        to: () => landing,
+        child: ChkobbaCardFace(card: card),
+        duration: _landDuration,
+      );
+      await flyCard(
+        context: context,
+        from: landing,
+        to: () => rectOfKey(winnerKey),
+        child: ChkobbaCardFace(card: card),
+        occluder: _scoreboardRect,
+      );
+    } finally {
+      _release(card.id);
+    }
+  }
+
   /// Tout mouvement de carte : cartes jouées, captures, donne (#238).
   /// Une capture se lit en deux temps : la carte se pose sur le tapis,
   /// puis la carte et les cartes prises rejoignent le tas du gagnant.
@@ -136,27 +187,33 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
       if ((game.won[p]?.length ?? 0) > (beforeWon[p] ?? 0)) taker = p;
     }
     final winnerKey = taker == null ? null : _key('won:${taker.name}');
-    final tableKey = _key('table');
     bool wonNow(String id) =>
         taker != null && (game.won[taker]?.any((c) => c.id == id) ?? false);
 
-    // Cartes prises : elles quittent le tapis vers le tas du gagnant, après la pose.
+    // Cartes prises : la carte jouée se pose sur la carte du tapis (#394),
+    // puis cartes jouées et cartes prises rejoignent le tas du gagnant.
     final gone = [
       for (final card in beforeTable)
         if (game.table.every((t) => t.id != card.id)) card,
     ];
+    // Case de la première carte prise : là où la carte jouée se pose.
+    final landing =
+        gone.isEmpty ? null : rectOfKey(_key('tbl:${gone.first.id}'));
     if (winnerKey != null) {
       for (final card in gone) {
         final from = rectOfKey(_key('tbl:${card.id}'));
         if (from == null) continue;
+        _capturing.add(card.id);
         unawaited(
           flyCard(
             context: context,
             from: from,
             to: () => rectOfKey(winnerKey),
             child: ChkobbaCardFace(card: card),
-            delay: _capturePause,
-          ),
+            delay: landing == null ? _capturePause : _landDuration,
+            hold: true,
+            occluder: _scoreboardRect,
+          ).whenComplete(() => _release(card.id)),
         );
       }
     }
@@ -170,7 +227,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
       for (final c in beforeOpp)
         if (!stillOpp.contains(c.id)) (c, _key('opp:${c.id}')),
     ];
-    final tableNow = tableKey;
     final captures = [
       for (final (card, key) in leaving)
         if (wonNow(card.id) && rectOfKey(key) != null) (card, key),
@@ -183,64 +239,44 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     }
 
     for (final (card, key) in captures) {
-      final from = rectOfKey(key)!;
-      // Temps 1 : la carte se pose au centre du tapis.
-      unawaited(
-        flyCard(
-          context: context,
-          from: from,
-          to: () => _centerOn(tableNow, from.size),
-          child: ChkobbaCardFace(card: card),
-        ),
-      );
-      // Temps 2 : elle rejoint le tas avec les cartes prises.
-      final mid = _centerOn(tableNow, from.size);
-      if (mid != null && winnerKey != null) {
+      final from = rectOfKey(key);
+      if (from == null || winnerKey == null) continue;
+      _capturing.add(card.id);
+      if (landing == null) {
+        // Rien à poser : la carte jouée rejoint directement le tas.
         unawaited(
           flyCard(
             context: context,
-            from: mid,
+            from: from,
             to: () => rectOfKey(winnerKey),
             child: ChkobbaCardFace(card: card),
-            delay: _capturePause,
-          ),
+            occluder: _scoreboardRect,
+          ).whenComplete(() => _release(card.id)),
         );
+        continue;
       }
+      unawaited(_landThenPile(card, from, landing, winnerKey));
     }
 
     // Cartes posées sans capture : vers leur case du tapis (après le rendu).
     if (plain.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        var i = 0;
-        for (final (card, from) in plain) {
-          if (_targetFor(card.id) == null) continue;
-          unawaited(
-            flyCard(
-              context: context,
-              from: from,
-              to: () => _targetFor(card.id),
-              child: ChkobbaCardFace(card: card),
-              delay: _stagger * i,
-            ),
-          );
-          i++;
-        }
-      });
+      final flights = <CardFlight>[];
+      for (final (card, from) in plain) {
+        final id = card.id;
+        flights.add(
+          CardFlight(
+            from: from,
+            to: () => _targetFor(id),
+            child: ChkobbaCardFace(card: card),
+            delay: _stagger * flights.length,
+            landingId: id,
+          ),
+        );
+      }
+      flyAfterRender(flights);
     }
 
     if (_dealPending) _distribute();
-  }
-
-  /// Rectangle de taille [size] centré sur le widget [key].
-  Rect? _centerOn(GlobalKey key, Size size) {
-    final r = rectOfKey(key);
-    if (r == null) return null;
-    return Rect.fromCenter(
-      center: r.center,
-      width: size.width,
-      height: size.height,
-    );
   }
 
   /// Destination exacte d'une carte : sa case du tapis, ou le tas de celui qui l'a prise.
@@ -294,11 +330,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     });
   }
 
-  static ChkobbaAiLevel _levelFor(Difficulty d) => switch (d) {
-        Difficulty.facile => ChkobbaAiLevel.facile,
-        Difficulty.moyen => ChkobbaAiLevel.moyen,
-        Difficulty.difficile => ChkobbaAiLevel.difficile,
-      };
+  static ChkobbaAiLevel _levelFor(Difficulty d) =>
+      aiLevelFor(ChkobbaAiLevel.values, d);
 
   Future<void> _onPlayerCard(String cardId) async {
     _controller.tapPlayerCard(cardId);
@@ -368,9 +401,11 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
     final slotCount = _roundUp(math.max(12, used), columns);
     final slots = List<Widget?>.filled(slotCount, null);
     for (final card in game.table) {
-      slots[assigned[card.id]!] = ChkobbaCardFace(
+      final index = assigned[card.id]!;
+      slots[index] = MaskedSlot(
         key: _key('tbl:${card.id}'),
-        card: card,
+        hidden: landing.contains(card.id),
+        child: ChkobbaCardFace(card: card),
       );
     }
 
@@ -382,7 +417,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
               padding: const EdgeInsets.fromLTRB(10, 6, 10, 0),
               child: GameHeader(
                 unit: 14,
-                onMenu: () => Navigator.of(context).pop(),
+                onMenu: () => Navigator.of(context).maybePop(),
                 center: Expanded(
                   child: Center(
                     child: DifficultyChip(difficulty: widget.difficulty),
@@ -412,12 +447,14 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
               ),
             ),
             Padding(
+              key: _key('scoreboard'),
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
               child: _Scoreboard(
                 game: game,
                 playerWonKey: _key('won:player'),
                 opponentWonKey: _key('won:opponent'),
                 deckKey: _key('deck'),
+                capturing: _capturing,
               ),
             ),
             const SizedBox(height: 8),
@@ -452,7 +489,16 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                           key: _key('table'),
                           cards: slots,
                           columns: columns,
-                          emptyLabel: 'Chkobba !',
+                        ),
+                      ),
+                    ),
+                  if (_controller.chkobbaBy != null)
+                    Positioned.fill(
+                      child: Center(
+                        child: ChkobbaBanner(
+                          text: 'Chkobba !',
+                          colors: style.chkobbaGradient,
+                          angle: -0.1,
                         ),
                       ),
                     ),
@@ -463,6 +509,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
                         text: '♦ 7AYA !',
                         colors: style.ayaGradient,
                         angle: 0.09,
+                        burstSize: 110,
                       ),
                     ),
                   // Bannière de tour : toujours réservée, visible seulement quand l'adversaire réfléchit.
@@ -501,7 +548,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
               child: Center(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
-                  child: _RoundCard(
+                  child: ChkobbaRoundCard(
                     summary: summary,
                     onContinue: () => _deal(_controller.continueAfterRound),
                   ),
@@ -515,799 +562,4 @@ class _ChkobbaScreenState extends State<ChkobbaScreen> {
 
   static int _roundUp(int value, int multiple) =>
       ((value + multiple - 1) ~/ multiple) * multiple;
-}
-
-/// Fond bois du jeu React (style d'origine) : bandes brunes verticales.
-/// Fond village calmé : image désaturée et voilée, pour que le tapis et les cartes ressortent.
-class _CalmBackground extends StatelessWidget {
-  const _CalmBackground();
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        ColorFiltered(
-          colorFilter: const ColorFilter.matrix(_saturation40),
-          child: Image.asset(
-            'assets/images/background.webp',
-            fit: BoxFit.cover,
-          ),
-        ),
-        const DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0x99000000), Color(0xCC000000)],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// Matrice de saturation à 40 % (luminance Rec. 709).
-const _saturation40 = <double>[
-  0.52756,
-  0.42912,
-  0.04332,
-  0,
-  0,
-  0.12756,
-  0.82912,
-  0.04332,
-  0,
-  0,
-  0.12756,
-  0.42912,
-  0.44332,
-  0,
-  0,
-  0,
-  0,
-  0,
-  1,
-  0,
-];
-
-class _WoodBackground extends StatelessWidget {
-  const _WoodBackground();
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(painter: _WoodPainter());
-  }
-}
-
-class _WoodPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..color = const Color(0xFF8B4513),
-    );
-    final light = Paint()..color = const Color(0xFFA0522D);
-    final dark = Paint()..color = const Color(0xFF654321);
-    for (double x = 0; x < size.width; x += 8) {
-      canvas.drawRect(Rect.fromLTWH(x + 2, 0, 2, size.height), light);
-      canvas.drawRect(Rect.fromLTWH(x + 6, 0, 2, size.height), dark);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-/// Pastille du score cible (trophée jaune avec le nombre dessus).
-class _TargetBadge extends StatelessWidget {
-  const _TargetBadge({required this.target});
-
-  final int target;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 44,
-      height: 44,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          const Icon(Icons.emoji_events, size: 44, color: Color(0xFFFBBF24)),
-          Align(
-            alignment: const Alignment(0, -0.25),
-            child: Text(
-              '$target',
-              style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 15,
-                color: Color(0xFF20284B),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Tableau de bord : score de chaque joueur, Chkobba, cartes ramassées et pioche.
-class _Scoreboard extends StatelessWidget {
-  const _Scoreboard({
-    required this.game,
-    this.playerWonKey,
-    this.opponentWonKey,
-    this.deckKey,
-  });
-
-  /// Clé de la pioche (cible de la donne animée, #238).
-  final Key? deckKey;
-
-  final ChkobbaState game;
-
-  /// Clés des tas de cartes gagnées (cibles des captures animées, #238).
-  final Key? playerWonKey;
-  final Key? opponentWonKey;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      container: true,
-      label: tf('sChkScore', {
-        'a': '${game.scores[Player.player]}',
-        'b': '${game.scores[Player.opponent]}',
-      }),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFACC15), Color(0xFFFBBF24), Color(0xFFFB923C)],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.black, width: 3),
-          boxShadow: const [
-            BoxShadow(color: Colors.black, offset: Offset(0, 5)),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _ScoreSide(
-              key: playerWonKey,
-              name: t('you'),
-              score: game.scores[Player.player]!,
-              chkobbas: game.chkobbas[Player.player]!,
-              cards: game.won[Player.player]!.length,
-              color: const Color(0xFF047857),
-            ),
-            Semantics(
-              label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
-              child: KeyedSubtree(
-                key: deckKey,
-                child: _DeckPile(count: game.deck.length),
-              ),
-            ),
-            _ScoreSide(
-              key: opponentWonKey,
-              name: t('opponent'),
-              score: game.scores[Player.opponent]!,
-              chkobbas: game.chkobbas[Player.opponent]!,
-              cards: game.won[Player.opponent]!.length,
-              color: const Color(0xFFB91C1C),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ScoreSide extends StatelessWidget {
-  const _ScoreSide({
-    super.key,
-    required this.name,
-    required this.score,
-    required this.chkobbas,
-    required this.cards,
-    required this.color,
-  });
-
-  final String name;
-  final int score;
-  final int chkobbas;
-  final int cards;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    const info = TextStyle(
-      fontSize: 11,
-      fontWeight: FontWeight.w700,
-      color: Color(0xB3451A03),
-    );
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 34,
-          height: 34,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color, width: 2),
-          ),
-          child: Text(
-            '$score',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w900,
-              color: color,
-            ),
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          name.toUpperCase(),
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-            color: color,
-            letterSpacing: 0.5,
-          ),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.star, size: 12, color: Color(0xFF92400E)),
-            Text(' $chkobbas', style: info),
-            const SizedBox(width: 8),
-            Text(tf('cardCount', {'n': '$cards'}), style: info),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-/// Pioche : trois cartes empilées avec le nombre de cartes restantes.
-class _DeckPile extends StatelessWidget {
-  const _DeckPile({required this.count});
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    Widget pile(Color color) => Container(
-          width: 18,
-          height: 26,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(3),
-            border: Border.all(color: Colors.black, width: 2),
-          ),
-        );
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          width: 46,
-          height: 46,
-          child: Stack(
-            alignment: Alignment.center,
-            clipBehavior: Clip.none,
-            children: [
-              Transform.translate(
-                offset: const Offset(-4, 0),
-                child: Transform.rotate(
-                  angle: -0.2,
-                  child: pile(const Color(0xFFA82D49)),
-                ),
-              ),
-              Transform.translate(
-                offset: const Offset(4, 0),
-                child: Transform.rotate(
-                  angle: 0.2,
-                  child: pile(const Color(0xFF8F203D)),
-                ),
-              ),
-              pile(const Color(0xFFC63D55)),
-              const Icon(Icons.layers, size: 14, color: Color(0xFFFFE16B)),
-              Positioned(
-                top: -2,
-                right: -2,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 1,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFFDF5),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: Text(
-                    '$count',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF20284B),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Text(
-          t('draw'),
-          style: TextStyle(
-            fontSize: 9,
-            fontWeight: FontWeight.w900,
-            color: Color(0xFF17213D),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Rangée de trois emplacements fixes : les cartes ne se décalent pas quand la main diminue.
-class _Hand extends StatelessWidget {
-  const _Hand({
-    required this.cards,
-    required this.width,
-    required this.height,
-    required this.builder,
-  });
-
-  final List<ChkobbaCard> cards;
-  final double width;
-  final double height;
-  final Widget Function(ChkobbaCard card) builder;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        for (var i = 0; i < 3; i++) ...[
-          if (i > 0) const SizedBox(width: 8),
-          SizedBox(
-            width: width,
-            height: height,
-            child: i < cards.length ? builder(cards[i]) : const _EmptySlot(),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _EmptySlot extends StatelessWidget {
-  const _EmptySlot();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0x26FFFFFF), width: 2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-    );
-  }
-}
-
-/// « Tour de l'adversaire... », affiché pendant que l'IA réfléchit.
-class _ThinkingBadge extends StatelessWidget {
-  const _ThinkingBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFF97316), Color(0xFFDC2626)],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black, width: 3),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 5))],
-      ),
-      child: Semantics(
-        liveRegion: true,
-        child: const Text(
-          "⏳ Tour de l'adversaire...",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 15,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Résultat final de la partie (affiché sur le tapis après le récapitulatif).
-class _FinalCard extends StatelessWidget {
-  const _FinalCard({required this.state});
-
-  final ChkobbaState state;
-
-  @override
-  Widget build(BuildContext context) {
-    final won = state.winner == Player.player;
-    final rounds = state.round;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.35),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.black, width: 3),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            won ? '🏆 Victoire !' : 'Défaite',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w900,
-              fontSize: 26,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '${state.scores[Player.player]} – ${state.scores[Player.opponent]} · $rounds manche${rounds > 1 ? 's' : ''}',
-            style: const TextStyle(
-              color: Colors.white70,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Récapitulatif de manche, comme la carte « Manche N » du source.
-class _RoundCard extends StatelessWidget {
-  const _RoundCard({required this.summary, required this.onContinue});
-
-  final ChkobbaRoundScore summary;
-  final VoidCallback onContinue;
-
-  // La correspondance porte sur le libellé français produit par la logique du jeu (inchangé).
-  // Seul l'affichage est traduit, avec une clé lue à chaque build (pas de cache de langue).
-  static final _categories = <({String key, bool Function(String) matches})>[
-    (key: 'catChkobba', matches: (l) => l.startsWith('Chkobba')),
-    (key: 'catHaya', matches: (l) => l.startsWith('Haya')),
-    (key: 'catCards', matches: (l) => l == 'Cartes'),
-    (key: 'catDeniers', matches: (l) => l == 'Deniers'),
-    (key: 'catBermila', matches: (l) => l == 'Bermila'),
-  ];
-
-  int _pointsFor(Player p, bool Function(String) matches) => summary.points[p]!
-      .where((x) => matches(x.label))
-      .fold(0, (sum, x) => sum + x.value);
-
-  int _total(Player p) => summary.points[p]!.fold(0, (sum, x) => sum + x.value);
-
-  static String _show(int v) => v == 0 ? '—' : '$v';
-
-  Widget _row(
-    String label,
-    String player,
-    String opponent, {
-    TextStyle? style,
-    double pad = 8,
-  }) {
-    final base = style ??
-        const TextStyle(
-          fontWeight: FontWeight.w900,
-          fontSize: 14,
-          color: Color(0xFF17213D),
-        );
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: pad),
-      child: Row(
-        children: [
-          Expanded(child: Text(label, style: base)),
-          SizedBox(
-            width: 64,
-            child: Text(
-              player,
-              textAlign: TextAlign.center,
-              style: base.copyWith(color: const Color(0xFF065F46)),
-            ),
-          ),
-          SizedBox(
-            width: 76,
-            child: Text(
-              opponent,
-              textAlign: TextAlign.center,
-              style: base.copyWith(color: const Color(0xFF9F1239)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final state = summary.state;
-    final winner = state.winner;
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 420),
-      decoration: BoxDecoration(
-        color: const Color(0xFF059669),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.black, width: 4),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 7))],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF10B981), Color(0xFF047857)],
-                ),
-                border: Border(
-                  bottom: BorderSide(color: Colors.black, width: 4),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFE16B),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.black, width: 2),
-                    ),
-                    child: const Text(
-                      'RÉCAPITULATIF',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2,
-                        color: Color(0xFF17213D),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Manche ${state.round}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 24,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _row(
-                    t('roundPoints'),
-                    t('you'),
-                    t('opponent'),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 11,
-                      color: Colors.white,
-                    ),
-                    pad: 0,
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFFDF5),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black, width: 3),
-                    ),
-                    child: Column(
-                      children: [
-                        for (var i = 0; i < _categories.length; i++)
-                          Container(
-                            decoration: BoxDecoration(
-                              border: i == 0
-                                  ? null
-                                  : const Border(
-                                      top: BorderSide(
-                                        color: Color(0xFFB8C5AD),
-                                        width: 2,
-                                      ),
-                                    ),
-                            ),
-                            child: _row(
-                              t(_categories[i].key),
-                              _show(
-                                _pointsFor(
-                                  Player.player,
-                                  _categories[i].matches,
-                                ),
-                              ),
-                              _show(
-                                _pointsFor(
-                                  Player.opponent,
-                                  _categories[i].matches,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF15264D),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black, width: 3),
-                    ),
-                    child: _row(
-                      'Score de la manche',
-                      '+${_total(Player.player)}',
-                      '+${_total(Player.opponent)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFFE16B), Color(0xFFFFC24B)],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black, width: 3),
-                    ),
-                    child: _row(
-                      'Score total',
-                      '${state.scores[Player.player]}',
-                      '${state.scores[Player.opponent]}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 18,
-                        color: Color(0xFF17213D),
-                      ),
-                      pad: 10,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  GestureDetector(
-                    onTap: onContinue,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFFFE16B), Color(0xFFFFB43C)],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.black, width: 3),
-                        boxShadow: const [
-                          BoxShadow(color: Colors.black, offset: Offset(0, 5)),
-                        ],
-                      ),
-                      child: Text(
-                        winner == null
-                            ? 'Manche suivante →'
-                            : 'Voir le résultat final',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                          color: Color(0xFF30264F),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Feuille de choix quand une carte peut prendre plusieurs combinaisons (« Que veux-tu prendre ? »).
-class _CapturePicker extends StatelessWidget {
-  const _CapturePicker({required this.options});
-
-  final List<List<ChkobbaCard>> options;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF059669),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border(top: BorderSide(color: Colors.black, width: 4)),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Que veux-tu prendre ?',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 20,
-                ),
-              ),
-              const SizedBox(height: 12),
-              for (final option in options)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: GestureDetector(
-                    onTap: () => Navigator.of(context).pop(option),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.black, width: 3),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          for (final card in option)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                              ),
-                              child: SizedBox(
-                                width: 52,
-                                height: 74,
-                                child: ChkobbaCardFace(card: card),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 4),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(Strings.actCancel),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }

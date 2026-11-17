@@ -2,28 +2,19 @@ import 'dart:ui';
 
 import 'package:material_ui/material_ui.dart';
 
-/// Deux styles de récapitulatif (guide §8).
-enum ResultDialogStyle {
-  /// Vert comic : Chkobba, Coinche, Rami.
-  comicGreen,
+import '../core/theme/comic_palette.dart';
 
-  /// Sombre : Domino, Ludo.
-  dark,
-}
-
-/// Boîte de dialogue de fin de manche / de partie.
+/// Boîte de dialogue de fin de manche / de partie, en style BD (issue #295).
 /// Affichée par [ResultDialog.show] sur fond flouté (4 px) et assombri.
 class ResultDialog extends StatelessWidget {
   const ResultDialog({
     super.key,
-    required this.style,
     required this.title,
     this.icon,
     this.children = const [],
     this.actions = const [],
   });
 
-  final ResultDialogStyle style;
   final String title;
   final IconData? icon;
   final List<Widget> children;
@@ -60,12 +51,6 @@ class ResultDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isGreen = style == ResultDialogStyle.comicGreen;
-    final background =
-        isGreen ? const Color(0xFF059669) : const Color(0xFF0B3F7A);
-    final border = isGreen ? const Color(0xFF000000) : const Color(0xFFFFD653);
-    final titleColor = isGreen ? Colors.white : const Color(0xFFFFE681);
-
     return Material(
       color: Colors.transparent,
       child: Container(
@@ -73,27 +58,27 @@ class ResultDialog extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
         constraints: const BoxConstraints(maxWidth: 420),
         decoration: BoxDecoration(
-          color: background,
+          color: ComicPalette.paper,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: border, width: 4),
-          boxShadow: isGreen
-              ? const [BoxShadow(color: Colors.black, offset: Offset(0, 7))]
-              : null,
+          border: Border.all(color: ComicPalette.ink, width: 4),
+          boxShadow: const [
+            BoxShadow(color: ComicPalette.ink, offset: Offset(0, 7)),
+          ],
         ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (icon != null) Icon(icon, size: 40, color: titleColor),
+              if (icon != null) Icon(icon, size: 40, color: ComicPalette.ink),
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'RobotoSlab',
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  color: titleColor,
+                style: const TextStyle(
+                  fontFamily: 'Bangers',
+                  fontSize: 32,
+                  letterSpacing: 1,
+                  color: ComicPalette.ink,
                 ),
               ),
               const SizedBox(height: 12),
@@ -108,6 +93,72 @@ class ResultDialog extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Formate une variation de score avec son signe : +100, -10, 0.
+String signedScore(int value) => value > 0 ? '+$value' : '$value';
+
+/// Carte de score d'un joueur ou d'une équipe dans un [ResultDialog] (issue #295).
+/// Affiche le nom, la variation signée, le motif éventuel et le total.
+class ResultScoreBox extends StatelessWidget {
+  const ResultScoreBox({
+    super.key,
+    required this.name,
+    required this.value,
+    required this.total,
+    this.reason,
+    this.highlight = false,
+  });
+
+  final String name;
+  final String value;
+  final String total;
+  final String? reason;
+  final bool highlight;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 3),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: highlight ? ComicPalette.gold : ComicPalette.paper,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: ComicPalette.ink, width: 3),
+      ),
+      child: Column(
+        children: [
+          Text(
+            name.toUpperCase(),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: ComicPalette.ink,
+              fontWeight: FontWeight.w900,
+              fontSize: 11,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              color: ComicPalette.ink,
+              fontFamily: 'Bangers',
+              fontSize: 26,
+            ),
+          ),
+          if (reason != null)
+            Text(
+              reason!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: ComicPalette.ink, fontSize: 10),
+            ),
+          Text(
+            'Total $total',
+            style: const TextStyle(color: ComicPalette.ink, fontSize: 10),
+          ),
+        ],
       ),
     );
   }

@@ -551,10 +551,15 @@ ChkobbaAiMove chooseOpponentMove(
   final hand = state.hands[Player.opponent]!;
 
   if (level == ChkobbaAiLevel.facile) {
-    final card = hand[(r() * hand.length).floor()];
-    final canCapture = _captureOptions(state.table, card.rank).isNotEmpty;
-    final capture = !canCapture || r() >= 0.4;
-    return (cardId: card.id, capture: capture);
+    // Capture obligatoire (#278) : si une prise existe, seules les cartes qui capturent sont légales.
+    // Sinon, n'importe quelle carte est une défausse légale. Le facile se trompe sur la carte, jamais
+    // sur la capture.
+    final withCapture = hand
+        .where((c) => _captureOptions(state.table, c.rank).isNotEmpty)
+        .toList();
+    final pool = withCapture.isNotEmpty ? withCapture : hand;
+    final card = pool[(r() * pool.length).floor()];
+    return (cardId: card.id, capture: withCapture.isNotEmpty);
   }
 
   if (level == ChkobbaAiLevel.moyen) {

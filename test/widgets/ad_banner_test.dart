@@ -1,54 +1,48 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:kahwetne/core/strings.dart';
 import 'package:kahwetne/widgets/ad_banner.dart';
+import 'package:material_ui/material_ui.dart';
 
+// La bannière publicitaire reste compacte même dans une pile pleine écran.
 void main() {
-  Future<void> pumpBanner(WidgetTester tester) async {
+  testWidgets('bannière bornée en hauteur dans une pile pleine écran', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(
-          body: Align(alignment: Alignment.bottomCenter, child: AdBanner()),
+        home: Stack(
+          fit: StackFit.expand,
+          children: [
+            Align(alignment: Alignment.bottomCenter, child: AdBanner()),
+          ],
         ),
       ),
     );
-  }
-
-  testWidgets('affiche la bannière avec son bouton Voir', (tester) async {
-    await pumpBanner(tester);
-    expect(find.text(Strings.adLabel), findsOneWidget);
-    expect(find.text(Strings.adSee), findsOneWidget);
-    expect(find.byType(SnackBar), findsNothing);
+    final size = tester.getSize(find.byType(AdBanner));
+    expect(size.height, kAdBannerHeight);
+    expect(kAdBannerHeight, inInclusiveRange(50, 60));
   });
 
-  testWidgets(
-    'Voir affiche le toast « Espace publicitaire de démonstration »',
-    (tester) async {
-      await pumpBanner(tester);
+  testWidgets('la bannière ne déborde pas de sa hauteur fixe', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Align(alignment: Alignment.bottomCenter, child: AdBanner()),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
 
-      await tester.tap(find.text(Strings.adSee));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text('Espace publicitaire de démonstration'), findsOneWidget);
-    },
-  );
-
-  testWidgets(
-    'un second appui remplace le toast au lieu d\'en empiler un autre',
-    (tester) async {
-      await pumpBanner(tester);
-
-      await tester.tap(find.text(Strings.adSee));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.tap(find.text(Strings.adSee));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 600));
-      await tester.pumpAndSettle();
-
-      expect(find.text(Strings.adDemoToast), findsOneWidget);
-    },
-  );
+  testWidgets('texte agrandi x2 : bannière toujours à sa hauteur fixe', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: MediaQuery(
+          data: MediaQueryData(textScaler: TextScaler.linear(2)),
+          child: Align(alignment: Alignment.bottomCenter, child: AdBanner()),
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(AdBanner)).height, kAdBannerHeight);
+  });
 }

@@ -16,7 +16,6 @@ abstract final class Strings {
   static String get menuBack => t('menuBack');
   static String get menuToggleSound => t('menuToggleSound');
   static String get menuOpenSettings => t('menuOpenSettings');
-  static String get menuCoinBalance => t('menuCoinBalance');
   static String get menuTagline => t('menuTagline');
   static String get menuChooseTable => t('menuChooseTable');
   static String get menuStart => t('menuStart');
@@ -88,6 +87,9 @@ abstract final class Strings {
   static String get ramiSelectDiscard => t('ramiSelectDiscard');
   static String get ramiCannotDiscardTaken => t('ramiCannotDiscardTaken');
   static String get ramiDiscardRefused => t('ramiDiscardRefused');
+  static String get ramiDiscardNeedsLay => t('ramiDiscardNeedsLay');
+  static String get ramiReturnRefused => t('ramiReturnRefused');
+  static String get actReturnTaken => t('actReturnTaken');
   static String get ramiFinishOrCancel => t('ramiFinishOrCancel');
   static String get notAMeld => t('notAMeld');
   static String get drawFirst => t('drawFirst');

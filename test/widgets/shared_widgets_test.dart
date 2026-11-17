@@ -75,7 +75,7 @@ void main() {
           ),
         ),
       );
-      expect(find.text('21'), findsOneWidget);
+      expect(find.text('21'), findsNWidgets(2)); // contour + remplissage (#351)
       expect(tester.hasRunningAnimations, isFalse);
       await tester.pumpWidget(const SizedBox());
     },
@@ -86,7 +86,6 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: ResultDialog(
-            style: ResultDialogStyle.dark,
             title: 'Victoire !',
             actions: [
               ElevatedButton(onPressed: () {}, child: const Text('Rejouer')),

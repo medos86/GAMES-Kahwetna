@@ -35,13 +35,17 @@ class DifficultyChip extends StatelessWidget {
             children: [
               Icon(option.icon, size: 14, color: option.activeForeground),
               const SizedBox(width: 4),
-              Text(
-                option.label,
-                style: TextStyle(
-                  fontFamily: 'Bangers',
-                  fontSize: 14,
-                  letterSpacing: 1,
-                  color: option.activeForeground,
+              Flexible(
+                child: Text(
+                  option.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Bangers',
+                    fontSize: 14,
+                    letterSpacing: 1,
+                    color: option.activeForeground,
+                  ),
                 ),
               ),
             ],

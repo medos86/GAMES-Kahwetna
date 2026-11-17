@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 /// INTERRUPTEUR ESTHÉTIQUE
-/// true  : style cartoon tunisien (tapis bleu, bordure zellige, fond village, bannières magenta et jaune).
+/// true  : style cartoon tunisien (tapis rouge BD, sans zellige, fond village, bannières magenta et jaune).
 /// false : style d'origine du jeu React (tapis émeraude, cadre brun, fond bois, bannières jaune-orange et sky-indigo).
 /// Réglé sur `true` : palette A (violet-magenta, issue #64). Pour revenir au style React : `false`.
 const bool kCartoonStyle = true;
@@ -26,10 +26,8 @@ const bool kComicChkobba = true;
 /// THÈME BD DU DOMINO (issue #97) : bouton « Menu » en case BD. Règles inchangées.
 const bool kComicDomino = true;
 
-/// THÈME BD DE LA COINCHE, DU LUDO ET DU RAMI (issue #97) : bouton « Menu » en case BD.
+/// THÈME BD DE LA COINCHE (issue #97) : bouton « Menu » en case BD.
 const bool kComicCoinche = true;
-const bool kComicLudo = true;
-const bool kComicRami = true;
 
 class GameStyle {
   const GameStyle({
@@ -58,14 +56,14 @@ class GameStyle {
   final List<Color> chkobbaGradient;
   final List<Color> ayaGradient;
 
-  // Palette A (issue #64) : tapis violet-magenta, cadre noir, bannières jaune-orange et rose-jaune.
+  // Palette A (issue #64, révisée #311 et #324) : tapis rouge BD comics, sans zellige, cadre noir, bannières jaune-orange et rose-jaune.
   static const cartoon = GameStyle(
-    felt: Color(0xFF5B2BD6),
+    felt: Color(0xFFE63946),
     frame: Color(0xFF000000),
-    zellige: Color(0xFF8E1AB8),
+    zellige: Color(0xFFFFE16B),
     zelligeAccent: Color(0xFFFFFFFF),
     outline: Color(0xFF000000),
-    showZellige: true,
+    showZellige: false,
     villageBackground: true,
     chkobbaGradient: [Color(0xFFFFE14D), Color(0xFFFF8A2B)],
     ayaGradient: [Color(0xFFFF4F9A), Color(0xFFFFE14D)],

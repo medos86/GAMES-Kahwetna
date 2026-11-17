@@ -19,7 +19,11 @@ enum RamiAiLevel { facile, moyen, difficile }
 
 const ramiSeats = [0, 1, 2, 3];
 const ramiOpenMin = 51;
-const _handSize = 13;
+
+/// Seuil de la prochaine ouverture : 51 pour la première, puis strictement plus que la précédente.
+int minOpening(RamiState state) =>
+    state.lastOpening == 0 ? ramiOpenMin : state.lastOpening + 1;
+const _handSize = 14;
 const _aceHigh = 14;
 
 /// rank : 1 = As, 11 = Valet, 12 = Dame, 13 = Roi. Le joker a rank 0.
@@ -100,6 +104,9 @@ class RamiState {
     required this.scores,
     required this.roundResult,
     required this.matchWinner,
+    required this.lastOpening,
+    this.firstTour = false,
+    this.openings = const [0, 0, 0, 0],
   });
 
   factory RamiState.fromJson(Map<String, dynamic> json) => RamiState(
@@ -124,6 +131,11 @@ class RamiState {
             : RamiRoundResult.fromJson(
                 json['roundResult'] as Map<String, dynamic>),
         matchWinner: json['matchWinner'] as int?,
+        lastOpening: (json['lastOpening'] as int?) ?? 0,
+        firstTour: (json['firstTour'] as bool?) ?? false,
+        openings: json['openings'] == null
+            ? const [0, 0, 0, 0]
+            : [for (final o in json['openings'] as List) o as int],
       );
 
   final int targetScore;
@@ -142,6 +154,15 @@ class RamiState {
   final RamiRoundResult? roundResult;
   final int? matchWinner;
 
+  /// Points de la dernière ouverture de la manche (0 : personne n'a ouvert).
+  final int lastOpening;
+
+  /// Première tournée : jusqu'au passage du donneur. Pas de pose, pas de prise de la défausse.
+  final bool firstTour;
+
+  /// Points de la première ouverture de chaque joueur cette manche (0 : pas ouvert).
+  final List<int> openings;
+
   /// Les champs nullables (takenId, roundResult, matchWinner) se remettent à null avec une valeur explicite.
   RamiState copyWith({
     RamiPhase? phase,
@@ -156,6 +177,9 @@ class RamiState {
     List<int>? scores,
     Object? roundResult = _unset,
     Object? matchWinner = _unset,
+    int? lastOpening,
+    bool? firstTour,
+    List<int>? openings,
   }) {
     return RamiState(
       targetScore: targetScore,
@@ -177,6 +201,9 @@ class RamiState {
       matchWinner: identical(matchWinner, _unset)
           ? this.matchWinner
           : matchWinner as int?,
+      lastOpening: lastOpening ?? this.lastOpening,
+      firstTour: firstTour ?? this.firstTour,
+      openings: openings ?? this.openings,
     );
   }
 
@@ -200,6 +227,9 @@ class RamiState {
         'scores': scores,
         'roundResult': roundResult?.toJson(),
         'matchWinner': matchWinner,
+        'lastOpening': lastOpening,
+        'firstTour': firstTour,
+        'openings': openings,
       };
 }
 
@@ -220,10 +250,33 @@ int nextSeat(int seat) => (seat + 1) % 4;
 List<RamiCard> _naturalsOf(List<RamiCard> cards) =>
     cards.where((c) => !c.isJoker).toList();
 
+/// Valeur d'une carte en main (fin de manche, #416) : joker 20, as 1, 2 à 9 leur chiffre, figures 10.
 int cardValue(RamiCard card) => card.isJoker ? 20 : math.min(card.rank, 10);
 
-int pointsOf(List<RamiCard> cards) =>
+/// Points des cartes restées en main (fin de manche).
+int handPointsOf(List<RamiCard> cards) =>
     cards.fold<int>(0, (sum, card) => sum + cardValue(card));
+
+/// Valeur d'une position de suite : as haut (14) = 10, as bas (1) = 1, figures 10.
+int _valueAtPosition(int pos) => pos == _aceHigh ? 10 : math.min(pos, 10);
+
+/// Points d'un paquet posé sur la table (#422) : selon sa position,
+/// l'as vaut 10 côté roi ou dans un brelan d'as, 1 côté 2 ; le joker vaut la carte qu'il remplace.
+/// Un ensemble invalide compte ses cartes en main.
+int pointsOf(List<RamiCard> cards) {
+  if (!isValidMeld(cards)) return handPointsOf(cards);
+  if (_isSet(cards)) {
+    final rank = _naturalsOf(cards).first.rank;
+    final value = rank == 1 ? 10 : math.min(rank, 10);
+    return cards.length * value;
+  }
+  final span = _runSpan(cards)!;
+  var sum = 0;
+  for (var i = 0; i < span.order.length; i++) {
+    sum += _valueAtPosition(span.low + i);
+  }
+  return sum;
+}
 
 List<RamiCard> _createDeck(RandomDouble random) {
   final cards = <RamiCard>[];
@@ -238,6 +291,8 @@ List<RamiCard> _createDeck(RandomDouble random) {
   }
   cards.add(const RamiCard(id: 'joker-0', suit: null, rank: 0));
   cards.add(const RamiCard(id: 'joker-1', suit: null, rank: 0));
+  cards.add(const RamiCard(id: 'joker-2', suit: null, rank: 0));
+  cards.add(const RamiCard(id: 'joker-3', suit: null, rank: 0));
   return shuffled(cards, random);
 }
 
@@ -247,7 +302,10 @@ List<RamiCard> _createDeck(RandomDouble random) {
 
 /// Suite : une seule couleur, rangs distincts qui se suivent (As bas ou haut, sans boucler).
 /// Les jokers comblent les trous. Renvoie l'ordre des cartes, ou null.
-List<RamiCard>? _runOrder(List<RamiCard> cards) {
+List<RamiCard>? _runOrder(List<RamiCard> cards) => _runSpan(cards)?.order;
+
+/// Ordre d'une suite et position (1 à 14) de sa première carte.
+({List<RamiCard> order, int low})? _runSpan(List<RamiCard> cards) {
   final naturals = _naturalsOf(cards);
   final jokers = cards.where((c) => c.isJoker).toList();
   if (naturals.length < 2 ||
@@ -276,7 +334,7 @@ List<RamiCard>? _runOrder(List<RamiCard> cards) {
       }
       order.add(slotCard ?? jokers[joker++]);
     }
-    return order;
+    return (order: order, low: low);
   }
   return null;
 }
@@ -362,6 +420,9 @@ RamiState dealRound(
     scores: [...scores],
     roundResult: null,
     matchWinner: null,
+    lastOpening: 0,
+    firstTour: true,
+    openings: [for (final _ in ramiSeats) 0],
   );
 }
 
@@ -380,9 +441,15 @@ RamiState nextRound(RamiState state, [RandomDouble? random]) {
 }
 
 RamiState _finish(RamiState state, int? winner) {
+  // Gagnant : -10. Perdant sans paquet posé : +100. Perdant ayant posé : points des cartes en main (#416).
   final penalties = [
     for (final seat in ramiSeats)
-      seat == winner ? 0 : pointsOf(state.hands[seat]),
+      if (seat == winner)
+        -10
+      else if (!state.opened[seat])
+        100
+      else
+        handPointsOf(state.hands[seat]),
   ];
   final scores = [
     for (final seat in ramiSeats) state.scores[seat] + penalties[seat],
@@ -432,8 +499,31 @@ RamiState drawStock(RamiState state, [RandomDouble? random]) {
   );
 }
 
+/// Vrai si la carte du dessus peut être posée dès ce tour : sinon on ne peut pas la prendre.
+bool canUseDiscardTop(RamiState state) {
+  if (state.firstTour || state.discard.isEmpty) return false;
+  final seat = state.turn;
+  final top = state.discard.last;
+  final hand = [...state.hands[seat], top];
+  final plan = _planMelds(hand, top.id);
+  final carries = plan.isNotEmpty && plan.first.any((c) => c.id == top.id);
+  if (state.opened[seat]) {
+    return carries ||
+        state.table.any((meld) => isValidMeld([...meld.cards, top]));
+  }
+  final total = plan.fold<int>(0, (sum, cards) => sum + pointsOf(cards));
+  return carries && total >= minOpening(state);
+}
+
+/// Le joueur peut toujours prendre la carte du dessus (#315) : il doit ensuite la poser
+/// (avant ouverture) ou la remettre, sinon il ne peut rien défausser d'autre.
+/// L'IA ne prend que les cartes utiles (voir [canUseDiscardTop] et [_aiDraw]).
 RamiState drawDiscard(RamiState state) {
-  if (state.phase != RamiPhase.draw || state.discard.isEmpty) return state;
+  if (state.phase != RamiPhase.draw ||
+      state.firstTour ||
+      state.discard.isEmpty) {
+    return state;
+  }
   final card = state.discard.last;
   return _setHand(
     state.copyWith(
@@ -446,10 +536,34 @@ RamiState drawDiscard(RamiState state) {
   );
 }
 
+/// Remet sur la défausse la carte prise, tant qu'aucune pose n'a été faite ce tour.
+RamiState returnTaken(RamiState state) {
+  final id = state.takenId;
+  if (state.phase != RamiPhase.play || id == null || state.staged.isNotEmpty) {
+    return state;
+  }
+  final seat = state.turn;
+  final hand = state.hands[seat];
+  final index = hand.indexWhere((item) => item.id == id);
+  if (index < 0) return state;
+  return _setHand(
+    state.copyWith(
+      discard: [...state.discard, hand[index]],
+      phase: RamiPhase.draw,
+      takenId: null,
+    ),
+    seat,
+    hand.where((item) => item.id != id).toList(),
+  );
+}
+
 /// Hors ouverture, la combinaison part directement sur la table. Pendant l'ouverture, elle est mise de côté.
 RamiState poseMeld(RamiState state, List<String> cardIds) {
-  if (state.phase != RamiPhase.play || cardIds.toSet().length != cardIds.length)
+  if (state.phase != RamiPhase.play ||
+      state.firstTour ||
+      cardIds.toSet().length != cardIds.length) {
     return state;
+  }
   final seat = state.turn;
   final hand = state.hands[seat];
   final picked = <RamiCard>[];
@@ -479,13 +593,14 @@ RamiState poseMeld(RamiState state, List<String> cardIds) {
 RamiState commitOpening(RamiState state) {
   final seat = state.turn;
   if (state.phase != RamiPhase.play ||
+      state.firstTour ||
       state.opened[seat] ||
       state.staged.isEmpty) return state;
   final staged = state.staged.fold<int>(
     0,
     (sum, cards) => sum + pointsOf(cards),
   );
-  if (staged < ramiOpenMin) return state;
+  if (staged < minOpening(state)) return state;
 
   final next = state.copyWith(
     table: [
@@ -493,6 +608,11 @@ RamiState commitOpening(RamiState state) {
       for (final cards in state.staged) Meld(id: cards.first.id, cards: cards),
     ],
     staged: const [],
+    lastOpening: staged,
+    openings: [
+      for (var i = 0; i < state.openings.length; i++)
+        i == seat ? staged : state.openings[i],
+    ],
     opened: [
       for (var i = 0; i < state.opened.length; i++)
         state.opened[i] || i == seat,
@@ -513,6 +633,7 @@ RamiState cancelStaged(RamiState state) {
 RamiState layOff(RamiState state, String cardId, String meldId) {
   final seat = state.turn;
   if (state.phase != RamiPhase.play ||
+      state.firstTour ||
       !state.opened[seat] ||
       state.staged.isNotEmpty) return state;
   final hand = state.hands[seat];
@@ -521,6 +642,10 @@ RamiState layOff(RamiState state, String cardId, String meldId) {
   if (cardIndex < 0 || meldIndex < 0) return state;
   final card = hand[cardIndex];
   final meld = state.table[meldIndex];
+
+  // D'abord reprendre un joker du paquet, s'il peut être remplacé (#390).
+  final taken = takeJoker(state, cardId, meldId);
+  if (!identical(taken, state)) return taken;
 
   final cards = arrangeMeld([...meld.cards, card]);
   if (!isValidMeld(cards)) return state;
@@ -537,6 +662,43 @@ RamiState layOff(RamiState state, String cardId, String meldId) {
   return next.hands[seat].isEmpty ? _finish(next, seat) : next;
 }
 
+/// Reprise d'un joker posé sur la table (#390) : la carte naturelle de la main
+/// prend sa place dans le paquet, s'il reste valide ; le joker revient en main.
+RamiState takeJoker(RamiState state, String cardId, String meldId) {
+  final seat = state.turn;
+  if (state.phase != RamiPhase.play ||
+      state.firstTour ||
+      !state.opened[seat] ||
+      state.staged.isNotEmpty) return state;
+  final hand = state.hands[seat];
+  final cardIndex = hand.indexWhere((item) => item.id == cardId);
+  final meldIndex = state.table.indexWhere((item) => item.id == meldId);
+  if (cardIndex < 0 || meldIndex < 0) return state;
+  final card = hand[cardIndex];
+  if (card.isJoker) return state;
+  final meld = state.table[meldIndex];
+  final jokerIndex = meld.cards.indexWhere((item) => item.isJoker);
+  if (jokerIndex < 0) return state;
+  // Un brelan de 3 cartes (joker compris) garde son joker : on ne le reprend qu'à partir de 4 (#443).
+  if (meld.cards.length < 4 && _isSet(meld.cards)) return state;
+  final joker = meld.cards[jokerIndex];
+
+  final replaced = [...meld.cards]..[jokerIndex] = card;
+  final cards = arrangeMeld(replaced);
+  if (!isValidMeld(cards)) return state;
+
+  final table = [
+    for (final item in state.table)
+      item.id == meldId ? Meld(id: item.id, cards: cards) : item,
+  ];
+  final newHand = [
+    for (final item in hand)
+      if (item.id != cardId) item,
+    joker,
+  ];
+  return _setHand(state.copyWith(table: table), seat, newHand);
+}
+
 RamiState discardCard(RamiState state, String cardId) {
   final seat = state.turn;
   if (state.phase != RamiPhase.play || state.staged.isNotEmpty) return state;
@@ -544,8 +706,16 @@ RamiState discardCard(RamiState state, String cardId) {
   final index = hand.indexWhere((item) => item.id == cardId);
   if (index < 0) return state;
   final card = hand[index];
-  // La carte prise à la défausse doit rester en main, sauf si c'est la dernière.
-  if (card.id == state.takenId && hand.length > 1) return state;
+  // La carte prise à la défausse doit être posée ou remise : avant ouverture, on ne défausse
+  // rien d'autre tant qu'elle est en main ; après ouverture, elle ne peut pas être défaussée
+  // (sauf si c'est la dernière carte).
+  final takenInHand =
+      state.takenId != null && hand.any((item) => item.id == state.takenId);
+  if (takenInHand &&
+      hand.length > 1 &&
+      (card.id == state.takenId || !state.opened[seat])) {
+    return state;
+  }
 
   final next = _setHand(
     state.copyWith(discard: [...state.discard, card], takenId: null),
@@ -553,7 +723,11 @@ RamiState discardCard(RamiState state, String cardId) {
     hand.where((item) => item.id != cardId).toList(),
   );
   if (next.hands[seat].isEmpty) return _finish(next, seat);
-  return next.copyWith(turn: nextSeat(seat), phase: RamiPhase.draw);
+  return next.copyWith(
+    turn: nextSeat(seat),
+    phase: RamiPhase.draw,
+    firstTour: state.firstTour && seat != state.dealer,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -623,13 +797,20 @@ List<List<RamiCard>> _runCandidates(List<RamiCard> hand) {
   return candidates;
 }
 
-List<List<RamiCard>> _planMelds(List<RamiCard> hand) {
-  final candidates = sortedStable(
+List<List<RamiCard>> _planMelds(List<RamiCard> hand, [String? firstId]) {
+  final sorted = sortedStable(
     [..._setCandidates(hand), ..._runCandidates(hand)],
     (a, b) => pointsOf(b) - pointsOf(a) != 0
         ? pointsOf(b) - pointsOf(a)
         : b.length - a.length,
   );
+  // La carte prise à la défausse est placée en premier si elle doit être posée.
+  bool carries(List<RamiCard> cards) =>
+      firstId != null && cards.any((card) => card.id == firstId);
+  final candidates = [
+    ...sorted.where(carries),
+    ...sorted.where((cards) => !carries(cards)),
+  ];
   final used = <String>{};
   final plan = <List<RamiCard>>[];
   for (final cards in candidates) {
@@ -645,8 +826,13 @@ List<List<RamiCard>> _planMelds(List<RamiCard> hand) {
 int _planValue(List<RamiCard> cards) =>
     _planMelds(cards).fold<int>(0, (sum, meld) => sum + pointsOf(meld));
 
-({String cardId, String meldId})? _findLayOff(RamiState state, int seat) {
+({String cardId, String meldId})? _findLayOff(
+  RamiState state,
+  int seat,
+  String? onlyCardId,
+) {
   for (final card in state.hands[seat]) {
+    if (onlyCardId != null && card.id != onlyCardId) continue;
     for (final meld in state.table) {
       if (isValidMeld([...meld.cards, card]))
         return (cardId: card.id, meldId: meld.id);
@@ -675,16 +861,14 @@ String _chooseDiscard(
   RamiState state,
   int seat,
   RamiAiLevel level,
-  RandomDouble random,
 ) {
   final hand = state.hands[seat];
   final pool = hand.where((card) => card.id != state.takenId).toList();
   final options = pool.isNotEmpty ? pool : hand;
-  if (level == RamiAiLevel.facile) {
-    return options[(random() * options.length).floor()].id;
-  }
 
   double score(RamiCard card) {
+    // Facile : évaluation simple, sans défausse ni notion de cartes utiles à la table (#281).
+    if (level == RamiAiLevel.facile) return _keepValue(card, hand).toDouble();
     // Difficile : évite de jeter une carte que les autres peuvent poser sur la table.
     final useful = level == RamiAiLevel.difficile &&
         state.table.any((meld) => isValidMeld([...meld.cards, card]));
@@ -704,6 +888,36 @@ String _chooseDiscard(
   return best.id;
 }
 
+/// Seuil d'ouverture de l'IA : le facile ouvre plus tard que la règle (#281).
+int _aiOpenMin(RamiState state, RamiAiLevel level) =>
+    minOpening(state) + (level == RamiAiLevel.facile ? 15 : 0);
+
+/// L'IA ne prend la carte de la défausse que si elle peut la poser ce tour, au seuil de son niveau.
+/// Sinon elle resterait en main sans pouvoir être défaussée (blocage).
+bool _aiCanUseTop(RamiState state, RamiCard top, RamiAiLevel level) {
+  if (state.opened[state.turn]) return true;
+  final hand = state.hands[state.turn];
+  final plan = _planMelds([...hand, top], top.id);
+  final total = plan.fold<int>(0, (sum, cards) => sum + pointsOf(cards));
+  return total >= _aiOpenMin(state, level);
+}
+
+/// Défausse de l'IA. Ne doit jamais rester bloquée : si la carte choisie est refusée,
+/// on remet d'abord la carte prise, puis on tente une autre carte légale.
+RamiState _aiDiscard(RamiState state, int seat, RamiAiLevel level) {
+  final chosen = discardCard(state, _chooseDiscard(state, seat, level));
+  if (!identical(chosen, state)) return chosen;
+  if (state.takenId != null) {
+    final returned = returnTaken(state);
+    if (!identical(returned, state)) return returned;
+  }
+  for (final card in state.hands[seat]) {
+    final other = discardCard(state, card.id);
+    if (!identical(other, state)) return other;
+  }
+  return state;
+}
+
 RamiState _aiDraw(RamiState state, RamiAiLevel level, RandomDouble random) {
   final seat = state.turn;
   if (state.discard.isEmpty) return drawStock(state, random);
@@ -715,7 +929,10 @@ RamiState _aiDraw(RamiState state, RamiAiLevel level, RandomDouble random) {
   final take = level == RamiAiLevel.facile
       ? random() < 0.5
       : isJoker(top) || improves || layable;
-  return take ? drawDiscard(state) : drawStock(state, random);
+  if (take && canUseDiscardTop(state) && _aiCanUseTop(state, top, level)) {
+    return drawDiscard(state);
+  }
+  return drawStock(state, random);
 }
 
 RamiState _poseAll(RamiState state, List<List<RamiCard>> plan) => plan.fold(
@@ -724,7 +941,17 @@ RamiState _poseAll(RamiState state, List<List<RamiCard>> plan) => plan.fold(
           poseMeld(current, [for (final card in cards) card.id]),
     );
 
+/// Premier coup qui modifie l'état. Si aucun ne progresse, renvoie l'état tel quel.
+RamiState _firstChange(RamiState state, List<RamiState Function()> moves) {
+  for (final move in moves) {
+    final next = move();
+    if (!identical(next, state)) return next;
+  }
+  return state;
+}
+
 /// Une action atomique de l'IA (pioche, pose, ajout, défausse). Le contrôleur la rappelle tant que ce n'est pas son tour.
+/// Ne se bloque jamais : si une action est refusée, l'IA tente la suivante, la défausse étant le dernier recours.
 RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {
   final draw = random ?? _defaultRandom.nextDouble;
   if (state.phase == RamiPhase.draw) return _aiDraw(state, level, draw);
@@ -732,20 +959,34 @@ RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {
   if (state.staged.isNotEmpty) return cancelStaged(state);
 
   final seat = state.turn;
-  final plan = _planMelds(state.hands[seat]);
+  if (state.firstTour) return _aiDiscard(state, seat, level);
+  final plan = _planMelds(state.hands[seat], state.takenId);
   final planTotal = plan.fold<int>(0, (sum, cards) => sum + pointsOf(cards));
-  // Facile : ouvre plus tard que la règle (seuil relevé).
-  final openMin = level == RamiAiLevel.facile ? ramiOpenMin + 15 : ramiOpenMin;
-  if (state.opened[seat] && plan.isNotEmpty) return _poseAll(state, plan);
-  if (!state.opened[seat] && planTotal >= openMin) {
-    return commitOpening(_poseAll(state, plan));
-  }
+  final openMin = _aiOpenMin(state, level);
+  final taken = state.takenId;
 
-  if (state.opened[seat]) {
-    final lay = _findLayOff(state, seat);
-    // Facile : oublie de poser sur la table une fois sur deux.
-    final forgets = level == RamiAiLevel.facile && draw() < 0.5;
-    if (lay != null && !forgets) return layOff(state, lay.cardId, lay.meldId);
-  }
-  return discardCard(state, _chooseDiscard(state, seat, level, draw));
+  return _firstChange(state, [
+    // Ouverture : pose tout le plan puis valide l'ouverture ; sinon on ne garde rien en attente.
+    if (!state.opened[seat] && planTotal >= openMin)
+      () {
+        final committed = commitOpening(_poseAll(state, plan));
+        return committed.opened[seat] || committed.phase == RamiPhase.end
+            ? committed
+            : state;
+      },
+    if (state.opened[seat] && plan.isNotEmpty) () => _poseAll(state, plan),
+    // La carte prise à la défausse doit être posée ce tour.
+    if (state.opened[seat] && taken != null)
+      () {
+        final lay = _findLayOff(state, seat, taken);
+        return lay == null ? state : layOff(state, lay.cardId, lay.meldId);
+      },
+    if (state.opened[seat])
+      () {
+        // Le facile pose toujours quand c'est légal : pas d'oubli volontaire (#281).
+        final lay = _findLayOff(state, seat, null);
+        return lay == null ? state : layOff(state, lay.cardId, lay.meldId);
+      },
+    () => _aiDiscard(state, seat, level),
+  ]);
 }
