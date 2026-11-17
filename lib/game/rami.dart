@@ -476,21 +476,14 @@ RamiState _finish(RamiState state, int? winner) {
 
 RamiState drawStock(RamiState state, [RandomDouble? random]) {
   if (state.phase != RamiPhase.draw) return state;
-  var stock = state.stock;
-  var discard = state.discard;
-  if (stock.isEmpty) {
-    if (discard.length < 2) return _finish(state, null);
-    stock = shuffled(
-      discard.sublist(0, discard.length - 1),
-      random ?? _defaultRandom.nextDouble,
-    );
-    discard = discard.sublist(discard.length - 1);
-  }
+  // Pioche épuisée : la manche se termine sans gagnant (#458). Sans cette fin, une partie
+  // pouvait tourner indéfiniment quand chacun gardait une carte et recyclait la défausse.
+  if (state.stock.isEmpty) return _finish(state, null);
+  final stock = state.stock;
   final card = stock.last;
   return _setHand(
     state.copyWith(
       stock: stock.sublist(0, stock.length - 1),
-      discard: discard,
       phase: RamiPhase.play,
       takenId: null,
     ),
