@@ -100,7 +100,7 @@ void main() {
         progress: {'blue-0': 1},
       );
       // Dé = 1 : le pion avance sur une case non sûre, sans capture (inutile).
-      final draws = [0.0, 0.0, 0.99];
+      final draws = [0.0, 0.0, 0.99, 0.99];
       var i = 0;
       final hard = rollDice(state, () => draws[i++], LudoAiLevel.difficile);
       expect(hard.dice, 6);

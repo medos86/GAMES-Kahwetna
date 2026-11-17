@@ -391,6 +391,9 @@ int _dieValue(RandomDouble draw) => (draw() * 6).floor() + 1;
 /// Probabilité, pour le difficile, de relancer un dé qui n'offre aucun coup utile (#305).
 const double ludoHardRerollChance = 0.95;
 
+/// Nombre maximal de relances pour le difficile (#305).
+const int ludoHardMaxRerolls = 2;
+
 /// Un lancer est utile s'il permet de sortir, d'atteindre une case sûre, d'arriver ou de capturer.
 bool _isUsefulRoll(LudoState state, int dice) =>
     _availableTokens(state, dice).any((token) {
@@ -413,16 +416,21 @@ LudoState rollDice(
 ]) {
   if (state.phase != LudoPhase.roll) return state;
   final draw = random ?? _defaultRandom.nextDouble;
+  final hard = level == LudoAiLevel.difficile;
+  final maxRerolls = hard ? ludoHardMaxRerolls : 1;
   var dice = _dieValue(draw);
   var sixes = dice == 6 ? state.sixes + 1 : 0;
+  var rerolls = 0;
   // Fluidité : si aucun pion ne peut bouger, une seconde chance avant de passer le tour.
-  final useless = level == LudoAiLevel.difficile &&
-      !_isUsefulRoll(state, dice) &&
-      draw() < ludoHardRerollChance;
-  if (sixes < 3 && (useless || _availableTokens(state, dice).isEmpty)) {
-    final second = _dieValue(draw);
-    dice = second;
-    sixes = second == 6 ? state.sixes + 1 : 0;
+  // Difficile : relance aussi un lancer qui n'offre aucun coup utile.
+  while (sixes < 3 && rerolls < maxRerolls) {
+    final blocked = _availableTokens(state, dice).isEmpty;
+    final useless =
+        hard && !_isUsefulRoll(state, dice) && draw() < ludoHardRerollChance;
+    if (!blocked && !useless) break;
+    dice = _dieValue(draw);
+    sixes = dice == 6 ? state.sixes + 1 : 0;
+    rerolls++;
   }
   final rolled = state.copyWith(
     dice: dice,
