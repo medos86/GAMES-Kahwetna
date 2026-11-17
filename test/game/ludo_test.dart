@@ -82,6 +82,17 @@ void main() {
       expect(next.note?.color, LudoColor.blue);
     });
 
+    test('fluidité : bloqué au premier dé, une seconde chance sans passer', () {
+      final state = makeState(turn: LudoColor.blue, phase: LudoPhase.roll);
+      // Premier dé = 1 (bloqué), second dé = 6 (sort un pion).
+      final draws = [0.0, 0.99];
+      var i = 0;
+      final next = rollDice(state, () => draws[i++]);
+      expect(next.dice, 6);
+      expect(next.phase, LudoPhase.move);
+      expect(next.turn, LudoColor.blue);
+    });
+
     test('aucun coup possible : tour passé et note NoMoveNote', () {
       final state = makeState(turn: LudoColor.blue, phase: LudoPhase.roll);
       final next = rollDice(state, () => 0.0); // dé = 1, aucun pion ne sort

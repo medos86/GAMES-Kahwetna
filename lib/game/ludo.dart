@@ -386,11 +386,19 @@ LudoColor _nextActive(LudoState state) {
 LudoState _passTurn(LudoState state) =>
     state.copyWith(turn: _nextActive(state), phase: LudoPhase.roll, sixes: 0);
 
+int _dieValue(RandomDouble draw) => (draw() * 6).floor() + 1;
+
 LudoState rollDice(LudoState state, [RandomDouble? random]) {
   if (state.phase != LudoPhase.roll) return state;
   final draw = random ?? _defaultRandom.nextDouble;
-  final dice = (draw() * 6).floor() + 1;
-  final sixes = dice == 6 ? state.sixes + 1 : 0;
+  var dice = _dieValue(draw);
+  var sixes = dice == 6 ? state.sixes + 1 : 0;
+  // Fluidité : si aucun pion ne peut bouger, une seconde chance avant de passer le tour.
+  if (sixes < 3 && _availableTokens(state, dice).isEmpty) {
+    final second = _dieValue(draw);
+    dice = second;
+    sixes = second == 6 ? state.sixes + 1 : 0;
+  }
   final rolled = state.copyWith(
     dice: dice,
     sixes: sixes,
