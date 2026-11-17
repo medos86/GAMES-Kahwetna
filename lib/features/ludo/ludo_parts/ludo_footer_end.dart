@@ -137,6 +137,23 @@ class LudoDie extends StatelessWidget {
   }
 }
 
+/// Couleur du chiffre de classement sur la pastille d'un joueur (#295).
+/// Prend l'encre ou le blanc, selon celui qui contraste le plus avec le fond :
+/// le texte reste lisible sur les quatre couleurs (contraste >= 4,5).
+Color ludoRankDigitColor(Color fill) {
+  double contrast(Color a, Color b) {
+    final la = a.computeLuminance();
+    final lb = b.computeLuminance();
+    final hi = la > lb ? la : lb;
+    final lo = la > lb ? lb : la;
+    return (hi + 0.05) / (lo + 0.05);
+  }
+
+  return contrast(ComicPalette.ink, fill) >= contrast(Colors.white, fill)
+      ? ComicPalette.ink
+      : Colors.white;
+}
+
 class _EndDialog extends StatelessWidget {
   const _EndDialog({required this.controller, required this.onMenu});
 
@@ -190,8 +207,10 @@ class _EndDialog extends StatelessWidget {
                         backgroundColor: _toneOf(game.rankings[i]).fill,
                         child: Text(
                           '${i + 1}',
-                          style: const TextStyle(
-                            color: _ink,
+                          style: TextStyle(
+                            color: ludoRankDigitColor(
+                              _toneOf(game.rankings[i]).fill,
+                            ),
                             fontWeight: FontWeight.w900,
                           ),
                         ),
