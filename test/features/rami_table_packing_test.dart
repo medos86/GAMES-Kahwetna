@@ -4,10 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/rami/rami_hand_layout.dart';
 
 // Issue #453 : le tapis range les paquets pour remplir les trous du haut et rester sans défilement.
-// Largeur d'un paquet avec une carte de 40 px : 40 + 16 × (n - 1) + 6.
+// Largeur d'un paquet avec une carte de 40 px : 40 + 16 × (n - 1) + 12 (padding et bordure).
 
 double _width(int count, double cardWidth) =>
-    cardWidth + cardWidth * 0.4 * (count - 1) + 6;
+    cardWidth + cardWidth * 0.4 * (count - 1) + 12;
 
 void main() {
   test('un petit paquet remplit le trou laissé en haut', () {

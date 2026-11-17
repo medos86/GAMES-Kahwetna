@@ -12,7 +12,8 @@ double ramiPileWidth(double handWidth) => handWidth * ramiPileScale;
 /// Écartement des cartes d'un paquet sur le tapis, en fraction de la largeur d'une carte.
 const double ramiMeldStepRatio = 0.4;
 
-const double _meldPadding = 6;
+/// Marge réelle d'un paquet sur le tapis : 4 px de padding + bordure de 2 px, de chaque côté (#453).
+const double _meldPadding = 12;
 const double _meldGap = 3;
 const double _minTableCardWidth = 36;
 

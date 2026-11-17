@@ -65,7 +65,8 @@ void main() {
     final w = ramiTableCardWidth(sizes, area, height, 80);
     if (w > 36) {
       final rows = ramiMeldRows(sizes, w, area)!;
-      final used = rows * (w * 1.4 + 10) + (rows - 1) * 6;
+      // Hauteur réelle : padding + bordure (12) par rangée, espace de 3 entre rangées.
+      final used = rows * (w * 1.4 + 12) + (rows - 1) * 3;
       expect(used, lessThanOrEqualTo(height));
     }
   });
