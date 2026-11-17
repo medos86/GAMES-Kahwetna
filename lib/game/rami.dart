@@ -876,11 +876,7 @@ int _keepValue(RamiCard card, List<RamiCard> hand) {
 }
 
 /// Défausses classées de la meilleure à la moins bonne (score croissant, ordre stable).
-List<String> _rankDiscards(
-  RamiState state,
-  int seat,
-  RamiAiLevel level,
-) {
+List<String> _rankDiscards(RamiState state, int seat, RamiAiLevel level) {
   final hand = state.hands[seat];
   final pool = hand.where((card) => card.id != state.takenId).toList();
   final options = pool.isNotEmpty ? pool : hand;
@@ -910,12 +906,9 @@ List<String> _rankDiscards(
   return [for (final i in order) options[i].id];
 }
 
-String _chooseDiscard(
-  RamiState state,
-  int seat,
-  RamiAiLevel level,
-) =>
-    _rankDiscards(state, seat, level).first;
+String _chooseDiscard(RamiState state, int seat, RamiAiLevel level) {
+  return _rankDiscards(state, seat, level).first;
+}
 
 /// Seuil d'ouverture de l'IA : le facile ouvre plus tard que la règle (#281).
 int _aiOpenMin(RamiState state, RamiAiLevel level) =>
@@ -958,8 +951,8 @@ double _rolloutValue(RamiState start, int seat, int seed) {
 
 /// Défausse du difficile : parmi les meilleures candidates, celle qui laisse la meilleure moyenne de simulations.
 String _mcDiscard(RamiState state, int seat) {
-  final candidates = _rankDiscards(state, seat, RamiAiLevel.difficile)
-      .take(ramiMcCandidates);
+  final ranked = _rankDiscards(state, seat, RamiAiLevel.difficile);
+  final candidates = ranked.take(ramiMcCandidates);
   var best = candidates.first;
   var bestValue = double.infinity;
   var seedBase = state.round * 131 + seat * 17 + state.discard.length;
