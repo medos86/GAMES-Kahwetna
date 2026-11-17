@@ -25,11 +25,11 @@ LudoColor playLudoGame(LudoAiLevel level, LudoColor levelColor, int seed) {
     if (++steps > _maxSteps) {
       throw StateError('partie non terminée (graine $seed)');
     }
+    final lvl = state.turn == levelColor ? level : LudoAiLevel.moyen;
     if (state.phase == LudoPhase.roll) {
-      state = rollDice(state, rnd);
+      state = rollDice(state, rnd, lvl);
       continue;
     }
-    final lvl = state.turn == levelColor ? level : LudoAiLevel.moyen;
     final id = chooseMove(state, lvl, rnd);
     if (id == null) {
       throw StateError('aucun coup en phase move (graine $seed)');

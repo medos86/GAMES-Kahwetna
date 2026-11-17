@@ -388,13 +388,38 @@ LudoState _passTurn(LudoState state) =>
 
 int _dieValue(RandomDouble draw) => (draw() * 6).floor() + 1;
 
-LudoState rollDice(LudoState state, [RandomDouble? random]) {
+/// Probabilité, pour le difficile, de relancer un dé qui n'offre aucun coup utile (#305).
+const double ludoHardRerollChance = 0.6;
+
+/// Un lancer est utile s'il permet de sortir, d'atteindre une case sûre, d'arriver ou de capturer.
+bool _isUsefulRoll(LudoState state, int dice) =>
+    _availableTokens(state, dice).any((token) {
+      final progress = _advance(token.progress, dice) ?? token.progress;
+      if (token.progress == 0 || progress == ludoFinish) return true;
+      final index = trackIndex(token.color, progress);
+      if (index == null || ludoSafeIndexes.contains(index)) return true;
+      return state.tokens.any(
+        (item) =>
+            item.color != token.color &&
+            trackIndex(item.color, item.progress) == index,
+      );
+    });
+
+/// [level] : niveau du joueur qui lance (null pour un humain). Le difficile relance parfois un dé inutile.
+LudoState rollDice(
+  LudoState state, [
+  RandomDouble? random,
+  LudoAiLevel? level,
+]) {
   if (state.phase != LudoPhase.roll) return state;
   final draw = random ?? _defaultRandom.nextDouble;
   var dice = _dieValue(draw);
   var sixes = dice == 6 ? state.sixes + 1 : 0;
   // Fluidité : si aucun pion ne peut bouger, une seconde chance avant de passer le tour.
-  if (sixes < 3 && _availableTokens(state, dice).isEmpty) {
+  final useless = level == LudoAiLevel.difficile &&
+      !_isUsefulRoll(state, dice) &&
+      draw() < ludoHardRerollChance;
+  if (sixes < 3 && (useless || _availableTokens(state, dice).isEmpty)) {
     final second = _dieValue(draw);
     dice = second;
     sixes = second == 6 ? state.sixes + 1 : 0;

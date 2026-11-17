@@ -137,7 +137,7 @@ class LudoController extends PersistentGameController {
     final delay = _fastAi ? ludoFastAiDelay : ludoRollDelay(difficulty);
     _timer = Timer(delay, () {
       if (_game.phase == LudoPhase.roll) {
-        _setGame(rollDice(_game, _random));
+        _setGame(rollDice(_game, _random, difficulty));
         return;
       }
       final tokenId = chooseMove(_game, difficulty, _random);
