@@ -50,7 +50,11 @@ jobs:
                   is_kts = f.endswith('.kts')
                   line = 'isMinifyEnabled = false' if is_kts else 'minifyEnabled false'
                   s = re.sub(r'(release\s*\{)', r'\1\n            ' + line, s, count=1)
-              s = s.replace('isShrinkResources = true', 'isShrinkResources = false')
+              s = re.sub(r'(isShrinkResources|shrinkResources)(\s*=\s*|\s+)true', r'\1\2false', s)
+              if not re.search(r'(isShrinkResources|shrinkResources)', s):
+                  s = re.sub(r'(release\s*\{)', r'\1\n            ' + ('isShrinkResources = false' if f.endswith('.kts') else 'shrinkResources false'), s, count=1)
+              print('--- lignes minify/shrink dans ' + f)
+              print('\n'.join(l for l in s.splitlines() if re.search(r'minify|shrink', l, re.I)))
               open(f, 'w', encoding='utf-8').write(s)
               print('--- ' + f)
               m = re.search(r'release\s*\{[^}]*\}', s)
