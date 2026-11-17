@@ -162,7 +162,7 @@ class _DominoScreenState extends State<DominoScreen> {
             overlays: [
               if (game.roundWinner != null || game.matchWinner != null)
                 Positioned.fill(
-                  child: _RoundOverlay(
+                  child: DominoRoundOverlay(
                     game: game,
                     onNext: _controller.startNextRound,
                     onRestart: _controller.restart,
