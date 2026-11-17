@@ -62,8 +62,8 @@ class _HandTile extends StatelessWidget {
   }
 }
 
-class _RoundOverlay extends StatelessWidget {
-  const _RoundOverlay({
+class DominoRoundOverlay extends StatelessWidget {
+  const DominoRoundOverlay({
     required this.game,
     required this.onNext,
     required this.onRestart,
