@@ -420,22 +420,20 @@ class _RamiScreenState extends State<RamiScreen>
                   ),
                 ),
                 Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: RamiMinOpeningShield(
-                          minimum: rules.minOpening(g),
-                          label: tf(
-                            'ramiMinOpen',
-                            {'n': '${rules.minOpening(g)}'},
-                          ),
-                        ),
-                      ),
-                      _contextActions(g),
-                    ],
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.bottomRight,
+                    child: _contextActions(g),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 6),
+                  child: RamiMinOpeningShield(
+                    minimum: rules.minOpening(g),
+                    label: tf(
+                      'ramiMinOpen',
+                      {'n': '${rules.minOpening(g)}'},
+                    ),
                   ),
                 ),
               ],

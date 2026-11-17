@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
 
-/// Bouclier affichant le seuil d'ouverture ; au toucher, le libellé s'affiche quelques secondes (#447).
+/// Petit bouclier du seuil d'ouverture, en bas à droite de la table.
+/// Au toucher, le libellé s'affiche quelques secondes au-dessus (#447).
 class RamiMinOpeningShield extends StatefulWidget {
   const RamiMinOpeningShield({
     super.key,
@@ -42,41 +43,58 @@ class _RamiMinOpeningShieldState extends State<RamiMinOpeningShield> {
       onTap: _reveal,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
+          if (_showing)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                widget.label,
+                key: const Key('ramiMinOpeningLabel'),
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                  fontFamily: 'Bangers',
+                  fontSize: 13,
+                  color: Color(0xFFFFFFFF),
+                  shadows: [Shadow(color: Color(0xAA000000), blurRadius: 3)],
+                ),
+              ),
+            ),
           Container(
-            width: 44,
-            height: 52,
+            width: 30,
+            height: 36,
             alignment: Alignment.center,
             decoration: const BoxDecoration(
-              color: Color(0xFF2F6FB3),
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(8),
-                bottom: Radius.circular(22),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF4A8FD6), Color(0xFF1F5A96)],
               ),
+              border: Border.fromBorderSide(
+                BorderSide(color: Color(0xFFF3E3B0), width: 2),
+              ),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(6),
+                bottom: Radius.circular(16),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x66000000),
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
+              ],
             ),
             child: Text(
               '${widget.minimum}',
               style: const TextStyle(
                 fontFamily: 'Bangers',
-                fontSize: 22,
+                fontSize: 15,
                 color: Color(0xFFFFFFFF),
+                shadows: [Shadow(color: Color(0x99000000), blurRadius: 2)],
               ),
             ),
           ),
-          if (_showing)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                widget.label,
-                key: const Key('ramiMinOpeningLabel'),
-                style: const TextStyle(
-                  fontFamily: 'Bangers',
-                  fontSize: 16,
-                  color: Color(0xFFFFFFFF),
-                ),
-              ),
-            ),
         ],
       ),
     );
