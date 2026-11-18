@@ -107,7 +107,7 @@ void main() {
     expect(ok.lastOpening, 70);
   });
 
-  test("le seuil est remis à 51 à la manche suivante", () {
+  test('le seuil est remis à 51 à la manche suivante', () {
     final ended = base.copyWith(lastOpening: 80);
     expect(minOpening(ended), 81);
     final fresh = dealRound([0, 0, 0, 0], 3, 2, 100, () => 0.0);
