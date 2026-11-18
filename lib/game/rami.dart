@@ -498,7 +498,7 @@ bool canUseDiscardTop(RamiState state) {
   final seat = state.turn;
   final top = state.discard.last;
   final hand = [...state.hands[seat], top];
-  final plan = _planMelds(hand, top.id);
+  final plan = _usablePlan(hand, top.id);
   final carries = plan.isNotEmpty && plan.first.any((c) => c.id == top.id);
   if (state.opened[seat]) {
     return carries ||
@@ -768,6 +768,15 @@ List<List<RamiCard>> _runCandidates(List<RamiCard> hand) {
   return candidates;
 }
 
+/// Plan jouable : une pose ne peut pas vider la main (#496). Si le plan couvre toute la main,
+/// on retire sa dernière combinaison pour garder une carte à défausser.
+List<List<RamiCard>> _usablePlan(List<RamiCard> hand, [String? firstId]) {
+  final plan = _planMelds(hand, firstId);
+  final covered = plan.fold<int>(0, (sum, cards) => sum + cards.length);
+  if (plan.isEmpty || covered < hand.length) return plan;
+  return plan.sublist(0, plan.length - 1);
+}
+
 List<List<RamiCard>> _planMelds(List<RamiCard> hand, [String? firstId]) {
   final sorted = sortedStable(
     [..._setCandidates(hand), ..._runCandidates(hand)],
@@ -896,7 +905,7 @@ int _aiOpenMin(RamiState state, RamiAiLevel level) =>
 bool _aiCanUseTop(RamiState state, RamiCard top, RamiAiLevel level) {
   if (state.opened[state.turn]) return true;
   final hand = state.hands[state.turn];
-  final plan = _planMelds([...hand, top], top.id);
+  final plan = _usablePlan([...hand, top], top.id);
   final total = plan.fold<int>(0, (sum, cards) => sum + pointsOf(cards));
   return total >= _aiOpenMin(state, level);
 }
@@ -1014,7 +1023,7 @@ RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {
 
   final seat = state.turn;
   if (state.firstTour) return _aiDiscard(state, seat, level);
-  final plan = _planMelds(state.hands[seat], state.takenId);
+  final plan = _usablePlan(state.hands[seat], state.takenId);
   final planTotal = plan.fold<int>(0, (sum, cards) => sum + pointsOf(cards));
   final openMin = _aiOpenMin(state, level);
   final taken = state.takenId;
