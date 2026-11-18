@@ -149,7 +149,6 @@ class RamiController extends PersistentGameController {
   int get readyPoints =>
       groups.fold(0, (sum, group) => sum + rules.pointsOf(group));
 
-
   /// Seuil de l'ouverture en cours : 51, puis strictement plus que la précédente.
   int get openMinimum => rules.minOpening(_game);
 
@@ -166,9 +165,7 @@ class RamiController extends PersistentGameController {
   /// Vrai si la carte prise à la défausse est encore en main et qu'aucune pose n'a été faite.
   bool get canReturnTaken {
     final taken = _game.takenId;
-    return canPlay &&
-        taken != null &&
-        hand.any((card) => card.id == taken);
+    return canPlay && taken != null && hand.any((card) => card.id == taken);
   }
 
   /// Paquet à poser pour une carte glissée : la sélection si elle est valide, sinon le paquet voisin.
