@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
@@ -17,6 +18,8 @@ import 'rami_controller.dart';
 import '../../core/strings.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
+import '../../core/services/game_end_watcher.dart';
+import '../../core/services/interstitial_service.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../widgets/pulse_glow.dart';
@@ -67,10 +70,16 @@ class _RamiScreenState extends State<RamiScreen>
   // Largeur réelle des cartes de la main (la carte glissée garde cette taille).
   double _handCardWidth = 0;
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
+  late final GameEndWatcher _endWatcher = GameEndWatcher(
+    isEnded: () => _c.game.matchWinner != null,
+    onEnded: () => unawaited(InterstitialService.instance.onGameFinished()),
+  );
 
   @override
   void initState() {
     super.initState();
+    InterstitialService.instance.preload();
+    _c.addListener(_endWatcher.check);
     _c.addListener(_onRamiChanged);
     _c.restore().then((_) {
       _ready = true;
@@ -85,6 +94,7 @@ class _RamiScreenState extends State<RamiScreen>
   @override
   void dispose() {
     _adFree.removeListener(_onAdFreeChanged);
+    _c.removeListener(_endWatcher.check);
     _c.removeListener(_onRamiChanged);
     _c.dispose();
     super.dispose();

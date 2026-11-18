@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
@@ -10,6 +11,8 @@ import 'ludo_controller.dart';
 import 'ludo_layout.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
+import '../../core/services/game_end_watcher.dart';
+import '../../core/services/interstitial_service.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
@@ -116,6 +119,10 @@ class _LudoScreenState extends State<LudoScreen> {
     difficulty: _aiLevel(widget.difficulty),
   );
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
+  late final GameEndWatcher _endWatcher = GameEndWatcher(
+    isEnded: () => _controller.roundOver,
+    onEnded: () => unawaited(InterstitialService.instance.onGameFinished()),
+  );
 
   static LudoAiLevel _aiLevel(Difficulty d) =>
       aiLevelFor(LudoAiLevel.values, d);
@@ -123,6 +130,8 @@ class _LudoScreenState extends State<LudoScreen> {
   @override
   void initState() {
     super.initState();
+    InterstitialService.instance.preload();
+    _controller.addListener(_endWatcher.check);
     _controller.restore().then((_) {
       if (mounted) offerResume(context, _controller);
     });
@@ -132,6 +141,7 @@ class _LudoScreenState extends State<LudoScreen> {
   @override
   void dispose() {
     _adFree.removeListener(_onAdFreeChanged);
+    _controller.removeListener(_endWatcher.check);
     _controller.dispose();
     super.dispose();
   }
