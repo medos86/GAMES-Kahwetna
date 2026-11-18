@@ -154,6 +154,9 @@ Color ludoRankDigitColor(Color fill) {
       : Colors.white;
 }
 
+/// Rang affiché à droite de la ligne de fin : « 1er », « 2e »… (issue #526).
+String _placeLabel(int index) => index == 0 ? '1er' : '${index + 1}e';
+
 class _EndDialog extends StatelessWidget {
   const _EndDialog({required this.controller, required this.onMenu});
 
@@ -174,59 +177,17 @@ class _EndDialog extends StatelessWidget {
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: ResultDialog(
+          child: RoundResultPanel(
             title: title,
-            children: [
-              const Text(
-                'PARTIE TERMINÉE',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: ComicPalette.ink,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.5,
-                ),
-              ),
-              const SizedBox(height: 14),
+            badge: 'PARTIE TERMINÉE',
+            rows: [
               for (var i = 0; i < game.rankings.length; i++)
-                Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: i == 0 ? ComicPalette.gold : ComicPalette.paper,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: ComicPalette.ink, width: 3),
-                  ),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 13,
-                        backgroundColor: _toneOf(game.rankings[i]).fill,
-                        child: Text(
-                          '${i + 1}',
-                          style: TextStyle(
-                            color: ludoRankDigitColor(
-                              _toneOf(game.rankings[i]).fill,
-                            ),
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _colorName(game.rankings[i], solo),
-                          style: const TextStyle(
-                            color: ComicPalette.ink,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                RoundResultRow(
+                  name: _colorName(game.rankings[i], solo),
+                  color: _toneOf(game.rankings[i]).fill,
+                  leading: '${i + 1}',
+                  value: _placeLabel(i),
+                  highlight: i == 0,
                 ),
             ],
             actions: [

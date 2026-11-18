@@ -19,7 +19,7 @@ import 'chkobba_controller.dart';
 import 'chkobba_rules_screen.dart';
 import 'chkobba_table.dart';
 import '../../widgets/exit_guard.dart';
-import '../../widgets/result_dialog.dart';
+import '../../widgets/round_result_panel.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';

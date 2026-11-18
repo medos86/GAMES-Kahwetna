@@ -90,30 +90,25 @@ class DominoRoundOverlay extends StatelessWidget {
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: ResultDialog(
-            icon: matchOver ? Icons.emoji_events : Icons.radio_button_checked,
+          child: RoundResultPanel(
             title: title,
-            children: [
-              Text(
-                matchOver
-                    ? Strings.dominoMatchOver.toUpperCase()
-                    : 'MANCHE ${game.round} TERMINÉE',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.5,
-                  color: ComicPalette.ink,
-                ),
+            badge: matchOver
+                ? Strings.dominoMatchOver.toUpperCase()
+                : 'MANCHE ${game.round} TERMINÉE',
+            rows: [
+              RoundResultRow(
+                name: t('you'),
+                color: RoundResultColors.seat(0),
+                value: game.roundWinner == Player.player ? '+$points' : '0',
+                total: '${game.scores[Player.player]}',
+                highlight: game.roundWinner == Player.player,
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Score ${game.scores[Player.player]} – ${game.scores[Player.opponent]} · +$points point${points == 1 ? '' : 's'}',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: ComicPalette.ink,
-                ),
+              RoundResultRow(
+                name: t('opponent'),
+                color: RoundResultColors.seat(1),
+                value: game.roundWinner == Player.opponent ? '+$points' : '0',
+                total: '${game.scores[Player.opponent]}',
+                highlight: game.roundWinner == Player.opponent,
               ),
             ],
             actions: [

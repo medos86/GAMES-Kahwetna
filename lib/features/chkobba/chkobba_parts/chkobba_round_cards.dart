@@ -71,80 +71,42 @@ class ChkobbaRoundCard extends StatelessWidget {
 
   int _total(Player p) => summary.points[p]!.fold(0, (sum, x) => sum + x.value);
 
-  static String _show(int v) => v == 0 ? '—' : '$v';
-
-  /// Une ligne du tableau : libellé, points du joueur, points de l'adversaire.
-  /// Texte en encre noire sur papier (contraste ≥ 4,5), sans couleur de joueur.
-  Widget _row(
-    String label,
-    String player,
-    String opponent, {
-    bool strong = false,
-    double size = 14,
-  }) {
-    final style = TextStyle(
-      fontWeight: strong ? FontWeight.w900 : FontWeight.w700,
-      fontSize: size,
-      color: ComicPalette.ink,
-    );
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Expanded(child: Text(label, style: style)),
-          SizedBox(
-            width: 64,
-            child: Text(player, textAlign: TextAlign.center, style: style),
-          ),
-          SizedBox(
-            width: 76,
-            child: Text(opponent, textAlign: TextAlign.center, style: style),
-          ),
-        ],
-      ),
-    );
+  /// Motif d'une ligne : catégories qui rapportent des points, ex. « Chkobba 1 · Cartes 2 ».
+  String? _reasonFor(Player p) {
+    final parts = <String>[
+      for (final c in _categories)
+        if (_pointsFor(p, c.matches) != 0)
+          '${t(c.key)} ${_pointsFor(p, c.matches)}',
+    ];
+    return parts.isEmpty ? null : parts.join(' · ');
   }
 
+  /// Une ligne par joueur, même format que les autres jeux (issue #526).
   @override
   Widget build(BuildContext context) {
     final state = summary.state;
     final hasWinner = state.winner != null;
-    return ResultDialog(
+    final roundYou = _total(Player.player);
+    final roundOpp = _total(Player.opponent);
+    return RoundResultPanel(
       title: 'Manche ${state.round}',
-      children: [
-        _row(t('roundPoints'), t('you'), t('opponent'), strong: true),
-        for (final category in _categories)
-          _row(
-            t(category.key),
-            _show(_pointsFor(Player.player, category.matches)),
-            _show(_pointsFor(Player.opponent, category.matches)),
-          ),
-        Container(
-          height: 2,
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          color: ComicPalette.ink,
+      badge: 'OBJECTIF ${state.targetScore} POINTS',
+      rows: [
+        RoundResultRow(
+          name: t('you'),
+          color: RoundResultColors.seat(0),
+          value: '+$roundYou',
+          reason: _reasonFor(Player.player),
+          total: '${state.scores[Player.player]}',
+          highlight: roundYou > roundOpp,
         ),
-        _row(
-          'Score de la manche',
-          '+${_total(Player.player)}',
-          '+${_total(Player.opponent)}',
-          strong: true,
-        ),
-        _row(
-          'Score total',
-          '${state.scores[Player.player]}',
-          '${state.scores[Player.opponent]}',
-          strong: true,
-          size: 18,
-        ),
-        Text(
-          'Objectif : ${state.targetScore} points',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 13,
-            color: ComicPalette.ink,
-          ),
+        RoundResultRow(
+          name: t('opponent'),
+          color: RoundResultColors.seat(1),
+          value: '+$roundOpp',
+          reason: _reasonFor(Player.opponent),
+          total: '${state.scores[Player.opponent]}',
+          highlight: roundOpp > roundYou,
         ),
       ],
       actions: [

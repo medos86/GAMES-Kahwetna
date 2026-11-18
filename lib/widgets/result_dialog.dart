@@ -6,17 +6,22 @@ import '../core/theme/comic_palette.dart';
 
 /// Boîte de dialogue de fin de manche / de partie, en style BD (issue #295).
 /// Affichée par [ResultDialog.show] sur fond flouté (4 px) et assombri.
+/// Issue #526 : [accent] colore la bande du titre (jaune BD sur tous les jeux).
 class ResultDialog extends StatelessWidget {
   const ResultDialog({
     super.key,
     required this.title,
     this.icon,
+    this.accent,
     this.children = const [],
     this.actions = const [],
   });
 
   final String title;
   final IconData? icon;
+
+  /// Couleur de fond de la bande du titre. `null` : titre sans bande.
+  final Color? accent;
   final List<Widget> children;
   final List<Widget> actions;
 
@@ -49,6 +54,29 @@ class ResultDialog extends StatelessWidget {
     );
   }
 
+  Widget _titleWidget() {
+    final text = Text(
+      title,
+      textAlign: TextAlign.center,
+      style: const TextStyle(
+        fontFamily: 'Bangers',
+        fontSize: 32,
+        letterSpacing: 1,
+        color: ComicPalette.ink,
+      ),
+    );
+    if (accent == null) return text;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+      decoration: BoxDecoration(
+        color: accent,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: ComicPalette.ink, width: 3),
+      ),
+      child: text,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -71,16 +99,7 @@ class ResultDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (icon != null) Icon(icon, size: 40, color: ComicPalette.ink),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontFamily: 'Bangers',
-                  fontSize: 32,
-                  letterSpacing: 1,
-                  color: ComicPalette.ink,
-                ),
-              ),
+              _titleWidget(),
               const SizedBox(height: 12),
               ...children,
               if (actions.isNotEmpty) ...[
@@ -100,66 +119,3 @@ class ResultDialog extends StatelessWidget {
 
 /// Formate une variation de score avec son signe : +100, -10, 0.
 String signedScore(int value) => value > 0 ? '+$value' : '$value';
-
-/// Carte de score d'un joueur ou d'une équipe dans un [ResultDialog] (issue #295).
-/// Affiche le nom, la variation signée, le motif éventuel et le total.
-class ResultScoreBox extends StatelessWidget {
-  const ResultScoreBox({
-    super.key,
-    required this.name,
-    required this.value,
-    required this.total,
-    this.reason,
-    this.highlight = false,
-  });
-
-  final String name;
-  final String value;
-  final String total;
-  final String? reason;
-  final bool highlight;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 3),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: highlight ? ComicPalette.gold : ComicPalette.paper,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ComicPalette.ink, width: 3),
-      ),
-      child: Column(
-        children: [
-          Text(
-            name.toUpperCase(),
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: ComicPalette.ink,
-              fontWeight: FontWeight.w900,
-              fontSize: 11,
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              color: ComicPalette.ink,
-              fontFamily: 'Bangers',
-              fontSize: 26,
-            ),
-          ),
-          if (reason != null)
-            Text(
-              reason!,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: ComicPalette.ink, fontSize: 10),
-            ),
-          Text(
-            'Total $total',
-            style: const TextStyle(color: ComicPalette.ink, fontSize: 10),
-          ),
-        ],
-      ),
-    );
-  }
-}

@@ -38,7 +38,9 @@ void main() {
       ),
     );
     expect(find.text('MANCHE 2 TERMINÉE'), findsOneWidget);
-    expect(find.text('Score 12 – 8 · +12 points'), findsOneWidget);
+    expect(find.text('+12'), findsOneWidget);
+    expect(find.text('Total 12'), findsOneWidget);
+    expect(find.text('Total 8'), findsOneWidget);
     await tester.tap(find.text('Manche suivante'));
     expect(next, 1);
   });

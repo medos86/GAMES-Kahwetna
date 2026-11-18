@@ -23,7 +23,7 @@ import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/dialog_button.dart';
-import '../../widgets/result_dialog.dart';
+import '../../widgets/round_result_panel.dart';
 import '../../widgets/game_header.dart';
 import '../../widgets/card_flight.dart';
 import '../../widgets/card_motion.dart';

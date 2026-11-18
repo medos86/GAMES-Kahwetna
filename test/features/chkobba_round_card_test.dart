@@ -4,7 +4,7 @@ import 'package:kahwetne/features/chkobba/chkobba_screen.dart';
 import 'package:kahwetne/game/chkobba.dart';
 import 'package:kahwetne/game/common.dart';
 
-// Issue #295 : le récapitulatif de manche Chkobba est affiché via ResultDialog.
+// Issue #295 : le récapitulatif de manche Chkobba est affiché via RoundResultPanel (#526).
 ChkobbaState _state({Player? winner}) {
   return ChkobbaState(
     targetScore: 11,
@@ -47,9 +47,9 @@ void main() {
     expect(find.text('Manche 1'), findsOneWidget);
     expect(find.text('+2'), findsOneWidget);
     expect(find.text('+1'), findsOneWidget);
-    expect(find.text('4'), findsOneWidget);
-    expect(find.text('3'), findsOneWidget);
-    expect(find.text('Objectif : 11 points'), findsOneWidget);
+    expect(find.text('Total 4'), findsOneWidget);
+    expect(find.text('Total 3'), findsOneWidget);
+    expect(find.text('OBJECTIF 11 POINTS'), findsOneWidget);
   });
 
   testWidgets('Manche suivante déclenche onContinue', (tester) async {

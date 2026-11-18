@@ -28,6 +28,7 @@ import '../../widgets/resume_game.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../widgets/dialog_button.dart';
 import '../../widgets/result_dialog.dart';
+import '../../widgets/round_result_panel.dart';
 import '../../widgets/trophy_badge.dart';
 import '../../widgets/card_motion.dart';
 import '../../widgets/difficulty_chip.dart';
@@ -1012,37 +1013,22 @@ class _RamiScreenState extends State<RamiScreen>
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: ResultDialog(
+          child: RoundResultPanel(
             title: title,
-            children: [
-              Text(
-                badge,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: ComicPalette.ink,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.5,
+            badge: badge,
+            rows: [
+              for (var seat = 0; seat < 4; seat++)
+                RoundResultRow(
+                  name: _seatNames[seat],
+                  color: RoundResultColors.seat(seat),
+                  value: signedScore(result.penalties[seat]),
+                  total: '${g.scores[seat]}',
+                  reason: ramiSeatReason(
+                    isWinner: winner == seat,
+                    opened: g.opened[seat],
+                  ),
+                  highlight: winner == seat,
                 ),
-              ),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  for (var seat = 0; seat < 4; seat++)
-                    Expanded(
-                      child: ResultScoreBox(
-                        name: _seatNames[seat],
-                        value: signedScore(result.penalties[seat]),
-                        total: '${g.scores[seat]}',
-                        reason: ramiSeatReason(
-                          isWinner: winner == seat,
-                          opened: g.opened[seat],
-                        ),
-                        highlight: winner == seat,
-                      ),
-                    ),
-                ],
-              ),
             ],
             actions: [
               DialogButton(
