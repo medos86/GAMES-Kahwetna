@@ -12,6 +12,7 @@ class RamiActionButton extends StatelessWidget {
     this.primary = false,
     this.danger = false,
     this.enabled = true,
+    this.large = false,
   });
 
   final String label;
@@ -20,6 +21,8 @@ class RamiActionButton extends StatelessWidget {
   final bool primary;
   final bool danger;
   final bool enabled;
+  /// Grande cible tactile (>= 48 dp) pour la barre d'actions du tapis (#522).
+  final bool large;
 
   @override
   Widget build(BuildContext context) {
@@ -38,12 +41,16 @@ class RamiActionButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           onTap: enabled ? onTap : null,
           child: Container(
-            constraints: const BoxConstraints(minHeight: 30),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            constraints: BoxConstraints(minHeight: large ? 48 : 30),
+            padding: EdgeInsets.symmetric(
+              horizontal: large ? 10 : 8,
+              vertical: large ? 10 : 4,
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, size: 14, color: foreground),
+                Icon(icon, size: large ? 20 : 14, color: foreground),
                 const SizedBox(width: 4),
                 Text(
                   label,
@@ -51,7 +58,7 @@ class RamiActionButton extends StatelessWidget {
                     color: foreground,
                     fontFamily: 'Bangers',
                     letterSpacing: 0.4,
-                    fontSize: 12,
+                    fontSize: large ? 16 : 12,
                   ),
                 ),
               ],

@@ -377,6 +377,17 @@ class _RamiScreenState extends State<RamiScreen>
       ),
       child: Column(
         children: [
+          // Bouclier du seuil d'ouverture : en haut à droite du tapis, passif (#522).
+          Align(
+            alignment: Alignment.topRight,
+            child: RamiMinOpeningShield(
+              minimum: rules.minOpening(g),
+              label: tf(
+                'ramiMinOpen',
+                {'n': '${rules.minOpening(g)}'},
+              ),
+            ),
+          ),
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -408,20 +419,9 @@ class _RamiScreenState extends State<RamiScreen>
                   ),
                 ),
                 Expanded(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 6),
                     child: _contextActions(g),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 6),
-                  child: RamiMinOpeningShield(
-                    minimum: rules.minOpening(g),
-                    label: tf(
-                      'ramiMinOpen',
-                      {'n': '${rules.minOpening(g)}'},
-                    ),
                   ),
                 ),
               ],
@@ -438,14 +438,17 @@ class _RamiScreenState extends State<RamiScreen>
     final c = _c;
     if (!c.canPlay) return const SizedBox.shrink();
     if (c.selected.isEmpty && !c.canCancel) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(left: 10, bottom: 4),
-      child: Wrap(
-        alignment: WrapAlignment.start,
-        spacing: 4,
-        runSpacing: 4,
-        children: _actions(),
-      ),
+    // Boutons pleine largeur, zone tactile large (#522).
+    return Row(
+      children: [
+        for (final (i, button) in _actions().indexed)
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(left: i == 0 ? 0 : 6),
+              child: button,
+            ),
+          ),
+      ],
     );
   }
 
@@ -815,6 +818,7 @@ class _RamiScreenState extends State<RamiScreen>
       onTap: c.pose,
       enabled: c.selectionIsMeld,
       primary: true,
+      large: true,
     );
     final discard = RamiActionButton(
       label: Strings.actDiscard,
@@ -822,18 +826,21 @@ class _RamiScreenState extends State<RamiScreen>
       onTap: c.discardSelected,
       enabled: c.selected.length == 1,
       danger: true,
+      large: true,
     );
     final returnTaken = RamiActionButton(
       label: Strings.actReturnTaken,
       icon: Icons.undo,
       onTap: c.returnTaken,
       enabled: c.canReturnTaken,
+      large: true,
     );
     final cancel = RamiActionButton(
       label: Strings.actCancel,
       icon: Icons.close,
       onTap: c.cancel,
       enabled: c.canCancel,
+      large: true,
     );
     if (c.canCancel) return [pose, cancel, discard];
     if (c.canReturnTaken) return [pose, returnTaken, discard];
