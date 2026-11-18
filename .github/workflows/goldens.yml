@@ -28,6 +28,9 @@ jobs:
       - name: Générer les goldens
         run: flutter test --update-goldens test/widgets/comic_goldens_test.dart
 
+      - name: Générer les goldens pub (bannière, #479)
+        run: flutter test --update-goldens test/widgets/ad_banner_golden_test.dart
+
       - name: Versionner les goldens sur la branche
         run: |
           git config user.name "github-actions[bot]"
