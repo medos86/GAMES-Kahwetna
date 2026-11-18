@@ -32,7 +32,10 @@ Proposition :
 - **Consentement pub personnalisée** : affiché via UMP ; l'utilisateur n'est proposé pour la pub personnalisée que si le public retenu (13+) et le consentement le permettent.
 - **Point de bascule** : si la classification Google Play ou une revue montre un public enfant, passer en « tous âges » avec pubs non personnalisées (voir `lib/core/services/ad_audience.dart`).
 
-Alternative à arbitrer : une question simple du type « As-tu 13 ans ou plus ? » (oui / non). Elle est peu fiable, mais elle oriente le réglage de consentement.
+**Décision (18/11/2026) : contrôle par question « As-tu 13 ans ou plus ? » (oui / non) au premier lancement.**
+- Réponse « oui » : réglage 13+ (pubs personnalisées possibles après consentement UMP).
+- Réponse « non » : pubs non personnalisées (`AdAudience.allAges`).
+- Limite connue : une question déclarative n'est pas une vérification. Elle est peu fiable, et le seuil français (15 ans, art. 45 LIL) est plus élevé que 13. Cette décision doit être confirmée par le juriste (question 1 de la section 4).
 
 ## 3. Traçabilité du consentement
 
