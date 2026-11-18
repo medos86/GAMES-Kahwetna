@@ -95,4 +95,25 @@ void main() {
     expect(won.phase, RamiPhase.end);
     expect(won.roundResult?.winner, 0);
   });
+
+  test('annuler : les poses du tour reviennent en main', () {
+    final s = inPlay([
+      [
+        c(RamiSuit.epees, 7, 'a'),
+        c(RamiSuit.epees, 8, 'b'),
+        c(RamiSuit.epees, 9, 'c'),
+        c(RamiSuit.deniers, 2, 'x'),
+      ],
+      [c(RamiSuit.coupes, 2)],
+      [c(RamiSuit.coupes, 3)],
+      [c(RamiSuit.coupes, 4)],
+    ]);
+    final posed = poseMeld(s, ['a', 'b', 'c']);
+    expect(posed.table.length, 1);
+    final cancelled = cancelStaged(posed);
+    expect(cancelled.table, isEmpty);
+    expect(cancelled.staged, isEmpty);
+    expect(cancelled.hands[0].length, 4);
+    expect(identical(cancelStaged(s), s), isTrue);
+  });
 }

@@ -163,6 +163,9 @@ class RamiController extends PersistentGameController {
   bool get layEligible => canPlay && opened && _selected.length == 1;
 
   /// Vrai si la carte prise à la défausse est encore en main et qu'aucune pose n'a été faite.
+  /// Vrai si des poses de ce tour (avant ouverture) peuvent encore être annulées.
+  bool get canCancel => canPlay && _game.staged.isNotEmpty;
+
   bool get canReturnTaken {
     final taken = _game.takenId;
     return canPlay && taken != null && hand.any((card) => card.id == taken);
@@ -218,6 +221,9 @@ class RamiController extends PersistentGameController {
   /// Pose la sélection comme combinaison.
   void pose() =>
       _apply(rules.poseMeld(_game, List.of(_selected)), Strings.notAMeld);
+
+  /// Annule les poses du tour en cours : les cartes reviennent en main.
+  void cancel() => _apply(rules.cancelStaged(_game));
 
   void layOffCard(String cardId, String meldId) {
     if (!opened) {
