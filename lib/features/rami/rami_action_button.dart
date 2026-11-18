@@ -32,6 +32,7 @@ class RamiActionButton extends StatelessWidget {
             ? const Color(0xFFF2B74E)
             : Colors.white;
     final Color foreground = danger ? Colors.white : _ink;
+    final double vPad = large ? 10 : 4;
     return Opacity(
       opacity: enabled ? 1 : 0.4,
       child: Material(
@@ -42,10 +43,7 @@ class RamiActionButton extends StatelessWidget {
           onTap: enabled ? onTap : null,
           child: Container(
             constraints: BoxConstraints(minHeight: large ? 48 : 30),
-            padding: EdgeInsets.symmetric(
-              horizontal: large ? 10 : 8,
-              vertical: large ? 10 : 4,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: vPad),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
