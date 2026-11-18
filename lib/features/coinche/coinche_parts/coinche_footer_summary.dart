@@ -133,11 +133,14 @@ class _SummaryDialog extends StatelessWidget {
     final multiplier = summary.contract.multiplier > 1
         ? ' ×${summary.contract.multiplier}'
         : '';
-    // Équipe qui gagne la manche : celle du contrat si réussi, l'autre sinon (#526).
+    final suit = coincheSuitSymbol(summary.contract.mode);
+    final contract = '${summary.contract.value} $suit$multiplier';
     final contractTeam = teamOf(summary.contract.seat);
+    final subtitle = '$contract · ${_teamLabel[contractTeam]}';
+    // Manche gagnée : équipe du contrat si réussi, l'autre sinon (#526).
     final roundWinner = summary.made
         ? contractTeam
-        : Team.values.firstWhere((team) => team != contractTeam);
+        : Team.values.firstWhere((other) => other != contractTeam);
 
     return ColoredBox(
       color: Colors.black54,
@@ -147,8 +150,7 @@ class _SummaryDialog extends StatelessWidget {
           child: RoundResultPanel(
             title: title,
             badge: ended ? 'PARTIE TERMINÉE' : 'MANCHE ${match.round - 1}',
-            subtitle: '${summary.contract.value} ${coincheSuitSymbol(summary.contract.mode)}$multiplier'
-                ' · ${_teamLabel[teamOf(summary.contract.seat)]}',
+            subtitle: subtitle,
             rows: [
               for (final team in Team.values)
                 RoundResultRow(

@@ -16,11 +16,13 @@ abstract final class RoundResultColors {
   static Color seat(int index) => seats[index % seats.length];
 
   /// Encre ou blanc, selon celui qui contraste le plus avec [fill].
-  static Color textOn(Color fill) =>
-      contrastRatio(ComicPalette.ink, fill) >=
-              contrastRatio(ComicPalette.white, fill)
-          ? ComicPalette.ink
-          : ComicPalette.white;
+  static Color textOn(Color fill) {
+    final inkContrast = contrastRatio(ComicPalette.ink, fill);
+    final whiteContrast = contrastRatio(ComicPalette.white, fill);
+    return inkContrast >= whiteContrast
+        ? ComicPalette.ink
+        : ComicPalette.white;
+  }
 }
 
 /// Écran de fin de manche ou de partie, identique pour tous les jeux (issue #526).

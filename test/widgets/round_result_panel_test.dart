@@ -69,14 +69,12 @@ void main() {
     expect(RoundResultColors.seat(4), RoundResultColors.seat(0));
   });
 
-  test('RoundResultColors.textOn : encre sur le jaune, blanc sur le bleu', () {
+  test('textOn : encre sur jaune, blanc sur bleu', () {
     expect(RoundResultColors.textOn(ComicPalette.yellow), ComicPalette.ink);
     expect(RoundResultColors.textOn(ComicPalette.tunisBlue), Colors.white);
   });
 
-  testWidgets('RoundResultRow affiche nom, valeur, motif et total', (
-    tester,
-  ) async {
+  testWidgets('ligne : nom, valeur, motif et total', (tester) async {
     await tester.pumpWidget(
       _host(
         const RoundResultRow(
@@ -96,9 +94,7 @@ void main() {
     expect(find.text('T'), findsOneWidget); // initiale dans la pastille
   });
 
-  testWidgets('RoundResultRow sans total ni motif (classement Ludo)', (
-    tester,
-  ) async {
+  testWidgets('ligne sans total ni motif (Ludo)', (tester) async {
     await tester.pumpWidget(
       _host(
         const RoundResultRow(
@@ -115,9 +111,7 @@ void main() {
     expect(find.textContaining('Total'), findsNothing);
   });
 
-  testWidgets('RoundResultPanel : titre sur bande jaune, badge, lignes, action', (
-    tester,
-  ) async {
+  testWidgets('panneau : bande, badge, lignes et action', (tester) async {
     var taps = 0;
     await tester.pumpWidget(_host(_ramiLike(onTap: () => taps++)));
 
@@ -134,9 +128,7 @@ void main() {
     expect(taps, 1);
   });
 
-  testWidgets('RoundResultPanel : sous-titre affiché quand fourni', (
-    tester,
-  ) async {
+  testWidgets('panneau : sous-titre affiché', (tester) async {
     await tester.pumpWidget(
       _host(
         const RoundResultPanel(
@@ -153,9 +145,7 @@ void main() {
     expect(find.text('PARTIE TERMINÉE'), findsOneWidget);
   });
 
-  testWidgets('RoundResultPanel tient sur un écran de 320 px sans débordement', (
-    tester,
-  ) async {
+  testWidgets('panneau tient sur 320 px sans débordement', (tester) async {
     tester.view.physicalSize = const Size(320, 640);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -163,7 +153,7 @@ void main() {
 
     await tester.pumpWidget(_host(_ramiLike()));
 
-    // Un débordement ferait échouer le test (FlutterError) : rien à vérifier de plus.
+    // Un débordement lèverait une FlutterError : rien d'autre à vérifier.
     expect(tester.takeException(), isNull);
     expect(find.text('+100'), findsNWidgets(2));
   });
