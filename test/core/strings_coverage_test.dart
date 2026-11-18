@@ -11,6 +11,12 @@ void main() {
     expect(Strings.menuBack, isNotEmpty);
     expect(Strings.menuToggleSound, isNotEmpty);
     expect(Strings.menuOpenSettings, isNotEmpty);
+    expect(Strings.menuPrivacy, isNotEmpty);
+    expect(Strings.privacyTitle, isNotEmpty);
+    expect(Strings.privacyBody, isNotEmpty);
+    expect(Strings.privacyAccept, isNotEmpty);
+    expect(Strings.privacyRefuse, isNotEmpty);
+    expect(Strings.privacyWithdraw, isNotEmpty);
     expect(Strings.menuTagline, isNotEmpty);
     expect(Strings.menuChooseTable, isNotEmpty);
     expect(Strings.menuStart, isNotEmpty);

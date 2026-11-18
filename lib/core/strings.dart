@@ -16,6 +16,12 @@ abstract final class Strings {
   static String get menuBack => t('menuBack');
   static String get menuToggleSound => t('menuToggleSound');
   static String get menuOpenSettings => t('menuOpenSettings');
+  static String get menuPrivacy => t('menuPrivacy');
+  static String get privacyTitle => t('privacyTitle');
+  static String get privacyBody => t('privacyBody');
+  static String get privacyAccept => t('privacyAccept');
+  static String get privacyRefuse => t('privacyRefuse');
+  static String get privacyWithdraw => t('privacyWithdraw');
   static String get menuTagline => t('menuTagline');
   static String get menuChooseTable => t('menuChooseTable');
   static String get menuStart => t('menuStart');

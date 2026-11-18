@@ -44,6 +44,13 @@ class _Header extends StatelessWidget {
             const SizedBox(width: 8),
             _GlassButton(
               square: true,
+              onTap: () => _showPrivacyDialog(context),
+              semanticLabel: Strings.menuPrivacy,
+              child: const Icon(Icons.privacy_tip_outlined, size: 20),
+            ),
+            const SizedBox(width: 8),
+            _GlassButton(
+              square: true,
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
               ),
@@ -55,6 +62,41 @@ class _Header extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Dialogue « Confidentialité » : accorder, refuser ou retirer le consentement (#466).
+Future<void> _showPrivacyDialog(BuildContext context) {
+  final consent = ConsentService.instance;
+  return showDialog<void>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(Strings.privacyTitle),
+      content: Text(Strings.privacyBody),
+      actions: [
+        TextButton(
+          onPressed: () async {
+            await consent.withdraw();
+            if (dialogContext.mounted) Navigator.of(dialogContext).pop();
+          },
+          child: Text(Strings.privacyWithdraw),
+        ),
+        TextButton(
+          onPressed: () async {
+            await consent.deny();
+            if (dialogContext.mounted) Navigator.of(dialogContext).pop();
+          },
+          child: Text(Strings.privacyRefuse),
+        ),
+        FilledButton(
+          onPressed: () async {
+            await consent.grant();
+            if (dialogContext.mounted) Navigator.of(dialogContext).pop();
+          },
+          child: Text(Strings.privacyAccept),
+        ),
+      ],
+    ),
+  );
 }
 
 /// Bouton « verre dépoli » (fond sombre translucide, bordure blanche).
