@@ -13,7 +13,8 @@ const Map<String, String> frTexts = {
   'menuOpenSettings': 'Ouvrir les paramètres',
   'menuPrivacy': 'Confidentialité des pubs',
   'privacyTitle': 'Pubs personnalisées',
-  'privacyBody': 'Acceptez-vous les publicités personnalisées ? Vous pouvez changer d’avis à tout moment.',
+  'privacyBody':
+      'Acceptez-vous les publicités personnalisées ? Vous pouvez changer d’avis à tout moment.',
   'privacyAccept': 'Accepter',
   'privacyRefuse': 'Refuser',
   'privacyWithdraw': 'Retirer mon choix',
