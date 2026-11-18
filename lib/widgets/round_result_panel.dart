@@ -19,9 +19,7 @@ abstract final class RoundResultColors {
   static Color textOn(Color fill) {
     final inkContrast = contrastRatio(ComicPalette.ink, fill);
     final whiteContrast = contrastRatio(ComicPalette.white, fill);
-    return inkContrast >= whiteContrast
-        ? ComicPalette.ink
-        : ComicPalette.white;
+    return inkContrast >= whiteContrast ? ComicPalette.ink : ComicPalette.white;
   }
 }
 
