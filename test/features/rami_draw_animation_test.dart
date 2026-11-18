@@ -129,10 +129,14 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 60));
-    final during = find.byType(RamiCardView).evaluate().length;
+    // Les cartes volent en dos (adversaires) ou de face (moi) : on compte les deux.
+    final flying = find.byWidgetPredicate(
+      (w) => w is RamiCardView || w is RamiBackView,
+    );
+    final during = flying.evaluate().length;
     await tester.pump(const Duration(seconds: 3));
     expect(tester.takeException(), isNull);
-    final settled = find.byType(RamiCardView).evaluate().length;
+    final settled = flying.evaluate().length;
     // Pendant la donne, des copies volent en plus des cartes déjà posées.
     expect(during, greaterThan(settled));
     await tester.pumpWidget(const SizedBox());

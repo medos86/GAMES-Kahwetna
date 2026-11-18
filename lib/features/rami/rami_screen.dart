@@ -548,6 +548,7 @@ class _RamiScreenState extends State<RamiScreen>
 
   static const _flightStagger = Duration(milliseconds: 40);
   static const _dealStep = Duration(milliseconds: 90);
+  static const _seatStagger = Duration(milliseconds: 30);
   bool _ready = false;
   bool _restored = false;
   bool _dealPending = false;
@@ -697,8 +698,10 @@ class _RamiScreenState extends State<RamiScreen>
     }
     final flights = <CardFlight>[];
     for (var k = 0; k < rounds; k++) {
-      for (final seat in ramiDealSeatOrder) {
-        final delay = _dealStep * flights.length;
+      for (var i = 0; i < ramiDealSeatOrder.length; i++) {
+        final seat = ramiDealSeatOrder[i];
+        // Un tour par carte, et dans le tour un décalage court : droite, haut, gauche, moi.
+        final delay = _dealStep * k + _seatStagger * i;
         if (seat == 0) {
           if (k >= mine.length) continue;
           final card = mine[k];
