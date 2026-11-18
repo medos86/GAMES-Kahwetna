@@ -47,4 +47,30 @@ void main() {
     final corner = tester.getBottomRight(find.byKey(const Key('corner')));
     expect(tester.getBottomRight(shield), corner);
   });
+
+  testWidgets('au toucher, libellé à gauche du bouclier', (tester) async {
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Align(
+          alignment: Alignment.bottomRight,
+          child: RamiMinOpeningShield(
+            minimum: 67,
+            label: 'Ouverture min. 67',
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.byKey(const Key('ramiMinOpeningShield')));
+    await tester.pump();
+    final label = find.byKey(const Key('ramiMinOpeningLabel'));
+    expect(label, findsOneWidget);
+    final shield = tester.getRect(
+      find.byKey(const Key('ramiMinOpeningShield')),
+    );
+    final text = tester.getRect(label);
+    expect(text.right, lessThanOrEqualTo(shield.left));
+    expect(text.top, greaterThanOrEqualTo(0));
+    expect(text.bottom, lessThanOrEqualTo(shield.bottom));
+  });
 }
