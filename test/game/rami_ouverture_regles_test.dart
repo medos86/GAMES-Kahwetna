@@ -2,8 +2,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/game/rami.dart';
 
-RamiCard c(RamiSuit suit, int rank, String id) =>
-    RamiCard(id: id, suit: suit, rank: rank);
+RamiCard c(RamiSuit suit, int rank, [String? id]) =>
+    RamiCard(id: id ?? '${suit.name}-$rank', suit: suit, rank: rank);
 
 const joker = RamiCard(id: 'joker', suit: null, rank: 0);
 
