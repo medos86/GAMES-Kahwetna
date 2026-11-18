@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/services/ad_free_service.dart';
+import '../../core/services/interstitial_service.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
 import '../../core/theme/game_style.dart';
@@ -73,6 +74,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
               : null),
     );
     _snapshotCaptures();
+    // Issue #471 : l'interstitiel entre deux parties est préchargé.
+    InterstitialService.instance.preload();
     _controller.addListener(_onChanged);
     _controller.restore().then((_) {
       _snapshotCaptures();
@@ -169,12 +172,21 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
   /// Tout mouvement de carte : cartes jouées, captures, donne (#238).
   /// Une capture se lit en deux temps : la carte se pose sur le tapis,
   /// puis la carte et les cartes prises rejoignent le tas du gagnant.
+  bool _endNotified = false;
+
   void _onChanged() {
     final game = _controller.game;
     if (identical(game, _lastGame)) return;
     if (!_ready) {
       _restored = true;
       return;
+    }
+    // Issue #471 : une partie terminée déclenche la politique d'interstitiel, une fois.
+    if (game.winner == null) {
+      _endNotified = false;
+    } else if (!_endNotified) {
+      _endNotified = true;
+      unawaited(InterstitialService.instance.onGameFinished());
     }
     final beforeTable = _lastTable;
     final beforeWon = _lastWon;

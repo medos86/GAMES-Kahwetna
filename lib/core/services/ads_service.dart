@@ -31,6 +31,23 @@ class AdUnitIds {
     return platform == TargetPlatform.iOS ? _testBannerIos : _testBannerAndroid;
   }
 
+  static const String _testInterstitialAndroid =
+      'ca-app-pub-3940256099942544/1033173712';
+  static const String _testInterstitialIos =
+      'ca-app-pub-3940256099942544/4411468910';
+
+  /// Identifiant d'interstitiel entre deux parties (issue #471).
+  static String interstitial(TargetPlatform platform) {
+    if (!useTestIds) {
+      throw StateError(
+        'Identifiants de production non configurés (voir #466).',
+      );
+    }
+    return platform == TargetPlatform.iOS
+        ? _testInterstitialIos
+        : _testInterstitialAndroid;
+  }
+
   /// Identifiant de vidéo récompensée pour la plateforme donnée (issue #470).
   static String rewarded(TargetPlatform platform) {
     if (!useTestIds) {
