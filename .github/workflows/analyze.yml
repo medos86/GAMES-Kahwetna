@@ -33,6 +33,16 @@ jobs:
         # Les infos (ex. dépréciations de material.dart) ne bloquent pas : seules les erreurs et avertissements comptent.
         run: flutter analyze --no-fatal-infos
 
+      - name: Tests publicité (politique, consentement, public, bannière)
+        # Garde-fou explicite des PR pub (#479) : ces tests tournent aussi dans la suite complète ci-dessous.
+        run: |
+          flutter test \
+            test/core/ad_policy_test.dart \
+            test/core/ad_consent_test.dart \
+            test/core/ad_audience_test.dart \
+            test/core/interstitial_service_test.dart \
+            test/widgets/ad_banner_test.dart
+
       - name: Tests unitaires (avec couverture)
         run: flutter test --coverage
 
