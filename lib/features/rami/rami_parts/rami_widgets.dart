@@ -94,7 +94,6 @@ class _MeldView extends StatelessWidget {
     required this.cardWidth,
     this.hot = false,
     this.eligible = false,
-    this.staged = false,
     this.onTap,
   });
 
@@ -102,7 +101,6 @@ class _MeldView extends StatelessWidget {
   final double cardWidth;
   final bool hot;
   final bool eligible;
-  final bool staged;
   final VoidCallback? onTap;
 
   @override
@@ -110,11 +108,7 @@ class _MeldView extends StatelessWidget {
     final step = cardWidth * ramiMeldStepRatio;
     final width = cardWidth + step * (cards.length - 1);
     final height = cardWidth * 1.4;
-    final Color border = hot || eligible
-        ? _goldColor
-        : staged
-            ? _goldColor.withValues(alpha: 0.8)
-            : Colors.white24;
+    final Color border = hot || eligible ? _goldColor : Colors.white24;
 
     return GestureDetector(
       onTap: onTap,

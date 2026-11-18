@@ -173,7 +173,7 @@ void main() {
   });
 
   group('ouverture', () {
-    test('ouverture sous 51 points refusée (retour identique)', () {
+    test('pose sous 51 points : cartes sur la table, joueur non ouvert', () {
       var s = inPlay(
         fixedDeal(),
         hands: [
@@ -190,10 +190,11 @@ void main() {
       );
       s = poseMeld(s, ['a', 'b', 'c']);
       expect(s.staged.length, 1);
-      expect(identical(commitOpening(s), s), isTrue);
+      expect(s.table.length, 1);
+      expect(s.opened[0], isFalse);
     });
 
-    test('annuler remet les cartes en main', () {
+    test('pose sous le seuil : cartes sur la table, pas de retour en main', () {
       final before = inPlay(
         fixedDeal(),
         hands: [
@@ -209,9 +210,8 @@ void main() {
         ],
       );
       final staged = poseMeld(before, ['a', 'b', 'c']);
-      final restored = cancelStaged(staged);
-      expect(restored.staged, isEmpty);
-      expect(restored.hands[0].length, 4);
+      expect(staged.table.length, 1);
+      expect(staged.hands[0].length, 1);
     });
   });
 
@@ -252,27 +252,25 @@ void main() {
       final s = inPlay(
         fixedDeal(),
         hands: [
-          [c(RamiSuit.batons, 2, 'z')],
-          [c(RamiSuit.coupes, 2)],
-          [c(RamiSuit.coupes, 3)],
-          [c(RamiSuit.coupes, 4)],
-        ],
-      ).copyWith(
-        staged: [
           [
             c(RamiSuit.epees, 13, 'k1'),
             c(RamiSuit.coupes, 13, 'k2'),
             c(RamiSuit.batons, 13, 'k3'),
-          ],
-          [
             c(RamiSuit.epees, 12, 'q1'),
             c(RamiSuit.coupes, 12, 'q2'),
-            c(RamiSuit.deniers, 1, 'a1'),
+            c(RamiSuit.deniers, 12, 'q3'),
+            c(RamiSuit.deniers, 2, 'z'),
           ],
+          [c(RamiSuit.coupes, 2)],
+          [c(RamiSuit.coupes, 3)],
+          [c(RamiSuit.coupes, 4)],
         ],
       );
-      final next = commitOpening(s);
-      expect(next.openings, [51, 0, 0, 0]);
+      final next = poseMeld(
+        poseMeld(s, ['k1', 'k2', 'k3']),
+        ['q1', 'q2', 'q3'],
+      );
+      expect(next.openings, [60, 0, 0, 0]);
       expect(next.opened[0], isTrue);
     });
 
@@ -355,7 +353,10 @@ void main() {
         );
 
     test('brelan dame dame joker : une dame posée ne reprend pas le joker', () {
-      final s = withSet([c(RamiSuit.epees, 12, 'd3')]);
+      final s = withSet([
+        c(RamiSuit.epees, 12, 'd3'),
+        c(RamiSuit.deniers, 2, 'x'),
+      ]);
       final next = takeJoker(s, 'd3', 'm1');
       expect(identical(next, s), isTrue);
       final laid = layOff(s, 'd3', 'm1');

@@ -149,9 +149,6 @@ class RamiController extends PersistentGameController {
   int get readyPoints =>
       groups.fold(0, (sum, group) => sum + rules.pointsOf(group));
 
-  int get stagedPoints =>
-      _game.staged.fold(0, (sum, cards) => sum + rules.pointsOf(cards));
-
   /// Seuil de l'ouverture en cours : 51, puis strictement plus que la précédente.
   int get openMinimum => rules.minOpening(_game);
 
@@ -168,10 +165,7 @@ class RamiController extends PersistentGameController {
   /// Vrai si la carte prise à la défausse est encore en main et qu'aucune pose n'a été faite.
   bool get canReturnTaken {
     final taken = _game.takenId;
-    return canPlay &&
-        _game.staged.isEmpty &&
-        taken != null &&
-        hand.any((card) => card.id == taken);
+    return canPlay && taken != null && hand.any((card) => card.id == taken);
   }
 
   /// Paquet à poser pour une carte glissée : la sélection si elle est valide, sinon le paquet voisin.
@@ -225,14 +219,6 @@ class RamiController extends PersistentGameController {
   void pose() =>
       _apply(rules.poseMeld(_game, List.of(_selected)), Strings.notAMeld);
 
-  /// Valide l'ouverture (seuil : voir openMinimum).
-  void commit() => _apply(
-        rules.commitOpening(_game),
-        'Il faut au moins $openMinimum points pour ouvrir',
-      );
-
-  void cancel() => _apply(rules.cancelStaged(_game));
-
   void layOffCard(String cardId, String meldId) {
     if (!opened) {
       onMessage?.call("Ouvre d'abord avec $openMinimum points");
@@ -255,10 +241,6 @@ class RamiController extends PersistentGameController {
   }
 
   void discardOne(String cardId) {
-    if (_game.staged.isNotEmpty) {
-      onMessage?.call(Strings.ramiFinishOrCancel);
-      return;
-    }
     // Carte prise non posée (ou la carte prise elle-même) : la défausse est bloquée.
     final failure = _game.takenId != null
         ? Strings.ramiCannotDiscardTaken

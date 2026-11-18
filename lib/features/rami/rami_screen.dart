@@ -372,7 +372,6 @@ class _RamiScreenState extends State<RamiScreen>
               builder: (context, constraints) {
                 final sizes = [
                   for (final meld in g.table) meld.cards.length,
-                  for (final cards in g.staged) cards.length,
                 ];
                 // Zoom adaptatif : les cartes du tapis rétrécissent pour que tous les paquets tiennent.
                 final meldWidth = ramiTableCardWidth(
@@ -424,19 +423,18 @@ class _RamiScreenState extends State<RamiScreen>
   }
 
   /// Boutons d'action affichés sur la table seulement quand ils servent :
-  /// valider/annuler pendant une pose en cours, poser/défausser quand des cartes sont sélectionnées.
+  /// poser/défausser/reprendre quand des cartes sont sélectionnées.
   Widget _contextActions(rules.RamiState g) {
     final c = _c;
     if (!c.canPlay) return const SizedBox.shrink();
-    final staged = g.staged.isNotEmpty;
-    if (!staged && c.selected.isEmpty) return const SizedBox.shrink();
+    if (c.selected.isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(left: 10, bottom: 4),
       child: Wrap(
         alignment: WrapAlignment.start,
         spacing: 4,
         runSpacing: 4,
-        children: _actions(staged),
+        children: _actions(),
       ),
     );
   }
@@ -569,16 +567,6 @@ class _RamiScreenState extends State<RamiScreen>
             ? null
             : Rect.fromLTWH(r.left, r.top, from.width, from.height);
       }
-    }
-    if (g.staged.any((group) => group.any((card) => card.id == id))) {
-      final r = _rectOf(_key('table'));
-      return r == null
-          ? null
-          : Rect.fromCenter(
-              center: r.center,
-              width: from.width,
-              height: from.height,
-            );
     }
     return null;
   }
@@ -749,12 +737,9 @@ class _RamiScreenState extends State<RamiScreen>
             onTap: c.layEligible ? () => c.layOffSelected(meld.id) : null,
           ),
         ),
-      for (final cards in g.staged)
-        _MeldView(cards: cards, cardWidth: meldWidth, staged: true),
     ];
     final sizes = [
       for (final meld in g.table) meld.cards.length,
-      for (final cards in g.staged) cards.length,
     ];
     final rowOf = ramiPackMelds(sizes, meldWidth, areaWidth) ??
         List<int>.generate(sizes.length, (i) => i);
@@ -779,7 +764,7 @@ class _RamiScreenState extends State<RamiScreen>
           spacing: 3,
           runSpacing: 3,
           children: [
-            if (g.table.isEmpty && g.staged.isEmpty)
+            if (g.table.isEmpty)
               SizedBox(
                 width: double.infinity,
                 child: Text(
@@ -812,20 +797,20 @@ class _RamiScreenState extends State<RamiScreen>
     );
   }
 
-  List<Widget> _actions(bool staged) {
+  List<Widget> _actions() {
     final c = _c;
     final pose = RamiActionButton(
       label: Strings.actPose,
       icon: Icons.check,
       onTap: c.pose,
       enabled: c.selectionIsMeld,
-      primary: !staged,
+      primary: true,
     );
     final discard = RamiActionButton(
       label: Strings.actDiscard,
       icon: Icons.south,
       onTap: c.discardSelected,
-      enabled: c.selected.length == 1 && !staged,
+      enabled: c.selected.length == 1,
       danger: true,
     );
     final returnTaken = RamiActionButton(
@@ -834,27 +819,8 @@ class _RamiScreenState extends State<RamiScreen>
       onTap: c.returnTaken,
       enabled: c.canReturnTaken,
     );
-    if (!staged && c.canReturnTaken) return [pose, returnTaken, discard];
-    if (!staged) return [pose, discard];
-    return [
-      RamiActionButton(
-        label: tf('validate', {
-          'cur': '${c.stagedPoints}',
-          'min': '${c.openMinimum}',
-        }),
-        icon: Icons.done_all,
-        onTap: c.commit,
-        enabled: c.stagedPoints >= c.openMinimum,
-        primary: true,
-      ),
-      pose,
-      RamiActionButton(
-        label: Strings.actCancel,
-        icon: Icons.close,
-        onTap: c.cancel,
-      ),
-      discard,
-    ];
+    if (c.canReturnTaken) return [pose, returnTaken, discard];
+    return [pose, discard];
   }
 
   /// Main du joueur (#141) : les cartes se chevauchent. La carte sélectionnée ou déplacée
