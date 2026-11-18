@@ -35,6 +35,7 @@ import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
 import 'rami_action_button.dart';
 import 'rami_turn_banner.dart';
+import 'rami_scores_overlay.dart';
 
 part 'rami_parts/rami_constants.dart';
 part 'rami_parts/rami_gestures.dart';
@@ -158,6 +159,7 @@ class _RamiScreenState extends State<RamiScreen>
   }
 
   void _onPointerDown(PointerDownEvent event, String id) {
+    _closeScores();
     if (_press != null) return;
     _press = _Press(id, event.position);
   }
@@ -240,9 +242,7 @@ class _RamiScreenState extends State<RamiScreen>
                     children: [
                       _header(g),
                       const SizedBox(height: 6),
-                      _scores(g),
-                      const SizedBox(height: 6),
-                      Expanded(child: _tableSection(handWidth, g)),
+                      Expanded(child: _tableWithScores(handWidth, g)),
                       const SizedBox(height: 6),
                       _footer(handWidth, g),
                     ],
@@ -347,6 +347,65 @@ class _RamiScreenState extends State<RamiScreen>
         ],
       ),
     );
+  }
+
+  /// Scores cachés par défaut : un onglet en haut du tapis ouvre le panneau superposé (#528).
+  /// Le tapis garde toute sa taille quand le panneau est ouvert.
+  bool _scoresOpen = false;
+
+  Widget _tableWithScores(double handWidth, rules.RamiState g) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned.fill(child: _tableSection(handWidth, g)),
+        // Toucher le tapis hors du panneau le referme (sans jouer le coup).
+        if (_scoresOpen)
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _closeScores,
+              child: const ColoredBox(color: Colors.black26),
+            ),
+          ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: RamiScoresTab(
+              key: _key('scoretab'),
+              open: _scoresOpen,
+              myScore: g.scores[0],
+              onTap: () => setState(() => _scoresOpen = true),
+            ),
+          ),
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: RamiScoresPanel(
+            open: _scoresOpen,
+            onClose: _closeScores,
+            child: _scores(g),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Ferme le panneau dès que le joueur agit (carte, pioche, nouvelle manche) (#528).
+  void _closeScores() {
+    if (_scoresOpen) setState(() => _scoresOpen = false);
+  }
+
+  /// Case d'un siège pour les vols : sa place dans le panneau s'il est ouvert, sinon l'onglet.
+  Rect? _seatRect(int seat) {
+    if (_scoresOpen) {
+      final chip = _seatRect(seat);
+      if (chip != null) return chip;
+    }
+    return _rectOf(_key('scoretab'));
   }
 
   Widget _scores(rules.RamiState g) {
@@ -476,6 +535,7 @@ class _RamiScreenState extends State<RamiScreen>
 
   /// Lance une action qui donne une nouvelle manche : la distribution est animée.
   void _deal(VoidCallback action) {
+    _closeScores();
     _dealPending = true;
     action();
     _dealPending = false;
@@ -507,7 +567,7 @@ class _RamiScreenState extends State<RamiScreen>
   /// Coups des adversaires (#316) : pioche et défausse volent depuis / vers leur place.
   void _flyAiMoves(rules.RamiState prev, rules.RamiState next) {
     final seat = prev.turn;
-    final chip = _rectOf(_key('seat:$seat'));
+    final chip = _seatRect(seat);
     final pile = _rectOf(_key('discard'));
     if (chip == null || pile == null) return;
     final flights = <CardFlight>[];
@@ -643,6 +703,7 @@ class _RamiScreenState extends State<RamiScreen>
   }
 
   void _drawFromStock(double width) {
+    _closeScores();
     final from = _rectOf(_key('stock'));
     final before = {for (final card in _c.hand) card.id};
     _c.drawFromStock();
@@ -720,7 +781,12 @@ class _RamiScreenState extends State<RamiScreen>
                       ),
                     )
                   : GestureDetector(
-                      onTap: c.canDraw && !covered ? c.drawFromDiscard : null,
+                      onTap: c.canDraw && !covered
+                          ? () {
+                              _closeScores();
+                              c.drawFromDiscard();
+                            }
+                          : null,
                       child: RamiCardView(card: shown, width: width),
                     ),
             ),
