@@ -31,7 +31,7 @@ import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../widgets/dialog_button.dart';
-import '../../widgets/result_dialog.dart';
+import '../../widgets/round_result_panel.dart';
 
 part 'domino_parts/domino_header_score.dart';
 part 'domino_parts/domino_table.dart';

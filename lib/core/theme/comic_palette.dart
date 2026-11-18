@@ -14,6 +14,8 @@ abstract final class ComicPalette {
   static const Color tunisBlue = Color(0xFF1676D2);
   static const Color gold = Color(0xFFFFE16B);
   static const Color goldInk = Color(0xFF3D351F);
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color seatGreen = Color(0xFF2E9E5B);
 
   /// Trame de points (alpha 15 %).
   static const Color halftone = Color(0x26000000);

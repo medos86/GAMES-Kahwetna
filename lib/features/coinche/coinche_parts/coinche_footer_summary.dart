@@ -133,85 +133,34 @@ class _SummaryDialog extends StatelessWidget {
     final multiplier = summary.contract.multiplier > 1
         ? ' ×${summary.contract.multiplier}'
         : '';
+    final suit = coincheSuitSymbol(summary.contract.mode);
+    final contract = '${summary.contract.value} $suit$multiplier';
+    final contractTeam = teamOf(summary.contract.seat);
+    final subtitle = '$contract · ${_teamLabel[contractTeam]}';
+    // Manche gagnée : équipe du contrat si réussi, l'autre sinon (#526).
+    final roundWinner = summary.made
+        ? contractTeam
+        : Team.values.firstWhere((other) => other != contractTeam);
 
     return ColoredBox(
       color: Colors.black54,
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: ResultDialog(
+          child: RoundResultPanel(
             title: title,
-            children: [
-              Text(
-                ended ? 'PARTIE TERMINÉE' : 'MANCHE ${match.round - 1}',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: ComicPalette.ink,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.5,
+            badge: ended ? 'PARTIE TERMINÉE' : 'MANCHE ${match.round - 1}',
+            subtitle: subtitle,
+            rows: [
+              for (final team in Team.values)
+                RoundResultRow(
+                  name: _teamLabel[team]!,
+                  color: RoundResultColors.seat(team.index),
+                  value: '+${summary.awarded[team]}',
+                  reason: 'Cartes ${summary.points[team]}',
+                  total: '${match.scores[team]}',
+                  highlight: team == roundWinner,
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${summary.contract.value} ${coincheSuitSymbol(summary.contract.mode)}$multiplier'
-                ' · ${_teamLabel[teamOf(summary.contract.seat)]}',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: ComicPalette.ink,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  for (final team in Team.values)
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: ComicPalette.paper,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: ComicPalette.ink, width: 3),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              _teamLabel[team]!.toUpperCase(),
-                              style: const TextStyle(
-                                color: ComicPalette.ink,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            Text(
-                              '+${summary.awarded[team]}',
-                              style: const TextStyle(
-                                color: ComicPalette.ink,
-                                fontFamily: 'Bangers',
-                                fontSize: 28,
-                              ),
-                            ),
-                            Text(
-                              'Cartes ${summary.points[team]}',
-                              style: const TextStyle(
-                                color: ComicPalette.ink,
-                                fontSize: 11,
-                              ),
-                            ),
-                            Text(
-                              'Total ${match.scores[team]}',
-                              style: const TextStyle(
-                                color: ComicPalette.ink,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
             ],
             actions: [
               if (ended) ...[
