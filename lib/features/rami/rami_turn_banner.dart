@@ -23,9 +23,8 @@ class RamiTurnBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = myTurn
-        ? Strings.ramiYourTurn
-        : tf('ramiOtherTurn', {'n': otherName});
+    final label =
+        myTurn ? Strings.ramiYourTurn : tf('ramiOtherTurn', {'n': otherName});
     return Semantics(
       liveRegion: true,
       label: label,
