@@ -445,7 +445,7 @@ class _RamiScreenState extends State<RamiScreen>
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(left: i == 0 ? 0 : 6),
-              child: button,
+              child: SizedBox(height: 48, child: button),
             ),
           ),
       ],
@@ -818,7 +818,6 @@ class _RamiScreenState extends State<RamiScreen>
       onTap: c.pose,
       enabled: c.selectionIsMeld,
       primary: true,
-      large: true,
     );
     final discard = RamiActionButton(
       label: Strings.actDiscard,
@@ -826,21 +825,18 @@ class _RamiScreenState extends State<RamiScreen>
       onTap: c.discardSelected,
       enabled: c.selected.length == 1,
       danger: true,
-      large: true,
     );
     final returnTaken = RamiActionButton(
       label: Strings.actReturnTaken,
       icon: Icons.undo,
       onTap: c.returnTaken,
       enabled: c.canReturnTaken,
-      large: true,
     );
     final cancel = RamiActionButton(
       label: Strings.actCancel,
       icon: Icons.close,
       onTap: c.cancel,
       enabled: c.canCancel,
-      large: true,
     );
     if (c.canCancel) return [pose, cancel, discard];
     if (c.canReturnTaken) return [pose, returnTaken, discard];
