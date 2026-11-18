@@ -3,17 +3,17 @@ import 'package:kahwetne/core/services/ad_audience.dart';
 import 'package:kahwetne/core/services/ad_consent.dart';
 
 void main() {
-  test('public 13+ par défaut', () {
+  test('tous âges par défaut', () {
     expect(AdAudienceRules.current.audience, AdAudience.allAges);
   });
 
   test('13+ avec consentement accordé : pubs personnalisées permises', () {
-    const rules = AdAudienceRules();
+    const rules = AdAudienceRules(audience: AdAudience.thirteenPlus);
     expect(rules.allowPersonalizedAds(AdConsentState.granted), isTrue);
   });
 
   test('13+ sans consentement accordé : pas de pubs personnalisées', () {
-    const rules = AdAudienceRules();
+    const rules = AdAudienceRules(audience: AdAudience.thirteenPlus);
     expect(rules.allowPersonalizedAds(AdConsentState.denied), isFalse);
     expect(rules.allowPersonalizedAds(AdConsentState.notRequested), isFalse);
   });
