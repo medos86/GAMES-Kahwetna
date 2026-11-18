@@ -675,7 +675,7 @@ class _RamiScreenState extends State<RamiScreen>
 
   /// Place d'un adversaire pour un dos de carte (centre de son bloc, taille de la carte).
   Rect? _seatTarget(int seat, Rect from) {
-    final chip = _rectOf(_key('seat:$seat'));
+    final chip = _seatRect(seat);
     if (chip == null) return null;
     return Rect.fromCenter(
       center: chip.center,
