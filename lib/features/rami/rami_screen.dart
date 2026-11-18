@@ -35,6 +35,7 @@ import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
 import 'rami_action_button.dart';
 import 'rami_scores_overlay.dart';
+import 'rami_seat_badge.dart';
 
 part 'rami_parts/rami_constants.dart';
 part 'rami_parts/rami_gestures.dart';
@@ -357,6 +358,40 @@ class _RamiScreenState extends State<RamiScreen>
       clipBehavior: Clip.none,
       children: [
         Positioned.fill(child: _tableSection(handWidth, g)),
+        // Badges des adversaires sur le bord du tapis : droite, haut, gauche (#532).
+        Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: RamiSeatBadge(
+              key: _key('dest:1'),
+              name: _seatNames[1],
+              cards: g.hands[1].length,
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: RamiSeatBadge(
+              key: _key('dest:2'),
+              name: _seatNames[2],
+              cards: g.hands[2].length,
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: RamiSeatBadge(
+              key: _key('dest:3'),
+              name: _seatNames[3],
+              cards: g.hands[3].length,
+            ),
+          ),
+        ),
         // Toucher le tapis hors du panneau le referme (sans jouer le coup).
         if (_scoresOpen)
           Positioned.fill(
@@ -402,13 +437,9 @@ class _RamiScreenState extends State<RamiScreen>
     if (_scoresOpen) setState(() => _scoresOpen = false);
   }
 
-  /// Case d'un siège pour les vols : sa place dans le panneau s'il est ouvert, sinon l'onglet.
+  /// Case d'un siège pour les vols : son badge sur le bord du tapis, sinon l'onglet des scores (#532).
   Rect? _seatRect(int seat) {
-    if (_scoresOpen) {
-      final chip = _seatRect(seat);
-      if (chip != null) return chip;
-    }
-    return _rectOf(_key('scoretab'));
+    return _rectOf(_key('dest:$seat')) ?? _rectOf(_key('scoretab'));
   }
 
   Widget _scores(rules.RamiState g) {
@@ -658,7 +689,7 @@ class _RamiScreenState extends State<RamiScreen>
     final from = _rectOf(_key('stock'));
     if (from == null) return;
     final g = _c.game;
-    // Tour de table : à chaque tour, une carte pour chaque siège, comme une vraie donne.
+    // Tour de table : chaque carte part vers sa place, dans l'ordre droite, haut, gauche, moi (#532).
     final mine = _c.hand;
     var rounds = mine.length;
     for (var seat = 1; seat < 4; seat++) {
@@ -666,32 +697,34 @@ class _RamiScreenState extends State<RamiScreen>
     }
     final flights = <CardFlight>[];
     for (var k = 0; k < rounds; k++) {
-      final delay = _dealStep * k;
-      if (k < mine.length) {
-        final card = mine[k];
-        flights.add(
-          CardFlight(
-            from: from,
-            to: () => _rectOf(_key('hand:${card.id}')),
-            child: RamiCardView(card: card, width: from.width),
-            delay: delay,
-            landingId: card.id,
-          ),
-        );
-      }
-      for (var seat = 1; seat < 4; seat++) {
-        if (k >= g.hands[seat].length) continue;
-        flights.add(
-          CardFlight(
-            from: from,
-            to: () => _seatTarget(seat, from),
-            child: RamiBackView(
-              width: from.width,
-              asset: ramiStockBackAsset(g.stock),
+      for (final seat in ramiDealSeatOrder) {
+        final delay = _dealStep * flights.length;
+        if (seat == 0) {
+          if (k >= mine.length) continue;
+          final card = mine[k];
+          flights.add(
+            CardFlight(
+              from: from,
+              to: () => _rectOf(_key('hand:${card.id}')),
+              child: RamiCardView(card: card, width: from.width),
+              delay: delay,
+              landingId: card.id,
             ),
-            delay: delay,
-          ),
-        );
+          );
+        } else {
+          if (k >= g.hands[seat].length) continue;
+          flights.add(
+            CardFlight(
+              from: from,
+              to: () => _seatTarget(seat, from),
+              child: RamiBackView(
+                width: from.width,
+                asset: ramiStockBackAsset(g.stock),
+              ),
+              delay: delay,
+            ),
+          );
+        }
       }
     }
     flyAfterRender(flights);
