@@ -1,7 +1,7 @@
 /// Réglages de la politique publicitaire (issue #468).
 class AdPolicyConfig {
   const AdPolicyConfig({
-    this.minGamesBeforeInterstitial = 2,
+    this.minGamesBeforeInterstitial = 1,
     this.interstitialCooldown = const Duration(minutes: 3),
     this.maxInterstitialsPerSession = 3,
   });

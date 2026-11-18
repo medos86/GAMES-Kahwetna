@@ -42,7 +42,10 @@ void main() {
     adFree = AdFreeService(store: MemoryAdFreeStore(), now: () => clock);
     service = InterstitialService(
       adapter: ad,
-      policy: AdPolicy(now: () => clock),
+      policy: AdPolicy(
+        config: const AdPolicyConfig(minGamesBeforeInterstitial: 2),
+        now: () => clock,
+      ),
       adFree: adFree,
     );
   });
