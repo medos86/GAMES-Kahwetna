@@ -20,7 +20,6 @@ import 'game_icons.dart';
 import 'menu_models.dart';
 import '../../core/strings.dart';
 import '../../core/services/ad_free_service.dart';
-import '../../core/services/rewarded_video_service.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/comic_button.dart';
 import '../../widgets/resume_game.dart';
@@ -68,8 +67,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     _adFreeLeft = _secondsLeft();
     _adFree.active.addListener(_syncAdFree);
     _startCountdown();
-    // Issue #470 : la vidéo récompensée est préchargée pour le bouton.
-    RewardedVideoService.instance.preload();
   }
 
   @override
@@ -88,11 +85,10 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     _startCountdown();
   }
 
-  /// Propose la vidéo ; le mode sans pub ne s'active qu'après visionnage complet (issue #470).
+  /// Active 30 minutes sans pub, gratuitement (décision #473).
   Future<void> _onAdFreeTap() async {
-    final earned = await RewardedVideoService.instance.watch();
-    if (!earned || !mounted) return;
-    _adFree.activate();
+    await _adFree.activate();
+    if (!mounted) return;
     showToast(
       context,
       Strings.menuAdFreeToastTitle,
@@ -318,7 +314,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        // Issue #504 : le bouton reste visible ; un tap relance le chargement de la vidéo si besoin.
+        // Issue #473 : le bouton est gratuit et toujours visible tant que le mode n'est pas actif.
         _AdFreeButton(
           sm: sm,
           secondsLeft: _adFreeLeft,
