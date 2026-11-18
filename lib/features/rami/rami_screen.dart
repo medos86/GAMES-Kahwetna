@@ -419,8 +419,9 @@ class _RamiScreenState extends State<RamiScreen>
                   ),
                 ),
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 6),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.bottomRight,
                     child: _contextActions(g),
                   ),
                 ),
@@ -438,17 +439,18 @@ class _RamiScreenState extends State<RamiScreen>
     final c = _c;
     if (!c.canPlay) return const SizedBox.shrink();
     if (c.selected.isEmpty && !c.canCancel) return const SizedBox.shrink();
-    // Boutons pleine largeur, zone tactile large (#522).
-    return Row(
-      children: [
-        for (final (i, button) in _actions().indexed)
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(left: i == 0 ? 0 : 6),
-              child: SizedBox(height: 48, child: button),
-            ),
-          ),
-      ],
+    // Zone tactile large (48 dp de haut, 112 dp de large) pour chaque bouton (#522).
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, bottom: 4),
+      child: Wrap(
+        alignment: WrapAlignment.start,
+        spacing: 6,
+        runSpacing: 6,
+        children: [
+          for (final button in _actions())
+            SizedBox(width: 112, height: 48, child: button),
+        ],
+      ),
     );
   }
 
