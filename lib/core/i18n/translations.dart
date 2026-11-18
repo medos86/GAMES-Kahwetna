@@ -73,6 +73,8 @@ const Map<String, String> frTexts = {
   'headerRami': 'KAHWETNE · RAMI',
   'rulesTitleRami': 'Règles du Rami',
   'ramiYourDraw': 'À toi : touche la pioche ou la défausse',
+  'ramiYourTurn': 'À toi de jouer !',
+  'ramiOtherTurn': 'Tour de {n}…',
   'ramiSlideThenDiscard':
       'Glisse un paquet sur la table, puis une carte sur la défausse',
   'ramiDropHint': 'Glisse un paquet ici pour le poser',
@@ -239,6 +241,8 @@ const Map<String, String> arTexts = {
   'headerRami': 'كهوتني · رامي',
   'rulesTitleRami': 'قواعد الرامي',
   'ramiYourDraw': 'دورك: المس السحب أو الرمي',
+  'ramiYourTurn': 'دورك الآن!',
+  'ramiOtherTurn': 'دور {n}…',
   'ramiSlideThenDiscard': 'اسحب مجموعة إلى الطاولة، ثم ورقة إلى الرمي',
   'ramiDropHint': 'اسحب مجموعة إلى هنا لوضعها',
   'ramiNoMeld': 'لا توجد مجموعة موضوعة',

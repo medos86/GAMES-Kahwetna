@@ -33,6 +33,7 @@ import '../../widgets/card_motion.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
 import 'rami_action_button.dart';
+import 'rami_turn_banner.dart';
 
 part 'rami_parts/rami_constants.dart';
 part 'rami_parts/rami_gestures.dart';
@@ -242,7 +243,7 @@ class _RamiScreenState extends State<RamiScreen>
                       const SizedBox(height: 6),
                       Expanded(child: _tableSection(handWidth, g)),
                       const SizedBox(height: 6),
-                      _footer(handWidth),
+                      _footer(handWidth, g),
                     ],
                   ),
                 ),
@@ -795,7 +796,8 @@ class _RamiScreenState extends State<RamiScreen>
   }
 
   /// Pied : seulement la main (#121 : plus de tri, de compteur ni de libellé de paquets).
-  Widget _footer(double handWidth) {
+  Widget _footer(double handWidth, rules.RamiState g) {
+    final ended = g.phase == rules.RamiPhase.end;
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
       decoration: BoxDecoration(
@@ -803,7 +805,20 @@ class _RamiScreenState extends State<RamiScreen>
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: _frameColor, width: 3),
       ),
-      child: _handRow(handWidth),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (!ended)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: RamiTurnBanner(
+                myTurn: _c.myTurn,
+                otherName: _seatNames[g.turn],
+              ),
+            ),
+          _handRow(handWidth),
+        ],
+      ),
     );
   }
 
