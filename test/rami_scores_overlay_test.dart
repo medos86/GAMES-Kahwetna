@@ -14,11 +14,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: RamiScoresTab(open: false, onTap: () => taps++),
+            body: RamiScoresTab(open: false, myScore: 0, onTap: () => taps++),
           ),
         ),
       );
-      await tester.tap(find.text(Strings.showScores));
+      await tester.tap(find.textContaining(Strings.showScores));
       expect(taps, 1);
     },
   );

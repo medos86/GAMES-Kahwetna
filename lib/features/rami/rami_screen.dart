@@ -159,6 +159,7 @@ class _RamiScreenState extends State<RamiScreen>
   }
 
   void _onPointerDown(PointerDownEvent event, String id) {
+    _closeScores();
     if (_press != null) return;
     _press = _Press(id, event.position);
   }
@@ -357,6 +358,15 @@ class _RamiScreenState extends State<RamiScreen>
       clipBehavior: Clip.none,
       children: [
         Positioned.fill(child: _tableSection(handWidth, g)),
+        // Toucher le tapis hors du panneau le referme (sans jouer le coup).
+        if (_scoresOpen)
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _closeScores,
+              child: const ColoredBox(color: Colors.black26),
+            ),
+          ),
         Positioned(
           top: 0,
           left: 0,
@@ -365,6 +375,7 @@ class _RamiScreenState extends State<RamiScreen>
             child: RamiScoresTab(
               key: _key('scoretab'),
               open: _scoresOpen,
+              myScore: g.scores[0],
               onTap: () => setState(() => _scoresOpen = true),
             ),
           ),
@@ -375,12 +386,17 @@ class _RamiScreenState extends State<RamiScreen>
           right: 0,
           child: RamiScoresPanel(
             open: _scoresOpen,
-            onClose: () => setState(() => _scoresOpen = false),
+            onClose: _closeScores,
             child: _scores(g),
           ),
         ),
       ],
     );
+  }
+
+  /// Ferme le panneau dès que le joueur agit (carte, pioche, nouvelle manche) (#528).
+  void _closeScores() {
+    if (_scoresOpen) setState(() => _scoresOpen = false);
   }
 
   /// Case d'un siège pour les vols : sa place dans le panneau s'il est ouvert, sinon l'onglet.
@@ -519,6 +535,7 @@ class _RamiScreenState extends State<RamiScreen>
 
   /// Lance une action qui donne une nouvelle manche : la distribution est animée.
   void _deal(VoidCallback action) {
+    _closeScores();
     _dealPending = true;
     action();
     _dealPending = false;
@@ -686,6 +703,7 @@ class _RamiScreenState extends State<RamiScreen>
   }
 
   void _drawFromStock(double width) {
+    _closeScores();
     final from = _rectOf(_key('stock'));
     final before = {for (final card in _c.hand) card.id};
     _c.drawFromStock();
@@ -763,7 +781,12 @@ class _RamiScreenState extends State<RamiScreen>
                       ),
                     )
                   : GestureDetector(
-                      onTap: c.canDraw && !covered ? c.drawFromDiscard : null,
+                      onTap: c.canDraw && !covered
+                          ? () {
+                              _closeScores();
+                              c.drawFromDiscard();
+                            }
+                          : null,
                       child: RamiCardView(card: shown, width: width),
                     ),
             ),

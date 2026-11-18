@@ -8,9 +8,15 @@ const _overlayInk = Color(0xFF20284B);
 
 /// Onglet collé au bord haut du tapis : ouvre le panneau des scores (#528).
 class RamiScoresTab extends StatelessWidget {
-  const RamiScoresTab({super.key, required this.open, required this.onTap});
+  const RamiScoresTab({
+    super.key,
+    required this.open,
+    required this.myScore,
+    required this.onTap,
+  });
 
   final bool open;
+  final int myScore;
   final VoidCallback onTap;
 
   @override
@@ -34,7 +40,7 @@ class RamiScoresTab extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                Strings.showScores,
+                '${Strings.showScores} · $myScore',
                 style: const TextStyle(
                   color: _overlayInk,
                   fontSize: 12,
