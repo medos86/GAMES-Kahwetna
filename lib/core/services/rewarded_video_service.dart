@@ -99,6 +99,8 @@ class RewardedVideoService {
 
   /// Propose la vidéo au joueur. Renvoie `true` uniquement si la récompense est acquise.
   Future<bool> watch() async {
+    // Issue #504 : si la vidéo n'est pas prête, on tente un rechargement avant d'abandonner.
+    if (!isReady) await preload();
     if (!isReady) return false;
     final earned = await _adapter.show();
     ready.value = _adapter.loaded;

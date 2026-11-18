@@ -318,17 +318,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        // Issue #470 : le bouton n'apparaît que si une vidéo est prête (ou si le mode est déjà actif).
-        ValueListenableBuilder<bool>(
-          valueListenable: RewardedVideoService.instance.ready,
-          builder: (context, ready, _) {
-            if (!ready && _adFreeLeft <= 0) return const SizedBox.shrink();
-            return _AdFreeButton(
-              sm: sm,
-              secondsLeft: _adFreeLeft,
-              onTap: _onAdFreeTap,
-            );
-          },
+        // Issue #504 : le bouton reste visible ; un tap relance le chargement de la vidéo si besoin.
+        _AdFreeButton(
+          sm: sm,
+          secondsLeft: _adFreeLeft,
+          onTap: _onAdFreeTap,
         ),
       ],
     );
