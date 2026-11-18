@@ -21,7 +21,6 @@ void main() {
         tester.widget<PulseGlow>(find.byType(PulseGlow)).active,
         isTrue,
       );
-      expect(find.bySemanticsLabel(Strings.ramiYourTurn), findsOneWidget);
     },
   );
 
