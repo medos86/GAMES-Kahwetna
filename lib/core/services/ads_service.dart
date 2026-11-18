@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import 'ad_consent.dart';
+import 'consent_sync.dart';
+
 /// Identifiants d'unités publicitaires (issue #465).
 ///
 /// Tant que [useTestIds] est vrai, seuls les identifiants de test Google sont utilisés :
@@ -73,6 +76,12 @@ class AdsService {
   Future<void>? _initialization;
 
   static Future<void> _defaultInitializer() async {
+    // Consentement (UMP puis ATT) avant le SDK : les pubs ne sont demandées qu'après (#466).
+    await syncConsent(
+      consent: ConsentService.instance,
+      ump: const GoogleUmpGateway(),
+      tracking: PlatformTrackingAuthorizer(),
+    );
     await MobileAds.instance.initialize();
   }
 

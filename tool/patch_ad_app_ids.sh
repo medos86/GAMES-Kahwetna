@@ -40,3 +40,17 @@ PY
 # Vérification : l'App ID doit être présent, sinon le build échoue ici et pas sur l'appareil.
 grep -q "$id" "$file" || { echo "App ID absent de $file" >&2; exit 1; }
 echo "App ID AdMob ($platform) présent dans $file"
+
+# Demande ATT iOS (#466) : le texte affiché au joueur est obligatoire, sinon l'app plante à la demande.
+if [ "$platform" = ios ] && ! grep -q NSUserTrackingUsageDescription "$file"; then
+  python3 - "$file" <<'PY'
+import sys
+path = sys.argv[1]
+text = open(path, encoding="utf-8").read()
+entry = ("\t<key>NSUserTrackingUsageDescription</key>\n"
+         "\t<string>Pour vous proposer des publicités plus pertinentes.</string>\n")
+idx = text.rindex("</dict>")
+open(path, "w", encoding="utf-8").write(text[:idx] + entry + text[idx:])
+PY
+  grep -q NSUserTrackingUsageDescription "$file" || { echo "Clé ATT absente de $file" >&2; exit 1; }
+fi
