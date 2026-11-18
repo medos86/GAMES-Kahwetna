@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import '../../core/audio/sounds.dart';
@@ -21,6 +22,8 @@ import '../menu/menu_models.dart';
 import 'domino_controller.dart';
 import 'domino_tiles.dart';
 import '../../core/services/ad_free_service.dart';
+import '../../core/services/game_end_watcher.dart';
+import '../../core/services/interstitial_service.dart';
 import '../../widgets/exit_guard.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
@@ -57,10 +60,16 @@ class _DominoScreenState extends State<DominoScreen> {
     difficulty: widget.difficulty,
   );
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
+  late final GameEndWatcher _endWatcher = GameEndWatcher(
+    isEnded: () => _controller.game.matchWinner != null,
+    onEnded: () => unawaited(InterstitialService.instance.onGameFinished()),
+  );
 
   @override
   void initState() {
     super.initState();
+    InterstitialService.instance.preload();
+    _controller.addListener(_endWatcher.check);
     _controller.restore().then((_) {
       if (mounted) offerResume(context, _controller);
     });
@@ -71,6 +80,7 @@ class _DominoScreenState extends State<DominoScreen> {
   @override
   void dispose() {
     _adFree.removeListener(_onAdFreeChanged);
+    _controller.removeListener(_endWatcher.check);
     _controller.dispose();
     super.dispose();
   }

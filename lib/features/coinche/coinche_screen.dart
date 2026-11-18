@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
@@ -12,6 +13,8 @@ import '../menu/menu_models.dart';
 import 'coinche_card_view.dart';
 import 'coinche_controller.dart';
 import '../../core/services/ad_free_service.dart';
+import '../../core/services/game_end_watcher.dart';
+import '../../core/services/interstitial_service.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../widgets/comic/comic_panel.dart';
 import '../../widgets/exit_guard.dart';
@@ -69,6 +72,10 @@ class _CoincheScreenState extends State<CoincheScreen>
     difficulty: widget.difficulty,
   );
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
+  late final GameEndWatcher _endWatcher = GameEndWatcher(
+    isEnded: () => _controller.match.winner != null,
+    onEnded: () => unawaited(InterstitialService.instance.onGameFinished()),
+  );
 
   // Mouvements animés (#266) : donne, jeu, pli ramassé, pour toutes les places.
   static const _dealStep = Duration(milliseconds: 90);
@@ -92,6 +99,8 @@ class _CoincheScreenState extends State<CoincheScreen>
   @override
   void initState() {
     super.initState();
+    InterstitialService.instance.preload();
+    _controller.addListener(_endWatcher.check);
     _controller.addListener(_onChanged);
     _controller.restore().then((_) {
       if (!mounted) return;
@@ -106,6 +115,7 @@ class _CoincheScreenState extends State<CoincheScreen>
   @override
   void dispose() {
     _adFree.removeListener(_onAdFreeChanged);
+    _controller.removeListener(_endWatcher.check);
     _controller.removeListener(_onChanged);
     _controller.dispose();
     super.dispose();
