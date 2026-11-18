@@ -5,6 +5,7 @@ import '../../core/strings.dart';
 const _overlayFrame = Color(0xFF4A2A10);
 const _overlayCream = Color(0xFFFFF8E7);
 const _overlayInk = Color(0xFF20284B);
+const _overlayGold = Color(0xFFFFE16B);
 
 /// Onglet collé au bord haut du tapis : ouvre le panneau des scores (#528).
 class RamiScoresTab extends StatelessWidget {
@@ -12,11 +13,15 @@ class RamiScoresTab extends StatelessWidget {
     super.key,
     required this.open,
     required this.myScore,
+    required this.myTurn,
+    required this.turnLabel,
     required this.onTap,
   });
 
   final bool open;
   final int myScore;
+  final bool myTurn;
+  final String turnLabel;
   final VoidCallback onTap;
 
   @override
@@ -24,13 +29,13 @@ class RamiScoresTab extends StatelessWidget {
     return Semantics(
       button: true,
       expanded: open,
-      label: Strings.showScores,
+      label: '$turnLabel · $myScore',
       child: GestureDetector(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.fromLTRB(14, 2, 10, 4),
           decoration: BoxDecoration(
-            color: _overlayCream,
+            color: myTurn ? _overlayGold : _overlayCream,
             borderRadius: const BorderRadius.vertical(
               bottom: Radius.circular(12),
             ),
@@ -40,7 +45,7 @@ class RamiScoresTab extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '${Strings.showScores} · $myScore',
+                '$turnLabel · $myScore',
                 style: const TextStyle(
                   color: _overlayInk,
                   fontSize: 12,
