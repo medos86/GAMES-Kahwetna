@@ -13,7 +13,7 @@ Widget _host(Widget child) {
 }
 
 /// Écran de fin Rami type : 4 lignes, dont un +100 et un gagnant (issue #526).
-Widget _ramiLike({int taps = 0, VoidCallback? onTap}) {
+Widget _ramiLike({VoidCallback? onTap}) {
   return RoundResultPanel(
     title: 'TOI gagne la manche',
     badge: 'MANCHE 1',

@@ -49,6 +49,7 @@ class RoundResultPanel extends StatelessWidget {
     return ResultDialog(
       title: title,
       accent: accent,
+      actions: actions,
       children: [
         Center(child: _Badge(badge)),
         if (subtitle != null) ...[
@@ -67,7 +68,6 @@ class RoundResultPanel extends StatelessWidget {
         for (final row in rows)
           Padding(padding: const EdgeInsets.only(bottom: 8), child: row),
       ],
-      actions: actions,
     );
   }
 }
