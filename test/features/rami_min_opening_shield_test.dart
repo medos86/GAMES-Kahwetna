@@ -11,28 +11,29 @@ void main() {
         ),
       );
 
-  testWidgets('affiche le seuil, libellé masqué', (tester) async {
+  testWidgets('affiche le seuil', (tester) async {
     await tester.pumpWidget(host(76));
     expect(find.text('76'), findsOneWidget);
-    expect(find.byKey(const Key('ramiMinOpeningLabel')), findsNothing);
   });
 
-  testWidgets('au toucher, libellé visible puis masqué', (tester) async {
+  testWidgets('passif : un toucher ne révèle aucun libellé (#522)',
+      (tester) async {
     await tester.pumpWidget(host(67));
+    expect(find.byType(GestureDetector), findsNothing);
     await tester.tap(find.text('67'));
     await tester.pump();
-    expect(find.text('Ouverture minimale : 67'), findsOneWidget);
-    await tester.pump(const Duration(seconds: 4));
     expect(find.byKey(const Key('ramiMinOpeningLabel')), findsNothing);
+    expect(find.text('Ouverture minimale : 67'), findsNothing);
   });
 
-  testWidgets('bouclier petit, en bas à droite de son parent', (tester) async {
+  testWidgets('bouclier petit, en haut à droite de son parent (#522)',
+      (tester) async {
     await tester.pumpWidget(
       Directionality(
         textDirection: TextDirection.ltr,
         child: Align(
           key: const Key('corner'),
-          alignment: Alignment.bottomRight,
+          alignment: Alignment.topRight,
           child: RamiMinOpeningShield(
             minimum: 67,
             label: 'Ouverture minimale : 67',
@@ -40,37 +41,11 @@ void main() {
         ),
       ),
     );
-    final size = tester.getSize(find.byKey(const Key('ramiMinOpeningShield')));
+    final shield = find.byKey(const Key('ramiMinOpeningShield'));
+    final size = tester.getSize(shield);
     expect(size.width, lessThanOrEqualTo(32));
     expect(size.height, lessThanOrEqualTo(40));
-    final shield = find.byKey(const Key('ramiMinOpeningShield'));
-    final corner = tester.getBottomRight(find.byKey(const Key('corner')));
-    expect(tester.getBottomRight(shield), corner);
-  });
-
-  testWidgets('au toucher, libellé à gauche du bouclier', (tester) async {
-    await tester.pumpWidget(
-      Directionality(
-        textDirection: TextDirection.ltr,
-        child: Align(
-          alignment: Alignment.bottomRight,
-          child: RamiMinOpeningShield(
-            minimum: 67,
-            label: 'Ouverture min. 67',
-          ),
-        ),
-      ),
-    );
-    await tester.tap(find.byKey(const Key('ramiMinOpeningShield')));
-    await tester.pump();
-    final label = find.byKey(const Key('ramiMinOpeningLabel'));
-    expect(label, findsOneWidget);
-    final shield = tester.getRect(
-      find.byKey(const Key('ramiMinOpeningShield')),
-    );
-    final text = tester.getRect(label);
-    expect(text.right, lessThanOrEqualTo(shield.left));
-    expect(text.top, greaterThanOrEqualTo(0));
-    expect(text.bottom, lessThanOrEqualTo(shield.bottom));
+    final corner = tester.getTopRight(find.byKey(const Key('corner')));
+    expect(tester.getTopRight(shield), corner);
   });
 }

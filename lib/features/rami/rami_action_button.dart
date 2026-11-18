@@ -38,6 +38,7 @@ class RamiActionButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           onTap: enabled ? onTap : null,
           child: Container(
+            alignment: Alignment.center,
             constraints: const BoxConstraints(minHeight: 30),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Row(

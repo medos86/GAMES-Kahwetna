@@ -379,6 +379,17 @@ class _RamiScreenState extends State<RamiScreen>
       ),
       child: Column(
         children: [
+          // Bouclier du seuil d'ouverture : en haut à droite du tapis, passif (#522).
+          Align(
+            alignment: Alignment.topRight,
+            child: RamiMinOpeningShield(
+              minimum: rules.minOpening(g),
+              label: tf(
+                'ramiMinOpen',
+                {'n': '${rules.minOpening(g)}'},
+              ),
+            ),
+          ),
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -416,16 +427,6 @@ class _RamiScreenState extends State<RamiScreen>
                     child: _contextActions(g),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 6),
-                  child: RamiMinOpeningShield(
-                    minimum: rules.minOpening(g),
-                    label: tf(
-                      'ramiMinOpen',
-                      {'n': '${rules.minOpening(g)}'},
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -440,13 +441,16 @@ class _RamiScreenState extends State<RamiScreen>
     final c = _c;
     if (!c.canPlay) return const SizedBox.shrink();
     if (c.selected.isEmpty && !c.canCancel) return const SizedBox.shrink();
+    // Zone tactile haute de 48 dp pour chaque bouton, largeur naturelle (#522).
     return Padding(
       padding: const EdgeInsets.only(left: 10, bottom: 4),
       child: Wrap(
         alignment: WrapAlignment.start,
         spacing: 4,
         runSpacing: 4,
-        children: _actions(),
+        children: [
+          for (final button in _actions()) SizedBox(height: 48, child: button),
+        ],
       ),
     );
   }
