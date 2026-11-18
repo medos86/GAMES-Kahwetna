@@ -14,8 +14,17 @@ void main() {
       AdPolicy(config: config, now: () => clock);
 
   test('aucune pub avant le nombre minimal de parties', () {
-    expect(policy.canShowInterstitial(duringTurn: false), isFalse);
-    policy.recordGameFinished();
+    final twoGames = withConfig(
+      const AdPolicyConfig(minGamesBeforeInterstitial: 2),
+    );
+    expect(twoGames.canShowInterstitial(duringTurn: false), isFalse);
+    twoGames.recordGameFinished();
+    expect(twoGames.canShowInterstitial(duringTurn: false), isFalse);
+    twoGames.recordGameFinished();
+    expect(twoGames.canShowInterstitial(duringTurn: false), isTrue);
+  });
+
+  test('pub dès la première partie terminée par défaut (#520)', () {
     expect(policy.canShowInterstitial(duringTurn: false), isFalse);
     policy.recordGameFinished();
     expect(policy.canShowInterstitial(duringTurn: false), isTrue);
