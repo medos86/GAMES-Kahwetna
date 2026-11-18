@@ -62,7 +62,16 @@ void main() {
     });
 
     test('hors ouverture, acceptée si elle ouvre avec la main', () {
-      final state = withDiscard([openHand, [], [], []], queenTop);
+      // Une carte doit rester en main pour défausser (#496).
+      final state = withDiscard(
+        [
+          [...openHand, c(RamiSuit.deniers, 2, 'x')],
+          [],
+          [],
+          [],
+        ],
+        queenTop,
+      );
       expect(canUseDiscardTop(state), isTrue);
       final drawn = drawDiscard(state);
       expect(drawn.phase, RamiPhase.play);
