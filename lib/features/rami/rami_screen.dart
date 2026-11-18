@@ -427,7 +427,7 @@ class _RamiScreenState extends State<RamiScreen>
   Widget _contextActions(rules.RamiState g) {
     final c = _c;
     if (!c.canPlay) return const SizedBox.shrink();
-    if (c.selected.isEmpty) return const SizedBox.shrink();
+    if (c.selected.isEmpty && !c.canCancel) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(left: 10, bottom: 4),
       child: Wrap(
@@ -819,6 +819,13 @@ class _RamiScreenState extends State<RamiScreen>
       onTap: c.returnTaken,
       enabled: c.canReturnTaken,
     );
+    final cancel = RamiActionButton(
+      label: Strings.actCancel,
+      icon: Icons.close,
+      onTap: c.cancel,
+      enabled: c.canCancel,
+    );
+    if (c.canCancel) return [pose, cancel, discard];
     if (c.canReturnTaken) return [pose, returnTaken, discard];
     return [pose, discard];
   }

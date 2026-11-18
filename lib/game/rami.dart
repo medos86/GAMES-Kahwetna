@@ -600,6 +600,29 @@ RamiState _open(RamiState state, int seat, int points) => state.copyWith(
       ],
     );
 
+/// Annule les poses du tour en cours, avant ouverture (#496) : les combinaisons repartent
+/// de la table et les cartes reviennent en main. Après ouverture, rien n'est annulé.
+RamiState cancelStaged(RamiState state) {
+  final seat = state.turn;
+  if (state.phase != RamiPhase.play ||
+      state.staged.isEmpty ||
+      state.opened[seat]) return state;
+  final posed = {
+    for (final group in state.staged)
+      for (final card in group) card.id,
+  };
+  final table = [
+    for (final meld in state.table)
+      if (!meld.cards.every((card) => posed.contains(card.id))) meld,
+  ];
+  final returned = [for (final group in state.staged) ...group];
+  return _setHand(
+    state.copyWith(table: table, staged: const []),
+    seat,
+    [...state.hands[seat], ...returned],
+  );
+}
+
 RamiState layOff(RamiState state, String cardId, String meldId) {
   final seat = state.turn;
   if (state.phase != RamiPhase.play ||
