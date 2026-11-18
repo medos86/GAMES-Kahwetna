@@ -550,7 +550,9 @@ RamiState returnTaken(RamiState state) {
   );
 }
 
-/// Hors ouverture, la combinaison part directement sur la table. Pendant l'ouverture, elle est mise de côté.
+/// Pose une combinaison directement sur la table (#496). Avant ouverture, les points posés
+/// pendant le tour s'additionnent : dès que le seuil est atteint, le joueur est ouvert.
+/// Une pose ne peut jamais vider la main : il faut toujours défausser sa dernière carte.
 RamiState poseMeld(RamiState state, List<String> cardIds) {
   if (state.phase != RamiPhase.play ||
       state.firstTour ||
@@ -569,60 +571,34 @@ RamiState poseMeld(RamiState state, List<String> cardIds) {
 
   final cards = arrangeMeld(picked);
   final rest = hand.where((card) => !cardIds.contains(card.id)).toList();
-  final next = _setHand(state, seat, rest);
-  if (!state.opened[seat]) {
-    return next.copyWith(staged: [...state.staged, cards]);
-  }
-
-  final updated = next.copyWith(
+  if (rest.isEmpty) return state;
+  final placed = _setHand(state, seat, rest).copyWith(
     table: [
       ...state.table,
       Meld(id: _newMeldId(state.table, cards), cards: cards),
     ],
   );
-  return rest.isEmpty ? _finish(updated, seat) : updated;
+  if (state.opened[seat]) return placed;
+
+  final turnCards = [...state.staged, cards];
+  final total = turnCards.fold<int>(0, (sum, item) => sum + pointsOf(item));
+  if (total < minOpening(state)) return placed.copyWith(staged: turnCards);
+  return _open(placed, seat, total);
 }
 
-RamiState commitOpening(RamiState state) {
-  final seat = state.turn;
-  if (state.phase != RamiPhase.play ||
-      state.firstTour ||
-      state.opened[seat] ||
-      state.staged.isEmpty) return state;
-  final staged = state.staged.fold<int>(
-    0,
-    (sum, cards) => sum + pointsOf(cards),
-  );
-  if (staged < minOpening(state)) return state;
-
-  var table = [...state.table];
-  for (final cards in state.staged) {
-    table = [...table, Meld(id: _newMeldId(table, cards), cards: cards)];
-  }
-  final next = state.copyWith(
-    table: table,
-    staged: const [],
-    lastOpening: staged,
-    openings: [
-      for (var i = 0; i < state.openings.length; i++)
-        i == seat ? staged : state.openings[i],
-    ],
-    opened: [
-      for (var i = 0; i < state.opened.length; i++)
-        state.opened[i] || i == seat,
-    ],
-  );
-  return next.hands[seat].isEmpty ? _finish(next, seat) : next;
-}
-
-RamiState cancelStaged(RamiState state) {
-  if (state.phase != RamiPhase.play || state.staged.isEmpty) return state;
-  final seat = state.turn;
-  return _setHand(state.copyWith(staged: const []), seat, [
-    ...state.hands[seat],
-    ...state.staged.expand((cards) => cards),
-  ]);
-}
+/// Ouvre le joueur : ses points d'ouverture sont enregistrés et le compte du tour est remis à zéro.
+RamiState _open(RamiState state, int seat, int points) => state.copyWith(
+      staged: const [],
+      lastOpening: points,
+      openings: [
+        for (var i = 0; i < state.openings.length; i++)
+          i == seat ? points : state.openings[i],
+      ],
+      opened: [
+        for (var i = 0; i < state.opened.length; i++)
+          state.opened[i] || i == seat,
+      ],
+    );
 
 RamiState layOff(RamiState state, String cardId, String meldId) {
   final seat = state.turn;
@@ -634,6 +610,7 @@ RamiState layOff(RamiState state, String cardId, String meldId) {
   final cardIndex = hand.indexWhere((item) => item.id == cardId);
   final meldIndex = state.table.indexWhere((item) => item.id == meldId);
   if (cardIndex < 0 || meldIndex < 0) return state;
+  if (hand.length <= 1) return state; // jamais vider sa main en posant (#496)
   final card = hand[cardIndex];
   final meld = state.table[meldIndex];
 
@@ -648,12 +625,11 @@ RamiState layOff(RamiState state, String cardId, String meldId) {
     for (final item in state.table)
       item.id == meldId ? Meld(id: item.id, cards: cards) : item,
   ];
-  final next = _setHand(
+  return _setHand(
     state.copyWith(table: table),
     seat,
     hand.where((item) => item.id != cardId).toList(),
   );
-  return next.hands[seat].isEmpty ? _finish(next, seat) : next;
 }
 
 /// Reprise d'un joker posé sur la table (#390) : la carte naturelle de la main
@@ -695,7 +671,7 @@ RamiState takeJoker(RamiState state, String cardId, String meldId) {
 
 RamiState discardCard(RamiState state, String cardId) {
   final seat = state.turn;
-  if (state.phase != RamiPhase.play || state.staged.isNotEmpty) return state;
+  if (state.phase != RamiPhase.play) return state;
   final hand = state.hands[seat];
   final index = hand.indexWhere((item) => item.id == cardId);
   if (index < 0) return state;
@@ -721,6 +697,7 @@ RamiState discardCard(RamiState state, String cardId) {
     turn: nextSeat(seat),
     phase: RamiPhase.draw,
     firstTour: state.firstTour && seat != state.dealer,
+    staged: const [],
   );
 }
 
@@ -1034,7 +1011,6 @@ RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {
   final draw = random ?? _defaultRandom.nextDouble;
   if (state.phase == RamiPhase.draw) return _aiDraw(state, level, draw);
   if (state.phase != RamiPhase.play) return state;
-  if (state.staged.isNotEmpty) return cancelStaged(state);
 
   final seat = state.turn;
   if (state.firstTour) return _aiDiscard(state, seat, level);
@@ -1047,10 +1023,8 @@ RamiState aiStep(RamiState state, RamiAiLevel level, [RandomDouble? random]) {
     // Ouverture : pose tout le plan puis valide l'ouverture ; sinon on ne garde rien en attente.
     if (!state.opened[seat] && planTotal >= openMin)
       () {
-        final committed = commitOpening(_poseAll(state, plan));
-        return committed.opened[seat] || committed.phase == RamiPhase.end
-            ? committed
-            : state;
+        final posed = _poseAll(state, plan);
+        return posed.opened[seat] ? posed : state;
       },
     if (state.opened[seat] && plan.isNotEmpty) () => _poseAll(state, plan),
     // La carte prise à la défausse doit être posée ce tour.

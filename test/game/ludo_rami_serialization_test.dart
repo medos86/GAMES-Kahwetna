@@ -83,8 +83,6 @@ void main() {
     final match = rules.newMatch(100, () => 0.37);
     final drawn = rules.drawStock(match, () => 0.37);
     rules.drawDiscard(drawn);
-    rules.cancelStaged(drawn);
-    rules.commitOpening(drawn);
     rules.discardCard(drawn, drawn.hands[0].first.id);
     rules.nextRound(match, () => 0.37);
   });
