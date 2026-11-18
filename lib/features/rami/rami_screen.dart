@@ -34,7 +34,6 @@ import '../../widgets/card_motion.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
 import 'rami_action_button.dart';
-import 'rami_turn_banner.dart';
 import 'rami_scores_overlay.dart';
 
 part 'rami_parts/rami_constants.dart';
@@ -244,7 +243,7 @@ class _RamiScreenState extends State<RamiScreen>
                       const SizedBox(height: 6),
                       Expanded(child: _tableWithScores(handWidth, g)),
                       const SizedBox(height: 6),
-                      _footer(handWidth, g),
+                      _footer(handWidth),
                     ],
                   ),
                 ),
@@ -376,6 +375,10 @@ class _RamiScreenState extends State<RamiScreen>
               key: _key('scoretab'),
               open: _scoresOpen,
               myScore: g.scores[0],
+              myTurn: _c.myTurn,
+              turnLabel: _c.myTurn
+                  ? Strings.turnShortMine
+                  : tf('ramiOtherTurn', {'n': _seatNames[g.turn]}),
               onTap: () => setState(() => _scoresOpen = true),
             ),
           ),
@@ -431,24 +434,16 @@ class _RamiScreenState extends State<RamiScreen>
       decoration: BoxDecoration(
         color: _feltColor,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: _frameColor, width: 6),
+        border: Border.all(
+          color: _c.myTurn ? _goldColor : _frameColor,
+          width: 6,
+        ),
         boxShadow: const [
           BoxShadow(color: _frameColor, spreadRadius: 3, offset: Offset(0, 8)),
         ],
       ),
       child: Column(
         children: [
-          // Bouclier du seuil d'ouverture : en haut à droite du tapis, passif (#522).
-          Align(
-            alignment: Alignment.topRight,
-            child: RamiMinOpeningShield(
-              minimum: rules.minOpening(g),
-              label: tf(
-                'ramiMinOpen',
-                {'n': '${rules.minOpening(g)}'},
-              ),
-            ),
-          ),
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -738,24 +733,44 @@ class _RamiScreenState extends State<RamiScreen>
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            PulseGlow(
-              active: c.canDraw,
-              child: GestureDetector(
-                onTap: c.canDraw ? () => _drawFromStock(width) : null,
-                child: Container(
-                  key: _key('stock'),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(width * 0.14),
-                    border: c.canDraw
-                        ? Border.all(color: _goldColor, width: 3)
-                        : null,
-                  ),
-                  child: RamiBackView(
-                    width: width,
-                    asset: ramiStockBackAsset(g.stock),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                PulseGlow(
+                  active: c.canDraw,
+                  child: GestureDetector(
+                    onTap: c.canDraw ? () => _drawFromStock(width) : null,
+                    child: Container(
+                      key: _key('stock'),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(width * 0.14),
+                        border: c.canDraw
+                            ? Border.all(color: _goldColor, width: 3)
+                            : null,
+                      ),
+                      child: RamiBackView(
+                        width: width,
+                        asset: ramiStockBackAsset(g.stock),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                if (!g.opened[0] && g.phase != rules.RamiPhase.end)
+                  Positioned(
+                    top: -8,
+                    right: -8,
+                    child: Transform.scale(
+                      scale: 0.6,
+                      child: RamiMinOpeningShield(
+                        minimum: rules.minOpening(g),
+                        label: tf(
+                          'ramiMinOpen',
+                          {'n': '${rules.minOpening(g)}'},
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ],
         ),
@@ -867,8 +882,7 @@ class _RamiScreenState extends State<RamiScreen>
   }
 
   /// Pied : seulement la main (#121 : plus de tri, de compteur ni de libellé de paquets).
-  Widget _footer(double handWidth, rules.RamiState g) {
-    final ended = g.phase == rules.RamiPhase.end;
+  Widget _footer(double handWidth) {
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
       decoration: BoxDecoration(
@@ -876,20 +890,7 @@ class _RamiScreenState extends State<RamiScreen>
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: _frameColor, width: 3),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (!ended)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: RamiTurnBanner(
-                myTurn: _c.myTurn,
-                otherName: _seatNames[g.turn],
-              ),
-            ),
-          _handRow(handWidth),
-        ],
-      ),
+      child: _handRow(handWidth),
     );
   }
 

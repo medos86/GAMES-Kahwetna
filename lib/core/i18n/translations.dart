@@ -75,6 +75,7 @@ const Map<String, String> frTexts = {
   'ramiYourDraw': 'À toi : touche la pioche ou la défausse',
   'ramiYourTurn': 'À toi de jouer !',
   'ramiOtherTurn': 'Tour de {n}…',
+  'turnShortMine': 'À toi',
   'showScores': 'Scores',
   'hideScores': 'Fermer les scores',
   'ramiSlideThenDiscard':
@@ -245,6 +246,7 @@ const Map<String, String> arTexts = {
   'ramiYourDraw': 'دورك: المس السحب أو الرمي',
   'ramiYourTurn': 'دورك الآن!',
   'ramiOtherTurn': 'دور {n}…',
+  'turnShortMine': 'دورك',
   'showScores': 'النتائج',
   'hideScores': 'إغلاق النتائج',
   'ramiSlideThenDiscard': 'اسحب مجموعة إلى الطاولة، ثم ورقة إلى الرمي',
