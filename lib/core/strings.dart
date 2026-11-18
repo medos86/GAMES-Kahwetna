@@ -80,6 +80,8 @@ abstract final class Strings {
   static String get ramiSlideThenDiscard => t('ramiSlideThenDiscard');
   static String get ramiDropHint => t('ramiDropHint');
   static String get ramiYourTurn => t('ramiYourTurn');
+  static String get showScores => t('showScores');
+  static String get hideScores => t('hideScores');
   static String get ramiNoMeld => t('ramiNoMeld');
   static String get sortSuit => t('sortSuit');
   static String get sortRank => t('sortRank');

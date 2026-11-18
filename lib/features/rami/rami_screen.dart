@@ -35,6 +35,7 @@ import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
 import 'rami_action_button.dart';
 import 'rami_turn_banner.dart';
+import 'rami_scores_overlay.dart';
 
 part 'rami_parts/rami_constants.dart';
 part 'rami_parts/rami_gestures.dart';
@@ -240,9 +241,7 @@ class _RamiScreenState extends State<RamiScreen>
                     children: [
                       _header(g),
                       const SizedBox(height: 6),
-                      _scores(g),
-                      const SizedBox(height: 6),
-                      Expanded(child: _tableSection(handWidth, g)),
+                      Expanded(child: _tableWithScores(handWidth, g)),
                       const SizedBox(height: 6),
                       _footer(handWidth, g),
                     ],
@@ -347,6 +346,50 @@ class _RamiScreenState extends State<RamiScreen>
         ],
       ),
     );
+  }
+
+  /// Scores cachés par défaut : un onglet en haut du tapis ouvre le panneau superposé (#528).
+  /// Le tapis garde toute sa taille quand le panneau est ouvert.
+  bool _scoresOpen = false;
+
+  Widget _tableWithScores(double handWidth, rules.RamiState g) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned.fill(child: _tableSection(handWidth, g)),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: RamiScoresTab(
+              key: _key('scoretab'),
+              open: _scoresOpen,
+              onTap: () => setState(() => _scoresOpen = true),
+            ),
+          ),
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: RamiScoresPanel(
+            open: _scoresOpen,
+            onClose: () => setState(() => _scoresOpen = false),
+            child: _scores(g),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Case d'un siège pour les vols : sa place dans le panneau s'il est ouvert, sinon l'onglet.
+  Rect? _seatRect(int seat) {
+    if (_scoresOpen) {
+      final chip = _seatRect(seat);
+      if (chip != null) return chip;
+    }
+    return _rectOf(_key('scoretab'));
   }
 
   Widget _scores(rules.RamiState g) {
@@ -507,7 +550,7 @@ class _RamiScreenState extends State<RamiScreen>
   /// Coups des adversaires (#316) : pioche et défausse volent depuis / vers leur place.
   void _flyAiMoves(rules.RamiState prev, rules.RamiState next) {
     final seat = prev.turn;
-    final chip = _rectOf(_key('seat:$seat'));
+    final chip = _seatRect(seat);
     final pile = _rectOf(_key('discard'));
     if (chip == null || pile == null) return;
     final flights = <CardFlight>[];
