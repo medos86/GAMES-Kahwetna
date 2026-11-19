@@ -10,6 +10,9 @@ void main() {
     Set<String> taken = const {},
   }) async {
     String? result;
+    tester.view.physicalSize = const Size(400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
     await tester.pumpWidget(
       MaterialApp(
         home: Builder(
