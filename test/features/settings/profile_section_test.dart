@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/profile_store.dart';
 import 'package:kahwetne/features/settings/profile_section.dart';
+import 'package:kahwetne/widgets/avatar_view.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,7 +53,7 @@ void main() {
     var picked = false;
     await pump(tester, onPick: () => picked = true);
     await tester.pumpAndSettle();
-    await tester.tap(find.bySemanticsLabel('Changer d\'avatar'));
+    await tester.tap(find.byType(AvatarView));
     expect(picked, isTrue);
   });
 }
