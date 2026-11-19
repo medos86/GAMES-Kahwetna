@@ -55,17 +55,24 @@ class RamiCard {
 
 /// Combinaison posée sur la table ; id = id de sa première carte.
 class Meld {
-  const Meld({required this.id, required this.cards});
+  const Meld({required this.id, required this.cards, this.owner = -1});
 
-  factory Meld.fromJson(Map<String, dynamic> json) =>
-      Meld(id: json['id'] as String, cards: _cardsFromJson(json['cards']));
+  factory Meld.fromJson(Map<String, dynamic> json) => Meld(
+        id: json['id'] as String,
+        cards: _cardsFromJson(json['cards']),
+        owner: (json['owner'] as int?) ?? -1,
+      );
 
   final String id;
   final List<RamiCard> cards;
 
+  /// Siège du joueur qui a posé le paquet (0 = moi). -1 : inconnu (sauvegardes anciennes).
+  final int owner;
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'cards': [for (final c in cards) c.toJson()],
+        'owner': owner,
       };
 }
 
@@ -575,7 +582,7 @@ RamiState poseMeld(RamiState state, List<String> cardIds) {
   final placed = _setHand(state, seat, rest).copyWith(
     table: [
       ...state.table,
-      Meld(id: _newMeldId(state.table, cards), cards: cards),
+      Meld(id: _newMeldId(state.table, cards), cards: cards, owner: seat),
     ],
   );
   if (state.opened[seat]) return placed;
@@ -646,7 +653,9 @@ RamiState layOff(RamiState state, String cardId, String meldId) {
 
   final table = [
     for (final item in state.table)
-      item.id == meldId ? Meld(id: item.id, cards: cards) : item,
+      item.id == meldId
+          ? Meld(id: item.id, cards: cards, owner: item.owner)
+          : item,
   ];
   return _setHand(
     state.copyWith(table: table),
@@ -682,7 +691,9 @@ RamiState takeJoker(RamiState state, String cardId, String meldId) {
 
   final table = [
     for (final item in state.table)
-      item.id == meldId ? Meld(id: item.id, cards: cards) : item,
+      item.id == meldId
+          ? Meld(id: item.id, cards: cards, owner: item.owner)
+          : item,
   ];
   final newHand = [
     for (final item in hand)
