@@ -4,12 +4,29 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Issue #540 : les 48 avatars (16 personnages × 3 états) sont présents, légers et déclarés.
 const _ids = [
-  'boy_tn', 'girl_scarf', 'young_man', 'girl_hat',
-  'boy_glasses', 'redhead', 'man_keffiyeh', 'woman_hijab',
-  'lion', 'horse', 'camel', 'dolphin',
-  'panda', 'penguin', 'tiger', 'cat',
+  'boy_tn',
+  'girl_scarf',
+  'young_man',
+  'girl_hat',
+  'boy_glasses',
+  'redhead',
+  'man_keffiyeh',
+  'woman_hijab',
+  'lion',
+  'horse',
+  'camel',
+  'dolphin',
+  'panda',
+  'penguin',
+  'tiger',
+  'cat',
 ];
-const _states = ['neutral', 'happy', 'angry'];
+
+const _states = [
+  'neutral',
+  'happy',
+  'angry',
+];
 
 void main() {
   test('les 48 fichiers webp existent', () {
@@ -24,8 +41,12 @@ void main() {
   test('chaque avatar fait moins de 15 Ko', () {
     for (final state in _states) {
       for (final id in _ids) {
-        final size = File('assets/images/avatars/$state/$id.webp').lengthSync();
-        expect(size, lessThan(15 * 1024), reason: '$state/$id');
+        final file = File('assets/images/avatars/$state/$id.webp');
+        expect(
+          file.lengthSync(),
+          lessThan(15 * 1024),
+          reason: '$state/$id',
+        );
       }
     }
   });
