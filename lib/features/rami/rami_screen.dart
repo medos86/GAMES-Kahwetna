@@ -865,6 +865,7 @@ class _RamiScreenState extends State<RamiScreen>
           child: _MeldView(
             cards: meld.cards,
             cardWidth: meldWidth,
+            owner: meld.owner,
             hot: _isHotMeld(target, meld.id),
             eligible: c.layEligible,
             onTap: c.layEligible ? () => c.layOffSelected(meld.id) : null,

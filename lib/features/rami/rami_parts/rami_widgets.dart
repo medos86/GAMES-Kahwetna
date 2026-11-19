@@ -88,10 +88,12 @@ class _PlayerChip extends StatelessWidget {
 }
 
 /// Combinaison de la table : cartes qui se chevauchent, comme les piles du source.
+/// Bordure et étiquette à la couleur du joueur qui a posé le paquet (#537).
 class _MeldView extends StatelessWidget {
   const _MeldView({
     required this.cards,
     required this.cardWidth,
+    this.owner = -1,
     this.hot = false,
     this.eligible = false,
     this.onTap,
@@ -99,6 +101,7 @@ class _MeldView extends StatelessWidget {
 
   final List<rules.RamiCard> cards;
   final double cardWidth;
+  final int owner;
   final bool hot;
   final bool eligible;
   final VoidCallback? onTap;
@@ -108,33 +111,64 @@ class _MeldView extends StatelessWidget {
     final step = cardWidth * ramiMeldStepRatio;
     final width = cardWidth + step * (cards.length - 1);
     final height = cardWidth * 1.4;
-    final Color border = hot || eligible ? _goldColor : Colors.white24;
+    final ownerName = ramiOwnerName(owner);
+    final ownerColor = ownerName == null ? Colors.white24 : _seatColors[owner];
+    const tagPadding = EdgeInsets.symmetric(horizontal: 4, vertical: 1);
+    final Color border = hot || eligible ? _goldColor : ownerColor;
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: hot
-              ? _goldColor.withValues(alpha: 0.3)
-              : Colors.black.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: border, width: 2),
-        ),
-        child: SizedBox(
-          width: width,
-          height: height,
-          child: Stack(
-            children: [
-              for (var i = 0; i < cards.length; i++)
-                Positioned(
-                  left: step * i,
-                  top: 0,
-                  child: RamiCardView(card: cards[i], width: cardWidth),
-                ),
-            ],
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: hot
+                  ? _goldColor.withValues(alpha: 0.3)
+                  : Colors.black.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: border, width: 2),
+            ),
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: Stack(
+                children: [
+                  for (var i = 0; i < cards.length; i++)
+                    Positioned(
+                      left: step * i,
+                      top: 0,
+                      child: RamiCardView(card: cards[i], width: cardWidth),
+                    ),
+                ],
+              ),
+            ),
           ),
-        ),
+          // Étiquette posée sur le bord : ne prend aucune place dans le tapis.
+          if (ownerName != null)
+            Positioned(
+              top: -7,
+              left: 6,
+              child: Container(
+                padding: tagPadding,
+                decoration: BoxDecoration(
+                  color: ownerColor,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: _frameColor, width: 1),
+                ),
+                child: Text(
+                  ownerName,
+                  style: const TextStyle(
+                    color: _inkColor,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
+                    height: 1.2,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

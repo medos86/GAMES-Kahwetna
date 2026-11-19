@@ -14,6 +14,18 @@ const _dragThreshold = 8.0;
 
 const _seatNames = ['Toi', 'Ali', 'Karim', 'Sami'];
 
+/// Couleur de chaque siège : bordure du paquet et étiquette du joueur qui l'a posé (#537).
+const _seatColors = [
+  Color(0xFF60A5FA), // Toi : bleu
+  Color(0xFFF87171), // Ali : rouge
+  Color(0xFFA3E635), // Karim : vert
+  Color(0xFFC084FC), // Sami : violet
+];
+
+/// Nom du joueur qui a posé un paquet, ou null si le siège est inconnu (#537).
+String? ramiOwnerName(int owner) =>
+    owner >= 0 && owner < _seatNames.length ? _seatNames[owner] : null;
+
 final _ramiRules = <({String title, String text})>[
   (
     title: 'Le jeu',
