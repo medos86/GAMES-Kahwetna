@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/card_animations.dart';
-import 'package:kahwetne/core/i18n/app_language.dart';
 import 'package:kahwetne/features/chkobba/chkobba_screen.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:kahwetne/game/chkobba.dart';
@@ -58,8 +57,8 @@ void main() {
     );
     await tester.pump();
 
-    final opponentPile = find.text(tf('cardCount', {'n': '3'}));
-    final playerPile = find.text(tf('cardCount', {'n': '1'}));
+    final opponentPile = find.text('3');
+    final playerPile = find.text('1');
     expect(opponentPile, findsOneWidget);
     expect(playerPile, findsOneWidget);
     expect(

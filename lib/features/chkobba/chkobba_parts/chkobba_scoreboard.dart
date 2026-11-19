@@ -172,24 +172,35 @@ class _WonPile extends StatelessWidget {
   final int count;
   final Color color;
 
+  /// Seulement le nombre de cartes, sur le décor bois de Chkobba (#593).
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 56,
-      height: 40,
-      alignment: Alignment.center,
+      width: 48,
+      height: 36,
       decoration: BoxDecoration(
-        color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color, width: 2),
         boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 3))],
       ),
-      child: Text(
-        tf('cardCount', {'n': '$count'}),
-        style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w900,
-          color: ScobaPalette.ink,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            const _WoodBackground(),
+            Center(
+              child: Text(
+                '$count',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  shadows: [Shadow(color: Colors.black, blurRadius: 2)],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

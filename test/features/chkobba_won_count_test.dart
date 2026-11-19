@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/card_animations.dart';
-import 'package:kahwetne/core/i18n/app_language.dart';
 import 'package:kahwetne/features/chkobba/chkobba_card_face.dart';
 import 'package:kahwetne/features/chkobba/chkobba_screen.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
@@ -59,7 +58,7 @@ void main() {
     await tester.pump(const Duration(seconds: 8));
 
     // Deux cartes gagnées : la carte jouée et celle du tapis.
-    final twoCards = tf('cardCount', {'n': '2'});
+    final twoCards = '2';
     final play = tester.widget<ChkobbaCardFace>(
       find.byWidgetPredicate(
         (w) => w is ChkobbaCardFace && w.card.id == 'batons-5',
