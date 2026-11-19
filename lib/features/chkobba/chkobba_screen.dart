@@ -27,7 +27,6 @@ import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
 import '../../widgets/card_flight.dart';
 import '../../widgets/card_motion.dart';
-import '../../widgets/pulse_glow.dart';
 
 part 'chkobba_parts/chkobba_backgrounds.dart';
 part 'chkobba_parts/chkobba_scoreboard.dart';
@@ -555,19 +554,15 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
               ),
             ),
             // Main du joueur, plus grande que celle de l'adversaire.
-            // Halo doré qui pulse quand c'est à moi de jouer, sans bannière (#535).
-            PulseGlow(
-              active: canPlay,
-              radius: 14,
-              child: _Hand(
-                cards: game.hands[Player.player]!,
-                width: cardWidth,
-                height: cardHeight,
-                builder: (card) => ChkobbaCardFace(
-                  key: _key('hand:${card.id}'),
-                  card: card,
-                  onTap: canPlay ? () => _onPlayerCard(card.id) : null,
-                ),
+            // Plus de halo jaune : le tour se lit sans couleur criarde (#588).
+            _Hand(
+              cards: game.hands[Player.player]!,
+              width: cardWidth,
+              height: cardHeight,
+              builder: (card) => ChkobbaCardFace(
+                key: _key('hand:${card.id}'),
+                card: card,
+                onTap: canPlay ? () => _onPlayerCard(card.id) : null,
               ),
             ),
             const SizedBox(height: 8),
