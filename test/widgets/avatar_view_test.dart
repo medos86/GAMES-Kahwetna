@@ -44,4 +44,17 @@ void main() {
     );
     expect(find.bySemanticsLabel('Sfaxi_Lion'), findsOneWidget);
   });
+
+  testWidgets('actif : pleine opacité ; inactif : 0,55', (tester) async {
+    await pump(tester, const AvatarView(avatarId: 'cat'));
+    expect(
+      tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity,
+      1,
+    );
+    await pump(tester, const AvatarView(avatarId: 'cat', isActive: false));
+    expect(
+      tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity,
+      0.55,
+    );
+  });
 }
