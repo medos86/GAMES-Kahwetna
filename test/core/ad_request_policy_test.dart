@@ -80,13 +80,13 @@ void main() {
       );
     });
 
-    test('réglage par défaut : non personnalisée', () {
+    test('réglage par défaut : 13+ consentant personnalisée', () {
       expect(
         adRequestFor(
           age: AgeAnswer.thirteenOrOver,
           consent: AdConsentState.granted,
         ).nonPersonalizedAds,
-        isTrue,
+        isFalse,
       );
     });
   });

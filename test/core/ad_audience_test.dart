@@ -4,7 +4,7 @@ import 'package:kahwetne/core/services/ad_consent.dart';
 
 void main() {
   test('tous âges par défaut', () {
-    expect(AdAudienceRules.current.audience, AdAudience.allAges);
+    expect(AdAudienceRules.current.audience, AdAudience.thirteenPlus);
   });
 
   test('13+ avec consentement accordé : pubs personnalisées permises', () {
