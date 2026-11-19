@@ -280,6 +280,17 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   ),
                 ),
               ),
+              // Bandeau de bienvenue en superposition : il ne pousse pas la mise en page (#546).
+              if (_justCreated && _profile != null)
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: 24,
+                  child: WelcomeBanner(
+                    name: _profile!.name,
+                    onEdit: _openSettings,
+                  ),
+                ),
               GameSafeArea(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
@@ -306,11 +317,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                                   profile: _profile,
                                   onProfileTap: _openSettings,
                                 ),
-                                if (_justCreated && _profile != null)
-                                  WelcomeBanner(
-                                    name: _profile!.name,
-                                    onEdit: _openSettings,
-                                  ),
                                 Expanded(
                                   child: _screen == _MenuScreen.menu
                                       ? _buildMenu(vw: vw, sm: sm, md: md)
