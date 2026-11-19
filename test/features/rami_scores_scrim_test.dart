@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/rami/rami_scores_overlay.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   testWidgets('#591 : le voile s\'estompe à l\'ouverture', (tester) async {
@@ -37,7 +37,8 @@ void main() {
         ),
       ),
     );
-    await tester.tapAt(tester.getCenter(find.byType(RamiScoresScrim)));
+    await tester.tap(find.byType(RamiScoresScrim));
+    await tester.pump();
     expect(taps, 1);
   });
 }
