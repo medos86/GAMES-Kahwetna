@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/card_animations.dart';
-import 'package:kahwetne/core/i18n/app_language.dart';
 import 'package:kahwetne/features/chkobba/chkobba_card_face.dart';
 import 'package:kahwetne/features/chkobba/chkobba_screen.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
