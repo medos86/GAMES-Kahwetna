@@ -33,6 +33,9 @@ part 'ludo_parts/ludo_footer_end.dart';
 const _ink = Color(0xFF20284B);
 const _cream = Color(0xFFFFF8E7);
 const _brown = Color(0xFF4A2A10);
+
+/// Étoile des cases sûres (#596) : or foncé, contraste ≥ 3:1 sur le crème.
+const Color kLudoSafeStarColor = Color(0xFFB26B00);
 const _pipAxis = [22.0, 50.0, 78.0];
 
 /// Points allumés sur chaque face du dé (grille 3 × 3 : index = ligne × 3 + colonne).

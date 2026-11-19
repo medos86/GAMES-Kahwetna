@@ -162,8 +162,8 @@ Positioned _trackCell(int index, Cell cell, double u) {
           ? Center(
               child: Icon(
                 Icons.star,
-                size: u * 0.7,
-                color: const Color(0xFFFFD653),
+                size: u * 0.75,
+                color: kLudoSafeStarColor,
               ),
             )
           : null,
