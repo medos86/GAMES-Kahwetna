@@ -68,6 +68,10 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
   String? _humanAvatarId;
   String? _opponentAvatarId;
 
+  /// Vrai si c'est au tour de [p] et que la partie n'est pas finie (#557).
+  bool _isTurn(Player p) =>
+      _controller.game.winner == null && _controller.game.turn == p;
+
   /// Attribue les avatars de la partie à partir du profil sauvegardé.
   Future<void> _loadAvatars() async {
     final profile = await loadProfile();
@@ -530,19 +534,47 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                   Positioned(
                     top: 0,
                     right: 0,
-                    child: _WonPile(
-                      key: _key('won:opponent'),
-                      count: _shownWon(Player.opponent),
-                      color: ScobaPalette.redText,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_opponentAvatarId != null) ...[
+                          AvatarView(
+                            avatarId: _opponentAvatarId!,
+                            size: 36,
+                            semanticLabel: t('opponent'),
+                            isActive: _isTurn(Player.opponent),
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                        _WonPile(
+                          key: _key('won:opponent'),
+                          count: _shownWon(Player.opponent),
+                          color: ScobaPalette.redText,
+                        ),
+                      ],
                     ),
                   ),
                   Positioned(
                     bottom: 0,
                     right: 0,
-                    child: _WonPile(
-                      key: _key('won:player'),
-                      count: _shownWon(Player.player),
-                      color: ScobaPalette.blueText,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_humanAvatarId != null) ...[
+                          AvatarView(
+                            avatarId: _humanAvatarId!,
+                            size: 36,
+                            semanticLabel: t('you'),
+                            isActive: _isTurn(Player.player),
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                        _WonPile(
+                          key: _key('won:player'),
+                          count: _shownWon(Player.player),
+                          color: ScobaPalette.blueText,
+                        ),
+                      ],
                     ),
                   ),
                   if (_controller.chkobbaBy != null)
