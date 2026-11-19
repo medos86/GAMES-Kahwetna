@@ -58,8 +58,8 @@ void main() {
     );
     await tester.pump();
 
-    final opponentPile = find.text(tf('cardCount', {'n': '3'}));
-    final playerPile = find.text(tf('cardCount', {'n': '1'}));
+    final opponentPile = find.text('3');
+    final playerPile = find.text('1');
     expect(opponentPile, findsOneWidget);
     expect(playerPile, findsOneWidget);
     expect(
