@@ -167,15 +167,23 @@ class _ScoreSide extends StatelessWidget {
 
 /// Tas de cartes gagnées d'un joueur, posé de son côté du tapis (#534) : adversaire en haut, moi en bas.
 class _WonPile extends StatelessWidget {
-  const _WonPile({super.key, required this.count, required this.color});
+  const _WonPile({
+    super.key,
+    required this.count,
+    required this.color,
+    this.chkobbaCard,
+  });
 
   final int count;
   final Color color;
 
+  /// Carte de Chkobba, posée légèrement tournée sous le tas (#594).
+  final ChkobbaCard? chkobbaCard;
+
   /// Seulement le nombre de cartes, sur le décor bois de Chkobba (#593).
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final pile = Container(
       width: 48,
       height: 36,
       decoration: BoxDecoration(
@@ -203,6 +211,23 @@ class _WonPile extends StatelessWidget {
           ],
         ),
       ),
+    );
+    final card = chkobbaCard;
+    if (card == null) return pile;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        pile,
+        const SizedBox(height: 4),
+        Transform.rotate(
+          angle: 0.12,
+          child: SizedBox(
+            width: 30,
+            height: 42,
+            child: ChkobbaCardFace(card: card),
+          ),
+        ),
+      ],
     );
   }
 }

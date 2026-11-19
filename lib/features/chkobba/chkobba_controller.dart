@@ -64,6 +64,9 @@ class ChkobbaController extends PersistentGameController {
   /// Qui vient de faire une Chkobba (table vidée hors dernier coup) : bannière au centre du tapis (#176).
   Player? _chkobbaBy;
   Timer? _chkobbaTimer;
+
+  /// Carte qui a fait la Chkobba de chaque joueur, gardée sous son tas (#594). Vidée à chaque manche.
+  final Map<Player, ChkobbaCard> _chkobbaCards = {};
   String? _opponentChoice;
 
   /// Décision de l'adversaire : prend-il une prise s'il en a une (facile seulement).
@@ -89,6 +92,9 @@ class ChkobbaController extends PersistentGameController {
   Player? get hayaBy => _hayaBy;
 
   Player? get chkobbaBy => _chkobbaBy;
+
+  /// Carte de Chkobba posée sous le tas de [p], ou null (#594).
+  ChkobbaCard? chkobbaCardOf(Player p) => _chkobbaCards[p];
   PendingCapture? get pendingCapture => _pendingCapture;
 
   /// Carte que l'adversaire a montrée et va jouer (phase 1 terminée).
@@ -148,6 +154,7 @@ class ChkobbaController extends PersistentGameController {
     if (summary == null) return;
     final state = summary.state;
     _roundSummary = null;
+    _chkobbaCards.clear();
     if (state.winner == null) {
       _game = dealRound(
         scores: state.scores,
@@ -163,6 +170,7 @@ class ChkobbaController extends PersistentGameController {
 
   void startNewGame() {
     _roundSummary = null;
+    _chkobbaCards.clear();
     _pendingCapture = null;
     _opponentChoice = null;
     _game = newMatch(targetScore: targetScore, random: _random);
@@ -178,6 +186,7 @@ class ChkobbaController extends PersistentGameController {
     _game = next;
     _opponentChoice = null;
     if (chkobba != null) {
+      _chkobbaCards[chkobba] = next.won[chkobba]!.last;
       _chkobbaBy = chkobba;
       _chkobbaTimer?.cancel();
       _chkobbaTimer = Timer(hayaDuration, () {

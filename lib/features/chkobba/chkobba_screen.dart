@@ -509,6 +509,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                       key: _key('won:opponent'),
                       count: _shownWon(Player.opponent),
                       color: ScobaPalette.redText,
+                      chkobbaCard: _controller.chkobbaCardOf(Player.opponent),
                     ),
                   ),
                   Positioned(
@@ -518,6 +519,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                       key: _key('won:player'),
                       count: _shownWon(Player.player),
                       color: ScobaPalette.blueText,
+                      chkobbaCard: _controller.chkobbaCardOf(Player.player),
                     ),
                   ),
                   if (_controller.chkobbaBy != null)
