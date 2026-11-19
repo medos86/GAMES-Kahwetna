@@ -56,26 +56,27 @@ void main() {
     cardAnimations.value = false;
   });
 
-  testWidgets('à moi de jouer : pas de bannière, halo actif', (tester) async {
+  testWidgets('à moi de jouer : pas de bannière, pas de halo jaune', (
+    tester,
+  ) async {
     await _pumpScreen(tester, Player.player);
 
     expect(find.textContaining("Tour de l'adversaire"), findsNothing);
-    final glow = tester.widget<PulseGlow>(find.byType(PulseGlow));
-    expect(glow.active, isTrue);
+    // Pas de halo jaune pour signaler le tour (#588).
+    expect(find.byType(PulseGlow), findsNothing);
     expect(tester.takeException(), isNull);
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
 
-  testWidgets("tour de l'adversaire : bannière affichée, halo éteint", (
+  testWidgets("tour de l'adversaire : bannière affichée, pas de halo", (
     tester,
   ) async {
     await _pumpScreen(tester, Player.opponent);
 
     expect(find.textContaining("Tour de l'adversaire"), findsOneWidget);
-    final glow = tester.widget<PulseGlow>(find.byType(PulseGlow));
-    expect(glow.active, isFalse);
+    expect(find.byType(PulseGlow), findsNothing);
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
