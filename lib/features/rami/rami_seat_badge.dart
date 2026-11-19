@@ -4,6 +4,25 @@ import 'package:material_ui/material_ui.dart';
 /// Les indices sont ceux des sièges (0 = moi, 1 = Ali à droite, 2 = Karim en haut, 3 = Sami à gauche).
 const ramiDealSeatOrder = [1, 2, 3, 0];
 
+/// Côté du tapis où s'affiche le badge d'un adversaire (#589).
+/// Sens horaire depuis moi (en bas) : le joueur suivant est à ma gauche.
+Alignment ramiSeatAlignment(int seat) {
+  switch (seat) {
+    case 1:
+      return Alignment.centerLeft;
+    case 2:
+      return Alignment.topCenter;
+    case 3:
+      return Alignment.centerRight;
+    default:
+      throw ArgumentError.value(
+        seat,
+        'seat',
+        'siège adverse attendu (1 à 3)',
+      );
+  }
+}
+
 /// Badge d'un adversaire posé sur le bord du tapis : nom et nombre de cartes (#532).
 /// Passif et superposé, il ne prend aucune place dans la mise en page.
 class RamiSeatBadge extends StatelessWidget {
