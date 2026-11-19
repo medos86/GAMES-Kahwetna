@@ -7,6 +7,8 @@ import 'app/game_routes.dart';
 import 'core/audio/sounds.dart';
 import 'core/layout/device_metrics.dart';
 import 'core/services/ad_free_service.dart';
+import 'core/services/age_gate_service.dart';
+import 'features/age_gate/age_gate_screen.dart';
 import 'core/services/ads_service.dart';
 import 'core/services/card_animations.dart';
 import 'core/services/toast.dart';
@@ -45,6 +47,8 @@ Future<void> main() async {
   await loadCardAnimations();
   // Échéance du mode sans pub relue avant le premier écran : pas de bannière qui clignote au démarrage.
   await AdFreeService.instance.load();
+  // Réponse à la question d'âge relue avant le premier écran (#567).
+  await AgeGateService.instance.load();
   // SDK publicitaire initialisé sans bloquer le jeu : une erreur d'init ne doit jamais empêcher de jouer.
   unawaited(AdsService.instance.initialize().catchError((Object _) {}));
   runApp(const KahwetneApp());
@@ -95,7 +99,11 @@ class KahwetneApp extends StatelessWidget {
             ? const ComicDemoScreen()
             : kSizeProbe
                 ? const SizeProbeScreen()
-                : const SplashScreen(next: MainMenuScreen(onPlay: _onPlay)),
+                : const SplashScreen(
+                    next: AgeGateGate(
+                      next: MainMenuScreen(onPlay: _onPlay),
+                    ),
+                  ),
       ),
     );
   }
