@@ -9,6 +9,8 @@ import 'i18n/app_language.dart';
 /// Libellés de l'interface, dans la langue courante (issue #100).
 /// Les textes sont dans lib/core/i18n/translations.dart.
 abstract final class Strings {
+  static String get welcomeTitle => t('welcomeTitle');
+  static String get welcomeEdit => t('welcomeEdit');
   static String get pseudoTooShort => t('pseudoTooShort');
   static String get pseudoTooLong => t('pseudoTooLong');
   static String get pseudoInvalid => t('pseudoInvalid');

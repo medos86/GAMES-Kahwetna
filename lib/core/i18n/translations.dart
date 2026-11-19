@@ -177,6 +177,8 @@ const Map<String, String> frTexts = {
   'pseudoTooLong': 'Pseudo trop long (14 caractères maximum).',
   'pseudoInvalid': 'Lettres, chiffres, _ et espaces seulement.',
   'pseudoForbidden': 'Ce pseudo n\'est pas autorisé.',
+  'welcomeTitle': 'Bienvenue, {name} !',
+  'welcomeEdit': 'Modifier',
 };
 
 const Map<String, String> arTexts = {
@@ -348,4 +350,6 @@ const Map<String, String> arTexts = {
   'pseudoTooLong': 'الاسم طويل جدًا (14 حرفًا كحد أقصى).',
   'pseudoInvalid': 'حروف وأرقام و_ ومسافات فقط.',
   'pseudoForbidden': 'هذا الاسم غير مسموح به.',
+  'welcomeTitle': 'مرحبًا، {name} !',
+  'welcomeEdit': 'تعديل',
 };
