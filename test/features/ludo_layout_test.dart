@@ -4,6 +4,14 @@ import 'package:kahwetne/features/ludo/ludo_layout.dart';
 import 'package:kahwetne/game/ludo.dart';
 
 void main() {
+  test(
+    "le pion est plus grand qu'avant (#595) : 0,9 case seul, 0,52 en pile",
+    () {
+      expect(ludoTokenSize, 0.9);
+      expect(ludoStackSize, 0.52);
+    },
+  );
+
   test('un pion en base se place sur le premier emplacement de sa maison', () {
     final placed = layoutTokens(newLudoGame().tokens);
     final red0 = placed.firstWhere((p) => p.token.id == 'red-0');
