@@ -509,7 +509,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                       key: _key('won:opponent'),
                       count: _shownWon(Player.opponent),
                       color: ScobaPalette.redText,
-                      chkobbaCard: _controller.chkobbaCardOf(Player.opponent),
+                      chkobbaCard: _shownChkobbaCard(Player.opponent),
                     ),
                   ),
                   Positioned(
@@ -519,7 +519,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                       key: _key('won:player'),
                       count: _shownWon(Player.player),
                       color: ScobaPalette.blueText,
-                      chkobbaCard: _controller.chkobbaCardOf(Player.player),
+                      chkobbaCard: _shownChkobbaCard(Player.player),
                     ),
                   ),
                   if (_controller.chkobbaBy != null)
@@ -592,6 +592,12 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
   /// Cartes gagnées déjà arrivées au tas (les cartes en vol ne sont pas comptées, #354).
   int _shownWon(Player p) =>
       _controller.game.won[p]!.where((c) => !_capturing.contains(c.id)).length;
+
+  /// Carte de Chkobba sous le tas, une fois arrivée (pas pendant son vol, #594).
+  ChkobbaCard? _shownChkobbaCard(Player p) {
+    final card = _controller.chkobbaCardOf(p);
+    return card == null || _capturing.contains(card.id) ? null : card;
+  }
 
   static int _roundUp(int value, int multiple) =>
       ((value + multiple - 1) ~/ multiple) * multiple;
