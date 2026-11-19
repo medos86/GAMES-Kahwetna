@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
-/// Ordre de distribution : une carte à droite, en haut, à gauche, puis à moi en bas (#532).
-/// Les indices sont ceux des sièges (0 = moi, 1 = Ali à droite, 2 = Karim en haut, 3 = Sami à gauche).
+/// Ordre de distribution : une carte à gauche, en haut, à droite, puis à moi en bas (#532, #589).
+/// Les indices sont ceux des sièges (0 = moi, 1 = Ali à gauche, 2 = Karim en haut, 3 = Sami à droite).
 const ramiDealSeatOrder = [1, 2, 3, 0];
 
 /// Côté du tapis où s'affiche le badge d'un adversaire (#589).

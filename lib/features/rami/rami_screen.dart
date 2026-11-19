@@ -384,21 +384,20 @@ class _RamiScreenState extends State<RamiScreen>
               child: const ColoredBox(color: Colors.black26),
             ),
           ),
+        // Onglet Score dans le coin haut-droit : il ne recouvre plus le badge
+        // du joueur de devant, centré en haut (#590).
         Positioned(
           top: 0,
-          left: 0,
           right: 0,
-          child: Center(
-            child: RamiScoresTab(
-              key: _key('scoretab'),
-              open: _scoresOpen,
-              myScore: g.scores[0],
-              myTurn: _c.myTurn,
-              turnLabel: _c.myTurn
-                  ? Strings.turnShortMine
-                  : tf('ramiOtherTurn', {'n': _seatNames[g.turn]}),
-              onTap: () => setState(() => _scoresOpen = true),
-            ),
+          child: RamiScoresTab(
+            key: _key('scoretab'),
+            open: _scoresOpen,
+            myScore: g.scores[0],
+            myTurn: _c.myTurn,
+            turnLabel: _c.myTurn
+                ? Strings.turnShortMine
+                : tf('ramiOtherTurn', {'n': _seatNames[g.turn]}),
+            onTap: () => setState(() => _scoresOpen = true),
           ),
         ),
         Positioned(
