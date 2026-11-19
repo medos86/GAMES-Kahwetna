@@ -5,8 +5,8 @@
 import '../../game/ludo.dart';
 
 const ludoBoardUnits = 15;
-const ludoTokenSize = 0.8;
-const ludoStackSize = 0.46;
+const ludoTokenSize = 0.9;
+const ludoStackSize = 0.52;
 
 /// Décalages des pions quand plusieurs occupent la même case (diagonale).
 const ludoStackOffsets = <List<double>>[

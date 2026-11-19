@@ -351,6 +351,7 @@ class _TokenButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tone = _toneOf(token.color);
+    final index = token.color.index;
     return Semantics(
       button: clickable,
       label: tf('sPawn', {'c': tone.name}) + (clickable ? t('sToMove') : ''),
@@ -360,27 +361,14 @@ class _TokenButton extends StatelessWidget {
         child: Center(
           child: SizedBox(
             width: visualSize,
-            height: visualSize,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  center: const Alignment(-0.3, -0.4),
-                  colors: [Colors.white, tone.fill, tone.dark],
-                  stops: const [0.1, 0.38, 1],
-                ),
-                border: Border.all(
-                  color: clickable ? Colors.white : _brown,
-                  width: clickable ? 3 : 2,
-                ),
-                boxShadow: const [
-                  BoxShadow(color: _brown, offset: Offset(0, 3)),
-                  BoxShadow(
-                    color: Color(0x59000000),
-                    blurRadius: 8,
-                    offset: Offset(0, 5),
-                  ),
-                ],
+            height: visualSize * 1.2,
+            child: CustomPaint(
+              painter: _PawnPainter(
+                fill: tone.fill,
+                dark: tone.dark,
+                shape: index,
+                outline: clickable ? Colors.white : _brown,
+                outlineWidth: clickable ? 3 : 2,
               ),
             ),
           ),
@@ -388,4 +376,97 @@ class _TokenButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Pion en forme d'épingle (repère de carte) avec un symbole propre à chaque couleur (#595).
+/// La forme et la couleur donnent deux indices indépendants, lisibles en daltonisme.
+class _PawnPainter extends CustomPainter {
+  const _PawnPainter({
+    required this.fill,
+    required this.dark,
+    required this.shape,
+    required this.outline,
+    required this.outlineWidth,
+  });
+
+  final Color fill;
+  final Color dark;
+
+  /// Index de la couleur (0 à 3) : choisit le symbole dessiné au centre.
+  final int shape;
+  final Color outline;
+  final double outlineWidth;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final head = w / 2;
+    final headCenter = Offset(head, w * 0.5);
+    final radius = w * 0.46;
+    final path = Path()
+      ..addOval(Rect.fromCircle(center: headCenter, radius: radius))
+      ..moveTo(head - radius * 0.7, headCenter.dy + radius * 0.6)
+      ..lineTo(head, size.height - 1)
+      ..lineTo(head + radius * 0.7, headCenter.dy + radius * 0.6)
+      ..close();
+    final rect = Rect.fromCircle(center: headCenter, radius: radius);
+    canvas.drawShadow(path, _brown, 3, false);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(-0.3, -0.4),
+          colors: [Colors.white, fill, dark],
+          stops: const [0.1, 0.38, 1],
+        ).createShader(rect),
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = outlineWidth
+        ..color = outline,
+    );
+    _drawSymbol(canvas, headCenter, radius * 0.45);
+  }
+
+  void _drawSymbol(Canvas canvas, Offset c, double r) {
+    final paint = Paint()..color = _brown;
+    switch (shape % 4) {
+      case 0:
+        canvas.drawCircle(c, r * 0.6, paint);
+      case 1:
+        canvas.drawPath(
+          Path()
+            ..moveTo(c.dx, c.dy - r)
+            ..lineTo(c.dx + r, c.dy + r * 0.8)
+            ..lineTo(c.dx - r, c.dy + r * 0.8)
+            ..close(),
+          paint,
+        );
+      case 2:
+        canvas.drawRect(
+          Rect.fromCenter(center: c, width: r * 1.6, height: r * 1.6),
+          paint,
+        );
+      default:
+        canvas.drawPath(
+          Path()
+            ..moveTo(c.dx, c.dy - r)
+            ..lineTo(c.dx + r, c.dy)
+            ..lineTo(c.dx, c.dy + r)
+            ..lineTo(c.dx - r, c.dy)
+            ..close(),
+          paint,
+        );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_PawnPainter old) =>
+      old.fill != fill ||
+      old.dark != dark ||
+      old.shape != shape ||
+      old.outline != outline ||
+      old.outlineWidth != outlineWidth;
 }
