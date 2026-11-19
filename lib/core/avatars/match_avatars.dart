@@ -15,8 +15,8 @@ List<String> avatarsBySeat({
   if (humanSeat < 0 || humanSeat >= seats) {
     throw RangeError.range(humanSeat, 0, seats - 1, 'humanSeat');
   }
-  final ids = AvatarAllocator(random: random)
-      .allocate(count: seats, humanId: humanId);
+  final allocator = AvatarAllocator(random: random);
+  final ids = allocator.allocate(count: seats, humanId: humanId);
   final result = List<String>.filled(seats, '');
   result[humanSeat] = ids.first;
   var next = 1;
