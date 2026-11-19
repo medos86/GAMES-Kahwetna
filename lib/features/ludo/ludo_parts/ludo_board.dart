@@ -1,5 +1,8 @@
 part of '../ludo_screen.dart';
 
+/// Étoile des cases sûres (#596) : or foncé, contraste ≥ 3:1 sur le crème du plateau.
+const Color kLudoSafeStarColor = Color(0xFFB26B00);
+
 class _Board extends StatelessWidget {
   const _Board({required this.controller});
 
@@ -162,8 +165,8 @@ Positioned _trackCell(int index, Cell cell, double u) {
           ? Center(
               child: Icon(
                 Icons.star,
-                size: u * 0.7,
-                color: const Color(0xFFFFD653),
+                size: u * 0.75,
+                color: kLudoSafeStarColor,
               ),
             )
           : null,
