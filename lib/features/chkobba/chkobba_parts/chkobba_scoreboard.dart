@@ -99,7 +99,6 @@ class _Scoreboard extends StatelessWidget {
 
 class _ScoreSide extends StatelessWidget {
   const _ScoreSide({
-    super.key,
     required this.name,
     required this.score,
     required this.chkobbas,
