@@ -375,15 +375,15 @@ class _RamiScreenState extends State<RamiScreen>
               ),
             ),
           ),
-        // Toucher le tapis hors du panneau le referme (sans jouer le coup).
-        if (_scoresOpen)
-          Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _closeScores,
-              child: const ColoredBox(color: Colors.black26),
-            ),
+        // Voile qui s'estompe avec le panneau (#591) ; toucher le tapis hors du
+        // panneau le referme (sans jouer le coup).
+        Positioned.fill(
+          child: RamiScoresScrim(
+            key: _key('scrim'),
+            open: _scoresOpen,
+            onTap: _closeScores,
           ),
+        ),
         // Onglet Score dans le coin haut-droit : il ne recouvre plus le badge
         // du joueur de devant, centré en haut (#590).
         Positioned(

@@ -65,6 +65,32 @@ class RamiScoresTab extends StatelessWidget {
   }
 }
 
+/// Voile sombre derrière le panneau des scores (#591) : il s'estompe en même
+/// temps que le panneau. Ignoré par les gestes quand le panneau est fermé.
+class RamiScoresScrim extends StatelessWidget {
+  const RamiScoresScrim({super.key, required this.open, required this.onTap});
+
+  final bool open;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      ignoring: !open,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: AnimatedOpacity(
+          opacity: open ? 1 : 0,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          child: const ColoredBox(color: Colors.black26),
+        ),
+      ),
+    );
+  }
+}
+
 /// Panneau des scores : glisse depuis le haut, avec un bouton pour le refermer (#528).
 class RamiScoresPanel extends StatelessWidget {
   const RamiScoresPanel({
