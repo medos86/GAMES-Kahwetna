@@ -179,6 +179,10 @@ const Map<String, String> frTexts = {
   'pseudoForbidden': 'Ce pseudo n\'est pas autorisé.',
   'welcomeTitle': 'Bienvenue, {name} !',
   'welcomeEdit': 'Modifier',
+  'profileSection': 'Profil',
+  'profileName': 'Pseudo',
+  'profileSave': 'Enregistrer',
+  'profileChangeAvatar': 'Changer d\'avatar',
 };
 
 const Map<String, String> arTexts = {
@@ -352,4 +356,8 @@ const Map<String, String> arTexts = {
   'pseudoForbidden': 'هذا الاسم غير مسموح به.',
   'welcomeTitle': 'مرحبًا، {name} !',
   'welcomeEdit': 'تعديل',
+  'profileSection': 'الملف الشخصي',
+  'profileName': 'الاسم',
+  'profileSave': 'حفظ',
+  'profileChangeAvatar': 'تغيير الصورة الرمزية',
 };

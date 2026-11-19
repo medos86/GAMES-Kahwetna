@@ -4,6 +4,7 @@ import '../../core/services/card_animations.dart';
 
 import '../../core/i18n/app_language.dart';
 import '../../core/theme/comic_palette.dart';
+import 'profile_section.dart';
 
 /// Écran Paramètres (issue #116) : pour l'instant seul le choix de la langue (FR / عربي).
 /// Accessible depuis le menu principal. Le choix est sauvegardé et appliqué tout de suite.
@@ -35,6 +36,9 @@ class SettingsScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                // Profil en tête des réglages (#547) : pseudo et avatar.
+                const ProfileSection(),
+                const SizedBox(height: 24),
                 Text(
                   t('settingsDisplay').toUpperCase(),
                   style: const TextStyle(
