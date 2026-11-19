@@ -57,4 +57,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(_isStill(inactif), isTrue);
   });
+
+  test('#598 : la cible tactile du dé respecte le minimum de 48 dp', () {
+    expect(kLudoDieTapSize, greaterThanOrEqualTo(48));
+  });
 }

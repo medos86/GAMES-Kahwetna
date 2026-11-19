@@ -1,5 +1,8 @@
 part of '../ludo_screen.dart';
 
+/// Taille minimale de la cible tactile du dé (#598) : au-dessus du minimum 48 dp.
+const double kLudoDieTapSize = 56;
+
 /// Dé cliquable du joueur actif : pulse tant qu'il peut lancer (désactivé si
 /// l'utilisateur a réduit les animations).
 class _RollableDie extends StatefulWidget {
@@ -61,9 +64,13 @@ class _RollableDieState extends State<_RollableDie>
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: widget.onTap,
-        // Cible tactile d'au moins 44 px (issue #23), même si le dé affiché est plus petit.
+        // Cible tactile d'au moins 56 dp (issue #598, au-dessus du minimum 48 dp),
+        // même si le dé affiché est plus petit.
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+          constraints: const BoxConstraints(
+            minWidth: kLudoDieTapSize,
+            minHeight: kLudoDieTapSize,
+          ),
           child: Center(
             child: AnimatedBuilder(
               animation: _pulse,
