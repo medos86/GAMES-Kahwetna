@@ -50,6 +50,9 @@ void main() {
   testWidgets('tap sur l\'avatar ouvre la grille, Valider sauvegarde', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
     await pump(tester);
     await tester.pumpAndSettle();
     await tester.tap(find.byType(AvatarView).first);
