@@ -59,7 +59,7 @@ void main() {
     await tester.pump(const Duration(seconds: 8));
 
     // Deux cartes gagnées : la carte jouée et celle du tapis.
-    final twoCards = tf('cardCount', {'n': '2'});
+    final twoCards = '2';
     final play = tester.widget<ChkobbaCardFace>(
       find.byWidgetPredicate(
         (w) => w is ChkobbaCardFace && w.card.id == 'batons-5',
