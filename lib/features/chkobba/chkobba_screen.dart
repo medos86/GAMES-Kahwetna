@@ -27,6 +27,7 @@ import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
 import '../../widgets/card_flight.dart';
 import '../../widgets/card_motion.dart';
+import '../../widgets/pulse_glow.dart';
 
 part 'chkobba_parts/chkobba_backgrounds.dart';
 part 'chkobba_parts/chkobba_scoreboard.dart';
@@ -540,30 +541,33 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                         burstSize: 110,
                       ),
                     ),
-                  // Bannière de tour : toujours réservée, visible seulement quand l'adversaire réfléchit.
-                  Positioned(
-                    bottom: 6,
-                    left: 0,
-                    right: 0,
-                    child: IgnorePointer(
-                      child: Opacity(
-                        opacity: thinking ? 1 : 0,
-                        child: const Center(child: _ThinkingBadge()),
+                  // Bannière de tour : seulement quand l'adversaire réfléchit, sans place réservée (#535).
+                  if (thinking)
+                    const Positioned(
+                      bottom: 6,
+                      left: 0,
+                      right: 0,
+                      child: IgnorePointer(
+                        child: Center(child: _ThinkingBadge()),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
             // Main du joueur, plus grande que celle de l'adversaire.
-            _Hand(
-              cards: game.hands[Player.player]!,
-              width: cardWidth,
-              height: cardHeight,
-              builder: (card) => ChkobbaCardFace(
-                key: _key('hand:${card.id}'),
-                card: card,
-                onTap: canPlay ? () => _onPlayerCard(card.id) : null,
+            // Halo doré qui pulse quand c'est à moi de jouer, sans bannière (#535).
+            PulseGlow(
+              active: canPlay,
+              radius: 14,
+              child: _Hand(
+                cards: game.hands[Player.player]!,
+                width: cardWidth,
+                height: cardHeight,
+                builder: (card) => ChkobbaCardFace(
+                  key: _key('hand:${card.id}'),
+                  card: card,
+                  onTap: canPlay ? () => _onPlayerCard(card.id) : null,
+                ),
               ),
             ),
             const SizedBox(height: 8),
