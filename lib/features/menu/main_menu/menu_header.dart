@@ -75,14 +75,32 @@ class _Header extends StatelessWidget {
   }
 }
 
-/// Dialogue « Confidentialité » : accorder, refuser ou retirer le consentement (#466).
+/// Dialogue « Confidentialité » : accorder, refuser ou retirer le consentement
+/// (#466), revoir les choix UMP et réinitialiser la réponse d'âge (#570).
 Future<void> _showPrivacyDialog(BuildContext context) {
   final consent = ConsentService.instance;
   return showDialog<void>(
     context: context,
     builder: (dialogContext) => AlertDialog(
       title: Text(Strings.privacyTitle),
-      content: Text(Strings.privacyBody),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(Strings.privacyBody),
+          TextButton(
+            onPressed: () => showUmpPrivacyOptions(),
+            child: Text(Strings.privacyReviewChoices),
+          ),
+          TextButton(
+            onPressed: () async {
+              await AgeGateService.instance.reset();
+              if (dialogContext.mounted) Navigator.of(dialogContext).pop();
+            },
+            child: Text(Strings.privacyResetAge),
+          ),
+        ],
+      ),
       actions: [
         TextButton(
           onPressed: () async {

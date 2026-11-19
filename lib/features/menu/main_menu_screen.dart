@@ -11,6 +11,8 @@ import '../../core/theme/comic_palette.dart';
 import '../../core/theme/game_style.dart';
 import '../../widgets/comic/comic_panel.dart';
 import '../../core/services/ad_consent.dart';
+import '../../core/services/age_gate_service.dart';
+import '../../core/services/privacy_options.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/comic/halftone_overlay.dart';
 import '../../widgets/fade_slide_in.dart';

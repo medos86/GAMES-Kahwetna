@@ -48,6 +48,8 @@ abstract final class Strings {
   static String get ageChange => t('ageChange');
   static String get ageChangeTitle => t('ageChangeTitle');
   static String get ageCancel => t('ageCancel');
+  static String get privacyReviewChoices => t('privacyReviewChoices');
+  static String get privacyResetAge => t('privacyResetAge');
   static String get privacyWithdraw => t('privacyWithdraw');
   static String get menuTagline => t('menuTagline');
   static String get menuChooseTable => t('menuChooseTable');
