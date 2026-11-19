@@ -43,7 +43,7 @@ class AgeGateRecord {
       if (answer.name == name && answer != AgeAnswer.unanswered) {
         return AgeGateRecord(
           answer: answer,
-          answeredAt: DateTime.fromMillisecondsSinceEpoch(millis),
+          answeredAt: DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true),
           textVersion: version,
         );
       }
