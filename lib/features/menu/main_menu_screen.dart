@@ -15,6 +15,10 @@ import '../../widgets/exit_guard.dart';
 import '../../widgets/comic/halftone_overlay.dart';
 import '../../widgets/fade_slide_in.dart';
 import '../settings/settings_screen.dart';
+import '../../core/services/first_launch_profile.dart';
+import '../../core/services/profile_store.dart';
+import '../../widgets/profile_chip.dart';
+import 'welcome_banner.dart';
 import '../../widgets/pressable.dart';
 import '../../widgets/texture_patterns.dart';
 import 'game_icons.dart';
@@ -60,14 +64,43 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   final AdFreeService _adFree = AdFreeService.instance;
   int _adFreeLeft = 0;
   Timer? _timer;
+  PlayerProfile? _profile;
+  bool _justCreated = false;
 
   @override
   void initState() {
     super.initState();
+    _loadProfile();
     // L'échéance conservée est relue au démarrage (main) ; ici on suit seulement le service.
     _adFreeLeft = _secondsLeft();
     _adFree.active.addListener(_syncAdFree);
     _startCountdown();
+  }
+
+  /// Premier lancement : profil créé et bandeau de bienvenue (#544, #546).
+  Future<void> _loadProfile() async {
+    final setup = await ensureProfile();
+    if (!mounted) return;
+    setState(() {
+      _profile = setup.profile;
+      _justCreated = setup.created;
+    });
+  }
+
+  /// Ouvre les réglages ; à leur fermeture, le pseudo et l'avatar sont relus.
+  void _openSettings() {
+    setState(() => _justCreated = false);
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
+        )
+        .then((_) => _refreshProfile());
+  }
+
+  Future<void> _refreshProfile() async {
+    final profile = await loadProfile();
+    if (!mounted) return;
+    setState(() => _profile = profile);
   }
 
   @override
@@ -247,6 +280,17 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   ),
                 ),
               ),
+              // Bandeau de bienvenue en superposition : il ne pousse pas la mise en page (#546).
+              if (_justCreated && _profile != null)
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: 24,
+                  child: WelcomeBanner(
+                    name: _profile!.name,
+                    onEdit: _openSettings,
+                  ),
+                ),
               GameSafeArea(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
@@ -270,6 +314,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                                     _difficulty = Difficulty.facile;
                                     _screen = _MenuScreen.menu;
                                   }),
+                                  profile: _profile,
+                                  onProfileTap: _openSettings,
                                 ),
                                 Expanded(
                                   child: _screen == _MenuScreen.menu

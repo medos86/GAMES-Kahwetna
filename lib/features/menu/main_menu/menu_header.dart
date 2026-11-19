@@ -5,16 +5,27 @@ class _Header extends StatelessWidget {
     required this.difficulty,
     required this.screen,
     required this.onBack,
+    this.profile,
+    this.onProfileTap,
   });
 
   final Difficulty difficulty;
   final _MenuScreen screen;
   final VoidCallback onBack;
+  final PlayerProfile? profile;
+  final VoidCallback? onProfileTap;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
+        // Pastille profil (#546) : avatar + pseudo, sur l'écran principal seulement.
+        if (screen == _MenuScreen.menu && profile != null)
+          ProfileChip(
+            name: profile!.name,
+            avatarId: profile!.avatarId,
+            onTap: onProfileTap ?? () {},
+          ),
         // Pas de solde affiché : aucune économie n'est définie (#118).
         if (screen != _MenuScreen.menu)
           _GlassButton(

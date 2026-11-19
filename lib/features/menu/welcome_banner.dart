@@ -12,19 +12,32 @@ class WelcomeBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            Strings.welcomeTitle.replaceFirst('{name}', name),
-            style: const TextStyle(fontWeight: FontWeight.w900),
-          ),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8E7),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF15264D), width: 2),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                Strings.welcomeTitle.replaceFirst('{name}', name),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF15264D),
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: onEdit,
+              child: Text(Strings.welcomeEdit),
+            ),
+          ],
         ),
-        TextButton(
-          onPressed: onEdit,
-          child: Text(Strings.welcomeEdit),
-        ),
-      ],
+      ),
     );
   }
 }
