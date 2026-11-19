@@ -463,10 +463,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
               child: _Scoreboard(
                 game: game,
-                playerWonKey: _key('won:player'),
-                opponentWonKey: _key('won:opponent'),
                 deckKey: _key('deck'),
-                capturing: _capturing,
               ),
             ),
             const SizedBox(height: 8),
@@ -504,6 +501,25 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                         ),
                       ),
                     ),
+                  // Tas de cartes gagnées de chacun : adversaire en haut, moi en bas (#534).
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: _WonPile(
+                      key: _key('won:opponent'),
+                      count: _shownWon(Player.opponent),
+                      color: ScobaPalette.redText,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: _WonPile(
+                      key: _key('won:player'),
+                      count: _shownWon(Player.player),
+                      color: ScobaPalette.blueText,
+                    ),
+                  ),
                   if (_controller.chkobbaBy != null)
                     Positioned.fill(
                       child: Center(
@@ -571,6 +587,10 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       ],
     );
   }
+
+  /// Cartes gagnées déjà arrivées au tas (les cartes en vol ne sont pas comptées, #354).
+  int _shownWon(Player p) =>
+      _controller.game.won[p]!.where((c) => !_capturing.contains(c.id)).length;
 
   static int _roundUp(int value, int multiple) =>
       ((value + multiple - 1) ~/ multiple) * multiple;

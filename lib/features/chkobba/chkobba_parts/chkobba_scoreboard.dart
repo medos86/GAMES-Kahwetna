@@ -36,26 +36,13 @@ class _TargetBadge extends StatelessWidget {
 class _Scoreboard extends StatelessWidget {
   const _Scoreboard({
     required this.game,
-    this.playerWonKey,
-    this.opponentWonKey,
     this.deckKey,
-    this.capturing = const {},
   });
-
-  /// Cartes encore en vol vers le tas : non comptées tant qu'elles n'arrivent pas (#354).
-  final Set<String> capturing;
 
   /// Clé de la pioche (cible de la donne animée, #238).
   final Key? deckKey;
 
   final ChkobbaState game;
-
-  /// Clés des tas de cartes gagnées (cibles des captures animées, #238).
-  final Key? playerWonKey;
-  final Key? opponentWonKey;
-
-  int wonShown(Player p) =>
-      game.won[p]!.where((c) => !capturing.contains(c.id)).length;
 
   @override
   Widget build(BuildContext context) {
@@ -82,11 +69,9 @@ class _Scoreboard extends StatelessWidget {
           children: [
             Flexible(
               child: _ScoreSide(
-                key: playerWonKey,
                 name: t('you'),
                 score: game.scores[Player.player]!,
                 chkobbas: game.chkobbas[Player.player]!,
-                cards: wonShown(Player.player),
                 color: ScobaPalette.blueText,
               ),
             ),
@@ -99,11 +84,9 @@ class _Scoreboard extends StatelessWidget {
             ),
             Flexible(
               child: _ScoreSide(
-                key: opponentWonKey,
                 name: t('opponent'),
                 score: game.scores[Player.opponent]!,
                 chkobbas: game.chkobbas[Player.opponent]!,
-                cards: wonShown(Player.opponent),
                 color: ScobaPalette.redText,
               ),
             ),
@@ -120,14 +103,12 @@ class _ScoreSide extends StatelessWidget {
     required this.name,
     required this.score,
     required this.chkobbas,
-    required this.cards,
     required this.color,
   });
 
   final String name;
   final int score;
   final int chkobbas;
-  final int cards;
   final Color color;
 
   @override
@@ -177,12 +158,41 @@ class _ScoreSide extends StatelessWidget {
             children: [
               const Icon(Icons.star, size: 12, color: ScobaPalette.blueText),
               Text(' $chkobbas', style: info),
-              const SizedBox(width: 8),
-              Text(tf('cardCount', {'n': '$cards'}), style: info),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Tas de cartes gagnées d'un joueur, posé de son côté du tapis (#534) : adversaire en haut, moi en bas.
+class _WonPile extends StatelessWidget {
+  const _WonPile({super.key, required this.count, required this.color});
+
+  final int count;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 56,
+      height: 40,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color, width: 2),
+        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 3))],
+      ),
+      child: Text(
+        tf('cardCount', {'n': '$count'}),
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w900,
+          color: ScobaPalette.ink,
+        ),
+      ),
     );
   }
 }
