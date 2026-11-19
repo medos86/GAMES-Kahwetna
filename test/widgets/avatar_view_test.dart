@@ -39,7 +39,7 @@ void main() {
 
   testWidgets('la taille demandée est appliquée', (tester) async {
     await pump(tester, const AvatarView(avatarId: 'cat', size: 32));
-    final box = tester.getSize(find.byType(SizedBox).first);
+    final box = tester.getSize(find.byType(ClipOval));
     expect(box, const Size(32, 32));
   });
 
