@@ -31,6 +31,9 @@ flutter:
     - assets/images/cards_cartoon/
     - assets/images/cards_rami/
     - assets/images/game_bg/
+    - assets/images/avatars/neutral/
+    - assets/images/avatars/happy/
+    - assets/images/avatars/angry/
     - assets/icons/
     - assets/sounds/domino/
   fonts:
