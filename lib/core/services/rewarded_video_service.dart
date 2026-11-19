@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import 'ad_request_policy.dart';
 import 'ads_service.dart';
 
 /// Source d'une vidéo récompensée (issue #470).
@@ -31,7 +32,7 @@ class GoogleRewardedAdAdapter implements RewardedAdAdapter {
     try {
       await RewardedAd.load(
         adUnitId: AdUnitIds.rewarded(defaultTargetPlatform),
-        request: const AdRequest(),
+        request: currentAdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (ad) => _ad = ad,
           onAdFailedToLoad: (_) => _ad = null,

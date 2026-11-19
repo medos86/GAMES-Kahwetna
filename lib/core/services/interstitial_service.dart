@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import 'ad_request_policy.dart';
 import 'ad_free_service.dart';
 import 'ad_policy.dart';
 import 'ads_service.dart';
@@ -30,7 +31,7 @@ class GoogleInterstitialAdAdapter implements InterstitialAdAdapter {
     try {
       await InterstitialAd.load(
         adUnitId: AdUnitIds.interstitial(defaultTargetPlatform),
-        request: const AdRequest(),
+        request: currentAdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (ad) => _ad = ad,
           onAdFailedToLoad: (_) => _ad = null,

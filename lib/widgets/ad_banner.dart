@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../core/services/ad_request_policy.dart';
 import '../core/services/ads_service.dart';
 
 /// Hauteur fixe de la bannière : la table ne bouge jamais (issue #469).
@@ -33,7 +34,7 @@ class _AdBannerState extends State<AdBanner> {
       final ad = BannerAd(
         adUnitId: AdUnitIds.banner(defaultTargetPlatform),
         size: AdSize.banner,
-        request: const AdRequest(),
+        request: currentAdRequest(),
         listener: BannerAdListener(
           onAdLoaded: (_) {
             if (mounted) setState(() => _loaded = true);
