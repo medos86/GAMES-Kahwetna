@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:kahwetne/features/ludo/ludo_parts/ludo_board.dart';
+import 'package:kahwetne/features/ludo/ludo_screen.dart';
 
 double _lin(double v) {
   if (v <= 0.03928) return v / 12.92;
