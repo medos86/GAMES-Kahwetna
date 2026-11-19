@@ -12,6 +12,16 @@ double ramiPileWidth(double handWidth) => handWidth * ramiPileScale;
 /// Écartement des cartes d'un paquet sur le tapis, en fraction de la largeur d'une carte.
 const double ramiMeldStepRatio = 0.4;
 
+/// Décalage entre deux cartes posées dans une même combinaison (#592).
+const Duration ramiPoseStagger = Duration(milliseconds: 120);
+
+/// Coin gauche de la carte n°[index] d'une combinaison dont le coin gauche est [left] (#592).
+double ramiMeldSlotLeft(double left, double cardWidth, int index) =>
+    left + cardWidth * ramiMeldStepRatio * index;
+
+/// Délai de la carte n°[index] posée : les cartes d'un paquet volent une à une (#592).
+Duration ramiPoseDelay(int index) => ramiPoseStagger * index;
+
 /// Marge réelle d'un paquet sur le tapis : 4 px de padding + bordure de 2 px, de chaque côté (#453).
 const double _meldPadding = 12;
 const double _meldGap = 3;

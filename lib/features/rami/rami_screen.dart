@@ -625,15 +625,20 @@ class _RamiScreenState extends State<RamiScreen>
   /// Vol des cartes qui quittent la main vers leur destination (défausse, combinaison, tapis).
   void _flyLeaving(List<rules.RamiCard> leaving) {
     final flights = <CardFlight>[];
+    var posed = 0;
     for (final card in leaving) {
       final from = _rectOf(_key('hand:${card.id}'));
       if (from == null) continue;
+      // Cartes posées en combinaison : une à une, dans l'ordre du paquet (#592).
+      final isPosed = _isInMeld(card.id);
       flights.add(
         CardFlight(
           from: from,
           to: () => _targetFor(card.id, from),
           child: RamiCardView(card: card, width: from.width),
-          delay: _flightStagger * flights.length,
+          delay: isPosed
+              ? ramiPoseDelay(posed++)
+              : _flightStagger * flights.length,
           landingId: card.id,
         ),
       );
@@ -646,15 +651,25 @@ class _RamiScreenState extends State<RamiScreen>
     final g = _c.game;
     if (_c.top?.id == id) return _rectOf(_key('discard'));
     for (final meld in g.table) {
-      if (meld.cards.any((card) => card.id == id)) {
+      final index = meld.cards.indexWhere((card) => card.id == id);
+      if (index >= 0) {
         final r = _rectOf(_key('meld:${meld.id}'));
-        return r == null
-            ? null
-            : Rect.fromLTWH(r.left, r.top, from.width, from.height);
+        if (r == null) return null;
+        // Chaque carte vise sa place dans le paquet, pas le paquet entier (#592).
+        return Rect.fromLTWH(
+          ramiMeldSlotLeft(r.left, from.width, index),
+          r.top,
+          from.width,
+          from.height,
+        );
       }
     }
     return null;
   }
+
+  bool _isInMeld(String id) => _c.game.table.any(
+        (meld) => meld.cards.any((card) => card.id == id),
+      );
 
   /// Place d'un adversaire pour un dos de carte (centre de son bloc, taille de la carte).
   Rect? _seatTarget(int seat, Rect from) {
