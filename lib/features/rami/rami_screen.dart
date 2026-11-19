@@ -358,40 +358,23 @@ class _RamiScreenState extends State<RamiScreen>
       clipBehavior: Clip.none,
       children: [
         Positioned.fill(child: _tableSection(handWidth, g)),
-        // Badges des adversaires sur le bord du tapis : droite, haut, gauche (#532).
-        Align(
-          alignment: Alignment.centerRight,
-          child: Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: RamiSeatBadge(
-              key: _key('dest:1'),
-              name: _seatNames[1],
-              cards: g.hands[1].length,
+        // Badges des adversaires sur le bord du tapis, sens horaire (#589).
+        for (final seat in const [1, 2, 3])
+          Align(
+            alignment: ramiSeatAlignment(seat),
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: seat == 1 ? 4 : 0,
+                top: seat == 2 ? 4 : 0,
+                right: seat == 3 ? 4 : 0,
+              ),
+              child: RamiSeatBadge(
+                key: _key('dest:$seat'),
+                name: _seatNames[seat],
+                cards: g.hands[seat].length,
+              ),
             ),
           ),
-        ),
-        Align(
-          alignment: Alignment.topCenter,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: RamiSeatBadge(
-              key: _key('dest:2'),
-              name: _seatNames[2],
-              cards: g.hands[2].length,
-            ),
-          ),
-        ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 4),
-            child: RamiSeatBadge(
-              key: _key('dest:3'),
-              name: _seatNames[3],
-              cards: g.hands[3].length,
-            ),
-          ),
-        ),
         // Toucher le tapis hors du panneau le referme (sans jouer le coup).
         if (_scoresOpen)
           Positioned.fill(
