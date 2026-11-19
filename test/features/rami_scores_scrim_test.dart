@@ -33,7 +33,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: RamiScoresScrim(open: true, onTap: () => taps++),
+          body: SizedBox.expand(
+            child: RamiScoresScrim(open: true, onTap: () => taps++),
+          ),
         ),
       ),
     );
