@@ -1,12 +1,18 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../core/avatars/avatar_catalog.dart';
+import '../core/services/card_animations.dart';
+import '../core/theme/comic_palette.dart';
 
 /// Avatar dans un cercle, dans l'état demandé (issue #545).
 ///
 /// [size] est en dp. Les petites tailles (barre de score) sont permises : la cible
 /// tactile de 48 dp est alors assurée par le parent. Sans image, affiche l'initiale
 /// de [semanticLabel] sur fond neutre.
+///
+/// [isActive] (issue #557) : joueur dont c'est le tour. Actif : pleine opacité,
+/// anneau et léger agrandissement. Inactif : opacité 0,55, sans anneau.
+/// Les transitions suivent le réglage des animations (#224).
 class AvatarView extends StatelessWidget {
   const AvatarView({
     super.key,
@@ -14,31 +20,53 @@ class AvatarView extends StatelessWidget {
     this.state = AvatarState.neutral,
     this.size = 48,
     this.semanticLabel = 'Avatar',
+    this.isActive = true,
   });
 
   final String avatarId;
   final AvatarState state;
   final double size;
   final String semanticLabel;
+  final bool isActive;
 
   @override
   Widget build(BuildContext context) {
     final avatar = avatarById(avatarId);
+    final duration = cardAnimations.value
+        ? const Duration(milliseconds: 200)
+        : Duration.zero;
+    final image = SizedBox(
+      width: size,
+      height: size,
+      child: Image.asset(
+        avatar.assetFor(state),
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _InitialFallback(
+          label: semanticLabel,
+          size: size,
+        ),
+      ),
+    );
+    final ring = DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isActive ? ComicPalette.yellow : Colors.transparent,
+          width: 3,
+        ),
+      ),
+      child: ClipOval(child: image),
+    );
     return Semantics(
       label: semanticLabel,
       image: true,
-      child: ClipOval(
-        child: SizedBox(
-          width: size,
-          height: size,
-          child: Image.asset(
-            avatar.assetFor(state),
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => _InitialFallback(
-              label: semanticLabel,
-              size: size,
-            ),
-          ),
+      child: AnimatedScale(
+        scale: isActive ? 1.08 : 1,
+        duration: duration,
+        child: AnimatedOpacity(
+          opacity: isActive ? 1 : 0.55,
+          duration: duration,
+          child: ring,
         ),
       ),
     );
