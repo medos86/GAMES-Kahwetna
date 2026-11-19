@@ -56,7 +56,9 @@ void main() {
     cardAnimations.value = false;
   });
 
-  testWidgets('à moi de jouer : pas de bannière, pas de halo jaune', (tester) async {
+  testWidgets('à moi de jouer : pas de bannière, pas de halo jaune', (
+    tester,
+  ) async {
     await _pumpScreen(tester, Player.player);
 
     expect(find.textContaining("Tour de l'adversaire"), findsNothing);
