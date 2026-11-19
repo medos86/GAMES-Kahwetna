@@ -48,6 +48,14 @@ const _pipLayout = <int, List<int>>{
   6: [0, 2, 3, 5, 6, 8],
 };
 
+/// Couleurs de joueurs (#597) : identiques aux valeurs de [_toneOf].
+const kLudoFills = <LudoColor, Color>{
+  LudoColor.red: Color(0xFFD55E00),
+  LudoColor.green: Color(0xFF009E73),
+  LudoColor.yellow: Color(0xFFE69F00),
+  LudoColor.blue: Color(0xFF0072B2),
+};
+
 class _Tone {
   const _Tone(this.fill, this.dark, this.tint, this.name);
   final Color fill;
@@ -56,29 +64,30 @@ class _Tone {
   final String name;
 }
 
+/// Palette Okabe-Ito (#597), distinguable en daltonisme ; voir [kLudoFills].
 _Tone _toneOf(LudoColor color) => switch (color) {
       LudoColor.red => const _Tone(
-          Color(0xFFE43F5F),
-          Color(0xFF8F203D),
-          Color(0xFFFFD3DC),
+          Color(0xFFD55E00),
+          Color(0xFF7A3300),
+          Color(0xFFFFE0CC),
           'Rouge',
         ),
       LudoColor.green => const _Tone(
-          Color(0xFF49C9A7),
-          Color(0xFF14705B),
-          Color(0xFFC9F5E8),
+          Color(0xFF009E73),
+          Color(0xFF00503B),
+          Color(0xFFCCF0E5),
           'Vert',
         ),
       LudoColor.yellow => const _Tone(
-          Color(0xFFFFD653),
-          Color(0xFF9A6B00),
-          Color(0xFFFFF1BF),
+          Color(0xFFE69F00),
+          Color(0xFF6E4A00),
+          Color(0xFFFFF0CC),
           'Jaune',
         ),
       LudoColor.blue => const _Tone(
-          Color(0xFF1676D2),
-          Color(0xFF0B3F7A),
-          Color(0xFFCFE5FB),
+          Color(0xFF0072B2),
+          Color(0xFF003F66),
+          Color(0xFFCCE4F2),
           'Bleu',
         ),
     };
