@@ -33,19 +33,25 @@ class _TargetBadge extends StatelessWidget {
 }
 
 /// Tableau de bord : score de chaque joueur, Chkobba, cartes ramassées et pioche.
+/// Avatars (#551) : le joueur dont c'est le tour est actif (#557).
 class _Scoreboard extends StatelessWidget {
   const _Scoreboard({
     required this.game,
     this.deckKey,
+    this.humanAvatarId,
+    this.opponentAvatarId,
   });
 
   /// Clé de la pioche (cible de la donne animée, #238).
   final Key? deckKey;
 
   final ChkobbaState game;
+  final String? humanAvatarId;
+  final String? opponentAvatarId;
 
   @override
   Widget build(BuildContext context) {
+    final playing = game.winner == null;
     return Semantics(
       container: true,
       label: tf('sChkScore', {
@@ -73,6 +79,8 @@ class _Scoreboard extends StatelessWidget {
                 score: game.scores[Player.player]!,
                 chkobbas: game.chkobbas[Player.player]!,
                 color: ScobaPalette.blueText,
+                avatarId: humanAvatarId,
+                isActive: playing && game.turn == Player.player,
               ),
             ),
             Semantics(
@@ -88,6 +96,8 @@ class _Scoreboard extends StatelessWidget {
                 score: game.scores[Player.opponent]!,
                 chkobbas: game.chkobbas[Player.opponent]!,
                 color: ScobaPalette.redText,
+                avatarId: opponentAvatarId,
+                isActive: playing && game.turn == Player.opponent,
               ),
             ),
           ],
@@ -103,12 +113,16 @@ class _ScoreSide extends StatelessWidget {
     required this.score,
     required this.chkobbas,
     required this.color,
+    this.avatarId,
+    this.isActive = false,
   });
 
   final String name;
   final int score;
   final int chkobbas;
   final Color color;
+  final String? avatarId;
+  final bool isActive;
 
   @override
   Widget build(BuildContext context) {
@@ -117,26 +131,41 @@ class _ScoreSide extends StatelessWidget {
       fontWeight: FontWeight.w700,
       color: ScobaPalette.ink,
     );
+    final id = avatarId;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 34,
-          height: 34,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color, width: 2),
-          ),
-          child: Text(
-            '$score',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w900,
-              color: color,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (id != null) ...[
+              AvatarView(
+                avatarId: id,
+                size: 32,
+                semanticLabel: name,
+                isActive: isActive,
+              ),
+              const SizedBox(width: 4),
+            ],
+            Container(
+              width: 34,
+              height: 34,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color, width: 2),
+              ),
+              child: Text(
+                '$score',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w900,
+                  color: color,
+                ),
+              ),
             ),
-          ),
+          ],
         ),
         const SizedBox(height: 2),
         Text(

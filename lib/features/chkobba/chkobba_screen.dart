@@ -4,7 +4,9 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/avatars/match_avatars.dart';
 import '../../core/services/ad_free_service.dart';
+import '../../core/services/profile_store.dart';
 import '../../core/services/interstitial_service.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
@@ -13,6 +15,7 @@ import '../../core/theme/scoba_palette.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../game/chkobba.dart';
 import '../../game/common.dart';
+import '../../widgets/avatar_view.dart';
 import '../menu/menu_models.dart';
 import 'chkobba_card_face.dart';
 import 'chkobba_controller.dart';
@@ -61,10 +64,29 @@ class ChkobbaScreen extends StatefulWidget {
 class _ChkobbaScreenState extends State<ChkobbaScreen>
     with CardMotionMixin<ChkobbaScreen> {
   late final ChkobbaController _controller;
+  // Avatars de la partie (#551) : le joueur garde son profil, l'adversaire un autre.
+  String? _humanAvatarId;
+  String? _opponentAvatarId;
+
+  /// Attribue les avatars de la partie à partir du profil sauvegardé.
+  Future<void> _loadAvatars() async {
+    final profile = await loadProfile();
+    final seats = avatarsBySeat(
+      seats: 2,
+      humanSeat: 0,
+      humanId: profile.avatarId,
+    );
+    if (!mounted) return;
+    setState(() {
+      _humanAvatarId = seats[0];
+      _opponentAvatarId = seats[1];
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    _loadAvatars();
     _controller = ChkobbaController(
       store: const SharedPreferencesSavedGameStore(),
       targetScore: widget.targetScore,
@@ -465,6 +487,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
               child: _Scoreboard(
                 game: game,
                 deckKey: _key('deck'),
+                humanAvatarId: _humanAvatarId,
+                opponentAvatarId: _opponentAvatarId,
               ),
             ),
             const SizedBox(height: 8),
