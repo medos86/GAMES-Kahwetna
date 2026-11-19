@@ -14,12 +14,10 @@ void main() {
     });
   });
 
-  Future<void> pump(WidgetTester tester, {VoidCallback? onPick}) {
+  Future<void> pump(WidgetTester tester) {
     return tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: ProfileSection(onPickAvatar: onPick),
-        ),
+      const MaterialApp(
+        home: Scaffold(body: ProfileSection()),
       ),
     );
   }
@@ -49,11 +47,18 @@ void main() {
     expect((await loadProfile()).name, 'Tigre_Brave');
   });
 
-  testWidgets('tap sur l\'avatar appelle onPickAvatar', (tester) async {
-    var picked = false;
-    await pump(tester, onPick: () => picked = true);
+  testWidgets('tap sur l\'avatar ouvre la grille, Valider sauvegarde', (
+    tester,
+  ) async {
+    await pump(tester);
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(AvatarView));
-    expect(picked, isTrue);
+    await tester.tap(find.byType(AvatarView).first);
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byWidgetPredicate((w) => w is AvatarView && w.avatarId == 'tiger'),
+    );
+    await tester.tap(find.text('Valider'));
+    await tester.pumpAndSettle();
+    expect((await loadProfile()).avatarId, 'tiger');
   });
 }

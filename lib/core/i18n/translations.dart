@@ -183,6 +183,9 @@ const Map<String, String> frTexts = {
   'profileName': 'Pseudo',
   'profileSave': 'Enregistrer',
   'profileChangeAvatar': 'Changer d\'avatar',
+  'pickerTitle': 'Choisis ton avatar',
+  'pickerConfirm': 'Valider',
+  'pickerCancel': 'Annuler',
 };
 
 const Map<String, String> arTexts = {
@@ -360,4 +363,7 @@ const Map<String, String> arTexts = {
   'profileName': 'الاسم',
   'profileSave': 'حفظ',
   'profileChangeAvatar': 'تغيير الصورة الرمزية',
+  'pickerTitle': 'اختر صورتك الرمزية',
+  'pickerConfirm': 'تأكيد',
+  'pickerCancel': 'إلغاء',
 };
