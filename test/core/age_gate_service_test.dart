@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/age_gate_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Stockage en mémoire : aucune dépendance à SharedPreferences dans ces tests.
+/// Stockage en mémoire : aucune dépendance à SharedPreferences ici.
 class _MemoryAgeGateStore implements AgeGateStore {
   _MemoryAgeGateStore([this.value]);
 
@@ -18,13 +18,13 @@ class _MemoryAgeGateStore implements AgeGateStore {
   Future<void> clear() async => value = null;
 }
 
+final DateTime _fixedNow = DateTime.utc(2026, 11, 19, 12);
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final fixedNow = DateTime.utc(2026, 11, 19, 12);
-
   group('AgeGateService', () {
-    test('sans réponse conservée : non répondu et question à poser', () async {
+    test('sans réponse : non répondu, question à poser', () async {
       final service = AgeGateService(store: _MemoryAgeGateStore());
       await service.load();
 
@@ -33,26 +33,24 @@ void main() {
       expect(service.shouldAsk, isTrue);
     });
 
-    test('setAnswer enregistre la réponse avec date et version du texte',
-        () async {
+    test('setAnswer enregistre date et version du texte', () async {
       final store = _MemoryAgeGateStore();
-      final service = AgeGateService(store: store, now: () => fixedNow);
+      final service = AgeGateService(store: store, now: () => _fixedNow);
       await service.load();
 
       await service.setAnswer(AgeAnswer.thirteenOrOver);
 
       expect(service.answers.value, AgeAnswer.thirteenOrOver);
       expect(store.value?.answer, AgeAnswer.thirteenOrOver);
-      expect(store.value?.answeredAt, fixedNow);
+      expect(store.value?.answeredAt, _fixedNow);
       expect(store.value?.textVersion, kAgeGateTextVersion);
       expect(service.shouldAsk, isFalse);
     });
 
-    test('la réponse survit à un redémarrage (nouveau service, même stockage)',
-        () async {
+    test('la réponse survit à un redémarrage', () async {
       final store = _MemoryAgeGateStore();
-      await AgeGateService(store: store, now: () => fixedNow)
-          .setAnswer(AgeAnswer.underThirteen);
+      final first = AgeGateService(store: store, now: () => _fixedNow);
+      await first.setAnswer(AgeAnswer.underThirteen);
 
       final afterRestart = AgeGateService(store: store);
       await afterRestart.load();
@@ -86,14 +84,14 @@ void main() {
       expect(service.shouldAsk, isTrue);
     });
 
-    test('un texte plus récent que la réponse redemande la question', () async {
+    test('un texte plus récent redemande la question', () async {
       final oldRecord = AgeGateRecord(
         answer: AgeAnswer.thirteenOrOver,
-        answeredAt: fixedNow,
+        answeredAt: _fixedNow,
         textVersion: kAgeGateTextVersion - 1,
       );
-      final service =
-          AgeGateService(store: _MemoryAgeGateStore(oldRecord));
+      final store = _MemoryAgeGateStore(oldRecord);
+      final service = AgeGateService(store: store);
       await service.load();
 
       expect(service.shouldAsk, isTrue);
@@ -104,40 +102,46 @@ void main() {
     test('relit un enregistrement valide', () {
       final record = AgeGateRecord.fromJson({
         'answer': 'thirteenOrOver',
-        'answeredAt': fixedNow.millisecondsSinceEpoch,
+        'answeredAt': _fixedNow.millisecondsSinceEpoch,
         'textVersion': 1,
       });
 
       expect(record?.answer, AgeAnswer.thirteenOrOver);
-      expect(record?.answeredAt, fixedNow);
+      expect(record?.answeredAt, _fixedNow);
       expect(record?.textVersion, 1);
     });
 
-    test('rejette une réponse inconnue, « unanswered » et les types faux', () {
-      expect(
-        AgeGateRecord.fromJson({
-          'answer': 'bogus',
-          'answeredAt': 0,
-          'textVersion': 1,
-        }),
-        isNull,
-      );
-      expect(
-        AgeGateRecord.fromJson({
-          'answer': 'unanswered',
-          'answeredAt': 0,
-          'textVersion': 1,
-        }),
-        isNull,
-      );
-      expect(
-        AgeGateRecord.fromJson({
-          'answer': 'thirteenOrOver',
-          'answeredAt': 'pas une date',
-          'textVersion': 1,
-        }),
-        isNull,
-      );
+    test('rejette une réponse inconnue', () {
+      final record = AgeGateRecord.fromJson({
+        'answer': 'bogus',
+        'answeredAt': 0,
+        'textVersion': 1,
+      });
+
+      expect(record, isNull);
+    });
+
+    test('rejette « unanswered » stocké', () {
+      final record = AgeGateRecord.fromJson({
+        'answer': 'unanswered',
+        'answeredAt': 0,
+        'textVersion': 1,
+      });
+
+      expect(record, isNull);
+    });
+
+    test('rejette une date qui n’est pas un entier', () {
+      final record = AgeGateRecord.fromJson({
+        'answer': 'thirteenOrOver',
+        'answeredAt': 'pas une date',
+        'textVersion': 1,
+      });
+
+      expect(record, isNull);
+    });
+
+    test('rejette un contenu qui n’est pas une map', () {
       expect(AgeGateRecord.fromJson('texte'), isNull);
     });
   });
@@ -154,9 +158,9 @@ void main() {
       expect(service.shouldAsk, isTrue);
     });
 
-    test('écrit puis relit la réponse via SharedPreferences', () async {
+    test('écrit puis relit la réponse', () async {
       SharedPreferences.setMockInitialValues({});
-      final service = AgeGateService(now: () => fixedNow);
+      final service = AgeGateService(now: () => _fixedNow);
       await service.load();
       await service.setAnswer(AgeAnswer.thirteenOrOver);
 
