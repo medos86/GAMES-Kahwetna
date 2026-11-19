@@ -32,10 +32,12 @@ Proposition :
 - **Consentement pub personnalisée** : affiché via UMP ; l'utilisateur n'est proposé pour la pub personnalisée que si le public retenu (13+) et le consentement le permettent.
 - **Point de bascule** : si la classification Google Play ou une revue montre un public enfant, passer en « tous âges » avec pubs non personnalisées (voir `lib/core/services/ad_audience.dart`).
 
-**Décision (18/11/2026) : tous âges, pubs non personnalisées pour tout le monde. Pas de contrôle d'âge.**
-- Plus simple : pas de question d'âge, pas de consentement UMP à gérer pour la personnalisation, pas de risque sur le seuil de 15 ans (art. 45 LIL).
-- Coût : revenus publicitaires plus bas (pubs non personnalisées).
-- Réactivation de 13+ possible plus tard (`AdAudience.thirteenPlus`) après avis juridique.
+**Décision du 18/11/2026 (tous âges, pubs non personnalisées) : remplacée.**
+
+**Décision du 19/11/2026 : public 13+ demandé par le responsable du projet.** Le code la met en place (voir section 5) ; le réglage `AdAudience.current` reste « tous âges » tant que l'avis juridique (#575) n'est pas rendu.
+- Question d'âge « As-tu 13 ans ou plus ? » au premier lancement, réponse non bloquante.
+- Pubs personnalisées seulement pour : réponse 13+, public 13+, consentement UMP accordé.
+- Réactivation de 13+ : une ligne dans `lib/core/services/ad_audience.dart`, après avis juridique.
 
 ## 3. Traçabilité du consentement
 
@@ -51,3 +53,23 @@ Non obtenu. Questions à poser à un juriste :
 2. Une question « 13 ans ou plus ? » suffit-elle comme contrôle, ou faut-il une vérification plus forte ?
 3. Quel seuil appliquer aux utilisateurs de Tunisie, d'Algérie et du Maroc ?
 4. La traçabilité du consentement local est-elle suffisante, ou faut-il la conserver côté serveur ?
+
+## 5. Implémentation (état au 19/11/2026)
+
+| Issue | Sujet | État |
+|---|---|---|
+| #565 | Décision et choix à trancher | Ouverte : forme du contrôle et seuil France |
+| #566 | Modèle et persistance de la réponse | Mergée (PR #576) |
+| #567 | Écran « As-tu 13 ans ou plus ? » | Mergée (PR #579) |
+| #568 | Changer la réponse dans les Paramètres | Mergée (PR #585) |
+| #569 | Requête pub personnalisée seulement pour 13+ consentant | Mergée (PR #586) |
+| #570 | Revoir les choix UMP, réinitialiser l'âge | Mergée (PR #604) |
+| #571 | Textes FR et AR, relecture | Mise en page testée (PR #606) ; relecture AR par une personne arabophone ouverte |
+| #572 | Tests widget et goldens | Tests widget et mise en page faits ; goldens à générer dans la CI |
+| #573 | Ce document | En cours |
+| #574 | Questionnaire Play Console et classification Apple | Ouverte (action manuelle) |
+| #575 | Avis juridique | Ouverte (bloque la fermeture de #481) |
+
+Points non couverts par le code, à vérifier dans le SDK :
+- Non-transmission de l'identifiant publicitaire (AAID) quand l'âge est inconnu (politique Families). Non implémentée.
+- Pubs récompensées ou opt-in : fermeture après 5 secondes, si le public inclut les enfants.
