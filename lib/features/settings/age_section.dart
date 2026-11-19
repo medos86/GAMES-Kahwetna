@@ -10,11 +10,11 @@ import '../../widgets/comic_button.dart';
 class AgeSection extends StatelessWidget {
   const AgeSection({super.key});
 
-  static String labelFor(AgeAnswer answer) => switch (answer) {
-        AgeAnswer.thirteenOrOver => Strings.ageCurrentOver,
-        AgeAnswer.underThirteen => Strings.ageCurrentUnder,
-        AgeAnswer.unanswered => Strings.ageNotAnswered,
-      };
+  static String labelFor(AgeAnswer answer) {
+    if (answer == AgeAnswer.thirteenOrOver) return Strings.ageCurrentOver;
+    if (answer == AgeAnswer.underThirteen) return Strings.ageCurrentUnder;
+    return Strings.ageNotAnswered;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +62,7 @@ class AgeSection extends StatelessWidget {
   void _showChange(BuildContext context) {
     showDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: Text(Strings.ageChangeTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -70,20 +70,19 @@ class AgeSection extends StatelessWidget {
             ComicButton(
               label: Strings.ageCurrentOver,
               variant: ComicButtonVariant.neutral,
-              onPressed: () =>
-                  _select(dialogContext, AgeAnswer.thirteenOrOver),
+              onPressed: () => _select(ctx, AgeAnswer.thirteenOrOver),
             ),
             const SizedBox(height: 12),
             ComicButton(
               label: Strings.ageCurrentUnder,
               variant: ComicButtonVariant.neutral,
-              onPressed: () => _select(dialogContext, AgeAnswer.underThirteen),
+              onPressed: () => _select(ctx, AgeAnswer.underThirteen),
             ),
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
+            onPressed: () => Navigator.of(ctx).pop(),
             child: Text(Strings.ageCancel),
           ),
         ],
@@ -91,8 +90,8 @@ class AgeSection extends StatelessWidget {
     );
   }
 
-  Future<void> _select(BuildContext dialogContext, AgeAnswer answer) async {
+  Future<void> _select(BuildContext ctx, AgeAnswer answer) async {
     await AgeGateService.instance.setAnswer(answer);
-    if (dialogContext.mounted) Navigator.of(dialogContext).pop();
+    if (ctx.mounted) Navigator.of(ctx).pop();
   }
 }
