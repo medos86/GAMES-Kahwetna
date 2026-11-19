@@ -18,8 +18,7 @@ bool allowsPersonalizedAds({
   required AdConsentState consent,
   AdAudienceRules rules = AdAudienceRules.current,
 }) {
-  return age == AgeAnswer.thirteenOrOver &&
-      rules.allowPersonalizedAds(consent);
+  return age == AgeAnswer.thirteenOrOver && rules.allowPersonalizedAds(consent);
 }
 
 /// Requête pub pour la réponse d'âge et le consentement donnés.
