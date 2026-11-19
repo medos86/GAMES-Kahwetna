@@ -173,6 +173,10 @@ const Map<String, String> frTexts = {
   'tagline': 'Lamma, rire et jeu tunisien',
   'ludoPlayerOne': '1 joueur',
   'ludoPlayers': '{n} joueurs',
+  'pseudoTooShort': 'Pseudo trop court (3 caractères minimum).',
+  'pseudoTooLong': 'Pseudo trop long (14 caractères maximum).',
+  'pseudoInvalid': 'Lettres, chiffres, _ et espaces seulement.',
+  'pseudoForbidden': 'Ce pseudo n\'est pas autorisé.',
 };
 
 const Map<String, String> arTexts = {
@@ -340,4 +344,8 @@ const Map<String, String> arTexts = {
   'tagline': 'لمّـة، ضحكة ولعبة تونسية',
   'ludoPlayerOne': 'لاعب واحد',
   'ludoPlayers': '{n} لاعبين',
+  'pseudoTooShort': 'الاسم قصير جدًا (3 أحرف على الأقل).',
+  'pseudoTooLong': 'الاسم طويل جدًا (14 حرفًا كحد أقصى).',
+  'pseudoInvalid': 'حروف وأرقام و_ ومسافات فقط.',
+  'pseudoForbidden': 'هذا الاسم غير مسموح به.',
 };
