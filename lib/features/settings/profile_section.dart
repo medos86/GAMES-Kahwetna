@@ -6,13 +6,12 @@ import '../../core/strings.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../widgets/avatar_view.dart';
 import '../../widgets/pressable.dart';
+import 'avatar_picker.dart';
 
-/// Section « Profil » des Paramètres (issue #547) : pseudo éditable, avatar cliquable.
-/// [onPickAvatar] ouvre la grille de choix (issue #548).
+/// Section « Profil » des Paramètres (issue #547) : pseudo éditable, avatar cliquable
+/// qui ouvre la grille de choix (issue #548).
 class ProfileSection extends StatefulWidget {
-  const ProfileSection({super.key, this.onPickAvatar});
-
-  final VoidCallback? onPickAvatar;
+  const ProfileSection({super.key});
 
   @override
   State<ProfileSection> createState() => _ProfileSectionState();
@@ -59,6 +58,20 @@ class _ProfileSectionState extends State<ProfileSection> {
     });
   }
 
+  Future<void> _pickAvatar() async {
+    final profile = _profile;
+    if (profile == null) return;
+    final chosen = await showAvatarPicker(
+      context,
+      currentId: profile.avatarId,
+    );
+    if (chosen == null || !mounted) return;
+    final updated = PlayerProfile(name: profile.name, avatarId: chosen);
+    await saveProfile(updated);
+    if (!mounted) return;
+    setState(() => _profile = updated);
+  }
+
   String _messageFor(PseudoError error) {
     return switch (error) {
       PseudoError.tooShort => Strings.pseudoTooShort,
@@ -88,7 +101,7 @@ class _ProfileSectionState extends State<ProfileSection> {
           children: [
             Pressable(
               semanticLabel: Strings.profileChangeAvatar,
-              onTap: widget.onPickAvatar ?? () {},
+              onTap: () => _pickAvatar(),
               child: AvatarView(
                 avatarId: profile.avatarId,
                 size: 72,

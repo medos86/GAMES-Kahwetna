@@ -9,6 +9,9 @@ import 'i18n/app_language.dart';
 /// Libellés de l'interface, dans la langue courante (issue #100).
 /// Les textes sont dans lib/core/i18n/translations.dart.
 abstract final class Strings {
+  static String get pickerTitle => t('pickerTitle');
+  static String get pickerConfirm => t('pickerConfirm');
+  static String get pickerCancel => t('pickerCancel');
   static String get profileSection => t('profileSection');
   static String get profileName => t('profileName');
   static String get profileSave => t('profileSave');
