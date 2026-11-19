@@ -41,6 +41,13 @@ abstract final class Strings {
   static String get ageGateWhy => t('ageGateWhy');
   static String get ageGateWhyBody => t('ageGateWhyBody');
   static String get ageGateClose => t('ageGateClose');
+  static String get ageSection => t('ageSection');
+  static String get ageCurrentOver => t('ageCurrentOver');
+  static String get ageCurrentUnder => t('ageCurrentUnder');
+  static String get ageNotAnswered => t('ageNotAnswered');
+  static String get ageChange => t('ageChange');
+  static String get ageChangeTitle => t('ageChangeTitle');
+  static String get ageCancel => t('ageCancel');
   static String get privacyWithdraw => t('privacyWithdraw');
   static String get menuTagline => t('menuTagline');
   static String get menuChooseTable => t('menuChooseTable');
