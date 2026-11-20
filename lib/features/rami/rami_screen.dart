@@ -438,10 +438,21 @@ class _RamiScreenState extends State<RamiScreen>
   /// heureux pour le gagnant et fâché pour les autres en fin de manche.
   AvatarState _avatarStateOf(int seat, rules.RamiState g) {
     final winner = g.roundResult?.winner;
+    final winners = winner == null ? <int>[] : <int>[winner];
     return gameAvatarState(
       seat: seat,
       finished: g.phase == rules.RamiPhase.end,
-      winners: winner == null ? const [] : [winner],
+      winners: winners,
+    );
+  }
+
+  /// Score d'un siège, avec son avatar (issue #552).
+  Widget _chipOf(int seat, rules.RamiState g) {
+    return _PlayerChip(
+      seat: seat,
+      game: g,
+      avatarId: _avatarIds[seat],
+      avatarState: _avatarStateOf(seat, g),
     );
   }
 
@@ -454,12 +465,7 @@ class _RamiScreenState extends State<RamiScreen>
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: KeyedSubtree(
                 key: _key('seat:$seat'),
-                child: _PlayerChip(
-                  seat: seat,
-                  game: g,
-                  avatarId: _avatarIds[seat],
-                  avatarState: _avatarStateOf(seat, g),
-                ),
+                child: _chipOf(seat, g),
               ),
             ),
           ),
