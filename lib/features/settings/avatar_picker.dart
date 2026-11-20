@@ -58,15 +58,15 @@ class _AvatarPickerSheetState extends State<_AvatarPickerSheet> {
               ),
             ),
             const SizedBox(height: 12),
-            Column(
-              mainAxisSize: MainAxisSize.min,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 AvatarView(
                   avatarId: _selected,
-                  size: 80,
+                  size: 72,
                   semanticLabel: _selected,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(width: 12),
                 Text(
                   isCurrent ? Strings.pickerCurrent : Strings.pickerPreview,
                   style: const TextStyle(
@@ -78,7 +78,7 @@ class _AvatarPickerSheetState extends State<_AvatarPickerSheet> {
             ),
             const SizedBox(height: 12),
             GridView.count(
-              crossAxisCount: 4,
+              crossAxisCount: 6,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               mainAxisSpacing: 8,
@@ -156,7 +156,7 @@ class _Choice extends StatelessWidget {
                 ),
                 child: AvatarView(
                   avatarId: avatarId,
-                  size: 64,
+                  size: 52,
                   semanticLabel: avatarId,
                 ),
               ),
