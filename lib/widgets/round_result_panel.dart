@@ -219,32 +219,54 @@ class RoundResultRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  value,
-                  maxLines: 1,
-                  style: const TextStyle(
-                    color: ComicPalette.ink,
-                    fontFamily: 'Bangers',
-                    fontSize: 28,
-                  ),
-                ),
-              ),
-              if (total != null)
-                Text(
-                  'Total $total',
-                  maxLines: 1,
-                  style: const TextStyle(
-                    color: ComicPalette.ink,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                  ),
-                ),
-            ],
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 100),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: total == null
+                  ? [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          value,
+                          maxLines: 1,
+                          style: const TextStyle(
+                            color: ComicPalette.ink,
+                            fontFamily: 'Bangers',
+                            fontSize: 28,
+                          ),
+                        ),
+                      ),
+                    ]
+                  : [
+                      // Score de la manche : information secondaire, en petit (#629).
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          value,
+                          maxLines: 1,
+                          style: const TextStyle(
+                            color: ComicPalette.ink,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                      // Score final : mis en avant, en grand (#629).
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          'Total $total',
+                          maxLines: 1,
+                          style: const TextStyle(
+                            color: ComicPalette.ink,
+                            fontFamily: 'Bangers',
+                            fontSize: 22,
+                          ),
+                        ),
+                      ),
+                    ],
+            ),
           ),
         ],
       ),
