@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart' show BoxDecoration, Container, SizedBox;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/card_animations.dart';
 import 'package:kahwetne/features/chkobba/chkobba_screen.dart';
