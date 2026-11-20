@@ -71,45 +71,78 @@ class _Pile extends StatelessWidget {
 }
 
 class _OpponentHand extends StatelessWidget {
-  const _OpponentHand({required this.unit, required this.count});
+  const _OpponentHand({
+    required this.unit,
+    required this.count,
+    required this.avatarId,
+    required this.avatarState,
+  });
 
   final double unit;
   final int count;
+
+  // Avatar de l'adversaire et son état (issue #555).
+  final String avatarId;
+  final AvatarState avatarState;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: unit * 3.4,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
         children: [
-          for (var i = 0; i < count; i++)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: unit * 0.15),
-              child: Container(
-                width: unit * 1.9,
-                height: unit * 3.4,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFFD94A61), Color(0xFF8F203D)],
-                  ),
-                  borderRadius: BorderRadius.circular(3),
-                  border: Border.all(color: _edge, width: 2),
-                  boxShadow: const [
-                    BoxShadow(color: Color(0xFF4A1022), offset: Offset(0, 3)),
-                  ],
-                ),
-                child: FractionallySizedBox(
-                  widthFactor: 0.6,
-                  child: Container(height: 2, color: const Color(0xB3FFE16B)),
-                ),
+          _cards(),
+          // Avatar à gauche de la main, sans la décaler.
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            child: Center(
+              child: AvatarView(
+                avatarId: avatarId,
+                state: avatarState,
+                size: unit * 2.2,
+                semanticLabel: t('opponent'),
               ),
             ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _cards() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        for (var i = 0; i < count; i++)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: unit * 0.15),
+            child: Container(
+              width: unit * 1.9,
+              height: unit * 3.4,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFFD94A61), Color(0xFF8F203D)],
+                ),
+                borderRadius: BorderRadius.circular(3),
+                border: Border.all(color: _edge, width: 2),
+                boxShadow: const [
+                  BoxShadow(color: Color(0xFF4A1022), offset: Offset(0, 3)),
+                ],
+              ),
+              child: FractionallySizedBox(
+                widthFactor: 0.6,
+                child: Container(height: 2, color: const Color(0xB3FFE16B)),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

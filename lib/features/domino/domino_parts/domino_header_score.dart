@@ -99,10 +99,22 @@ class _Header extends StatelessWidget {
   }
 }
 
+/// État visuel de l'avatar d'un joueur (issue #555) : neutre pendant la manche,
+/// heureux pour le gagnant de la manche, fâché pour l'autre.
+AvatarState dominoAvatarState(DominoState game, Player player) {
+  final winner = game.roundWinner;
+  return gameAvatarState(
+    seat: player.index,
+    finished: winner != null,
+    winners: winner == null ? const [] : [winner.index],
+  );
+}
+
 class _ScoreStrip extends StatelessWidget {
   const _ScoreStrip({
     required this.unit,
     required this.game,
+    required this.avatarIds,
     required this.turnIsPlayer,
     required this.turnIsOpponent,
     required this.onDrawTap,
@@ -111,6 +123,9 @@ class _ScoreStrip extends StatelessWidget {
 
   final double unit;
   final DominoState game;
+
+  // Avatar de chaque joueur, indexé par Player (issue #555).
+  final List<String> avatarIds;
   final bool turnIsPlayer;
   final bool turnIsOpponent;
   final VoidCallback onDrawTap;
@@ -158,6 +173,8 @@ class _ScoreStrip extends StatelessWidget {
                 color: const Color(0xFF047857),
                 active: turnIsPlayer,
                 unit: unit,
+                avatarId: avatarIds[Player.player.index],
+                avatarState: dominoAvatarState(game, Player.player),
               ),
               _Pile(
                 unit: unit,
@@ -170,6 +187,8 @@ class _ScoreStrip extends StatelessWidget {
                 color: const Color(0xFFB91C1C),
                 active: turnIsOpponent,
                 unit: unit,
+                avatarId: avatarIds[Player.opponent.index],
+                avatarState: dominoAvatarState(game, Player.opponent),
               ),
             ],
           ),
@@ -179,6 +198,8 @@ class _ScoreStrip extends StatelessWidget {
   }
 }
 
+const _activeGlow = [BoxShadow(color: Color(0xFFFFF1BD), spreadRadius: 3)];
+
 class _ScoreBox extends StatelessWidget {
   const _ScoreBox({
     required this.label,
@@ -186,6 +207,8 @@ class _ScoreBox extends StatelessWidget {
     required this.color,
     required this.active,
     required this.unit,
+    required this.avatarId,
+    required this.avatarState,
   });
 
   final String label;
@@ -193,6 +216,10 @@ class _ScoreBox extends StatelessWidget {
   final Color color;
   final bool active;
   final double unit;
+
+  // Avatar du joueur et son état (issue #555).
+  final String avatarId;
+  final AvatarState avatarState;
 
   @override
   Widget build(BuildContext context) {
@@ -202,53 +229,66 @@ class _ScoreBox extends StatelessWidget {
         'v': '$value',
       }),
       excludeSemantics: true,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          if (label == 'Adv.') ...[
-            Text(
-              label.toUpperCase(),
-              style: TextStyle(
-                fontSize: unit * 0.7,
-                fontWeight: FontWeight.w900,
-                color: color,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (label == 'Adv.') ...[
+                Text(
+                  label.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: unit * 0.7,
+                    fontWeight: FontWeight.w900,
+                    color: color,
+                  ),
+                ),
+                SizedBox(width: unit * 0.3),
+              ],
+              Container(
+                constraints: BoxConstraints(minWidth: unit * 3.2),
+                height: unit * 2.8,
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: color, width: 2),
+                  boxShadow: active ? _activeGlow : null,
+                ),
+                child: Text(
+                  '$value',
+                  style: TextStyle(
+                    fontSize: unit * 1.4,
+                    fontWeight: FontWeight.w900,
+                    color: color,
+                  ),
+                ),
               ),
-            ),
-            SizedBox(width: unit * 0.3),
-          ],
-          Container(
-            constraints: BoxConstraints(minWidth: unit * 3.2),
-            height: unit * 2.8,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: color, width: 2),
-              boxShadow: active
-                  ? const [BoxShadow(color: Color(0xFFFFF1BD), spreadRadius: 3)]
-                  : null,
-            ),
-            child: Text(
-              '$value',
-              style: TextStyle(
-                fontSize: unit * 1.4,
-                fontWeight: FontWeight.w900,
-                color: color,
-              ),
+              if (label == t('you')) ...[
+                SizedBox(width: unit * 0.3),
+                Text(
+                  label.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: unit * 0.7,
+                    fontWeight: FontWeight.w900,
+                    color: color,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          // Avatar posé au-dessus de la pastille : il ne change pas la largeur.
+          Positioned(
+            top: -unit * 1.3,
+            child: AvatarView(
+              avatarId: avatarId,
+              state: avatarState,
+              size: unit * 1.8,
+              semanticLabel: label,
             ),
           ),
-          if (label == t('you')) ...[
-            SizedBox(width: unit * 0.3),
-            Text(
-              label.toUpperCase(),
-              style: TextStyle(
-                fontSize: unit * 0.7,
-                fontWeight: FontWeight.w900,
-                color: color,
-              ),
-            ),
-          ],
         ],
       ),
     );
