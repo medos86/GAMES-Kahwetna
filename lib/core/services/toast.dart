@@ -1,5 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../theme/comic_palette.dart';
+
 /// Gravité d'un toast : info (neutre), success (réussite) ou error (action refusée).
 enum ToastType { info, success, error }
 
@@ -40,7 +42,7 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showToastOn(
       behavior: SnackBarBehavior.floating,
       margin: const EdgeInsets.fromLTRB(16, 0, 16, kToastBottomMargin),
       duration: kToastDuration,
-      backgroundColor: const Color(0xF2101A33),
+      backgroundColor: ToastPalette.background,
       elevation: 6,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -60,7 +62,7 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showToastOn(
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                    color: ToastPalette.text,
                   ),
                 ),
                 if (description != null)
@@ -71,7 +73,7 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showToastOn(
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xB3FFFFFF),
+                        color: ToastPalette.subtleText,
                       ),
                     ),
                   ),
@@ -85,9 +87,9 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showToastOn(
 }
 
 Color _accentOf(ToastType type) => switch (type) {
-      ToastType.info => const Color(0xFF60A5FA),
-      ToastType.success => const Color(0xFF4ADE80),
-      ToastType.error => const Color(0xFFF87171),
+      ToastType.info => ToastPalette.info,
+      ToastType.success => ToastPalette.success,
+      ToastType.error => ToastPalette.error,
     };
 
 IconData _iconOf(ToastType type) => switch (type) {

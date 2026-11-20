@@ -30,6 +30,16 @@ abstract final class ComicPalette {
   static const Color backdropDots = Color(0x14000000);
 }
 
+/// Couleurs des toasts (issue #64 : sortie des couleurs en dur hors du thème).
+abstract final class ToastPalette {
+  static const Color background = Color(0xF2101A33);
+  static const Color text = Color(0xFFFFFFFF);
+  static const Color subtleText = Color(0xB3FFFFFF);
+  static const Color info = Color(0xFF60A5FA);
+  static const Color success = Color(0xFF4ADE80);
+  static const Color error = Color(0xFFF87171);
+}
+
 /// Rapport de contraste WCAG entre deux couleurs (1 à 21).
 double contrastRatio(Color a, Color b) {
   final la = a.computeLuminance();
