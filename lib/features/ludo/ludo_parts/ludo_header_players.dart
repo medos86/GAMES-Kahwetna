@@ -1,14 +1,42 @@
 part of '../ludo_screen.dart';
 
+/// Avatar de chaque couleur (issue #553) : le joueur humain (premier de
+/// [ludoHumanOrder]) garde son profil, les autres reçoivent les avatars IA.
+Map<LudoColor, String> ludoAvatarByColor(List<String> ids) {
+  final human = ludoHumanOrder.first;
+  final result = <LudoColor, String>{};
+  var next = 1;
+  for (final color in LudoColor.values) {
+    result[color] = color == human ? ids.first : ids[next++];
+  }
+  return result;
+}
+
 class _Header extends StatelessWidget {
-  const _Header({required this.controller, required this.difficulty});
+  const _Header({
+    required this.controller,
+    required this.difficulty,
+    required this.avatarIds,
+  });
 
   final LudoController controller;
   final Difficulty difficulty;
 
+  /// Avatar par couleur (issue #553).
+  final Map<LudoColor, String> avatarIds;
+
+  // Vainqueur de la partie : premier du classement, seulement une fois finie.
+  List<int> _winners() {
+    final rankings = controller.game.rankings;
+    if (rankings.isEmpty) return const [];
+    return [rankings.first.index];
+  }
+
   @override
   Widget build(BuildContext context) {
     final count = controller.playerCount;
+    final finished = controller.roundOver;
+    final winners = _winners();
     return GameHeader(
       onMenu: () => Navigator.of(context).maybePop(),
       center: Expanded(
@@ -19,6 +47,17 @@ class _Header extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               spacing: 6,
               children: [
+                for (final color in LudoColor.values)
+                  AvatarView(
+                    avatarId: avatarIds[color] ?? defaultAvatar.id,
+                    state: gameAvatarState(
+                      seat: color.index,
+                      finished: finished,
+                      winners: winners,
+                    ),
+                    size: 24,
+                    semanticLabel: _colorName(color, controller.solo),
+                  ),
                 Text(
                   count == 1
                       ? t('ludoPlayerOne')

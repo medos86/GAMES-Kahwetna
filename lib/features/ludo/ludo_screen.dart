@@ -5,6 +5,8 @@ import 'package:material_ui/material_ui.dart';
 
 import 'package:flutter/foundation.dart' show ValueListenable;
 
+import '../../core/avatars/avatar_catalog.dart';
+import '../../core/avatars/game_avatars.dart';
 import '../../game/ludo.dart';
 import '../menu/menu_models.dart';
 import 'ludo_controller.dart';
@@ -13,6 +15,7 @@ import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/game_end_watcher.dart';
 import '../../core/services/interstitial_service.dart';
+import '../../widgets/avatar_view.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
@@ -125,6 +128,9 @@ class LudoScreen extends StatefulWidget {
 }
 
 class _LudoScreenState extends State<LudoScreen> {
+  // Avatar de chaque couleur (issue #553), vide tant que le profil n'est pas lu.
+  Map<LudoColor, String> _avatarByColor = const {};
+
   late final LudoController _controller = LudoController(
     store: const SharedPreferencesSavedGameStore(),
     playerCount: widget.players,
@@ -143,6 +149,9 @@ class _LudoScreenState extends State<LudoScreen> {
   void initState() {
     super.initState();
     InterstitialService.instance.preload();
+    loadGameAvatars(seats: 4).then((ids) {
+      if (mounted) setState(() => _avatarByColor = ludoAvatarByColor(ids));
+    });
     _controller.addListener(_endWatcher.check);
     _controller.restore().then((_) {
       if (mounted) offerResume(context, _controller);
@@ -208,7 +217,11 @@ class _LudoScreenState extends State<LudoScreen> {
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               child: Column(
                 children: [
-                  _Header(controller: c, difficulty: widget.difficulty),
+                  _Header(
+                    controller: c,
+                    difficulty: widget.difficulty,
+                    avatarIds: _avatarByColor,
+                  ),
                   const SizedBox(height: 8),
                   Expanded(
                     child: landscapeShort
