@@ -6,12 +6,16 @@ class _Table extends StatelessWidget {
     required this.cardWidth,
     required this.keyOf,
     required this.landing,
+    required this.avatarIds,
   });
 
   final CoincheController controller;
   final double cardWidth;
   final GlobalKey Function(String name) keyOf;
   final Set<String> landing;
+
+  // Avatar de chaque siège, indexé par Seat (issue #554).
+  final List<String> avatarIds;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +50,7 @@ class _Table extends StatelessWidget {
                   seat: Seat.north,
                   round: round,
                   cardWidth: cardWidth * 0.6,
+                  avatarId: avatarIds[Seat.north.index],
                 ),
               ),
             ),
@@ -60,6 +65,7 @@ class _Table extends StatelessWidget {
                   seat: Seat.west,
                   round: round,
                   cardWidth: cardWidth * 0.6,
+                  avatarId: avatarIds[Seat.west.index],
                 ),
               ),
             ),
@@ -74,6 +80,7 @@ class _Table extends StatelessWidget {
                   seat: Seat.east,
                   round: round,
                   cardWidth: cardWidth * 0.6,
+                  avatarId: avatarIds[Seat.east.index],
                 ),
               ),
             ),
@@ -157,11 +164,15 @@ class _SeatInfo extends StatelessWidget {
     required this.seat,
     required this.round,
     required this.cardWidth,
+    required this.avatarId,
   });
 
   final Seat seat;
   final RoundState round;
   final double cardWidth;
+
+  // Avatar du siège (issue #554).
+  final String avatarId;
 
   @override
   Widget build(BuildContext context) {
@@ -176,6 +187,17 @@ class _SeatInfo extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          AvatarView(
+            avatarId: avatarId,
+            state: gameAvatarState(
+              seat: seat.index,
+              finished: round.phase == CoinchePhase.done,
+              winners: coincheWinnerSeats(round),
+            ),
+            size: 28,
+            semanticLabel: _seatLabel[seat]!,
+          ),
+          const SizedBox(height: 2),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
