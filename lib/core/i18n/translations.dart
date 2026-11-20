@@ -207,7 +207,8 @@ const Map<String, String> frTexts = {
   'pickerTaken': 'Pris',
   'avatarUpdated': 'Avatar mis à jour',
   'setupTitle': 'Bienvenue ! Comment tu t\'appelles ?',
-  'setupBody': 'Choisis ton pseudo. Tu pourras le changer plus tard dans Profil.',
+  'setupBody':
+      'Choisis ton pseudo. Tu pourras le changer plus tard dans Profil.',
   'setupStart': 'Commencer',
   'menuOpenProfile': 'Ouvrir mon profil',
   'pickerCancel': 'Annuler',
