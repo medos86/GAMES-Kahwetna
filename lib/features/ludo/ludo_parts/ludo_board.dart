@@ -351,7 +351,6 @@ class _TokenButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tone = _toneOf(token.color);
-    final index = token.color.index;
     return Semantics(
       button: clickable,
       label: tf('sPawn', {'c': tone.name}) + (clickable ? t('sToMove') : ''),
@@ -366,7 +365,6 @@ class _TokenButton extends StatelessWidget {
               painter: _PawnPainter(
                 fill: tone.fill,
                 dark: tone.dark,
-                shape: index,
                 outline: clickable ? Colors.white : _brown,
                 outlineWidth: clickable ? 3 : 2,
               ),
@@ -378,22 +376,18 @@ class _TokenButton extends StatelessWidget {
   }
 }
 
-/// Pion en forme d'épingle (repère de carte) avec un symbole propre à chaque couleur (#595).
-/// La forme et la couleur donnent deux indices indépendants, lisibles en daltonisme.
+/// Pion en forme d'épingle (repère de carte), uniquement à la couleur du joueur (#622, #624) :
+/// plus de symbole géométrique au centre.
 class _PawnPainter extends CustomPainter {
   const _PawnPainter({
     required this.fill,
     required this.dark,
-    required this.shape,
     required this.outline,
     required this.outlineWidth,
   });
 
   final Color fill;
   final Color dark;
-
-  /// Index de la couleur (0 à 3) : choisit le symbole dessiné au centre.
-  final int shape;
   final Color outline;
   final double outlineWidth;
 
@@ -427,46 +421,12 @@ class _PawnPainter extends CustomPainter {
         ..strokeWidth = outlineWidth
         ..color = outline,
     );
-    _drawSymbol(canvas, headCenter, radius * 0.45);
-  }
-
-  void _drawSymbol(Canvas canvas, Offset c, double r) {
-    final paint = Paint()..color = _brown;
-    switch (shape % 4) {
-      case 0:
-        canvas.drawCircle(c, r * 0.6, paint);
-      case 1:
-        canvas.drawPath(
-          Path()
-            ..moveTo(c.dx, c.dy - r)
-            ..lineTo(c.dx + r, c.dy + r * 0.8)
-            ..lineTo(c.dx - r, c.dy + r * 0.8)
-            ..close(),
-          paint,
-        );
-      case 2:
-        canvas.drawRect(
-          Rect.fromCenter(center: c, width: r * 1.6, height: r * 1.6),
-          paint,
-        );
-      default:
-        canvas.drawPath(
-          Path()
-            ..moveTo(c.dx, c.dy - r)
-            ..lineTo(c.dx + r, c.dy)
-            ..lineTo(c.dx, c.dy + r)
-            ..lineTo(c.dx - r, c.dy)
-            ..close(),
-          paint,
-        );
-    }
   }
 
   @override
   bool shouldRepaint(_PawnPainter old) =>
       old.fill != fill ||
       old.dark != dark ||
-      old.shape != shape ||
       old.outline != outline ||
       old.outlineWidth != outlineWidth;
 }
