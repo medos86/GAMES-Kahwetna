@@ -37,8 +37,8 @@ const _ink = Color(0xFF20284B);
 const _cream = Color(0xFFFFF8E7);
 const _brown = Color(0xFF4A2A10);
 
-/// Étoile des cases sûres (#596) : or foncé, contraste ≥ 3:1 sur le crème.
-const Color kLudoSafeStarColor = Color(0xFFB26B00);
+/// Étoile des cases sûres (#596, #623) : or doré, contraste ≥ 3:1 sur le crème.
+const Color kLudoSafeStarColor = Color(0xFFB8860B);
 const _pipAxis = [22.0, 50.0, 78.0];
 
 /// Points allumés sur chaque face du dé (grille 3 × 3 : index = ligne × 3 + colonne).
@@ -53,10 +53,10 @@ const _pipLayout = <int, List<int>>{
 
 /// Couleurs de joueurs (#597) : identiques aux valeurs de [_toneOf].
 const kLudoFills = <LudoColor, Color>{
-  LudoColor.red: Color(0xFFD55E00),
-  LudoColor.green: Color(0xFF009E73),
+  LudoColor.red: Color(0xFFFF6F00),
+  LudoColor.green: Color(0xFF00BF8B),
   LudoColor.yellow: Color(0xFFE69F00),
-  LudoColor.blue: Color(0xFF0072B2),
+  LudoColor.blue: Color(0xFF008BD9),
 };
 
 class _Tone {
@@ -70,13 +70,13 @@ class _Tone {
 /// Palette Okabe-Ito (#597), distinguable en daltonisme ; voir [kLudoFills].
 _Tone _toneOf(LudoColor color) => switch (color) {
       LudoColor.red => const _Tone(
-          Color(0xFFD55E00),
+          Color(0xFFFF6F00),
           Color(0xFF7A3300),
           Color(0xFFFFE0CC),
           'Rouge',
         ),
       LudoColor.green => const _Tone(
-          Color(0xFF009E73),
+          Color(0xFF00BF8B),
           Color(0xFF00503B),
           Color(0xFFCCF0E5),
           'Vert',
@@ -88,7 +88,7 @@ _Tone _toneOf(LudoColor color) => switch (color) {
           'Jaune',
         ),
       LudoColor.blue => const _Tone(
-          Color(0xFF0072B2),
+          Color(0xFF008BD9),
           Color(0xFF003F66),
           Color(0xFFCCE4F2),
           'Bleu',
@@ -220,7 +220,6 @@ class _LudoScreenState extends State<LudoScreen> {
                   _Header(
                     controller: c,
                     difficulty: widget.difficulty,
-                    avatarIds: _avatarByColor,
                   ),
                   const SizedBox(height: 8),
                   Expanded(
@@ -244,11 +243,13 @@ class _LudoScreenState extends State<LudoScreen> {
                                       _PlayerRow(
                                         controller: c,
                                         top: true,
+                                        avatarIds: _avatarByColor,
                                       ),
                                       const SizedBox(height: 8),
                                       _PlayerRow(
                                         controller: c,
                                         top: false,
+                                        avatarIds: _avatarByColor,
                                       ),
                                       const SizedBox(height: 8),
                                       _Footer(controller: c),
@@ -260,7 +261,11 @@ class _LudoScreenState extends State<LudoScreen> {
                           )
                         : Column(
                             children: [
-                              _PlayerRow(controller: c, top: true),
+                              _PlayerRow(
+                                controller: c,
+                                top: true,
+                                avatarIds: _avatarByColor,
+                              ),
                               const SizedBox(height: 8),
                               Expanded(
                                 child: Center(
@@ -268,7 +273,11 @@ class _LudoScreenState extends State<LudoScreen> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              _PlayerRow(controller: c, top: false),
+                              _PlayerRow(
+                                controller: c,
+                                top: false,
+                                avatarIds: _avatarByColor,
+                              ),
                               const SizedBox(height: 8),
                               _Footer(controller: c),
                             ],

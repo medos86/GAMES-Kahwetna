@@ -18,7 +18,7 @@ void main() {
     expect(map.values.toSet().length, LudoColor.values.length);
   });
 
-  testWidgets('en-tête : un avatar par couleur', (tester) async {
+  testWidgets('cartes joueurs : un avatar par couleur (#621)', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: LudoScreen(difficulty: Difficulty.facile, players: 2),
