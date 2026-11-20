@@ -99,10 +99,22 @@ class _Header extends StatelessWidget {
   }
 }
 
+/// État visuel de l'avatar d'un joueur (issue #555) : neutre pendant la manche,
+/// heureux pour le gagnant de la manche, fâché pour l'autre.
+AvatarState dominoAvatarState(DominoState game, Player player) {
+  final winner = game.roundWinner;
+  return gameAvatarState(
+    seat: player.index,
+    finished: winner != null,
+    winners: winner == null ? const [] : [winner.index],
+  );
+}
+
 class _ScoreStrip extends StatelessWidget {
   const _ScoreStrip({
     required this.unit,
     required this.game,
+    required this.avatarIds,
     required this.turnIsPlayer,
     required this.turnIsOpponent,
     required this.onDrawTap,
@@ -111,6 +123,9 @@ class _ScoreStrip extends StatelessWidget {
 
   final double unit;
   final DominoState game;
+
+  // Avatar de chaque joueur, indexé par Player (issue #555).
+  final List<String> avatarIds;
   final bool turnIsPlayer;
   final bool turnIsOpponent;
   final VoidCallback onDrawTap;
@@ -158,6 +173,8 @@ class _ScoreStrip extends StatelessWidget {
                 color: const Color(0xFF047857),
                 active: turnIsPlayer,
                 unit: unit,
+                avatarId: avatarIds[Player.player.index],
+                avatarState: dominoAvatarState(game, Player.player),
               ),
               _Pile(
                 unit: unit,
@@ -170,6 +187,8 @@ class _ScoreStrip extends StatelessWidget {
                 color: const Color(0xFFB91C1C),
                 active: turnIsOpponent,
                 unit: unit,
+                avatarId: avatarIds[Player.opponent.index],
+                avatarState: dominoAvatarState(game, Player.opponent),
               ),
             ],
           ),
@@ -186,6 +205,8 @@ class _ScoreBox extends StatelessWidget {
     required this.color,
     required this.active,
     required this.unit,
+    required this.avatarId,
+    required this.avatarState,
   });
 
   final String label;
@@ -193,6 +214,10 @@ class _ScoreBox extends StatelessWidget {
   final Color color;
   final bool active;
   final double unit;
+
+  // Avatar du joueur et son état (issue #555).
+  final String avatarId;
+  final AvatarState avatarState;
 
   @override
   Widget build(BuildContext context) {
@@ -205,6 +230,13 @@ class _ScoreBox extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          AvatarView(
+            avatarId: avatarId,
+            state: avatarState,
+            size: unit * 2,
+            semanticLabel: label,
+          ),
+          SizedBox(width: unit * 0.3),
           if (label == 'Adv.') ...[
             Text(
               label.toUpperCase(),

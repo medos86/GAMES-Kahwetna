@@ -71,10 +71,19 @@ class _Pile extends StatelessWidget {
 }
 
 class _OpponentHand extends StatelessWidget {
-  const _OpponentHand({required this.unit, required this.count});
+  const _OpponentHand({
+    required this.unit,
+    required this.count,
+    required this.avatarId,
+    required this.avatarState,
+  });
 
   final double unit;
   final int count;
+
+  // Avatar de l'adversaire et son état (issue #555).
+  final String avatarId;
+  final AvatarState avatarState;
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +92,13 @@ class _OpponentHand extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          AvatarView(
+            avatarId: avatarId,
+            state: avatarState,
+            size: unit * 2.4,
+            semanticLabel: t('opponent'),
+          ),
+          SizedBox(width: unit * 0.4),
           for (var i = 0; i < count; i++)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: unit * 0.15),

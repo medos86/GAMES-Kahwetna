@@ -29,6 +29,9 @@ import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
+import '../../core/avatars/avatar_catalog.dart';
+import '../../core/avatars/game_avatars.dart';
+import '../../widgets/avatar_view.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../widgets/dialog_button.dart';
 import '../../widgets/round_result_panel.dart';
@@ -54,6 +57,9 @@ class DominoScreen extends StatefulWidget {
 }
 
 class _DominoScreenState extends State<DominoScreen> {
+  // Avatars [joueur, adversaire] (issue #555) ; 0 = joueur.
+  List<String> _avatarIds = [defaultAvatar.id, 'lion'];
+
   late final DominoController _controller = DominoController(
     store: const SharedPreferencesSavedGameStore(),
     targetScore: widget.targetScore,
@@ -69,6 +75,9 @@ class _DominoScreenState extends State<DominoScreen> {
   void initState() {
     super.initState();
     InterstitialService.instance.preload();
+    loadGameAvatars(seats: 2).then((ids) {
+      if (mounted) setState(() => _avatarIds = ids);
+    });
     _controller.addListener(_endWatcher.check);
     _controller.restore().then((_) {
       if (mounted) offerResume(context, _controller);
@@ -142,6 +151,7 @@ class _DominoScreenState extends State<DominoScreen> {
                   _ScoreStrip(
                     unit: unit,
                     game: game,
+                    avatarIds: _avatarIds,
                     turnIsPlayer: playerTurn,
                     turnIsOpponent: opponentTurn,
                     onDrawTap: _controller.drawOrPass,
@@ -151,6 +161,8 @@ class _DominoScreenState extends State<DominoScreen> {
                   _OpponentHand(
                     unit: unit,
                     count: game.hands[Player.opponent]!.length,
+                    avatarId: _avatarIds[Player.opponent.index],
+                    avatarState: dominoAvatarState(game, Player.opponent),
                   ),
                   SizedBox(height: unit * (sm ? 0.2 : 0.6)),
                   Expanded(
