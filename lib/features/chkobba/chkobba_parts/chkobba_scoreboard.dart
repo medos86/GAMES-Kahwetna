@@ -36,6 +36,7 @@ class _TargetBadge extends StatelessWidget {
 class _Scoreboard extends StatelessWidget {
   const _Scoreboard({
     required this.game,
+    required this.avatarIds,
     this.deckKey,
   });
 
@@ -44,8 +45,13 @@ class _Scoreboard extends StatelessWidget {
 
   final ChkobbaState game;
 
+  /// Avatars [joueur, adversaire] (issue #551).
+  final List<String> avatarIds;
+
   @override
   Widget build(BuildContext context) {
+    final finished = game.winner != null;
+    final winners = game.winner == null ? <int>[] : [game.winner!.index];
     return Semantics(
       container: true,
       label: tf('sChkScore', {
@@ -73,6 +79,12 @@ class _Scoreboard extends StatelessWidget {
                 score: game.scores[Player.player]!,
                 chkobbas: game.chkobbas[Player.player]!,
                 color: ScobaPalette.blueText,
+                avatarId: avatarIds[Player.player.index],
+                avatarState: gameAvatarState(
+                  seat: Player.player.index,
+                  finished: finished,
+                  winners: winners,
+                ),
               ),
             ),
             Semantics(
@@ -88,6 +100,12 @@ class _Scoreboard extends StatelessWidget {
                 score: game.scores[Player.opponent]!,
                 chkobbas: game.chkobbas[Player.opponent]!,
                 color: ScobaPalette.redText,
+                avatarId: avatarIds[Player.opponent.index],
+                avatarState: gameAvatarState(
+                  seat: Player.opponent.index,
+                  finished: finished,
+                  winners: winners,
+                ),
               ),
             ),
           ],
@@ -103,12 +121,18 @@ class _ScoreSide extends StatelessWidget {
     required this.score,
     required this.chkobbas,
     required this.color,
+    required this.avatarId,
+    required this.avatarState,
   });
 
   final String name;
   final int score;
   final int chkobbas;
   final Color color;
+
+  /// Avatar du joueur et son état (issue #551).
+  final String avatarId;
+  final AvatarState avatarState;
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +144,13 @@ class _ScoreSide extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        AvatarView(
+          avatarId: avatarId,
+          state: avatarState,
+          size: 30,
+          semanticLabel: name,
+        ),
+        const SizedBox(height: 2),
         Container(
           width: 34,
           height: 34,

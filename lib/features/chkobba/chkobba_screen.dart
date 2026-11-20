@@ -4,8 +4,11 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/avatars/avatar_catalog.dart';
+import '../../core/avatars/game_avatars.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/interstitial_service.dart';
+import '../../widgets/avatar_view.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
 import '../../core/theme/game_style.dart';
@@ -61,9 +64,15 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     with CardMotionMixin<ChkobbaScreen> {
   late final ChkobbaController _controller;
 
+  /// Avatars [joueur, adversaire] (issue #551) ; remplacés une fois le profil lu.
+  List<String> _avatarIds = [defaultAvatar.id, 'lion'];
+
   @override
   void initState() {
     super.initState();
+    loadGameAvatars(seats: 2).then((ids) {
+      if (mounted) setState(() => _avatarIds = ids);
+    });
     _controller = ChkobbaController(
       store: const SharedPreferencesSavedGameStore(),
       targetScore: widget.targetScore,
@@ -464,6 +473,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
               child: _Scoreboard(
                 game: game,
                 deckKey: _key('deck'),
+                avatarIds: _avatarIds,
               ),
             ),
             const SizedBox(height: 8),
