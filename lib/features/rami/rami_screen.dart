@@ -87,9 +87,6 @@ class _RamiScreenState extends State<RamiScreen>
   void initState() {
     super.initState();
     InterstitialService.instance.preload();
-    loadGameAvatars(seats: 4).then((ids) {
-      if (mounted) setState(() => _avatarIds = ids);
-    });
     _c.addListener(_endWatcher.check);
     _c.addListener(_onRamiChanged);
     _c.restore().then((_) {
