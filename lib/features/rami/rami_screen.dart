@@ -75,7 +75,6 @@ class _RamiScreenState extends State<RamiScreen>
   _Drag? _drag;
   // Largeur réelle des cartes de la main (la carte glissée garde cette taille).
   double _handCardWidth = 0;
-  /// Avatars des 4 sièges, siège 0 = joueur (issue #552).
   List<String> _avatarIds = [defaultAvatar.id, 'lion', 'tiger', 'panda'];
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
   late final GameEndWatcher _endWatcher = GameEndWatcher(
