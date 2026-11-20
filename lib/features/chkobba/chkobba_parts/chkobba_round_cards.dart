@@ -50,10 +50,17 @@ class ChkobbaRoundCard extends StatelessWidget {
     super.key,
     required this.summary,
     required this.onContinue,
+    this.avatarIds = const [],
   });
 
   final ChkobbaRoundScore summary;
   final VoidCallback onContinue;
+
+  /// Avatars [joueur, adversaire] (#628) : dans les pastilles, à la place des initiales.
+  final List<String> avatarIds;
+
+  String? _avatarAt(int index) =>
+      index < avatarIds.length ? avatarIds[index] : null;
 
   // La correspondance porte sur le libellé français produit par la logique du jeu (inchangé).
   // Seul l'affichage est traduit, avec une clé lue à chaque build (pas de cache de langue).
@@ -95,6 +102,7 @@ class ChkobbaRoundCard extends StatelessWidget {
         RoundResultRow(
           name: t('you'),
           color: RoundResultColors.seat(0),
+          avatarId: _avatarAt(0),
           value: '+$roundYou',
           reason: _reasonFor(Player.player),
           total: '${state.scores[Player.player]}',
@@ -103,6 +111,7 @@ class ChkobbaRoundCard extends StatelessWidget {
         RoundResultRow(
           name: t('opponent'),
           color: RoundResultColors.seat(1),
+          avatarId: _avatarAt(1),
           value: '+$roundOpp',
           reason: _reasonFor(Player.opponent),
           total: '${state.scores[Player.opponent]}',

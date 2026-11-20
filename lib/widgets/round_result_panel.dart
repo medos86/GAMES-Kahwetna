@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../core/avatars/avatar_catalog.dart';
 import '../core/theme/comic_palette.dart';
+import 'avatar_view.dart';
 import 'result_dialog.dart';
 
 /// Couleurs d'identité des joueurs et équipes dans les écrans de fin (issue #526).
@@ -111,6 +113,8 @@ class RoundResultRow extends StatelessWidget {
     this.reason,
     this.total,
     this.highlight = false,
+    this.avatarId,
+    this.avatarState = AvatarState.neutral,
   });
 
   /// Nom du joueur ou de l'équipe.
@@ -128,15 +132,22 @@ class RoundResultRow extends StatelessWidget {
   /// Motif court sous le nom.
   final String? reason;
 
-  /// Total de la partie, affiché sous la valeur. `null` : pas de total.
+  /// Total de la partie, affiché en grand. `null` : pas de total.
   final String? total;
 
   /// Gagnant : ligne en or.
   final bool highlight;
 
+  /// Avatar du joueur ou de l'équipe (#628) : remplace l'initiale dans la pastille.
+  final String? avatarId;
+
+  /// État de l'avatar (neutre, heureux, fâché).
+  final AvatarState avatarState;
+
   @override
   Widget build(BuildContext context) {
     final initial = name.isEmpty ? '' : name.substring(0, 1).toUpperCase();
+    final avatar = avatarId;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
@@ -158,14 +169,25 @@ class RoundResultRow extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: ComicPalette.ink, width: 2.5),
             ),
-            child: Text(
-              leading ?? initial,
-              style: TextStyle(
-                color: RoundResultColors.textOn(color),
-                fontFamily: 'Bangers',
-                fontSize: 18,
-              ),
-            ),
+            // Avatar du joueur (#628) à la place de l'initiale, quand il est connu.
+            child: avatar != null
+                ? ClipOval(
+                    child: AvatarView(
+                      avatarId: avatar,
+                      state: avatarState,
+                      size: 28,
+                      isActive: false,
+                      semanticLabel: name,
+                    ),
+                  )
+                : Text(
+                    leading ?? initial,
+                    style: TextStyle(
+                      color: RoundResultColors.textOn(color),
+                      fontFamily: 'Bangers',
+                      fontSize: 18,
+                    ),
+                  ),
           ),
           const SizedBox(width: 10),
           Expanded(

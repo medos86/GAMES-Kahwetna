@@ -589,6 +589,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                   padding: const EdgeInsets.all(16),
                   child: ChkobbaRoundCard(
                     summary: summary,
+                    avatarIds: _avatarIds,
                     onContinue: () => _deal(_controller.continueAfterRound),
                   ),
                 ),

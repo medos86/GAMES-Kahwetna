@@ -1173,6 +1173,8 @@ class _RamiScreenState extends State<RamiScreen>
                 RoundResultRow(
                   name: _seatNames[seat],
                   color: RoundResultColors.seat(seat),
+                  avatarId: _avatarIds[seat],
+                  avatarState: _avatarStateOf(seat, g),
                   value: signedScore(result.penalties[seat]),
                   total: '${g.scores[seat]}',
                   reason: ramiSeatReason(
