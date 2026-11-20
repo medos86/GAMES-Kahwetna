@@ -120,7 +120,7 @@ class _DominoScreenState extends State<DominoScreen> {
             background: Stack(
               fit: StackFit.expand,
               children: [
-                const ColoredBox(color: Color(0xFF8B4513)),
+                const ColoredBox(color: ComicPalette.tableWood),
                 const _WoodShadeBackground(),
                 const DotPattern(
                   spacing: 4,

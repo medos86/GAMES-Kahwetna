@@ -224,7 +224,8 @@ class _WonPile extends StatelessWidget {
   /// Décalage horizontal entre deux cartes de Chkobba, la suivante par-dessus (#626).
   static const _overlap = 7.0;
 
-  /// Seulement le nombre de cartes, sur le décor bois de Chkobba (#593).
+  /// Dos de carte (comme les cartes en jeu, #632) et nombre de cartes sur une
+  /// étiquette encre, pour un contraste suffisant.
   @override
   Widget build(BuildContext context) {
     final pile = Container(
@@ -240,15 +241,26 @@ class _WonPile extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            const _WoodBackground(),
+            const ChkobbaCardBack(),
             Center(
-              child: Text(
-                '$count',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  shadows: [Shadow(color: Colors.black, blurRadius: 2)],
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: ComicPalette.ink,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 1,
+                  ),
+                  child: Text(
+                    '$count',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: ComicPalette.white,
+                    ),
+                  ),
                 ),
               ),
             ),

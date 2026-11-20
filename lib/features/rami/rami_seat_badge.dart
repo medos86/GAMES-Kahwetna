@@ -1,5 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/theme/comic_palette.dart';
+
 import '../../core/avatars/avatar_catalog.dart';
 import '../../widgets/avatar_view.dart';
 
@@ -52,7 +54,7 @@ class RamiSeatBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFFFF8E7),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFF4A2A10), width: 2),
+        border: Border.all(color: ComicPalette.ink, width: 2),
       ),
       child: Text(
         '$name ×$cards',

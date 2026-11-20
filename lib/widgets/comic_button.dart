@@ -1,5 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../core/theme/comic_palette.dart';
+
 /// Variantes des boutons « comic » (guide §8).
 enum ComicButtonVariant { white, primary, danger, neutral }
 
@@ -32,7 +34,7 @@ class _ComicButtonState extends State<ComicButton> {
         ComicButtonVariant.white => const _Look(
             gradient: [Color(0xFFFFFFFF), Color(0xFFFFFFFF)],
             text: Color(0xFF7E22CE),
-            shadow: Color(0xFF4A2A10),
+            shadow: ComicPalette.ink,
           ),
         ComicButtonVariant.primary => const _Look(
             gradient: [Color(0xFFFFE16B), Color(0xFFFFB43C)],

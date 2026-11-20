@@ -172,11 +172,11 @@ class _Table extends StatelessWidget {
         vertical: sm ? 8 : 12,
       ),
       decoration: BoxDecoration(
-        color: const Color(0xFF10B981),
+        color: ComicPalette.felt,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFF4A2A10), width: 6),
+        border: Border.all(color: ComicPalette.ink, width: 6),
         boxShadow: const [
-          BoxShadow(color: Color(0xFF4A2A10), spreadRadius: 3),
+          BoxShadow(color: ComicPalette.ink, spreadRadius: 3),
           BoxShadow(
             color: Color(0x59281405),
             offset: Offset(0, 8),

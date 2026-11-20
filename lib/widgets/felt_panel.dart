@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 
-/// Tapis vert émeraude à cadre brun (guide §8 : FeltPanel).
+import '../core/theme/comic_palette.dart';
+
+/// Tapis vert BD à contour encre (guide §8 : FeltPanel ; palette de #634).
 class FeltPanel extends StatelessWidget {
   const FeltPanel({
     super.key,
@@ -11,8 +13,8 @@ class FeltPanel extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
 
-  static const Color _felt = Color(0xFF10B981); // emerald-500
-  static const Color _frame = Color(0xFF4A2A10);
+  static const Color _felt = ComicPalette.felt;
+  static const Color _frame = ComicPalette.ink;
 
   @override
   Widget build(BuildContext context) {
