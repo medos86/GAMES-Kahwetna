@@ -28,14 +28,15 @@ void main() {
   ];
 
   group('Rami : recyclage de la défausse', () {
-    test('pioche vide : la défausse redevient pioche sauf sa carte du dessus', () {
-      final next = drawStock(drawPhase(stock: const [], discard: pile), () => 0.0);
+    test('pioche vide : la défausse redevient pioche', () {
+      final before = drawPhase(stock: const [], discard: pile);
+      final next = drawStock(before, () => 0.0);
 
       expect(next.phase, RamiPhase.play);
       expect(next.discard, [pile.last]);
       expect(next.stock.length, 1);
       expect(next.recycles, 1);
-      expect(next.hands[0].length, dealRound([0, 0, 0, 0], 3, 1, 100, () => 0.0).hands[0].length + 1);
+      expect(next.hands[0].length, before.hands[0].length + 1);
     });
 
     test('le recyclage conserve toutes les cartes', () {
@@ -56,17 +57,21 @@ void main() {
       expect(idsAfter, idsBefore);
     });
 
-    test('défausse d une seule carte : rien à recycler, la manche se termine', () {
-      final next = drawStock(drawPhase(stock: const [], discard: [pile.last]));
+    test('défausse d une seule carte : la manche se termine', () {
+      final state = drawPhase(stock: const [], discard: [pile.last]);
+      final next = drawStock(state);
 
       expect(next.phase, RamiPhase.end);
       expect(next.roundResult!.winner, isNull);
     });
 
     test('garde-fou : au maximum ramiMaxRecycles recyclages par manche', () {
-      final next = drawStock(
-        drawPhase(stock: const [], discard: pile, recycles: ramiMaxRecycles),
+      final state = drawPhase(
+        stock: const [],
+        discard: pile,
+        recycles: ramiMaxRecycles,
       );
+      final next = drawStock(state);
 
       expect(next.phase, RamiPhase.end);
       expect(next.roundResult!.winner, isNull);
