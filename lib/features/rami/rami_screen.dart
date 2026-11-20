@@ -612,8 +612,18 @@ class _RamiScreenState extends State<RamiScreen>
     final pile = _rectOf(_key('discard'));
     if (chip == null || pile == null) return;
     final flights = <CardFlight>[];
-    for (final move in ramiAiMoves(prev, next)) {
+    final moves = ramiAiMoves(prev, next);
+    // Recyclage (#646) : la pioche part seulement quand la défausse est revenue en pioche.
+    final recycleCount = moves.contains(RamiAiMove.recycle)
+        ? ramiRecycleFlightCount(prev.discard.length)
+        : 0;
+    final drawDelay = ramiRecycleTotal(recycleCount);
+    for (final move in moves) {
       switch (move) {
+        case RamiAiMove.recycle:
+          for (var i = 0; i < recycleCount; i++) {
+            flights.add(_recycleFlight(pile, next.stock, i));
+          }
         case RamiAiMove.drawStock:
           final stock = _rectOf(_key('stock'));
           if (stock == null) break;
@@ -624,6 +634,7 @@ class _RamiScreenState extends State<RamiScreen>
               width: stock.width,
               asset: ramiStockBackAsset(prev.stock),
             ),
+            delay: drawDelay,
             duration: ramiAiFlightDuration,
           ));
         case RamiAiMove.takeDiscard:
@@ -765,23 +776,50 @@ class _RamiScreenState extends State<RamiScreen>
   void _drawFromStock(double width) {
     _closeScores();
     final from = _rectOf(_key('stock'));
+    final pile = _rectOf(_key('discard'));
     final before = {for (final card in _c.hand) card.id};
+    final prevRecycles = _c.game.recycles;
+    final discardSize = _c.game.discard.length;
     _c.drawFromStock();
     if (from == null) return;
+    // Recyclage (#646) : la défausse vole vers la pioche, puis la carte part vers la main.
+    final recycled = _c.game.recycles > prevRecycles;
+    final recycleCount = recycled ? ramiRecycleFlightCount(discardSize) : 0;
+    final flights = <CardFlight>[];
+    if (pile != null) {
+      for (var i = 0; i < recycleCount; i++) {
+        flights.add(_recycleFlight(pile, _c.game.stock, i));
+      }
+    }
     final drawn = _c.hand.where((card) => !before.contains(card.id));
-    if (drawn.isEmpty) return;
-    final id = drawn.first.id;
-    flyAfterRender([
-      CardFlight(
+    if (drawn.isNotEmpty) {
+      final id = drawn.first.id;
+      flights.add(CardFlight(
         from: from,
         to: () => _rectOf(_key('hand:$id')),
         child: RamiBackView(
           width: width,
           asset: ramiBackAssetOf(drawn.first),
         ),
+        delay: ramiRecycleTotal(recycleCount),
         landingId: id,
+      ));
+    }
+    flyAfterRender(flights);
+  }
+
+  /// Une carte de la défausse qui revient dans la pioche (#646), décalée de [index] pas.
+  CardFlight _recycleFlight(Rect pile, List<rules.RamiCard> stock, int index) {
+    return CardFlight(
+      from: pile,
+      to: () => _rectOf(_key('stock')),
+      child: RamiBackView(
+        width: pile.width,
+        asset: ramiStockBackAsset(stock),
       ),
-    ]);
+      delay: ramiRecycleStagger * index,
+      duration: ramiRecycleFlight,
+    );
   }
 
   Widget _piles(double width, rules.RamiState g) {
