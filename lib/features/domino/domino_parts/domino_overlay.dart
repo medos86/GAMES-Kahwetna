@@ -69,12 +69,16 @@ class DominoRoundOverlay extends StatelessWidget {
     required this.onNext,
     required this.onRestart,
     required this.onMenu,
+    this.avatarIds = const [],
   });
 
   final DominoState game;
   final VoidCallback onNext;
   final VoidCallback onRestart;
   final VoidCallback onMenu;
+
+  /// Avatars [joueur, adversaire] (#628) : dans les pastilles, à la place des initiales.
+  final List<String> avatarIds;
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +103,7 @@ class DominoRoundOverlay extends StatelessWidget {
               RoundResultRow(
                 name: t('you'),
                 color: RoundResultColors.seat(0),
+                avatarId: avatarIds.isNotEmpty ? avatarIds[0] : null,
                 value: game.roundWinner == Player.player ? '+$points' : '0',
                 total: '${game.scores[Player.player]}',
                 highlight: game.roundWinner == Player.player,
@@ -106,6 +111,7 @@ class DominoRoundOverlay extends StatelessWidget {
               RoundResultRow(
                 name: t('opponent'),
                 color: RoundResultColors.seat(1),
+                avatarId: avatarIds.length > 1 ? avatarIds[1] : null,
                 value: game.roundWinner == Player.opponent ? '+$points' : '0',
                 total: '${game.scores[Player.opponent]}',
                 highlight: game.roundWinner == Player.opponent,

@@ -275,6 +275,7 @@ class _CoincheScreenState extends State<CoincheScreen>
                 Positioned.fill(
                   child: _SummaryDialog(
                     controller: c,
+                    avatarIds: _avatarIds,
                     onMenu: () => Navigator.of(context).maybePop(),
                   ),
                 ),

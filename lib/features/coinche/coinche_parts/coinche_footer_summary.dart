@@ -114,10 +114,23 @@ class _HandFooter extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _SummaryDialog extends StatelessWidget {
-  const _SummaryDialog({required this.controller, required this.onMenu});
+  const _SummaryDialog({
+    required this.controller,
+    required this.onMenu,
+    this.avatarIds = const [],
+  });
 
   final CoincheController controller;
   final VoidCallback onMenu;
+
+  /// Avatar de chaque siège, indexé par Seat (#628). Une équipe prend l'avatar de son représentant
+  /// (sud pour NS, ouest pour EW), comme dans le tableau de score.
+  final List<String> avatarIds;
+
+  String? _teamAvatar(Team team) {
+    final seat = team == Team.ns ? Seat.south.index : Seat.west.index;
+    return seat < avatarIds.length ? avatarIds[seat] : null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,6 +169,7 @@ class _SummaryDialog extends StatelessWidget {
                 RoundResultRow(
                   name: _teamLabel[team]!,
                   color: RoundResultColors.seat(team.index),
+                  avatarId: _teamAvatar(team),
                   value: '+${summary.awarded[team]}',
                   reason: 'Cartes ${summary.points[team]}',
                   total: '${match.scores[team]}',

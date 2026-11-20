@@ -186,6 +186,7 @@ class _DominoScreenState extends State<DominoScreen> {
                 Positioned.fill(
                   child: DominoRoundOverlay(
                     game: game,
+                    avatarIds: _avatarIds,
                     onNext: _controller.startNextRound,
                     onRestart: _controller.restart,
                     onMenu: () => Navigator.of(context).maybePop(),
