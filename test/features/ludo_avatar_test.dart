@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:kahwetne/core/avatars/avatar_catalog.dart';
 import 'package:kahwetne/features/ludo/ludo_controller.dart';
 import 'package:kahwetne/features/ludo/ludo_screen.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
