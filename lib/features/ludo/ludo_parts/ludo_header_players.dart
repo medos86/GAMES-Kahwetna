@@ -12,31 +12,26 @@ Map<LudoColor, String> ludoAvatarByColor(List<String> ids) {
   return result;
 }
 
+/// Vainqueur de la partie : premier du classement, seulement une fois finie.
+List<int> _ludoWinners(LudoController controller) {
+  final rankings = controller.game.rankings;
+  if (rankings.isEmpty) return const [];
+  return [rankings.first.index];
+}
+
 class _Header extends StatelessWidget {
   const _Header({
     required this.controller,
     required this.difficulty,
-    required this.avatarIds,
   });
 
   final LudoController controller;
   final Difficulty difficulty;
 
-  /// Avatar par couleur (issue #553).
-  final Map<LudoColor, String> avatarIds;
-
-  // Vainqueur de la partie : premier du classement, seulement une fois finie.
-  List<int> _winners() {
-    final rankings = controller.game.rankings;
-    if (rankings.isEmpty) return const [];
-    return [rankings.first.index];
-  }
-
   @override
   Widget build(BuildContext context) {
     final count = controller.playerCount;
-    final finished = controller.roundOver;
-    final winners = _winners();
+    // Avatars (#621) : désormais sur chaque carte joueur, plus en haut de l'écran.
     return GameHeader(
       onMenu: () => Navigator.of(context).maybePop(),
       center: Expanded(
@@ -47,17 +42,6 @@ class _Header extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               spacing: 6,
               children: [
-                for (final color in LudoColor.values)
-                  AvatarView(
-                    avatarId: avatarIds[color] ?? defaultAvatar.id,
-                    state: gameAvatarState(
-                      seat: color.index,
-                      finished: finished,
-                      winners: winners,
-                    ),
-                    size: 24,
-                    semanticLabel: _colorName(color, controller.solo),
-                  ),
                 Text(
                   count == 1
                       ? t('ludoPlayerOne')
@@ -76,15 +60,22 @@ class _Header extends StatelessWidget {
   }
 }
 
-/// Taille du dé affiché sur la carte d'un joueur.
-const _dieSize = 34.0;
+/// Taille du dé affiché sur la carte d'un joueur (#621 : agrandi).
+const _dieSize = 52.0;
 
 /// Une rangée de deux cartes joueurs. La rangée du haut (rouge, vert) est retournée à 180°.
 class _PlayerRow extends StatelessWidget {
-  const _PlayerRow({required this.controller, required this.top});
+  const _PlayerRow({
+    required this.controller,
+    required this.top,
+    required this.avatarIds,
+  });
 
   final LudoController controller;
   final bool top;
+
+  /// Avatar par couleur (issue #553).
+  final Map<LudoColor, String> avatarIds;
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +92,7 @@ class _PlayerRow extends StatelessWidget {
                 controller: controller,
                 color: color,
                 top: top,
+                avatarId: avatarIds[color] ?? defaultAvatar.id,
               ),
             ),
           ),
@@ -116,11 +108,13 @@ class _PlayerSlot extends StatelessWidget {
     required this.controller,
     required this.color,
     required this.top,
+    required this.avatarId,
   });
 
   final LudoController controller;
   final LudoColor color;
   final bool top;
+  final String avatarId;
 
   @override
   Widget build(BuildContext context) {
@@ -129,6 +123,7 @@ class _PlayerSlot extends StatelessWidget {
       controller: controller,
       color: color,
       active: active,
+      avatarId: avatarId,
     );
     final arrow = Center(
       child: Opacity(
@@ -155,11 +150,15 @@ class _PlayerCard extends StatelessWidget {
     required this.controller,
     required this.color,
     required this.active,
+    required this.avatarId,
   });
 
   final LudoController controller;
   final LudoColor color;
   final bool active;
+
+  /// Avatar propre à ce joueur (#621) : un seul, entouré de sa couleur.
+  final String avatarId;
 
   static const _grayscale = ColorFilter.matrix(<double>[
     0.2126,
@@ -184,8 +183,9 @@ class _PlayerCard extends StatelessWidget {
     0,
   ]);
 
+  /// Rang affiché sous l'avatar (#621 : le mot « au centre » n'est plus affiché).
   String _placeText(int place) {
-    if (place == 0) return 'au centre';
+    if (place == 0) return '';
     return '${place == 1 ? '1er' : '${place}e'} ✓';
   }
 
@@ -195,9 +195,9 @@ class _PlayerCard extends StatelessWidget {
     final tone = _toneOf(color).fill;
     final rolledHere = game.diceOwner == color && game.dice != null;
     final clickable = active && controller.canRoll;
-    final arrived = game.tokens
-        .where((t) => t.color == color && t.progress == ludoFinish)
-        .length;
+    final finished = controller.roundOver;
+    final winners = _ludoWinners(controller);
+    final place = _placeText(game.rankings.indexOf(color) + 1);
 
     final die = KeyedSubtree(
       key: rolledHere
@@ -237,53 +237,45 @@ class _PlayerCard extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // Un seul avatar, entouré de la couleur du joueur (#621).
+          // Le nom reste accessible (lecteur d'écran) mais n'est plus affiché.
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: tone, width: 3),
+            ),
+            child: ClipOval(
+              child: AvatarView(
+                avatarId: avatarId,
+                state: gameAvatarState(
+                  seat: color.index,
+                  finished: finished,
+                  winners: winners,
+                ),
+                size: 34,
+                // Le cercle de la couleur du joueur (ci-dessus) fait office d'anneau.
+                isActive: false,
+                semanticLabel: _colorName(color, controller.solo),
+              ),
+            ),
+          ),
+          const SizedBox(width: 6),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: tone,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: _brown),
-                      ),
+                if (place.isNotEmpty)
+                  Text(
+                    place,
+                    style: const TextStyle(
+                      color: Color(0x99202848),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        _colorName(color, controller.solo).toUpperCase(),
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: _ink,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  '$arrived/4',
-                  style: const TextStyle(
-                    color: _ink,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 16,
                   ),
-                ),
-                Text(
-                  _placeText(game.rankings.indexOf(color) + 1),
-                  style: const TextStyle(
-                    color: Color(0x99202848),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
               ],
             ),
           ),

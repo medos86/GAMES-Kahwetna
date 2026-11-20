@@ -1,7 +1,8 @@
 part of '../ludo_screen.dart';
 
-/// Taille minimale de la cible tactile du dé (#598) : au-dessus du minimum 48 dp.
-const double kLudoDieTapSize = 56;
+/// Taille de la cible tactile du dé (#598, #621) : au-dessus du minimum 48 dp, et
+/// égale à la taille du dé affiché, pour que seul le dé lance (#621).
+const double kLudoDieTapSize = 52;
 
 /// Dé cliquable du joueur actif : pulse tant qu'il peut lancer (désactivé si
 /// l'utilisateur a réduit les animations).

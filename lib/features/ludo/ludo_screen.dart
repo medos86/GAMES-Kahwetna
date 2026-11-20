@@ -220,7 +220,6 @@ class _LudoScreenState extends State<LudoScreen> {
                   _Header(
                     controller: c,
                     difficulty: widget.difficulty,
-                    avatarIds: _avatarByColor,
                   ),
                   const SizedBox(height: 8),
                   Expanded(
@@ -244,11 +243,13 @@ class _LudoScreenState extends State<LudoScreen> {
                                       _PlayerRow(
                                         controller: c,
                                         top: true,
+                                        avatarIds: _avatarByColor,
                                       ),
                                       const SizedBox(height: 8),
                                       _PlayerRow(
                                         controller: c,
                                         top: false,
+                                        avatarIds: _avatarByColor,
                                       ),
                                       const SizedBox(height: 8),
                                       _Footer(controller: c),
@@ -260,7 +261,11 @@ class _LudoScreenState extends State<LudoScreen> {
                           )
                         : Column(
                             children: [
-                              _PlayerRow(controller: c, top: true),
+                              _PlayerRow(
+                                controller: c,
+                                top: true,
+                                avatarIds: _avatarByColor,
+                              ),
                               const SizedBox(height: 8),
                               Expanded(
                                 child: Center(
@@ -268,7 +273,11 @@ class _LudoScreenState extends State<LudoScreen> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              _PlayerRow(controller: c, top: false),
+                              _PlayerRow(
+                                controller: c,
+                                top: false,
+                                avatarIds: _avatarByColor,
+                              ),
                               const SizedBox(height: 8),
                               _Footer(controller: c),
                             ],
