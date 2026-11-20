@@ -141,33 +141,39 @@ class _ScoreSide extends StatelessWidget {
       fontWeight: FontWeight.w700,
       color: ScobaPalette.ink,
     );
+    // L'avatar est à côté du score, et non au-dessus : la hauteur du tableau ne change pas (#627).
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AvatarView(
-          avatarId: avatarId,
-          state: avatarState,
-          size: 30,
-          semanticLabel: name,
-        ),
-        const SizedBox(height: 2),
-        Container(
-          width: 34,
-          height: 34,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color, width: 2),
-          ),
-          child: Text(
-            '$score',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w900,
-              color: color,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AvatarView(
+              avatarId: avatarId,
+              state: avatarState,
+              size: 30,
+              semanticLabel: name,
             ),
-          ),
+            const SizedBox(width: 3),
+            Container(
+              width: 34,
+              height: 34,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color, width: 2),
+              ),
+              child: Text(
+                '$score',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w900,
+                  color: color,
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 2),
         Text(
