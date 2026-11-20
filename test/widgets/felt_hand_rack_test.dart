@@ -43,6 +43,7 @@ void main() {
           children: [
             GestureDetector(
               key: const ValueKey('carte'),
+              behavior: HitTestBehavior.opaque,
               onTap: () => taps++,
               child: const SizedBox(width: 48, height: cardHeight),
             ),
