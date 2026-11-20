@@ -77,7 +77,6 @@ class _Scoreboard extends StatelessWidget {
               child: _ScoreSide(
                 name: t('you'),
                 score: game.scores[Player.player]!,
-                chkobbas: game.chkobbas[Player.player]!,
                 color: ScobaPalette.blueText,
                 avatarId: avatarIds[Player.player.index],
                 avatarState: gameAvatarState(
@@ -98,7 +97,6 @@ class _Scoreboard extends StatelessWidget {
               child: _ScoreSide(
                 name: t('opponent'),
                 score: game.scores[Player.opponent]!,
-                chkobbas: game.chkobbas[Player.opponent]!,
                 color: ScobaPalette.redText,
                 avatarId: avatarIds[Player.opponent.index],
                 avatarState: gameAvatarState(
@@ -119,7 +117,6 @@ class _ScoreSide extends StatelessWidget {
   const _ScoreSide({
     required this.name,
     required this.score,
-    required this.chkobbas,
     required this.color,
     required this.avatarId,
     required this.avatarState,
@@ -127,7 +124,6 @@ class _ScoreSide extends StatelessWidget {
 
   final String name;
   final int score;
-  final int chkobbas;
   final Color color;
 
   /// Avatar du joueur et son état (issue #551).
@@ -136,11 +132,6 @@ class _ScoreSide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const info = TextStyle(
-      fontSize: 11,
-      fontWeight: FontWeight.w700,
-      color: ScobaPalette.ink,
-    );
     // L'avatar est à côté du score, et non au-dessus : la hauteur du tableau ne change pas (#627).
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -185,16 +176,6 @@ class _ScoreSide extends StatelessWidget {
             fontWeight: FontWeight.w900,
             color: color,
             letterSpacing: 0.5,
-          ),
-        ),
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.star, size: 12, color: ScobaPalette.blueText),
-              Text(' $chkobbas', style: info),
-            ],
           ),
         ),
       ],
