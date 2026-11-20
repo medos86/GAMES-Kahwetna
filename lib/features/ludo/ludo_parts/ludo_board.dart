@@ -32,18 +32,20 @@ class _Board extends StatelessWidget {
                       _cornerHouse(color, u),
                     for (final color in LudoColor.values)
                       for (var slot = 0; slot < ludoBaseSlots.length; slot++)
+                        // Place de départ d'un pion : plus grande (#625), à la couleur de son joueur.
                         _at(
                           left: (ludoCorner(color).col +
                                   ludoBaseSlots[slot][1] -
-                                  0.4) *
+                                  0.45) *
                               u,
                           top: (ludoCorner(color).row +
                                   ludoBaseSlots[slot][0] -
-                                  0.4) *
+                                  0.45) *
                               u,
-                          size: 0.8 * u,
+                          size: 0.9 * u,
                           child: DecoratedBox(
                             decoration: BoxDecoration(
+                              color: _toneOf(color).fill,
                               shape: BoxShape.circle,
                               border: Border.all(
                                 color: _brown.withValues(alpha: 0.5),
@@ -117,24 +119,26 @@ Positioned _at({
 Positioned _cornerHouse(LudoColor color, double u) {
   final corner = ludoCorner(color);
   final tone = _toneOf(color);
+  // Grand carré de départ (#625) : fond blanc, coins arrondis, double contour
+  // (forme du dé de référence), contour à la couleur du joueur.
   return _at(
     left: corner.col * u,
     top: corner.row * u,
     size: 6 * u,
     child: DecoratedBox(
       decoration: BoxDecoration(
-        color: tone.tint,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: _brown, width: 3),
+        color: const Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: tone.fill, width: 4),
       ),
       child: Center(
         child: FractionallySizedBox(
-          widthFactor: 0.84,
-          heightFactor: 0.84,
+          widthFactor: 0.86,
+          heightFactor: 0.86,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: tone.fill.withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: _brown, width: 2),
             ),
           ),
         ),
