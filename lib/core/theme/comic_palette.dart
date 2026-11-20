@@ -17,6 +17,12 @@ abstract final class ComicPalette {
   static const Color white = Color(0xFFFFFFFF);
   static const Color seatGreen = Color(0xFF2E9E5B);
 
+  /// Tapis de jeu (Rami, Coinche, Chkobba) : vert BD (#634), contour encre.
+  static const Color felt = seatGreen;
+
+  /// Bois du décor de table, commun à tous les jeux de cartes (#633).
+  static const Color tableWood = Color(0xFF8B4513);
+
   /// Trame de points (alpha 15 %).
   static const Color halftone = Color(0x26000000);
 

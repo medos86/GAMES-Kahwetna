@@ -31,7 +31,6 @@ import '../../widgets/game_header.dart';
 import '../../widgets/card_flight.dart';
 import '../../widgets/card_motion.dart';
 
-part 'chkobba_parts/chkobba_backgrounds.dart';
 part 'chkobba_parts/chkobba_scoreboard.dart';
 part 'chkobba_parts/chkobba_table_parts.dart';
 part 'chkobba_parts/chkobba_round_cards.dart';
@@ -377,13 +376,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     final columns = size.width < 600 ? 4 : 6;
     // Hauteur de carte : 11 % de l'écran, bornée pour laisser la place au tapis.
     final cardHeight = math.min(math.max(size.height * 0.11, 56.0), 92.0);
-    final style = GameStyle.current;
-    final Widget background;
-    if (style.villageBackground) {
-      background = const _CalmBackground();
-    } else {
-      background = const _WoodBackground();
-    }
+    // Même bois que Rami, Domino et Coinche (issue #633).
+    const background = ColoredBox(color: ComicPalette.tableWood);
 
     return ListenableBuilder(
       listenable: Listenable.merge([

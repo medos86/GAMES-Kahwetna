@@ -1,10 +1,12 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/theme/comic_palette.dart';
+
 import '../../widgets/game_safe_area.dart';
 import '../../widgets/texture_patterns.dart';
 import '../../core/strings.dart';
 
-const _woodColor = Color(0xFF8B4513);
+const _woodColor = ComicPalette.tableWood;
 const _inkColor = Color(0xFF78350F);
 const _purpleColor = Color(0xFF7E22CE);
 

@@ -1,8 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/theme/comic_palette.dart';
+
 import '../../core/strings.dart';
 
-const _overlayFrame = Color(0xFF4A2A10);
+const _overlayFrame = ComicPalette.ink;
 const _overlayCream = Color(0xFFFFF8E7);
 const _overlayInk = Color(0xFF20284B);
 const _overlayGold = Color(0xFFFFE16B);

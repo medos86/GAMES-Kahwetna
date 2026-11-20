@@ -38,8 +38,8 @@ part 'coinche_parts/coinche_bid_panel.dart';
 part 'coinche_parts/coinche_footer_summary.dart';
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
-const _feltColor = Color(0xFF10B981);
-const _frameColor = Color(0xFF4A2A10);
+const _feltColor = ComicPalette.felt;
+const _frameColor = ComicPalette.ink;
 const _creamColor = Color(0xFFFFF8E7);
 const _inkColor = Color(0xFF20284B);
 const _goldColor = Color(0xFFFFE16B);
@@ -269,7 +269,7 @@ class _CoincheScreenState extends State<CoincheScreen>
           final c = _controller;
           return GameScaffold(
             showAd: !_adFree.value,
-            background: const ColoredBox(color: Color(0xFF8B4513)),
+            background: const ColoredBox(color: ComicPalette.tableWood),
             overlays: [
               if (c.summary != null)
                 Positioned.fill(

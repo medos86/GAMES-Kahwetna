@@ -58,7 +58,7 @@ class _Header extends StatelessWidget {
                       shadows: const [
                         Shadow(
                           offset: Offset(1, 2),
-                          color: Color(0xFF4A2A10),
+                          color: ComicPalette.ink,
                         ),
                       ],
                     ),
@@ -143,9 +143,9 @@ class _ScoreStrip extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
-          BoxShadow(color: Color(0xFF4A2A10), spreadRadius: 3),
+          BoxShadow(color: ComicPalette.ink, spreadRadius: 3),
           BoxShadow(
-            color: Color(0xFF4A2A10),
+            color: ComicPalette.ink,
             offset: Offset(0, 4),
             spreadRadius: 3,
           ),

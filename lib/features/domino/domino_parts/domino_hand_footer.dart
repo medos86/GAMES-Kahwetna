@@ -48,9 +48,9 @@ class _Footer extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFFFF8E7),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF4A2A10), width: 3),
+        border: Border.all(color: ComicPalette.ink, width: 3),
         boxShadow: const [
-          BoxShadow(color: Color(0xFF4A2A10), offset: Offset(0, 5)),
+          BoxShadow(color: ComicPalette.ink, offset: Offset(0, 5)),
         ],
       ),
       child: Column(
