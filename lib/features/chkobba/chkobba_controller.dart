@@ -65,8 +65,8 @@ class ChkobbaController extends PersistentGameController {
   Player? _chkobbaBy;
   Timer? _chkobbaTimer;
 
-  /// Carte qui a fait la Chkobba de chaque joueur, gardée sous son tas (#594). Vidée à chaque manche.
-  final Map<Player, ChkobbaCard> _chkobbaCards = {};
+  /// Cartes qui ont fait les Chkobba de chaque joueur, gardées sous son tas (#594, #626). Vidées à chaque manche.
+  final Map<Player, List<ChkobbaCard>> _chkobbaCards = {};
   String? _opponentChoice;
 
   /// Décision de l'adversaire : prend-il une prise s'il en a une (facile seulement).
@@ -94,7 +94,14 @@ class ChkobbaController extends PersistentGameController {
   Player? get chkobbaBy => _chkobbaBy;
 
   /// Carte de Chkobba posée sous le tas de [p], ou null (#594).
-  ChkobbaCard? chkobbaCardOf(Player p) => _chkobbaCards[p];
+  ChkobbaCard? chkobbaCardOf(Player p) {
+    final cards = _chkobbaCards[p];
+    return cards == null || cards.isEmpty ? null : cards.last;
+  }
+
+  /// Toutes les cartes de Chkobba de [p], dans l'ordre où elles ont été faites (#626).
+  List<ChkobbaCard> chkobbaCardsOf(Player p) =>
+      List.unmodifiable(_chkobbaCards[p] ?? const <ChkobbaCard>[]);
   PendingCapture? get pendingCapture => _pendingCapture;
 
   /// Carte que l'adversaire a montrée et va jouer (phase 1 terminée).
@@ -186,7 +193,7 @@ class ChkobbaController extends PersistentGameController {
     _game = next;
     _opponentChoice = null;
     if (chkobba != null) {
-      _chkobbaCards[chkobba] = next.won[chkobba]!.last;
+      (_chkobbaCards[chkobba] ??= []).add(next.won[chkobba]!.last);
       _chkobbaBy = chkobba;
       _chkobbaTimer?.cancel();
       _chkobbaTimer = Timer(hayaDuration, () {

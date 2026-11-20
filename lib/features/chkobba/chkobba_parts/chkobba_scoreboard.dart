@@ -202,14 +202,21 @@ class _WonPile extends StatelessWidget {
     super.key,
     required this.count,
     required this.color,
-    this.chkobbaCard,
+    this.chkobbaCards = const [],
   });
 
   final int count;
   final Color color;
 
-  /// Carte de Chkobba, posée légèrement tournée sous le tas (#594).
-  final ChkobbaCard? chkobbaCard;
+  /// Cartes de Chkobba (Scoba), posées légèrement tournées sous le tas (#594, #626).
+  final List<ChkobbaCard> chkobbaCards;
+
+  /// Taille de la carte de Chkobba affichée : seule sa moitié haute est visible (#626).
+  static const _cardWidth = 30.0;
+  static const _cardHeight = 42.0;
+
+  /// Décalage horizontal entre deux cartes de Chkobba, la suivante par-dessus (#626).
+  static const _overlap = 7.0;
 
   /// Seulement le nombre de cartes, sur le décor bois de Chkobba (#593).
   @override
@@ -243,8 +250,10 @@ class _WonPile extends StatelessWidget {
         ),
       ),
     );
-    final card = chkobbaCard;
-    if (card == null) return pile;
+    if (chkobbaCards.isEmpty) return pile;
+    // Une Scoba par carte : chaque carte suivante se pose par-dessus la précédente, décalée
+    // d'un peu, pour que les deux restent visibles (#626). Seule la moitié haute est montrée.
+    final width = _cardWidth + _overlap * (chkobbaCards.length - 1);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -252,10 +261,27 @@ class _WonPile extends StatelessWidget {
         const SizedBox(height: 4),
         Transform.rotate(
           angle: 0.12,
-          child: SizedBox(
-            width: 30,
-            height: 42,
-            child: ChkobbaCardFace(card: card),
+          child: ClipRect(
+            child: SizedBox(
+              width: width,
+              height: _cardHeight / 2,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  for (var i = 0; i < chkobbaCards.length; i++)
+                    Positioned(
+                      left: i * _overlap,
+                      top: 0,
+                      width: _cardWidth,
+                      height: _cardHeight,
+                      child: ChkobbaCardFace(
+                        key: ValueKey('scoba:${chkobbaCards[i].id}'),
+                        card: chkobbaCards[i],
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
       ],

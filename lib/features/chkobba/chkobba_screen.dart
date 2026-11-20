@@ -519,7 +519,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                       key: _key('won:opponent'),
                       count: _shownWon(Player.opponent),
                       color: ScobaPalette.redText,
-                      chkobbaCard: _shownChkobbaCard(Player.opponent),
+                      chkobbaCards: _shownChkobbaCards(Player.opponent),
                     ),
                   ),
                   Positioned(
@@ -529,7 +529,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                       key: _key('won:player'),
                       count: _shownWon(Player.player),
                       color: ScobaPalette.blueText,
-                      chkobbaCard: _shownChkobbaCard(Player.player),
+                      chkobbaCards: _shownChkobbaCards(Player.player),
                     ),
                   ),
                   if (_controller.chkobbaBy != null)
@@ -603,11 +603,11 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
   int _shownWon(Player p) =>
       _controller.game.won[p]!.where((c) => !_capturing.contains(c.id)).length;
 
-  /// Carte de Chkobba sous le tas, une fois arrivée (pas pendant son vol, #594).
-  ChkobbaCard? _shownChkobbaCard(Player p) {
-    final card = _controller.chkobbaCardOf(p);
-    return card == null || _capturing.contains(card.id) ? null : card;
-  }
+  /// Cartes de Chkobba sous le tas, une fois arrivées (pas pendant leur vol, #594, #626).
+  List<ChkobbaCard> _shownChkobbaCards(Player p) => [
+        for (final card in _controller.chkobbaCardsOf(p))
+          if (!_capturing.contains(card.id)) card,
+      ];
 
   static int _roundUp(int value, int multiple) =>
       ((value + multiple - 1) ~/ multiple) * multiple;

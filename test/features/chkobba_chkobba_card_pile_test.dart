@@ -37,5 +37,10 @@ void main() {
     expect(ctrl.game.chkobbas[Player.player], 1);
     expect(ctrl.chkobbaCardOf(Player.player)?.id, 'batons-1');
     expect(ctrl.chkobbaCardOf(Player.opponent), isNull);
+    expect(
+      ctrl.chkobbaCardsOf(Player.player).map((c) => c.id),
+      ['batons-1'],
+    );
+    expect(ctrl.chkobbaCardsOf(Player.opponent), isEmpty);
   });
 }
