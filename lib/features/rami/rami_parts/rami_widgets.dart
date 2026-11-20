@@ -3,10 +3,19 @@ part of '../rami_screen.dart';
 // ---------------------------------------------------------------------------
 
 class _PlayerChip extends StatelessWidget {
-  const _PlayerChip({required this.seat, required this.game});
+  const _PlayerChip({
+    required this.seat,
+    required this.game,
+    required this.avatarId,
+    required this.avatarState,
+  });
 
   final int seat;
   final rules.RamiState game;
+
+  /// Avatar devant le score (issue #552).
+  final String avatarId;
+  final AvatarState avatarState;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +43,13 @@ class _PlayerChip extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                AvatarView(
+                  avatarId: avatarId,
+                  state: avatarState,
+                  size: 22,
+                  semanticLabel: _seatNames[seat],
+                ),
+                const SizedBox(width: 3),
                 Flexible(
                   child: Text(
                     _seatNames[seat].toUpperCase(),
