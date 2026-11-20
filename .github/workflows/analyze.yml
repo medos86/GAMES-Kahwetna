@@ -43,6 +43,9 @@ jobs:
             test/core/interstitial_service_test.dart \
             test/widgets/ad_banner_test.dart
 
+      - name: Test script IDs AdMob (grep portable, #619)
+        run: bash tool/test_patch_ad_app_ids.sh
+
       - name: Tests unitaires (avec couverture)
         run: flutter test --coverage
 

@@ -9,11 +9,11 @@ cfg=lib/core/services/ads_config.dart
 
 case "$platform" in
   android)
-    id=$(grep -oP "android = '\K[^']+" "$cfg")
+    id=$(sed -n "s/.*android = '\([^']*\)'.*/\1/p" "$cfg" | head -n 1)
     file=android/app/src/main/AndroidManifest.xml
     ;;
   ios)
-    id=$(grep -oP "ios = '\K[^']+" "$cfg")
+    id=$(sed -n "s/.*ios = '\([^']*\)'.*/\1/p" "$cfg" | head -n 1)
     file=ios/Runner/Info.plist
     ;;
   *) echo "plateforme inconnue : $platform" >&2; exit 1 ;;
