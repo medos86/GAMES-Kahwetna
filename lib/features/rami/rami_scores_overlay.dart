@@ -10,20 +10,17 @@ const _overlayInk = Color(0xFF20284B);
 const _overlayGold = Color(0xFFFFE16B);
 
 /// Onglet collé au bord haut du tapis : ouvre le panneau des scores (#528).
+/// Il n'affiche que le libellé « Score » (#667) ; le détail est dans le panneau.
 class RamiScoresTab extends StatelessWidget {
   const RamiScoresTab({
     super.key,
     required this.open,
-    required this.myScore,
     required this.myTurn,
-    required this.turnLabel,
     required this.onTap,
   });
 
   final bool open;
-  final int myScore;
   final bool myTurn;
-  final String turnLabel;
   final VoidCallback onTap;
 
   @override
@@ -31,11 +28,11 @@ class RamiScoresTab extends StatelessWidget {
     return Semantics(
       button: true,
       expanded: open,
-      label: '$turnLabel · $myScore',
+      label: Strings.showScores,
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.fromLTRB(14, 2, 10, 4),
+          padding: const EdgeInsets.fromLTRB(14, 2, 14, 4),
           decoration: BoxDecoration(
             color: myTurn ? _overlayGold : _overlayCream,
             borderRadius: const BorderRadius.vertical(
@@ -43,23 +40,15 @@ class RamiScoresTab extends StatelessWidget {
             ),
             border: Border.all(color: _overlayFrame, width: 2),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '$turnLabel · $myScore',
-                style: const TextStyle(
-                  color: _overlayInk,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              Icon(
-                open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                size: 18,
+          child: ExcludeSemantics(
+            child: Text(
+              Strings.showScores,
+              style: const TextStyle(
                 color: _overlayInk,
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
               ),
-            ],
+            ),
           ),
         ),
       ),

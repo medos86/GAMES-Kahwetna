@@ -16,16 +16,59 @@ void main() {
           home: Scaffold(
             body: RamiScoresTab(
               open: false,
-              myScore: 0,
               myTurn: true,
-              turnLabel: 'À toi',
               onTap: () => taps++,
             ),
           ),
         ),
       );
-      await tester.tap(find.textContaining('À toi'));
+      await tester.tap(find.text(Strings.showScores));
       expect(taps, 1);
+    },
+  );
+
+  testWidgets(
+    'onglet Scores : n affiche que le libellé, sans flèche ni score (#667)',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: RamiScoresTab(
+              open: false,
+              myTurn: false,
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+      expect(find.text(Strings.showScores), findsOneWidget);
+      expect(find.byType(Icon), findsNothing);
+      expect(find.textContaining('·'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'onglet Scores : fond doré quand c\'est le tour du joueur (#667)',
+    (tester) async {
+      Future<Color> colorFor(bool myTurn) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: RamiScoresTab(open: false, myTurn: myTurn, onTap: () {}),
+            ),
+          ),
+        );
+        final box = tester.widget<Container>(
+          find.descendant(
+            of: find.byType(RamiScoresTab),
+            matching: find.byType(Container),
+          ),
+        );
+        return (box.decoration! as BoxDecoration).color!;
+      }
+
+      expect(await colorFor(true), const Color(0xFFFFE16B));
+      expect(await colorFor(false), const Color(0xFFFFF8E7));
     },
   );
 
