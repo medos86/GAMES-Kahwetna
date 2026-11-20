@@ -158,17 +158,62 @@ Positioned _trackCell(int index, Cell cell, double u) {
         color: starter != null ? _toneOf(starter).fill : _cream,
         border: Border.all(color: _brown.withValues(alpha: 0.3)),
       ),
+      // Étoile dorée qui occupe toute la case, avec un reflet (#623).
       child: isSafe && starter == null
-          ? Center(
-              child: Icon(
-                Icons.star,
-                size: u * 0.75,
-                color: kLudoSafeStarColor,
-              ),
-            )
+          ? CustomPaint(painter: const _SafeStarPainter())
           : null,
     ),
   );
+}
+
+/// Étoile des cases sûres (#623) : pleine case, dorée, avec un effet de brillance.
+class _SafeStarPainter extends CustomPainter {
+  const _SafeStarPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = size.center(Offset.zero);
+    final outer = size.shortestSide / 2 * 0.96;
+    final inner = outer * 0.5;
+    final path = Path();
+    for (var i = 0; i < 10; i++) {
+      final r = i.isEven ? outer : inner;
+      final angle = -math.pi / 2 + i * math.pi / 5;
+      final p = Offset(c.dx + r * math.cos(angle), c.dy + r * math.sin(angle));
+      if (i == 0) {
+        path.moveTo(p.dx, p.dy);
+      } else {
+        path.lineTo(p.dx, p.dy);
+      }
+    }
+    path.close();
+    final bounds = Rect.fromCircle(center: c, radius: outer);
+    // Dégradé doré avec reflet clair en haut à gauche = brillance.
+    canvas.drawPath(
+      path,
+      Paint()
+        ..shader = const RadialGradient(
+          center: Alignment(-0.35, -0.45),
+          radius: 1.1,
+          colors: [
+            Color(0xFFFFF1B0),
+            kLudoSafeStarColor,
+            Color(0xFF7A5300),
+          ],
+          stops: [0.0, 0.55, 1.0],
+        ).createShader(bounds),
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = const Color(0xFF7A5300),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_SafeStarPainter old) => false;
 }
 
 /// Centre du plateau : quatre triangles, un par couleur (arrivée propre à chaque joueur, #378).
