@@ -126,18 +126,47 @@ double ramiTableCardWidth(
 }
 
 /// Coup d'un adversaire (#316) : détecté en comparant l'état avant et après.
-enum RamiAiMove { drawStock, takeDiscard, discard }
+enum RamiAiMove { recycle, drawStock, takeDiscard, discard }
+
+/// Nombre de cartes animées lors d'un recyclage de la défausse (au plus ce nombre, pour rester fluide).
+const int ramiRecycleVisualCards = 6;
+
+/// Décalage entre deux cartes qui reviennent de la défausse vers la pioche.
+const Duration ramiRecycleStagger = Duration(milliseconds: 70);
+
+/// Vol d'une carte de la défausse vers la pioche.
+const Duration ramiRecycleFlight = Duration(milliseconds: 350);
+
+/// Nombre de cartes à animer pour un recyclage de [discardSize] cartes (0 : rien à animer).
+int ramiRecycleFlightCount(int discardSize) {
+  final movable = discardSize - 1; // la carte du dessus reste à la défausse
+  if (movable <= 0) return 0;
+  return movable < ramiRecycleVisualCards ? movable : ramiRecycleVisualCards;
+}
+
+/// Durée totale d'un recyclage animé : la pioche part une fois le recyclage terminé.
+Duration ramiRecycleTotal(int flightCount) => flightCount == 0
+    ? Duration.zero
+    : ramiRecycleStagger * (flightCount - 1) + ramiRecycleFlight;
 
 /// Coups joués par l'adversaire qui vient de jouer (`prev.turn`), pour animer sa pioche
 /// et sa défausse. Vide si c'était le tour du joueur ou si rien n'a bougé dans la pioche/défausse.
 List<RamiAiMove> ramiAiMoves(rules.RamiState prev, rules.RamiState next) {
   if (prev.turn == 0) return const [];
   final moves = <RamiAiMove>[];
-  if (next.stock.length < prev.stock.length) moves.add(RamiAiMove.drawStock);
-  if (next.discard.length < prev.discard.length) {
-    moves.add(RamiAiMove.takeDiscard);
-  } else if (next.discard.length > prev.discard.length) {
-    moves.add(RamiAiMove.discard);
+  // Recyclage : la défausse redevient pioche avant la pioche de l'adversaire (#646).
+  final recycled = next.recycles > prev.recycles;
+  if (recycled) moves.add(RamiAiMove.recycle);
+  if (recycled || next.stock.length < prev.stock.length) {
+    moves.add(RamiAiMove.drawStock);
+  }
+  // Après un recyclage, la défausse ne garde que sa carte du dessus : ce n'est pas une prise.
+  if (!recycled) {
+    if (next.discard.length < prev.discard.length) {
+      moves.add(RamiAiMove.takeDiscard);
+    } else if (next.discard.length > prev.discard.length) {
+      moves.add(RamiAiMove.discard);
+    }
   }
   return moves;
 }

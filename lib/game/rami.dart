@@ -114,6 +114,7 @@ class RamiState {
     required this.lastOpening,
     this.firstTour = false,
     this.openings = const [0, 0, 0, 0],
+    this.recycles = 0,
   });
 
   factory RamiState.fromJson(Map<String, dynamic> json) => RamiState(
@@ -143,6 +144,7 @@ class RamiState {
         openings: json['openings'] == null
             ? const [0, 0, 0, 0]
             : [for (final o in json['openings'] as List) o as int],
+        recycles: (json['recycles'] as int?) ?? 0,
       );
 
   final int targetScore;
@@ -170,6 +172,9 @@ class RamiState {
   /// Points de la première ouverture de chaque joueur cette manche (0 : pas ouvert).
   final List<int> openings;
 
+  /// Nombre de fois où la défausse a été recyclée en pioche cette manche.
+  final int recycles;
+
   /// Les champs nullables (takenId, roundResult, matchWinner) se remettent à null avec une valeur explicite.
   RamiState copyWith({
     RamiPhase? phase,
@@ -187,6 +192,7 @@ class RamiState {
     int? lastOpening,
     bool? firstTour,
     List<int>? openings,
+    int? recycles,
   }) {
     return RamiState(
       targetScore: targetScore,
@@ -211,6 +217,7 @@ class RamiState {
       lastOpening: lastOpening ?? this.lastOpening,
       firstTour: firstTour ?? this.firstTour,
       openings: openings ?? this.openings,
+      recycles: recycles ?? this.recycles,
     );
   }
 
@@ -237,6 +244,7 @@ class RamiState {
         'lastOpening': lastOpening,
         'firstTour': firstTour,
         'openings': openings,
+        'recycles': recycles,
       };
 }
 
@@ -481,21 +489,45 @@ RamiState _finish(RamiState state, int? winner) {
 // Coups du joueur
 // ---------------------------------------------------------------------------
 
+/// Nombre maximal de recyclages de la défausse par manche : garde-fou contre une partie
+/// qui tournerait indéfiniment (#458, #305).
+const int ramiMaxRecycles = 2;
+
 RamiState drawStock(RamiState state, [RandomDouble? random]) {
   if (state.phase != RamiPhase.draw) return state;
-  // Pioche épuisée : la manche se termine sans gagnant (#458). Sans cette fin, une partie
-  // pouvait tourner indéfiniment quand chacun gardait une carte et recyclait la défausse.
-  if (state.stock.isEmpty) return _finish(state, null);
-  final stock = state.stock;
+  var current = state;
+  if (current.stock.isEmpty) {
+    // Pioche vide : la défausse (sauf sa carte du dessus) est mélangée et redevient pioche.
+    // Fin sans gagnant seulement si rien n'est recyclable ou si le garde-fou est atteint (#458).
+    if (current.discard.length < 2 || current.recycles >= ramiMaxRecycles) {
+      return _finish(state, null);
+    }
+    current = _recycleDiscard(current, random ?? _defaultRandom.nextDouble);
+  }
+  final stock = current.stock;
   final card = stock.last;
   return _setHand(
-    state.copyWith(
+    current.copyWith(
       stock: stock.sublist(0, stock.length - 1),
       phase: RamiPhase.play,
       takenId: null,
     ),
     state.turn,
-    [...state.hands[state.turn], card],
+    [...current.hands[state.turn], card],
+  );
+}
+
+/// Défausse → pioche : tout sauf la carte du dessus, mélangé.
+RamiState _recycleDiscard(RamiState state, RandomDouble random) {
+  final top = state.discard.last;
+  final pile = shuffled(
+    state.discard.sublist(0, state.discard.length - 1),
+    random,
+  );
+  return state.copyWith(
+    stock: pile,
+    discard: [top],
+    recycles: state.recycles + 1,
   );
 }
 
