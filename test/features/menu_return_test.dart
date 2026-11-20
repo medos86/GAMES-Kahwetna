@@ -18,7 +18,10 @@ void main() {
   testWidgets(
     'après le lancement, le menu revient à la liste des jeux',
     (tester) async {
-      SharedPreferences.setMockInitialValues({});
+      SharedPreferences.setMockInitialValues({
+        'kahwetne.profile.name': 'Sfaxi_Lion',
+        'kahwetne.profile.avatarId': 'lion',
+      });
       tester.view.physicalSize = const Size(390, 844) * 3;
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.resetPhysicalSize);

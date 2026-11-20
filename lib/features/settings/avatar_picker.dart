@@ -7,7 +7,7 @@ import '../../widgets/avatar_view.dart';
 import '../../widgets/pressable.dart';
 
 /// Grille de choix d'avatar en bottom sheet (issue #548).
-/// Retourne l'identifiant choisi, ou null si annulé. [takenIds] : avatars grisés (#549).
+/// Retourne l'identifiant choisi, ou null si annulé. [takenIds] : avatars pris (#549).
 Future<String?> showAvatarPicker(
   BuildContext context, {
   required String currentId,
@@ -23,6 +23,8 @@ Future<String?> showAvatarPicker(
   );
 }
 
+/// Feuille de choix (issue #637) : aperçu en haut, grille à sélection visible
+/// sans seulement la couleur, validation explicite (Choisir / Annuler).
 class _AvatarPickerSheet extends StatefulWidget {
   const _AvatarPickerSheet({required this.currentId, required this.takenIds});
 
@@ -38,8 +40,10 @@ class _AvatarPickerSheetState extends State<_AvatarPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    // Toucher un avatar ne fait que l'aperçu : rien n'est enregistré avant Choisir.
+    final isCurrent = _selected == widget.currentId;
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -54,8 +58,27 @@ class _AvatarPickerSheetState extends State<_AvatarPickerSheet> {
               ),
             ),
             const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AvatarView(
+                  avatarId: _selected,
+                  size: 72,
+                  semanticLabel: _selected,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  isCurrent ? Strings.pickerCurrent : Strings.pickerPreview,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: ComicPalette.ink,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
             GridView.count(
-              crossAxisCount: 4,
+              crossAxisCount: 6,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               mainAxisSpacing: 8,
@@ -94,6 +117,8 @@ class _AvatarPickerSheetState extends State<_AvatarPickerSheet> {
   }
 }
 
+/// Case d'un avatar. Sélection : fond jaune, contour épais et pastille ✓ (pas
+/// seulement la couleur). Pris : estompé avec l'étiquette « Pris » (#549).
 class _Choice extends StatelessWidget {
   const _Choice({
     required this.avatarId,
@@ -109,24 +134,74 @@ class _Choice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Pressable(
-      semanticLabel: avatarId,
-      onTap: taken ? null : onTap,
-      child: Opacity(
-        opacity: taken ? 0.35 : 1,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: selected ? ComicPalette.yellow : Colors.transparent,
-              width: 4,
+    return Semantics(
+      selected: selected,
+      child: Pressable(
+        semanticLabel: avatarId,
+        onTap: taken ? null : onTap,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
+          children: [
+            Opacity(
+              opacity: taken ? 0.35 : 1,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: selected ? ComicPalette.yellow : Colors.transparent,
+                  border: Border.all(
+                    color: selected ? ComicPalette.ink : Colors.transparent,
+                    width: 4,
+                  ),
+                ),
+                child: AvatarView(
+                  avatarId: avatarId,
+                  size: 52,
+                  semanticLabel: avatarId,
+                ),
+              ),
             ),
-          ),
-          child: AvatarView(
-            avatarId: avatarId,
-            size: 64,
-            semanticLabel: avatarId,
-          ),
+            if (selected)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: DecoratedBox(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: ComicPalette.ink,
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(2),
+                    child: Icon(
+                      Icons.check,
+                      size: 14,
+                      color: ComicPalette.white,
+                    ),
+                  ),
+                ),
+              ),
+            if (taken)
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: ComicPalette.ink,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
+                  child: Text(
+                    Strings.pickerTaken,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: ComicPalette.white,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

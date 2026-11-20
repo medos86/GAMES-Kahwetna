@@ -201,7 +201,16 @@ const Map<String, String> frTexts = {
   'profileSave': 'Enregistrer',
   'profileChangeAvatar': 'Changer d\'avatar',
   'pickerTitle': 'Choisis ton avatar',
-  'pickerConfirm': 'Valider',
+  'pickerConfirm': 'Choisir',
+  'pickerCurrent': 'Actuel',
+  'pickerPreview': 'Aperçu',
+  'pickerTaken': 'Pris',
+  'avatarUpdated': 'Avatar mis à jour',
+  'setupTitle': 'Bienvenue ! Comment tu t\'appelles ?',
+  'setupBody':
+      'Choisis ton pseudo. Tu pourras le changer plus tard dans Profil.',
+  'setupStart': 'Commencer',
+  'menuOpenProfile': 'Ouvrir mon profil',
   'pickerCancel': 'Annuler',
 };
 
@@ -398,6 +407,14 @@ const Map<String, String> arTexts = {
   'profileSave': 'حفظ',
   'profileChangeAvatar': 'تغيير الصورة الرمزية',
   'pickerTitle': 'اختر صورتك الرمزية',
-  'pickerConfirm': 'تأكيد',
+  'pickerConfirm': 'اختيار',
+  'pickerCurrent': 'الحالي',
+  'pickerPreview': 'معاينة',
+  'pickerTaken': 'مأخوذ',
+  'avatarUpdated': 'تم تحديث الصورة الرمزية',
+  'setupTitle': 'مرحبًا! ما اسمك؟',
+  'setupBody': 'اختر اسمك. يمكنك تغييره لاحقًا من الملف الشخصي.',
+  'setupStart': 'ابدأ',
+  'menuOpenProfile': 'فتح ملفي الشخصي',
   'pickerCancel': 'إلغاء',
 };

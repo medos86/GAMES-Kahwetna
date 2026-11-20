@@ -16,10 +16,12 @@ import '../../core/services/privacy_options.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/comic/halftone_overlay.dart';
 import '../../widgets/fade_slide_in.dart';
+import '../settings/profile_screen.dart';
 import '../settings/settings_screen.dart';
 import '../../core/services/first_launch_profile.dart';
 import '../../core/services/profile_store.dart';
 import '../../widgets/profile_chip.dart';
+import 'profile_setup_screen.dart';
 import 'welcome_banner.dart';
 import '../../widgets/pressable.dart';
 import '../../widgets/texture_patterns.dart';
@@ -79,22 +81,39 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     _startCountdown();
   }
 
-  /// Premier lancement : profil créé et bandeau de bienvenue (#544, #546).
+  /// Premier lancement (#631) : l'écran de bienvenue demande le pseudo avant le menu,
+  /// puis le profil est enregistré. Le bandeau de bienvenue suit (#544, #546).
   Future<void> _loadProfile() async {
     final setup = await ensureProfile();
     if (!mounted) return;
+    var profile = setup.profile;
+    var created = false;
+    if (setup.created) {
+      final named = await Navigator.of(context).push<PlayerProfile>(
+        MaterialPageRoute<PlayerProfile>(
+          fullscreenDialog: true,
+          builder: (_) => ProfileSetupScreen(initial: setup.profile),
+        ),
+      );
+      if (named != null) {
+        await saveProfile(named);
+        profile = named;
+        created = true;
+      }
+    }
+    if (!mounted) return;
     setState(() {
-      _profile = setup.profile;
-      _justCreated = setup.created;
+      _profile = profile;
+      _justCreated = created;
     });
   }
 
-  /// Ouvre les réglages ; à leur fermeture, le pseudo et l'avatar sont relus.
-  void _openSettings() {
+  /// Ouvre seulement la section Profil (chip avatar + pseudo, bandeau « Modifier ») (#638).
+  void _openProfile() {
     setState(() => _justCreated = false);
     Navigator.of(context)
         .push(
-          MaterialPageRoute<void>(builder: (_) => const SettingsScreen()),
+          MaterialPageRoute<void>(builder: (_) => const ProfileScreen()),
         )
         .then((_) => _refreshProfile());
   }
@@ -290,7 +309,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                   bottom: 24,
                   child: WelcomeBanner(
                     name: _profile!.name,
-                    onEdit: _openSettings,
+                    onEdit: _openProfile,
                   ),
                 ),
               GameSafeArea(
@@ -317,7 +336,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                                     _screen = _MenuScreen.menu;
                                   }),
                                   profile: _profile,
-                                  onProfileTap: _openSettings,
+                                  onProfileTap: _openProfile,
                                 ),
                                 Expanded(
                                   child: _screen == _MenuScreen.menu

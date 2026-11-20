@@ -19,6 +19,9 @@ abstract final class ComicPalette {
 
   /// Trame de points (alpha 15 %).
   static const Color halftone = Color(0x26000000);
+
+  /// Trame du fond de page (alpha 8 %), plus discrète que [halftone].
+  static const Color backdropDots = Color(0x14000000);
 }
 
 /// Rapport de contraste WCAG entre deux couleurs (1 à 21).

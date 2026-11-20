@@ -5,7 +5,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Issue #118 : la somme d'argent fictive n'est plus affichée dans le menu principal.
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(
+    () => SharedPreferences.setMockInitialValues({
+      'kahwetne.profile.name': 'Sfaxi_Lion',
+      'kahwetne.profile.avatarId': 'lion',
+    }),
+  );
 
   testWidgets('menu principal sans solde de pièces', (tester) async {
     tester.view.physicalSize = const Size(390, 844) * 3;
