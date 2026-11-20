@@ -60,8 +60,9 @@ void main() {
     await tester.tap(
       find.byWidgetPredicate((w) => w is AvatarView && w.avatarId == 'tiger'),
     );
-    await tester.tap(find.text('Valider'));
+    await tester.tap(find.text('Choisir'));
     await tester.pumpAndSettle();
     expect((await loadProfile()).avatarId, 'tiger');
+    expect(find.text('Avatar mis à jour'), findsOneWidget);
   });
 }

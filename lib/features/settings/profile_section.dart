@@ -7,6 +7,7 @@ import '../../core/theme/comic_palette.dart';
 import '../../widgets/avatar_view.dart';
 import '../../widgets/pressable.dart';
 import 'avatar_picker.dart';
+import 'pseudo_messages.dart';
 
 /// Section « Profil » des Paramètres (issue #547) : pseudo éditable, avatar cliquable
 /// qui ouvre la grille de choix (issue #548).
@@ -46,7 +47,7 @@ class _ProfileSectionState extends State<ProfileSection> {
     final name = _controller.text.trim();
     final error = validatePseudo(name);
     if (error != null) {
-      setState(() => _error = _messageFor(error));
+      setState(() => _error = pseudoErrorMessage(error));
       return;
     }
     final updated = PlayerProfile(name: name, avatarId: profile.avatarId);
@@ -65,20 +66,15 @@ class _ProfileSectionState extends State<ProfileSection> {
       context,
       currentId: profile.avatarId,
     );
-    if (chosen == null || !mounted) return;
+    if (chosen == null || chosen == profile.avatarId || !mounted) return;
     final updated = PlayerProfile(name: profile.name, avatarId: chosen);
     await saveProfile(updated);
     if (!mounted) return;
     setState(() => _profile = updated);
-  }
-
-  String _messageFor(PseudoError error) {
-    return switch (error) {
-      PseudoError.tooShort => Strings.pseudoTooShort,
-      PseudoError.tooLong => Strings.pseudoTooLong,
-      PseudoError.invalidCharacters => Strings.pseudoInvalid,
-      PseudoError.forbiddenWord => Strings.pseudoForbidden,
-    };
+    // Retour visuel après enregistrement (issue #637).
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(Strings.avatarUpdated)),
+    );
   }
 
   @override

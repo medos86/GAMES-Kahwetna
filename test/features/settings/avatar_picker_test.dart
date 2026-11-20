@@ -44,9 +44,9 @@ void main() {
     await open(tester);
     await tester.tap(choice('tiger'));
     await tester.pump();
-    await tester.tap(find.text('Valider'));
+    await tester.tap(find.text('Choisir'));
     await tester.pumpAndSettle();
-    expect(find.text('Valider'), findsNothing);
+    expect(find.text('Choisir'), findsNothing);
   });
 
   testWidgets('Annuler ferme la grille sans changement', (tester) async {
@@ -57,12 +57,28 @@ void main() {
     expect(find.text('Annuler'), findsNothing);
   });
 
+  testWidgets('l\'avatar actuel est en grand avec le libellé Actuel', (
+    tester,
+  ) async {
+    await open(tester);
+    expect(find.text('Actuel'), findsOneWidget);
+    await tester.tap(choice('tiger'));
+    await tester.pump();
+    expect(find.text('Aperçu'), findsOneWidget);
+    expect(find.text('Actuel'), findsNothing);
+  });
+
+  testWidgets('un avatar pris porte l\'étiquette Pris', (tester) async {
+    await open(tester, taken: {'tiger'});
+    expect(find.text('Pris'), findsOneWidget);
+  });
+
   testWidgets('un avatar pris ne peut pas être choisi', (tester) async {
     await open(tester, taken: {'tiger'});
     await tester.tap(choice('tiger'));
     await tester.pump();
-    await tester.tap(find.text('Valider'));
+    await tester.tap(find.text('Choisir'));
     await tester.pumpAndSettle();
-    expect(find.text('Valider'), findsNothing);
+    expect(find.text('Choisir'), findsNothing);
   });
 }

@@ -31,7 +31,7 @@ class HalftoneOverlay extends StatelessWidget {
           child: IgnorePointer(
             child: RepaintBoundary(
               child: CustomPaint(
-                painter: _HalftonePainter(
+                painter: HalftonePainter(
                   color: dotColor,
                   spacing: spacing,
                   radius: radius,
@@ -45,8 +45,9 @@ class HalftoneOverlay extends StatelessWidget {
   }
 }
 
-class _HalftonePainter extends CustomPainter {
-  _HalftonePainter({
+/// Peintre de la trame (issue #636 : réutilisé par le fond de page).
+class HalftonePainter extends CustomPainter {
+  HalftonePainter({
     required this.color,
     required this.spacing,
     required this.radius,
@@ -70,6 +71,6 @@ class _HalftonePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_HalftonePainter old) =>
+  bool shouldRepaint(HalftonePainter old) =>
       old.color != color || old.spacing != spacing || old.radius != radius;
 }

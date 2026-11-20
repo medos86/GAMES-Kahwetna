@@ -106,7 +106,12 @@ Future<void> _pump(
 }
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(
+    () => SharedPreferences.setMockInitialValues({
+      'kahwetne.profile.name': 'Sfaxi_Lion',
+      'kahwetne.profile.avatarId': 'lion',
+    }),
+  );
 
   for (final device in _devices) {
     for (final scale in _textScales) {

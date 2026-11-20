@@ -12,6 +12,14 @@ abstract final class Strings {
   static String get pickerTitle => t('pickerTitle');
   static String get pickerConfirm => t('pickerConfirm');
   static String get pickerCancel => t('pickerCancel');
+  static String get pickerCurrent => t('pickerCurrent');
+  static String get pickerPreview => t('pickerPreview');
+  static String get pickerTaken => t('pickerTaken');
+  static String get avatarUpdated => t('avatarUpdated');
+  static String get setupTitle => t('setupTitle');
+  static String get setupBody => t('setupBody');
+  static String get setupStart => t('setupStart');
+  static String get menuOpenProfile => t('menuOpenProfile');
   static String get profileSection => t('profileSection');
   static String get profileName => t('profileName');
   static String get profileSave => t('profileSave');
