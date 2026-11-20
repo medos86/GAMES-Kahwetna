@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart' show Container, SizedBox;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/card_animations.dart';
 import 'package:kahwetne/features/chkobba/chkobba_card_face.dart';
@@ -59,14 +58,18 @@ void main() {
     );
     await tester.pump();
 
-    final pileRects = tester
+    final scoba = tester.getRect(find.byKey(const ValueKey('scoba:batons-1')));
+    // Le tas du joueur est celui dont le haut est le plus proche de la scoba.
+    final piles = tester
         .widgetList<Container>(find.byType(Container))
         .map((c) => tester.getRect(find.byWidget(c)))
         .where((r) => r.width == 48 && r.height == 36)
         .toList();
-    expect(pileRects, isNotEmpty);
-    final pile = pileRects.first;
-    final scoba = tester.getRect(find.byKey(const ValueKey('scoba:batons-1')));
+    expect(piles, isNotEmpty);
+    final top = scoba.top;
+    final pile = piles.reduce(
+      (a, b) => (a.top - top).abs() < (b.top - top).abs() ? a : b,
+    );
 
     // La partie haute de la scoba passe sous le tas, la partie basse dépasse.
     expect(scoba.top, lessThan(pile.bottom));
