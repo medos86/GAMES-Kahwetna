@@ -12,7 +12,12 @@ void main() {
       ),
     );
     expect(find.text('contenu'), findsOneWidget);
-    final paint = tester.widget<CustomPaint>(find.byType(CustomPaint).first);
+    final paint = tester.widget<CustomPaint>(
+      find.descendant(
+        of: find.byType(ComicBackdrop),
+        matching: find.byType(CustomPaint),
+      ),
+    );
     expect(paint.painter, isA<HalftonePainter>());
   });
 }

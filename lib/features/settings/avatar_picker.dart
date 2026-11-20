@@ -43,7 +43,7 @@ class _AvatarPickerSheetState extends State<_AvatarPickerSheet> {
     // Toucher un avatar ne fait que l'aperçu : rien n'est enregistré avant Choisir.
     final isCurrent = _selected == widget.currentId;
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -63,7 +63,7 @@ class _AvatarPickerSheetState extends State<_AvatarPickerSheet> {
               children: [
                 AvatarView(
                   avatarId: _selected,
-                  size: 96,
+                  size: 80,
                   semanticLabel: _selected,
                 ),
                 const SizedBox(height: 4),
