@@ -23,7 +23,11 @@ void main() {
   });
 
   test('le payload ne contient aucune donnée personnelle', () {
-    const record = AdEventRecord(event: AdEvent.revenue, adId: 'ad-7', value: 0.12);
+    const record = AdEventRecord(
+      event: AdEvent.revenue,
+      adId: 'ad-7',
+      value: 0.12,
+    );
     final payload = record.toPayload();
 
     expect(payload.keys.toSet(), kAdEventPayloadKeys);
