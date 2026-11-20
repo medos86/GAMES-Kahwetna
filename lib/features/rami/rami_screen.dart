@@ -465,7 +465,12 @@ class _RamiScreenState extends State<RamiScreen>
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: KeyedSubtree(
                 key: _key('seat:$seat'),
-                child: _chipOf(seat, g),
+                child: _PlayerChip(
+                  seat: seat,
+                  game: g,
+                  avatarId: _avatarIds[seat],
+                  avatarState: _avatarStateOf(seat, g),
+                ),
               ),
             ),
           ),
