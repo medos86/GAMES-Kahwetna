@@ -233,7 +233,6 @@ class _WonPile extends StatelessWidget {
       height: 36,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color, width: 2),
         boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 3))],
       ),
       child: ClipRRect(
