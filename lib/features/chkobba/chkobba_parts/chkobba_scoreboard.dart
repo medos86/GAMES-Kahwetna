@@ -268,40 +268,49 @@ class _WonPile extends StatelessWidget {
       ),
     );
     if (chkobbaCards.isEmpty) return pile;
-    // Une Scoba par carte : chaque carte suivante se pose par-dessus la précédente, décalée
-    // d'un peu, pour que les deux restent visibles (#626). Seule la moitié haute est montrée.
+    // Les Scobas sont glissées sous le tas : leur moitié haute est cachée par le tas, seule la
+    // moitié basse dépasse (#649). Chaque carte suivante se pose par-dessus la précédente (#626).
     final width = _cardWidth + _overlap * (chkobbaCards.length - 1);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        pile,
-        const SizedBox(height: 4),
-        Transform.rotate(
-          angle: 0.12,
-          child: ClipRect(
-            child: SizedBox(
-              width: width,
-              height: _cardHeight / 2,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  for (var i = 0; i < chkobbaCards.length; i++)
-                    Positioned(
-                      left: i * _overlap,
-                      top: 0,
-                      width: _cardWidth,
-                      height: _cardHeight,
-                      child: ChkobbaCardFace(
-                        key: ValueKey('scoba:${chkobbaCards[i].id}'),
-                        card: chkobbaCards[i],
-                      ),
-                    ),
-                ],
+    const pileHeight = 36.0;
+    return SizedBox(
+      width: 48,
+      height: pileHeight + _cardHeight / 2,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            top: pileHeight - _cardHeight / 2,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Transform.rotate(
+                angle: 0.12,
+                child: SizedBox(
+                  width: width,
+                  height: _cardHeight,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      for (var i = 0; i < chkobbaCards.length; i++)
+                        Positioned(
+                          left: i * _overlap,
+                          top: 0,
+                          width: _cardWidth,
+                          height: _cardHeight,
+                          child: ChkobbaCardFace(
+                            key: ValueKey('scoba:${chkobbaCards[i].id}'),
+                            card: chkobbaCards[i],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ],
+          Positioned(top: 0, left: 0, child: pile),
+        ],
+      ),
     );
   }
 }
