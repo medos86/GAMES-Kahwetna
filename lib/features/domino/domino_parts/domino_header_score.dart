@@ -198,6 +198,8 @@ class _ScoreStrip extends StatelessWidget {
   }
 }
 
+const _activeGlow = [BoxShadow(color: Color(0xFFFFF1BD), spreadRadius: 3)];
+
 class _ScoreBox extends StatelessWidget {
   const _ScoreBox({
     required this.label,
@@ -227,60 +229,66 @@ class _ScoreBox extends StatelessWidget {
         'v': '$value',
       }),
       excludeSemantics: true,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          AvatarView(
-            avatarId: avatarId,
-            state: avatarState,
-            size: unit * 2,
-            semanticLabel: label,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (label == 'Adv.') ...[
+                Text(
+                  label.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: unit * 0.7,
+                    fontWeight: FontWeight.w900,
+                    color: color,
+                  ),
+                ),
+                SizedBox(width: unit * 0.3),
+              ],
+              Container(
+                constraints: BoxConstraints(minWidth: unit * 3.2),
+                height: unit * 2.8,
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: color, width: 2),
+                  boxShadow: active ? _activeGlow : null,
+                ),
+                child: Text(
+                  '$value',
+                  style: TextStyle(
+                    fontSize: unit * 1.4,
+                    fontWeight: FontWeight.w900,
+                    color: color,
+                  ),
+                ),
+              ),
+              if (label == t('you')) ...[
+                SizedBox(width: unit * 0.3),
+                Text(
+                  label.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: unit * 0.7,
+                    fontWeight: FontWeight.w900,
+                    color: color,
+                  ),
+                ),
+              ],
+            ],
           ),
-          SizedBox(width: unit * 0.3),
-          if (label == 'Adv.') ...[
-            Text(
-              label.toUpperCase(),
-              style: TextStyle(
-                fontSize: unit * 0.7,
-                fontWeight: FontWeight.w900,
-                color: color,
-              ),
-            ),
-            SizedBox(width: unit * 0.3),
-          ],
-          Container(
-            constraints: BoxConstraints(minWidth: unit * 3.2),
-            height: unit * 2.8,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: color, width: 2),
-              boxShadow: active
-                  ? const [BoxShadow(color: Color(0xFFFFF1BD), spreadRadius: 3)]
-                  : null,
-            ),
-            child: Text(
-              '$value',
-              style: TextStyle(
-                fontSize: unit * 1.4,
-                fontWeight: FontWeight.w900,
-                color: color,
-              ),
+          // Avatar posé au-dessus de la pastille : il ne change pas la largeur.
+          Positioned(
+            top: -unit * 1.3,
+            child: AvatarView(
+              avatarId: avatarId,
+              state: avatarState,
+              size: unit * 1.8,
+              semanticLabel: label,
             ),
           ),
-          if (label == t('you')) ...[
-            SizedBox(width: unit * 0.3),
-            Text(
-              label.toUpperCase(),
-              style: TextStyle(
-                fontSize: unit * 0.7,
-                fontWeight: FontWeight.w900,
-                color: color,
-              ),
-            ),
-          ],
         ],
       ),
     );
