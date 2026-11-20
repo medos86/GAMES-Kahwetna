@@ -5,6 +5,8 @@ import 'package:material_ui/material_ui.dart';
 
 import 'package:flutter/foundation.dart' show ValueListenable;
 
+import '../../core/avatars/avatar_catalog.dart';
+import '../../core/avatars/game_avatars.dart';
 import '../../core/layout/device_metrics.dart';
 import '../../game/coinche.dart';
 import '../../core/i18n/app_language.dart';
@@ -16,6 +18,8 @@ import '../../core/services/ad_free_service.dart';
 import '../../core/services/game_end_watcher.dart';
 import '../../core/services/interstitial_service.dart';
 import '../../core/theme/comic_palette.dart';
+import '../../widgets/avatar_view.dart';
+import 'coinche_avatars.dart';
 import '../../widgets/comic/comic_panel.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/game_scaffold.dart';
@@ -66,6 +70,9 @@ class CoincheScreen extends StatefulWidget {
 
 class _CoincheScreenState extends State<CoincheScreen>
     with CardMotionMixin<CoincheScreen> {
+  // Avatars des 4 sièges, indexés par Seat (issue #554) ; 0 = joueur.
+  List<String> _avatarIds = [defaultAvatar.id, 'lion', 'tiger', 'panda'];
+
   late final CoincheController _controller = CoincheController(
     store: const SharedPreferencesSavedGameStore(),
     target: widget.targetScore,
@@ -100,6 +107,9 @@ class _CoincheScreenState extends State<CoincheScreen>
   void initState() {
     super.initState();
     InterstitialService.instance.preload();
+    loadGameAvatars(seats: 4).then((ids) {
+      if (mounted) setState(() => _avatarIds = ids);
+    });
     _controller.addListener(_endWatcher.check);
     _controller.addListener(_onChanged);
     _controller.restore().then((_) {
@@ -275,7 +285,7 @@ class _CoincheScreenState extends State<CoincheScreen>
                 children: [
                   _Header(controller: c, difficulty: widget.difficulty),
                   const SizedBox(height: 8),
-                  _ScoreBar(controller: c),
+                  _ScoreBar(controller: c, avatarIds: _avatarIds),
                   const SizedBox(height: 8),
                   Expanded(
                     child: _Table(
@@ -283,6 +293,7 @@ class _CoincheScreenState extends State<CoincheScreen>
                       cardWidth: metrics.coincheCardWidth * 0.8,
                       keyOf: _key,
                       landing: landing,
+                      avatarIds: _avatarIds,
                     ),
                   ),
                   const SizedBox(height: 8),
