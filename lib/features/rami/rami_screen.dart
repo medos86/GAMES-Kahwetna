@@ -4,6 +4,8 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 
+import '../../core/avatars/avatar_catalog.dart';
+import '../../core/avatars/game_avatars.dart';
 import '../../core/layout/device_metrics.dart';
 import '../../core/services/toast.dart';
 import '../../game/rami.dart' as rules;
@@ -20,6 +22,7 @@ import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/game_end_watcher.dart';
 import '../../core/services/interstitial_service.dart';
+import '../../widgets/avatar_view.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../widgets/pulse_glow.dart';
@@ -72,6 +75,8 @@ class _RamiScreenState extends State<RamiScreen>
   _Drag? _drag;
   // Largeur réelle des cartes de la main (la carte glissée garde cette taille).
   double _handCardWidth = 0;
+  // Avatars des 4 sièges, siège 0 = joueur (issue #552).
+  List<String> _avatarIds = [defaultAvatar.id, 'lion', 'tiger', 'panda'];
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
   late final GameEndWatcher _endWatcher = GameEndWatcher(
     isEnded: () => _c.game.matchWinner != null,
@@ -82,6 +87,9 @@ class _RamiScreenState extends State<RamiScreen>
   void initState() {
     super.initState();
     InterstitialService.instance.preload();
+    loadGameAvatars(seats: 4).then((ids) {
+      if (mounted) setState(() => _avatarIds = ids);
+    });
     _c.addListener(_endWatcher.check);
     _c.addListener(_onRamiChanged);
     _c.restore().then((_) {
@@ -372,6 +380,8 @@ class _RamiScreenState extends State<RamiScreen>
                 key: _key('dest:$seat'),
                 name: _seatNames[seat],
                 cards: g.hands[seat].length,
+                avatarId: _avatarIds[seat],
+                avatarState: _avatarStateOf(seat, g),
               ),
             ),
           ),
@@ -424,6 +434,28 @@ class _RamiScreenState extends State<RamiScreen>
     return _rectOf(_key('dest:$seat')) ?? _rectOf(_key('scoretab'));
   }
 
+  /// État de l'avatar d'un siège (issue #552) : neutre pendant la manche,
+  /// heureux pour le gagnant et fâché pour les autres en fin de manche.
+  AvatarState _avatarStateOf(int seat, rules.RamiState g) {
+    final winner = g.roundResult?.winner;
+    final winners = winner == null ? <int>[] : <int>[winner];
+    return gameAvatarState(
+      seat: seat,
+      finished: g.phase == rules.RamiPhase.end,
+      winners: winners,
+    );
+  }
+
+  /// Score d'un siège, avec son avatar (issue #552).
+  Widget _chipOf(int seat, rules.RamiState g) {
+    return _PlayerChip(
+      seat: seat,
+      game: g,
+      avatarId: _avatarIds[seat],
+      avatarState: _avatarStateOf(seat, g),
+    );
+  }
+
   Widget _scores(rules.RamiState g) {
     return Row(
       children: [
@@ -433,7 +465,7 @@ class _RamiScreenState extends State<RamiScreen>
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: KeyedSubtree(
                 key: _key('seat:$seat'),
-                child: _PlayerChip(seat: seat, game: g),
+                child: _chipOf(seat, g),
               ),
             ),
           ),
