@@ -23,14 +23,16 @@ void main() {
     expect(bytes.sublist(8, 12), Uint8List.fromList('WEBP'.codeUnits));
   });
 
-  test('le masque a les dimensions du fond (448 x 600) et un canal alpha', () {
+  test('le masque garde le ratio du dessin source (784 x 1168 -> 448 x 667) et un canal alpha', () {
     final bytes = File(ludoBackdropMaskAsset).readAsBytesSync();
     // En-tête VP8X : largeur-1 sur 3 octets à l'offset 24, hauteur-1 à l'offset 27.
     expect(bytes.sublist(12, 16), Uint8List.fromList('VP8X'.codeUnits));
     final width = (bytes[24] | (bytes[25] << 8) | (bytes[26] << 16)) + 1;
     final height = (bytes[27] | (bytes[28] << 8) | (bytes[29] << 16)) + 1;
     expect(width, 448);
-    expect(height, 600);
+    expect(height, 667);
+    // Ratio conservé : même proportion que le dessin source (784 x 1168).
+    expect((width / height - 784 / 1168).abs(), lessThan(0.005));
     // Bit « alpha » du drapeau VP8X (octet 20) : le trait doit être transparent ailleurs.
     expect(bytes[20] & 0x10, 0x10);
   });
