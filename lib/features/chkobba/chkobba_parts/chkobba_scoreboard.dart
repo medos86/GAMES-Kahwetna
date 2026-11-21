@@ -58,7 +58,7 @@ class _Scoreboard extends StatelessWidget {
               label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
               child: KeyedSubtree(
                 key: deckKey,
-                child: _DeckPile(count: game.deck.length),
+                child: ChkobbaDeckPile(count: game.deck.length),
               ),
             ),
             Flexible(

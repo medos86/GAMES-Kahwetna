@@ -1,20 +1,29 @@
 part of '../chkobba_screen.dart';
 
-/// Pioche : trois cartes empilées avec le nombre de cartes restantes.
-class _DeckPile extends StatelessWidget {
-  const _DeckPile({required this.count});
+/// Pioche : cartes empilées posées directement sur le tapis (sans cadre carré),
+/// avec le nombre de cartes restantes. Issue #685 : intégrée au tapis.
+class ChkobbaDeckPile extends StatelessWidget {
+  const ChkobbaDeckPile({super.key, required this.count});
 
   final int count;
 
   @override
   Widget build(BuildContext context) {
+    // Cartes aux coins arrondis et ombre douce, sans bordure carrée épaisse.
     Widget pile(Color color) => Container(
           width: 18,
           height: 26,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(3),
-            border: Border.all(color: Colors.black, width: 2),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: ScobaPalette.ink, width: 1.5),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x55000000),
+                offset: Offset(0, 2),
+                blurRadius: 3,
+              ),
+            ],
           ),
         );
 
@@ -43,7 +52,6 @@ class _DeckPile extends StatelessWidget {
                 ),
               ),
               pile(ScobaPalette.red),
-              const Icon(Icons.layers, size: 14, color: ScobaPalette.yellow),
               Positioned(
                 top: -2,
                 right: -2,
