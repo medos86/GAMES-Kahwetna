@@ -428,5 +428,49 @@ void main() {
         isA<PassBid>(),
       );
     });
+
+    test('ne surenchérit pas au-delà de la force de la main (#730)', () {
+      // Force 44 : valeur justifiée 90. Adversaire à 150 : minimum requis 160.
+      // Avant le correctif, l'IA annonçait 160 sans les moyens.
+      final hand = [
+        card(CoincheSuit.coupes, CoincheRank.valet),
+        card(CoincheSuit.coupes, CoincheRank.nine),
+        card(CoincheSuit.coupes, CoincheRank.ten),
+      ];
+      final round = makeRound(
+        hands: {Seat.south: hand},
+        contract: Contract(
+          seat: Seat.west,
+          value: 150,
+          mode: CoincheSuit.coupes,
+          multiplier: 1,
+        ),
+      );
+      expect(
+        chooseBid(round, Seat.south, CoincheAiLevel.moyen),
+        isA<PassBid>(),
+      );
+    });
+
+    test('surenchère quand la force de la main justifie le minimum (#730)', () {
+      // Même main face à un contrat de 80 : minimum 90, valeur justifiée 90.
+      final hand = [
+        card(CoincheSuit.coupes, CoincheRank.valet),
+        card(CoincheSuit.coupes, CoincheRank.nine),
+        card(CoincheSuit.coupes, CoincheRank.ten),
+      ];
+      final round = makeRound(
+        hands: {Seat.south: hand},
+        contract: Contract(
+          seat: Seat.west,
+          value: 80,
+          mode: CoincheSuit.coupes,
+          multiplier: 1,
+        ),
+      );
+      final action = chooseBid(round, Seat.south, CoincheAiLevel.moyen);
+      expect(action, isA<ValueBid>());
+      expect((action as ValueBid).value, 90);
+    });
   });
 }
