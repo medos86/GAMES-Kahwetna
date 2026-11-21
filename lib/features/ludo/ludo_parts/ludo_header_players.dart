@@ -255,8 +255,9 @@ class _PlayerCard extends StatelessWidget {
                   winners: winners,
                 ),
                 size: 34,
-                // Le cercle de la couleur du joueur (ci-dessus) fait office d'anneau.
-                isActive: false,
+                // Joueur dont c'est le tour : pleine opacité, sans grisé (#663).
+                // Les autres restent atténués. Le cercle de la couleur fait office d'anneau.
+                isActive: active,
                 semanticLabel: _colorName(color, controller.solo),
               ),
             ),
