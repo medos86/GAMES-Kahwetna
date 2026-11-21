@@ -34,4 +34,18 @@ void main() {
   test('#662 : la victime part après l\'attaquant', () {
     expect(ludoVictimDelayMs, greaterThan(0));
   });
+
+  // Régression #679 : une reconstruction du plateau sans déplacement ne doit pas
+  // interrompre l'animation de capture en cours.
+  test('#679 : progression inchangée = on ne touche à rien', () {
+    expect(ludoHopAction(from: 12, to: 12, reduced: false), LudoHopAction.keep);
+    expect(ludoHopAction(from: 0, to: 0, reduced: false), LudoHopAction.keep);
+    expect(ludoHopAction(from: 12, to: 12, reduced: true), LudoHopAction.keep);
+  });
+
+  test('#679 : déplacement animé, ou direct si animations désactivées', () {
+    expect(ludoHopAction(from: 3, to: 9, reduced: false), LudoHopAction.play);
+    expect(ludoHopAction(from: 3, to: 9, reduced: true), LudoHopAction.instant);
+    expect(ludoHopAction(from: 5, to: 0, reduced: false), LudoHopAction.play);
+  });
 }
