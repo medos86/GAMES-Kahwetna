@@ -1,4 +1,5 @@
-# Vérifie que le projet compile : flutter pub get puis flutter analyze.
+# Vérifie que le projet compile et que les tests passent.
+# Découpage en jobs parallèles (#724) : analyse, tests par shard, fusion de couverture.
 # Les erreurs apparaissent dans l'onglet Actions du dépôt GitHub.
 name: Analyse Flutter
 
@@ -9,6 +10,11 @@ on:
 
 permissions:
   contents: read
+
+# Un nouveau push annule le run précédent de la même branche (évite de gaspiller des minutes).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   analyze:
@@ -33,21 +39,75 @@ jobs:
         # Les infos (ex. dépréciations de material.dart) ne bloquent pas : seules les erreurs et avertissements comptent.
         run: flutter analyze --no-fatal-infos
 
-      - name: Tests publicité (politique, consentement, public, bannière)
-        # Garde-fou explicite des PR pub (#479) : ces tests tournent aussi dans la suite complète ci-dessous.
-        run: |
-          flutter test \
-            test/core/ad_policy_test.dart \
-            test/core/ad_consent_test.dart \
-            test/core/ad_audience_test.dart \
-            test/core/interstitial_service_test.dart \
-            test/widgets/ad_banner_test.dart
-
       - name: Test script IDs AdMob (grep portable, #619)
         run: bash tool/test_patch_ad_app_ids.sh
 
-      - name: Tests unitaires (avec couverture)
-        run: flutter test --coverage
+      - name: Test fusion de couverture (#724)
+        run: bash tool/test_merge_coverage.sh
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Chaque shard couvre un sous-ensemble de test/ ; l'ensemble couvre les 206 fichiers.
+        # Les tests publicité (#479) sont dans test/core et test/widgets : plus de doublon.
+        shard:
+          - name: core
+            paths: test/core
+          - name: widgets
+            paths: test/widgets
+          - name: game
+            paths: test/game
+          - name: features-a-d
+            paths: "test/features/[a-d]*"
+          - name: features-e-m
+            paths: "test/features/[e-m]*"
+          - name: features-n-z
+            paths: "test/features/[n-z]*"
+          - name: reste
+            paths: test/app test/layout test/parity test/style test/rami_scores_overlay_test.dart test/rami_seat_badge_test.dart
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+
+      - name: Dépendances
+        run: flutter pub get
+
+      - name: Tests unitaires du shard ${{ matrix.shard.name }} (avec couverture)
+        run: flutter test --coverage --concurrency=4 ${{ matrix.shard.paths }}
+
+      - name: Renommer la couverture du shard
+        run: mv coverage/lcov.info coverage-${{ matrix.shard.name }}.info
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.shard.name }}
+          path: coverage-${{ matrix.shard.name }}.info
+          retention-days: 1
+
+  coverage:
+    needs: [analyze, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-*
+          path: shards
+          merge-multiple: true
+
+      - name: Fusion de la couverture des shards
+        # Fusion par ligne (lcov) : une ligne partagée entre shards n'est pas comptée deux fois.
+        run: |
+          mkdir -p coverage
+          bash tool/merge_coverage.sh coverage/lcov.info shards/*.info
 
       - name: Seuil de couverture (80 %)
         # Couverture des lignes de coverage/lcov.info. Seuil à 80 % (#167), à relever au fil des tests. Objectif : 90 %.
