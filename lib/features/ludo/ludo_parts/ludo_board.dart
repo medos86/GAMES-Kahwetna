@@ -24,7 +24,8 @@ class _Board extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _cream,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: _brown, width: 6),
+                // Pas de contour brun autour du grand carré (#689) : il faisait
+                // ressortir les traits sombres des bords.
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(14),
