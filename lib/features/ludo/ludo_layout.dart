@@ -60,6 +60,20 @@ class PlacedToken {
       LudoColor.blue => (x: 7.5, y: 8.3),
     };
 
+/// Taille de l'avatar d'un joueur sur sa carte, en dp (#665).
+const double ludoAvatarSize = 34;
+
+/// Taille de l'avatar du joueur dont c'est le tour : plus grand que les autres (#665).
+const double ludoActiveAvatarSize = 42;
+
+/// Taille de l'avatar selon l'état actif (#665).
+double ludoAvatarSizeFor({required bool active}) =>
+    active ? ludoActiveAvatarSize : ludoAvatarSize;
+
+/// Respiration du joueur actif, t de 0 à 1 sur un cycle : de 1 à 1,05 et retour (#665).
+double ludoBreathScale(double t) =>
+    1 + 0.05 * (1 - math.cos(2 * math.pi * t)) / 2;
+
 /// Saut ordinaire d'un pion, en cases (#378).
 const double ludoHopHeight = 0.45;
 
