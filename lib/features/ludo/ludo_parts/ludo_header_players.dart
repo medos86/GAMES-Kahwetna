@@ -344,8 +344,8 @@ class _TurnAvatarState extends State<_TurnAvatar>
   Widget build(BuildContext context) {
     final size = ludoAvatarSizeFor(active: widget.active);
     final box = size + 6;
-    final light = Color.lerp(widget.tone, Colors.white, 0.45)!;
-    final dark = Color.lerp(widget.tone, Colors.black, 0.35)!;
+    final light = Color.lerp(widget.tone, ComicPalette.white, 0.45)!;
+    final dark = Color.lerp(widget.tone, ComicPalette.ink, 0.35)!;
     final badge = AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       width: box,
@@ -359,11 +359,11 @@ class _TurnAvatarState extends State<_TurnAvatar>
           colors: [light, widget.tone, dark],
         ),
         boxShadow: widget.active
-            ? const [
+            ? [
                 BoxShadow(
-                  color: Color(0x66000000),
+                  color: ComicPalette.ink.withValues(alpha: 0.4),
                   blurRadius: 6,
-                  offset: Offset(0, 3),
+                  offset: const Offset(0, 3),
                 ),
               ]
             : null,
