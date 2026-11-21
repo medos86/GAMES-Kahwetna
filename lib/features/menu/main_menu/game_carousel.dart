@@ -60,16 +60,6 @@ class _GameCarouselState extends State<GameCarousel> {
         final focused = gameEntries[carouselIndexOf(_page)];
         return Column(
           children: [
-            Text(
-              focused.name,
-              style: const TextStyle(
-                fontFamily: 'RobotoSlab',
-                fontSize: 22,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 4),
             Expanded(
               child: Row(
                 children: [
@@ -239,51 +229,76 @@ class _GameCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0x29FFFFFF),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0x66FFFFFF)),
+              padding: const EdgeInsets.all(16),
+              child: LayoutBuilder(
+                builder: (context, c) {
+                  return FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: SizedBox(
+                      width: c.maxWidth,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox.square(
+                            dimension: c.maxHeight * 0.44,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0x29FFFFFF),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: const Color(0x66FFFFFF),
+                                ),
+                              ),
+                              padding: const EdgeInsets.all(16),
+                              child: SvgPicture.string(
+                                gameIconSvg[game.name]!,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            game.name,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontFamily: 'RobotoSlab',
+                              fontSize: 26,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            game.tunisian,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xE6FFFFFF),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _carouselInk,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: const Text(
+                              'JOUER',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 2,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      padding: const EdgeInsets.all(18),
-                      child: SvgPicture.string(gameIconSvg[game.name]!),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    game.tunisian,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xE6FFFFFF),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _carouselInk,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: const Text(
-                      'JOUER',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
           ],

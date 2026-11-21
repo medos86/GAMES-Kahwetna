@@ -72,7 +72,7 @@ void main() {
       onChanged: (g) => changed.add(g.name),
     );
 
-    await tester.fling(find.byType(PageView), const Offset(-300, 0), 1200);
+    await tester.drag(find.byType(PageView), const Offset(-200, 0));
     await tester.pumpAndSettle();
 
     expect(changed, [gameEntries[1].name]);
