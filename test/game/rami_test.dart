@@ -216,8 +216,8 @@ void main() {
   });
 
   group('ajout sur un paquet posé pendant le tour (#660)', () {
-    // Main : trois rois, trois quatre et un deux. Pose des rois puis des quatre (42 pts, sous 51).
-    RamiState stagedPair() {
+    // Main : quatre rois, trois quatre (ou deux, voir rank) et un deux. Pose des rois puis des quatre.
+    RamiState stagedPair({int rank = 4}) {
       final s = inPlay(
         fixedDeal(),
         hands: [
@@ -226,9 +226,9 @@ void main() {
             c(RamiSuit.coupes, 13, 'k2'),
             c(RamiSuit.deniers, 13, 'k3'),
             c(RamiSuit.batons, 13, 'k4'),
-            c(RamiSuit.epees, 4, 'f1'),
-            c(RamiSuit.coupes, 4, 'f2'),
-            c(RamiSuit.deniers, 4, 'f3'),
+            c(RamiSuit.epees, rank, 'f1'),
+            c(RamiSuit.coupes, rank, 'f2'),
+            c(RamiSuit.deniers, rank, 'f3'),
             c(RamiSuit.epees, 2, 'x'),
           ],
           [c(RamiSuit.coupes, 2)],
@@ -240,7 +240,8 @@ void main() {
     }
 
     test('carte valide ajoutée à un paquet posé avant ouverture', () {
-      final s = stagedPair();
+      // Trois rois (30) + trois deux (6) = 36 ; l'ajout d'un roi donne 46 : sous le seuil.
+      final s = stagedPair(rank: 2);
       expect(s.opened[0], isFalse);
       final kings = s.table.firstWhere((m) => m.cards.first.rank == 13).id;
       expect(isStagedMeld(s, kings), isTrue);
