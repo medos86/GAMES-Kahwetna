@@ -40,15 +40,7 @@ const _brown = Color(0xFF4A2A10);
 const Color kLudoSafeStarColor = Color(0xFFB8860B);
 const _pipAxis = [22.0, 50.0, 78.0];
 
-/// Points allumés sur chaque face du dé (grille 3 × 3 : index = ligne × 3 + colonne).
-const _pipLayout = <int, List<int>>{
-  1: [4],
-  2: [0, 8],
-  3: [0, 4, 8],
-  4: [0, 2, 6, 8],
-  5: [0, 2, 4, 6, 8],
-  6: [0, 2, 3, 5, 6, 8],
-};
+
 
 /// Couleurs de joueurs (#597) : identiques aux valeurs de [_toneOf].
 const kLudoFills = <LudoColor, Color>{

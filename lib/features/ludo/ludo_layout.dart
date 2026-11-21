@@ -186,3 +186,16 @@ PlacedToken _trackPlacement(
     size: ludoStackSize,
   );
 }
+
+/// Points allumés sur chaque face du dé (grille 3 × 3 : index = ligne × 3 + colonne) (#682).
+/// Une valeur hors 1 à 6, ou null, n'affiche aucun point au lieu de lever une exception.
+List<int> ludoPipIndexes(int? face) => _ludoPipTable[face] ?? const [];
+
+const _ludoPipTable = <int, List<int>>{
+  1: [4],
+  2: [0, 8],
+  3: [0, 4, 8],
+  4: [0, 2, 6, 8],
+  5: [0, 2, 4, 6, 8],
+  6: [0, 2, 3, 5, 6, 8],
+};
