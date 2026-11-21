@@ -23,7 +23,7 @@ void main() {
     expect(bytes.sublist(8, 12), Uint8List.fromList('WEBP'.codeUnits));
   });
 
-  test('le masque garde le ratio du dessin source (784 x 1168 -> 448 x 667) et un canal alpha', () {
+  test('le masque garde le ratio du dessin et un canal alpha', () {
     final bytes = File(ludoBackdropMaskAsset).readAsBytesSync();
     // En-tête VP8X : largeur-1 sur 3 octets à l'offset 24, hauteur-1 à l'offset 27.
     expect(bytes.sublist(12, 16), Uint8List.fromList('VP8X'.codeUnits));
