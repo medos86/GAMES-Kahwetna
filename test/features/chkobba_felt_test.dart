@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/chkobba/chkobba_screen.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:kahwetne/features/chkobba/chkobba_card_face.dart';
+import 'package:kahwetne/widgets/tapis_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -32,4 +33,19 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('#695 : fond Chkobba = tapis', (tester) async {
+    tester.view.physicalSize = const Size(360, 780);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: ChkobbaScreen(difficulty: Difficulty.facile, targetScore: 11),
+      ),
+    );
+    await tester.pump();
+    expect(find.byType(TapisBackground), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }
