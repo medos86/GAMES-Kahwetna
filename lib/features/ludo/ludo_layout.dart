@@ -2,6 +2,8 @@
 // Pur Dart : aucun import Flutter, donc testable sans émulateur.
 // Les coordonnées sont exprimées en unités de case (le plateau fait 15 unités).
 
+import 'dart:math' as math;
+
 import '../../game/ludo.dart';
 
 const ludoBoardUnits = 15;
@@ -57,6 +59,34 @@ class PlacedToken {
       LudoColor.yellow => (x: 8.3, y: 7.5),
       LudoColor.blue => (x: 7.5, y: 8.3),
     };
+
+/// Saut ordinaire d'un pion, en cases (#378).
+const double ludoHopHeight = 0.45;
+
+/// Saut de capture sur les deux dernières cases avant la cible (#662).
+const double ludoCaptureHopHeight = 1.0;
+
+/// Arc de la victime renvoyée à la base, en cases (#662).
+const double ludoCatapultHeight = 1.6;
+
+/// Agrandissement maximal de l'attaquant au sommet de son saut de capture (#662).
+const double ludoCaptureMaxScale = 1.4;
+
+/// Attente avant le départ de la victime : l'attaquant arrive d'abord (#662).
+const int ludoVictimDelayMs = 900;
+
+/// Hauteur du saut à la position [t] (0 à 1) d'un segment de trajet.
+double ludoLiftAt(double t, {required bool capture, required bool lastCells}) {
+  final height = capture && lastCells ? ludoCaptureHopHeight : ludoHopHeight;
+  return math.sin(math.pi * t) * height;
+}
+
+/// Hauteur de l'arc de la victime à la position [t] (0 à 1).
+double ludoCatapultLift(double t) => math.sin(math.pi * t) * ludoCatapultHeight;
+
+/// Agrandissement de l'attaquant : 1 aux extrémités, maximal au sommet.
+double ludoCaptureScale(double t) =>
+    1 + (ludoCaptureMaxScale - 1) * math.sin(math.pi * t);
 
 /// Centres des cases traversées de [from] à [to] (exclus). Sert à faire sauter le pion case par case.
 List<({double x, double y})> ludoHopWaypoints(
