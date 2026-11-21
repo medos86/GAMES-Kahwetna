@@ -27,6 +27,7 @@ import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
+import '../../widgets/trophy_badge.dart';
 import '../../widgets/game_header.dart';
 import '../../widgets/card_flight.dart';
 import '../../widgets/card_motion.dart';
@@ -433,11 +434,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
               child: GameHeader(
                 unit: 14,
                 onMenu: () => Navigator.of(context).maybePop(),
-                center: Expanded(
-                  child: Center(
-                    child: DifficultyChip(difficulty: widget.difficulty),
-                  ),
-                ),
+                center: const Expanded(child: SizedBox()),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -456,7 +453,11 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                         onPressed: () => _deal(_controller.startNewGame),
                         icon: const Icon(Icons.refresh, color: Colors.white),
                       ),
-                    _TargetBadge(target: game.targetScore),
+                    TrophyBadge(
+                      target: game.targetScore,
+                      size: 44,
+                      tint: difficultyTint(widget.difficulty),
+                    ),
                   ],
                 ),
               ),

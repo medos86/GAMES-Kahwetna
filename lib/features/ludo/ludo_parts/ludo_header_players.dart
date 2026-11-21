@@ -20,13 +20,9 @@ List<int> _ludoWinners(LudoController controller) {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({
-    required this.controller,
-    required this.difficulty,
-  });
+  const _Header({required this.controller});
 
   final LudoController controller;
-  final Difficulty difficulty;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +44,6 @@ class _Header extends StatelessWidget {
                       : tf('ludoPlayers', {'n': '$count'}),
                   style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
-                DifficultyChip(difficulty: difficulty),
               ],
             ),
           ],

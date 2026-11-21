@@ -63,37 +63,16 @@ class _Header extends StatelessWidget {
                       ],
                     ),
                   ),
-                  DifficultyChip(difficulty: difficulty),
                 ],
               ),
             ],
           ),
         ),
       ),
-      trailing: SizedBox(
-        width: unit * 3,
-        height: unit * 3,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Icon(
-              Icons.emoji_events,
-              size: unit * 3,
-              color: const Color(0xFFFBBF24),
-            ),
-            Positioned(
-              top: unit * 0.4,
-              child: Text(
-                '$target',
-                style: TextStyle(
-                  fontSize: unit * 0.8,
-                  fontWeight: FontWeight.w900,
-                  color: const Color(0xFF20284B),
-                ),
-              ),
-            ),
-          ],
-        ),
+      trailing: TrophyBadge(
+        target: target,
+        size: unit * 3,
+        tint: difficultyTint(difficulty),
       ),
     );
   }

@@ -4,10 +4,18 @@ import 'package:material_ui/material_ui.dart';
 /// Trophée affichant le score cible, avec un halo pulsé (guide §8).
 /// Le halo est désactivé si l'utilisateur a réduit les animations.
 class TrophyBadge extends StatefulWidget {
-  const TrophyBadge({super.key, required this.target, this.size = 44});
+  const TrophyBadge({
+    super.key,
+    required this.target,
+    this.size = 44,
+    this.tint,
+  });
 
   final int target;
   final double size;
+
+  /// Couleur du halo pulsé (#657) : la difficulté choisie. Blanc par défaut.
+  final Color? tint;
 
   @override
   State<TrophyBadge> createState() => _TrophyBadgeState();
@@ -88,6 +96,7 @@ class _TrophyBadgeState extends State<TrophyBadge>
     );
 
     final pulse = _pulse;
+    final halo = widget.tint ?? Colors.white;
     final content = pulse == null
         ? badge
         : AnimatedBuilder(
@@ -104,7 +113,7 @@ class _TrophyBadgeState extends State<TrophyBadge>
                       height: size * 1.3,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.14 + 0.22 * t),
+                        color: halo.withValues(alpha: 0.14 + 0.22 * t),
                       ),
                     ),
                   ),

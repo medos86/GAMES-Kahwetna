@@ -26,6 +26,7 @@ import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
+import '../../widgets/trophy_badge.dart';
 import '../../widgets/dialog_button.dart';
 import '../../widgets/round_result_panel.dart';
 import '../../widgets/game_header.dart';
