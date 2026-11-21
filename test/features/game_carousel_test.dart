@@ -86,7 +86,7 @@ void main() {
       onChanged: (_) {},
     );
 
-    await tester.tap(find.bySemanticsLabel(gameEntries.first.name));
+    await tester.tap(find.text(gameEntries.first.name));
     await tester.pumpAndSettle();
 
     expect(selected?.name, gameEntries.first.name);
