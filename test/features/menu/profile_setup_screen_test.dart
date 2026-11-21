@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/profile_store.dart';
+import 'package:kahwetne/core/theme/comic_palette.dart';
 import 'package:kahwetne/features/menu/profile_setup_screen.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,5 +70,17 @@ void main() {
       ),
     );
     expect(scope.canPop, isFalse);
+  });
+
+  testWidgets('champ pseudo : texte encre sur fond clair (issue #708)', (
+    tester,
+  ) async {
+    await open(tester);
+    final field = tester.widget<TextField>(find.byType(TextField));
+    final textColor = field.style?.color;
+    final fill = field.decoration?.fillColor;
+    expect(textColor, ComicPalette.ink);
+    expect(fill, ComicPalette.white);
+    expect(contrastRatio(textColor!, fill!), greaterThanOrEqualTo(4.5));
   });
 }
