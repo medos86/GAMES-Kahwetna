@@ -4,7 +4,6 @@ import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/theme/comic_palette.dart';
@@ -25,7 +24,6 @@ import 'profile_setup_screen.dart';
 import 'welcome_banner.dart';
 import '../../widgets/pressable.dart';
 import '../../widgets/texture_patterns.dart';
-import 'game_icons.dart';
 import 'menu_models.dart';
 import '../../core/strings.dart';
 import '../../core/services/ad_free_service.dart';
@@ -34,10 +32,10 @@ import '../../widgets/comic_button.dart';
 import '../../widgets/resume_game.dart';
 import '../../core/services/toast.dart';
 import '../../widgets/game_safe_area.dart';
+import 'main_menu/game_carousel.dart';
 
 part 'main_menu/menu_background.dart';
 part 'main_menu/menu_header.dart';
-part 'main_menu/games_panel.dart';
 part 'main_menu/menu_panels.dart';
 
 // Couleurs fixes reprises du source (Tailwind -> hex).
@@ -62,6 +60,8 @@ enum _MenuScreen { menu, difficulty }
 class _MainMenuScreenState extends State<MainMenuScreen> {
   Difficulty _difficulty = Difficulty.facile;
   GameEntry _selected = gameEntries.first;
+  // Jeu affiché dans le carrousel : sa couleur teinte le fond du menu.
+  GameEntry _focused = gameEntries.first;
   int _target = gameEntries.first.defaultTarget;
   int _playerCount = 1;
   _MenuScreen _screen = _MenuScreen.menu;
@@ -291,6 +291,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     ? _selected.backgroundAsset
                     : kMenuBackgroundAsset,
               ),
+              if (_screen == _MenuScreen.menu)
+                MoodTint(color: _focused.gradientFrom),
               // Trame de points du menu : radial-gradient(#17203f 1.2px) 7px, opacité 0.07.
               const Positioned.fill(
                 child: IgnorePointer(
@@ -374,11 +376,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         ),
         SizedBox(height: sm ? 16 : 12),
         Expanded(
-          child: _GamesPanel(
-            difficulty: _difficulty,
-            sm: sm,
-            md: md,
+          child: GameCarousel(
             onSelect: _selectGame,
+            onChanged: (game) => setState(() => _focused = game),
           ),
         ),
         const SizedBox(height: 12),
