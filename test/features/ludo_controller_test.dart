@@ -47,7 +47,7 @@ void main() {
 
   test('les humains sont les N premières couleurs du source', () {
     final c = LudoController(playerCount: 2, difficulty: LudoAiLevel.facile);
-    expect(c.humans, [LudoColor.blue, LudoColor.yellow]);
+    expect(c.humans, [LudoColor.blue, LudoColor.red]);
     expect(c.solo, isFalse);
     c.dispose();
   });
@@ -110,7 +110,8 @@ void main() {
     expect(c.choiceOpen, isTrue);
 
     c.showEnd();
-    expect(c.roundOver, isTrue);
+    // La marche de l'IA continue : le menu de fin n'est pas affiché tout de suite.
+    expect(c.roundOver, isFalse);
     expect(c.choiceOpen, isFalse);
     c.dispose();
   });

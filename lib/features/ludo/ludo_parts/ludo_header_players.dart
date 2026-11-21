@@ -199,7 +199,7 @@ class _PlayerCard extends StatelessWidget {
           ? ValueKey('roll-${game.rollId}')
           : ValueKey('idle-${color.name}'),
       child: LudoDie(
-        value: rolledHere ? game.dice : null,
+        value: controller.lastFaceOf(color),
         tone: tone,
         size: _dieSize,
         animate: rolledHere,
