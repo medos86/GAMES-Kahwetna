@@ -19,7 +19,7 @@ void main() {
       find.byKey(const ValueKey('tapis-background')),
     );
     final deco = box.decoration as BoxDecoration;
-    expect(deco.color, ComicPalette.felt);
+    expect(deco.color, ComicPalette.tunisBlue);
     final image = deco.image!;
     expect(image.repeat, ImageRepeat.repeat);
     expect(image.image, isA<AssetImage>());
