@@ -158,26 +158,44 @@ class _DominoScreenState extends State<DominoScreen> {
                     onDrawTap: _controller.drawOrPass,
                     mustDraw: _controller.mustDraw,
                   ),
-                  SizedBox(height: unit * (sm ? 0.2 : 0.6)),
-                  _OpponentHand(
-                    unit: unit,
-                    count: game.hands[Player.opponent]!.length,
-                    avatarId: _avatarIds[Player.opponent.index],
-                    avatarState: dominoAvatarState(game, Player.opponent),
-                  ),
-                  SizedBox(height: unit * (sm ? 0.2 : 0.6)),
                   Expanded(
-                    child: _Table(
-                      unit: unit,
-                      sm: sm,
-                      controller: _controller,
+                    child: Container(
+                      key: const ValueKey('domino-felt'),
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      decoration: BoxDecoration(
+                        color: ComicPalette.felt,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: ComicPalette.ink, width: 3),
+                      ),
+                      child: Column(
+                        children: [
+                          SizedBox(height: unit * (sm ? 0.2 : 0.6)),
+                          _OpponentHand(
+                            unit: unit,
+                            count: game.hands[Player.opponent]!.length,
+                            avatarId: _avatarIds[Player.opponent.index],
+                            avatarState: dominoAvatarState(
+                              game,
+                              Player.opponent,
+                            ),
+                          ),
+                          SizedBox(height: unit * (sm ? 0.2 : 0.6)),
+                          Expanded(
+                            child: _Table(
+                              unit: unit,
+                              sm: sm,
+                              controller: _controller,
+                            ),
+                          ),
+                          SizedBox(height: unit * (sm ? 0.2 : 0.6)),
+                          _Footer(
+                            unit: unit,
+                            sm: sm,
+                            controller: _controller,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(height: unit * (sm ? 0.2 : 0.6)),
-                  _Footer(
-                    unit: unit,
-                    sm: sm,
-                    controller: _controller,
                   ),
                 ],
               ),
