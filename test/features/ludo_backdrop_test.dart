@@ -39,10 +39,7 @@ void main() {
 
   test('la teinte du masque est blanche et translucide, jamais opaque', () {
     expect(LudoBackdropPalette.maskTint.a, lessThan(0.5));
-    expect(
-      LudoBackdropPalette.maskTint.value & 0x00FFFFFF,
-      0x00FFFFFF,
-    );
+    expect(LudoBackdropPalette.maskTint.value & 0x00FFFFFF, 0x00FFFFFF);
   });
 
   testWidgets('le fond du Ludo se peint sans erreur', (tester) async {
