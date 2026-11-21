@@ -472,107 +472,126 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
               ),
             ),
             const SizedBox(height: 8),
-            // Main de l'adversaire : dos des cartes, sauf celle qu'il montre.
-            // Taille réduite (≈ 0,8 × la main du joueur), comme le source React (0,9 vs 1,06).
-            KeyedSubtree(
-              key: _key('opp-hand'),
-              child: _Hand(
-                cards: game.hands[Player.opponent]!,
-                width: cardWidth * 0.8,
-                height: cardHeight * 0.8,
-                builder: (card) => KeyedSubtree(
-                  key: _key('opp:${card.id}'),
-                  child: card.id == revealed
-                      ? ChkobbaCardFace(card: card, highlight: true)
-                      : const ChkobbaCardBack(),
+            Expanded(
+              child: Container(
+                key: const ValueKey('chkobba-felt'),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: ComicPalette.felt,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: ComicPalette.ink, width: 3),
+                ),
+                child: Column(
+                  children: [
+                    // Main de l'adversaire : dos des cartes, sauf celle qu'il montre.
+                    // Taille réduite (≈ 0,8 × la main du joueur), comme le source React (0,9 vs 1,06).
+                    KeyedSubtree(
+                      key: _key('opp-hand'),
+                      child: _Hand(
+                        cards: game.hands[Player.opponent]!,
+                        width: cardWidth * 0.8,
+                        height: cardHeight * 0.8,
+                        builder: (card) => KeyedSubtree(
+                          key: _key('opp:${card.id}'),
+                          child: card.id == revealed
+                              ? ChkobbaCardFace(card: card, highlight: true)
+                              : const ChkobbaCardBack(),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          if (game.winner != null && !over)
+                            _FinalCard(state: game)
+                          else
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 400,
+                                ),
+                                child: ChkobbaTable(
+                                  key: _key('table'),
+                                  cards: slots,
+                                  columns: columns,
+                                ),
+                              ),
+                            ),
+                          // Tas de cartes gagnées de chacun : adversaire en haut, moi en bas (#534).
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: _WonPile(
+                              key: _key('won:opponent'),
+                              count: _shownWon(Player.opponent),
+                              color: ScobaPalette.redText,
+                              chkobbaCards: _shownChkobbaCards(Player.opponent),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: _WonPile(
+                              key: _key('won:player'),
+                              count: _shownWon(Player.player),
+                              color: ScobaPalette.blueText,
+                              chkobbaCards: _shownChkobbaCards(Player.player),
+                            ),
+                          ),
+                          if (_controller.chkobbaBy != null)
+                            Positioned.fill(
+                              child: Center(
+                                child: ChkobbaBanner(
+                                  text: 'Chkobba !',
+                                  colors: style.chkobbaGradient,
+                                  angle: -0.1,
+                                ),
+                              ),
+                            ),
+                          if (hayaBy != null)
+                            Positioned(
+                              top: 6,
+                              child: ChkobbaBanner(
+                                text: '♦ 7AYA !',
+                                colors: style.ayaGradient,
+                                angle: 0.09,
+                                burstSize: 110,
+                              ),
+                            ),
+                          // Bannière de tour : seulement quand l'adversaire réfléchit, sans place réservée (#535).
+                          if (thinking)
+                            const Positioned(
+                              bottom: 6,
+                              left: 0,
+                              right: 0,
+                              child: IgnorePointer(
+                                child: Center(child: _ThinkingBadge()),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    // Main du joueur, plus grande que celle de l'adversaire.
+                    // Plus de halo jaune : le tour se lit sans couleur criarde (#588).
+                    _Hand(
+                      cards: game.hands[Player.player]!,
+                      width: cardWidth,
+                      height: cardHeight,
+                      builder: (card) => ChkobbaCardFace(
+                        key: _key('hand:${card.id}'),
+                        card: card,
+                        onTap: canPlay ? () => _onPlayerCard(card.id) : null,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                 ),
               ),
             ),
-            Expanded(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  if (game.winner != null && !over)
-                    _FinalCard(state: game)
-                  else
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 400),
-                        child: ChkobbaTable(
-                          key: _key('table'),
-                          cards: slots,
-                          columns: columns,
-                        ),
-                      ),
-                    ),
-                  // Tas de cartes gagnées de chacun : adversaire en haut, moi en bas (#534).
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: _WonPile(
-                      key: _key('won:opponent'),
-                      count: _shownWon(Player.opponent),
-                      color: ScobaPalette.redText,
-                      chkobbaCards: _shownChkobbaCards(Player.opponent),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: _WonPile(
-                      key: _key('won:player'),
-                      count: _shownWon(Player.player),
-                      color: ScobaPalette.blueText,
-                      chkobbaCards: _shownChkobbaCards(Player.player),
-                    ),
-                  ),
-                  if (_controller.chkobbaBy != null)
-                    Positioned.fill(
-                      child: Center(
-                        child: ChkobbaBanner(
-                          text: 'Chkobba !',
-                          colors: style.chkobbaGradient,
-                          angle: -0.1,
-                        ),
-                      ),
-                    ),
-                  if (hayaBy != null)
-                    Positioned(
-                      top: 6,
-                      child: ChkobbaBanner(
-                        text: '♦ 7AYA !',
-                        colors: style.ayaGradient,
-                        angle: 0.09,
-                        burstSize: 110,
-                      ),
-                    ),
-                  // Bannière de tour : seulement quand l'adversaire réfléchit, sans place réservée (#535).
-                  if (thinking)
-                    const Positioned(
-                      bottom: 6,
-                      left: 0,
-                      right: 0,
-                      child: IgnorePointer(
-                        child: Center(child: _ThinkingBadge()),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            // Main du joueur, plus grande que celle de l'adversaire.
-            // Plus de halo jaune : le tour se lit sans couleur criarde (#588).
-            _Hand(
-              cards: game.hands[Player.player]!,
-              width: cardWidth,
-              height: cardHeight,
-              builder: (card) => ChkobbaCardFace(
-                key: _key('hand:${card.id}'),
-                card: card,
-                onTap: canPlay ? () => _onPlayerCard(card.id) : null,
-              ),
-            ),
-            const SizedBox(height: 8),
           ],
         ),
         if (summary != null)
