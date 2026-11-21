@@ -10,15 +10,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 ChkobbaCard _card(ChkobbaSuit suit, int rank) =>
     ChkobbaCard(suit: suit, rank: rank, id: '${suit.name}-$rank');
 
-// Tas de cartes gagnées (#534) : celui de l'adversaire est en haut du tapis,
-// celui du joueur en bas, et chaque compteur n'apparaît qu'une fois.
+// Tas de cartes gagnées (#534, #727) : celui de l'adversaire est dans le panneau
+// de gauche, celui du joueur dans le panneau de droite, et chaque compteur n'apparaît qu'une fois.
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     cardAnimations.value = false;
   });
 
-  testWidgets('tas adversaire en haut, tas joueur en bas', (tester) async {
+  testWidgets('tas adversaire à gauche, tas joueur à droite', (tester) async {
     tester.view.physicalSize = const Size(390, 844) * 3;
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.resetPhysicalSize);
@@ -62,8 +62,8 @@ void main() {
     expect(opponentPile, findsOneWidget);
     expect(playerPile, findsOneWidget);
     expect(
-      tester.getCenter(opponentPile).dy,
-      lessThan(tester.getCenter(playerPile).dy),
+      tester.getCenter(opponentPile).dx,
+      lessThan(tester.getCenter(playerPile).dx),
     );
     expect(tester.takeException(), isNull);
 

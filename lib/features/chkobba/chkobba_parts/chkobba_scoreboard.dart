@@ -1,125 +1,71 @@
 part of '../chkobba_screen.dart';
 
-/// Tableau de bord : score de chaque joueur, Chkobba, cartes ramassées et pioche.
-class _Scoreboard extends StatelessWidget {
-  const _Scoreboard({
+/// Taille de l'avatar inactif et de l'avatar du joueur dont c'est le tour, en dp (#728).
+const double _sideAvatarSize = 30;
+const double _sideAvatarActiveSize = 40;
+
+/// Largeur d'un panneau latéral (#726) : étroit pour laisser la place au tapis sur 360 px.
+const double _sidePanelWidth = 72;
+
+/// Panneau latéral d'un joueur (#726) : avatar, score, nom et sa pile de cartes gagnées (#727).
+/// Gauche = adversaire, droite = joueur. Le joueur dont c'est le tour a un médaillon agrandi (#728).
+class _SidePanel extends StatelessWidget {
+  const _SidePanel({
+    super.key,
     required this.game,
-    required this.avatarIds,
-    this.deckKey,
+    required this.player,
+    required this.name,
+    required this.color,
+    required this.avatarId,
+    required this.wonKey,
+    required this.wonCount,
+    required this.chkobbaCards,
   });
 
-  /// Clé de la pioche (cible de la donne animée, #238).
-  final Key? deckKey;
-
   final ChkobbaState game;
+  final Player player;
+  final String name;
+  final Color color;
+  final String avatarId;
 
-  /// Avatars [joueur, adversaire] (issue #551).
-  final List<String> avatarIds;
+  /// Clé de la pile (cible de l'animation de capture).
+  final Key wonKey;
+  final int wonCount;
+  final List<ChkobbaCard> chkobbaCards;
 
   @override
   Widget build(BuildContext context) {
     final finished = game.winner != null;
     final winners = game.winner == null ? <int>[] : [game.winner!.index];
-    return Semantics(
-      container: true,
-      label: tf('sChkScore', {
-        'a': '${game.scores[Player.player]}',
-        'b': '${game.scores[Player.opponent]}',
-      }),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFACC15), Color(0xFFFBBF24), Color(0xFFFB923C)],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.black, width: 3),
-          boxShadow: const [
-            BoxShadow(color: Colors.black, offset: Offset(0, 5)),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Flexible(
-              child: _ScoreSide(
-                name: t('you'),
-                score: game.scores[Player.player]!,
-                color: ScobaPalette.blueText,
-                avatarId: avatarIds[Player.player.index],
-                avatarState: gameAvatarState(
-                  seat: Player.player.index,
-                  finished: finished,
-                  winners: winners,
-                ),
-              ),
-            ),
-            Semantics(
-              label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
-              child: KeyedSubtree(
-                key: deckKey,
-                child: ChkobbaDeckPile(count: game.deck.length),
-              ),
-            ),
-            Flexible(
-              child: _ScoreSide(
-                name: t('opponent'),
-                score: game.scores[Player.opponent]!,
-                color: ScobaPalette.redText,
-                avatarId: avatarIds[Player.opponent.index],
-                avatarState: gameAvatarState(
-                  seat: Player.opponent.index,
-                  finished: finished,
-                  winners: winners,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ScoreSide extends StatelessWidget {
-  const _ScoreSide({
-    required this.name,
-    required this.score,
-    required this.color,
-    required this.avatarId,
-    required this.avatarState,
-  });
-
-  final String name;
-  final int score;
-  final Color color;
-
-  /// Avatar du joueur et son état (issue #551).
-  final String avatarId;
-  final AvatarState avatarState;
-
-  @override
-  Widget build(BuildContext context) {
-    // L'avatar est à côté du score, et non au-dessus : la hauteur du tableau ne change pas (#627).
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
+    final score = game.scores[player]!;
+    return SizedBox(
+      width: _sidePanelWidth,
+      child: Semantics(
+        container: true,
+        label: '$name $score',
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AvatarView(
+            TurnAvatar(
+              tone: color,
+              active: game.winner == null && game.turn == player,
               avatarId: avatarId,
-              state: avatarState,
-              size: 30,
+              state: gameAvatarState(
+                seat: player.index,
+                finished: finished,
+                winners: winners,
+              ),
               semanticLabel: name,
+              baseSize: _sideAvatarSize,
+              activeSize: _sideAvatarActiveSize,
             ),
-            const SizedBox(width: 3),
+            const SizedBox(height: 4),
             Container(
-              width: 34,
-              height: 34,
+              width: 40,
+              height: 30,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: ComicPalette.white,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: color, width: 2),
               ),
@@ -132,21 +78,28 @@ class _ScoreSide extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 2),
+            Text(
+              name.toUpperCase(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                color: color,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 6),
+            _WonPile(
+              key: wonKey,
+              count: wonCount,
+              color: color,
+              chkobbaCards: chkobbaCards,
+            ),
           ],
         ),
-        const SizedBox(height: 2),
-        Text(
-          name.toUpperCase(),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-            color: color,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

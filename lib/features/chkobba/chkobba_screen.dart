@@ -9,6 +9,7 @@ import '../../core/avatars/game_avatars.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/interstitial_service.dart';
 import '../../widgets/avatar_view.dart';
+import '../../widgets/turn_avatar.dart';
 import '../../widgets/tapis_background.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
@@ -463,15 +464,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                 ),
               ),
             ),
-            Padding(
-              key: _key('scoreboard'),
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),
-              child: _Scoreboard(
-                game: game,
-                deckKey: _key('deck'),
-                avatarIds: _avatarIds,
-              ),
-            ),
             const SizedBox(height: 8),
             Expanded(
               child: Container(
@@ -498,78 +490,105 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                       ),
                     ),
                     Expanded(
-                      child: Stack(
-                        alignment: Alignment.center,
+                      child: Row(
                         children: [
-                          if (game.winner != null && !over)
-                            _FinalCard(state: game)
-                          else
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 400,
+                          _SidePanel(
+                            key: _key('panel:opponent'),
+                            game: game,
+                            player: Player.opponent,
+                            name: t('opponent'),
+                            color: ScobaPalette.redText,
+                            avatarId: _avatarIds[Player.opponent.index],
+                            wonKey: _key('won:opponent'),
+                            wonCount: _shownWon(Player.opponent),
+                            chkobbaCards: _shownChkobbaCards(Player.opponent),
+                          ),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                // Pioche au centre, entre les deux panneaux (#726).
+                                Semantics(
+                                  label: tf('sDeckLeft', {
+                                    'n': '${game.deck.length}',
+                                  }),
+                                  child: KeyedSubtree(
+                                    key: _key('deck'),
+                                    child: ChkobbaDeckPile(
+                                      count: game.deck.length,
+                                    ),
+                                  ),
                                 ),
-                                child: ChkobbaTable(
-                                  key: _key('table'),
-                                  cards: slots,
-                                  columns: columns,
+                                Expanded(
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      if (game.winner != null && !over)
+                                        _FinalCard(state: game)
+                                      else
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                          ),
+                                          child: ConstrainedBox(
+                                            constraints: const BoxConstraints(
+                                              maxWidth: 400,
+                                            ),
+                                            child: ChkobbaTable(
+                                              key: _key('table'),
+                                              cards: slots,
+                                              columns: columns,
+                                            ),
+                                          ),
+                                        ),
+                                      if (_controller.chkobbaBy != null)
+                                        Positioned.fill(
+                                          child: Center(
+                                            child: ChkobbaBanner(
+                                              text: 'Chkobba !',
+                                              colors: style.chkobbaGradient,
+                                              angle: -0.1,
+                                            ),
+                                          ),
+                                        ),
+                                      if (hayaBy != null)
+                                        Positioned(
+                                          top: 6,
+                                          child: ChkobbaBanner(
+                                            text: '♦ 7AYA !',
+                                            colors: style.ayaGradient,
+                                            angle: 0.09,
+                                            burstSize: 110,
+                                          ),
+                                        ),
+                                      // Bannière de tour : seulement quand l'adversaire réfléchit, sans place réservée (#535).
+                                      if (thinking)
+                                        const Positioned(
+                                          bottom: 6,
+                                          left: 0,
+                                          right: 0,
+                                          child: IgnorePointer(
+                                            child: Center(
+                                              child: _ThinkingBadge(),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                          // Tas de cartes gagnées de chacun : adversaire en haut, moi en bas (#534).
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: _WonPile(
-                              key: _key('won:opponent'),
-                              count: _shownWon(Player.opponent),
-                              color: ScobaPalette.redText,
-                              chkobbaCards: _shownChkobbaCards(Player.opponent),
+                              ],
                             ),
                           ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: _WonPile(
-                              key: _key('won:player'),
-                              count: _shownWon(Player.player),
-                              color: ScobaPalette.blueText,
-                              chkobbaCards: _shownChkobbaCards(Player.player),
-                            ),
+                          _SidePanel(
+                            key: _key('panel:player'),
+                            game: game,
+                            player: Player.player,
+                            name: t('you'),
+                            color: ScobaPalette.blueText,
+                            avatarId: _avatarIds[Player.player.index],
+                            wonKey: _key('won:player'),
+                            wonCount: _shownWon(Player.player),
+                            chkobbaCards: _shownChkobbaCards(Player.player),
                           ),
-                          if (_controller.chkobbaBy != null)
-                            Positioned.fill(
-                              child: Center(
-                                child: ChkobbaBanner(
-                                  text: 'Chkobba !',
-                                  colors: style.chkobbaGradient,
-                                  angle: -0.1,
-                                ),
-                              ),
-                            ),
-                          if (hayaBy != null)
-                            Positioned(
-                              top: 6,
-                              child: ChkobbaBanner(
-                                text: '♦ 7AYA !',
-                                colors: style.ayaGradient,
-                                angle: 0.09,
-                                burstSize: 110,
-                              ),
-                            ),
-                          // Bannière de tour : seulement quand l'adversaire réfléchit, sans place réservée (#535).
-                          if (thinking)
-                            const Positioned(
-                              bottom: 6,
-                              left: 0,
-                              right: 0,
-                              child: IgnorePointer(
-                                child: Center(child: _ThinkingBadge()),
-                              ),
-                            ),
                         ],
                       ),
                     ),

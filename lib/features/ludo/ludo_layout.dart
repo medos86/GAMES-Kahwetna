@@ -5,6 +5,7 @@
 import 'dart:math' as math;
 
 import '../../game/ludo.dart';
+import '../../core/avatars/turn_avatar_motion.dart';
 
 const ludoBoardUnits = 15;
 const ludoTokenSize = 0.9;
@@ -82,8 +83,7 @@ double ludoAvatarSizeFor({required bool active}) =>
     active ? ludoActiveAvatarSize : ludoAvatarSize;
 
 /// Respiration du joueur actif, t de 0 à 1 sur un cycle : de 1 à 1,05 et retour (#665).
-double ludoBreathScale(double t) =>
-    1 + 0.05 * (1 - math.cos(2 * math.pi * t)) / 2;
+double ludoBreathScale(double t) => turnAvatarBreathScale(t);
 
 /// Saut ordinaire d'un pion, en cases (#378).
 const double ludoHopHeight = 0.45;
