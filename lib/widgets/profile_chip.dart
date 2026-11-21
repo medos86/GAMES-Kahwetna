@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../core/theme/comic_palette.dart';
 import 'avatar_view.dart';
 import 'pressable.dart';
 
@@ -34,26 +35,52 @@ class ProfileChip extends StatelessWidget {
             children: [
               AvatarView(avatarId: avatarId, size: 40, semanticLabel: name),
               const SizedBox(width: 8),
-              // Pseudo entier (#714) : pas de « … », une seule ligne ; le texte
-              // ne rétrécit (FittedBox) que si la largeur ne suffit vraiment pas.
+              // Pseudo en MAJUSCULES, style BD (#721) : Bangers, contour d'encre.
+              // FittedBox ne réduit que si la largeur ne suffit vraiment pas.
               Flexible(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    name,
-                    softWrap: false,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: _comicName(name.toUpperCase()),
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  /// Texte BD : remplissage blanc, contour d'encre (même principe que le titre).
+  Widget _comicName(String text) {
+    const size = 24.0;
+    final base = TextStyle(
+      fontFamily: 'Bangers',
+      fontSize: size,
+      height: 1,
+      letterSpacing: 1.5,
+    );
+    return Stack(
+      children: [
+        Text(
+          text,
+          maxLines: 1,
+          softWrap: false,
+          style: base.copyWith(
+            foreground: Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = size * 0.14
+              ..strokeJoin = StrokeJoin.round
+              ..color = ComicPalette.ink,
+          ),
+        ),
+        Text(
+          text,
+          maxLines: 1,
+          softWrap: false,
+          style: base.copyWith(color: Colors.white),
+        ),
+      ],
     );
   }
 }
