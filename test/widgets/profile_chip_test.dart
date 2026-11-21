@@ -69,6 +69,11 @@ void main() {
     final text = tester.widget<Text>(find.text(name));
     expect(text.data, name);
     expect(text.overflow, isNull);
-    expect(text.maxLines, isNull);
+    expect(text.softWrap, isFalse);
+    expect(
+      find.ancestor(of: find.text(name), matching: find.byType(FittedBox)),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
   });
 }
