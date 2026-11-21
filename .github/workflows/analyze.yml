@@ -57,8 +57,13 @@ jobs:
             paths: test/core
           - name: widgets
             paths: test/widgets
-          - name: game
-            paths: test/game
+          # Le shard game était le goulot (11 min seul) : découpé en trois.
+          - name: game-rami-a-l
+            paths: "test/game/rami_[a-l]*"
+          - name: game-rami-m-z
+            paths: "test/game/rami_[m-z]*"
+          - name: game-autres
+            paths: "test/game/[cdls]*"
           - name: features-a-d
             paths: "test/features/[a-d]*"
           - name: features-e-m
