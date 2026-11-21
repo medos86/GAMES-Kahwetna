@@ -103,10 +103,35 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           controller: _controller,
                           autofocus: true,
                           maxLength: pseudoMaxLength,
+                          style: const TextStyle(
+                            color: ComicPalette.ink,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          cursorColor: ComicPalette.ink,
                           decoration: InputDecoration(
                             labelText: Strings.profileName,
+                            labelStyle: const TextStyle(color: ComicPalette.ink),
+                            floatingLabelStyle: const TextStyle(
+                              color: ComicPalette.ink,
+                              fontWeight: FontWeight.w700,
+                            ),
                             errorText: _error,
                             counterText: '',
+                            filled: true,
+                            fillColor: ComicPalette.white,
+                            enabledBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: ComicPalette.ink,
+                                width: 2,
+                              ),
+                            ),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: ComicPalette.tunisBlue,
+                                width: 3,
+                              ),
+                            ),
                           ),
                           onSubmitted: (_) => _start(),
                         ),
