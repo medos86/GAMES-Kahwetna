@@ -234,28 +234,16 @@ class _PlayerCard extends StatelessWidget {
         children: [
           // Un seul avatar, entouré de la couleur du joueur (#621).
           // Le nom reste accessible (lecteur d'écran) mais n'est plus affiché.
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: tone, width: 3),
+          _TurnAvatar(
+            tone: tone,
+            active: active,
+            avatarId: avatarId,
+            state: gameAvatarState(
+              seat: color.index,
+              finished: finished,
+              winners: winners,
             ),
-            child: ClipOval(
-              child: AvatarView(
-                avatarId: avatarId,
-                state: gameAvatarState(
-                  seat: color.index,
-                  finished: finished,
-                  winners: winners,
-                ),
-                size: 34,
-                // Joueur dont c'est le tour : pleine opacité, sans grisé (#663).
-                // Les autres restent atténués. Le cercle de la couleur fait office d'anneau.
-                isActive: active,
-                semanticLabel: _colorName(color, controller.solo),
-              ),
-            ),
+            semanticLabel: _colorName(color, controller.solo),
           ),
           const SizedBox(width: 6),
           Expanded(
@@ -278,6 +266,123 @@ class _PlayerCard extends StatelessWidget {
           dieWidget,
         ],
       ),
+    );
+  }
+}
+
+/// Avatar d'une carte joueur (#665). Le joueur dont c'est le tour est plus grand,
+/// en relief (dégradé, ombre) et respire doucement. Sans animation : relief seul.
+class _TurnAvatar extends StatefulWidget {
+  const _TurnAvatar({
+    required this.tone,
+    required this.active,
+    required this.avatarId,
+    required this.state,
+    required this.semanticLabel,
+  });
+
+  final Color tone;
+  final bool active;
+  final String avatarId;
+  final AvatarState state;
+  final String semanticLabel;
+
+  @override
+  State<_TurnAvatar> createState() => _TurnAvatarState();
+}
+
+class _TurnAvatarState extends State<_TurnAvatar>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _breath = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2400),
+  );
+  bool _animate = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _animate = !MediaQuery.disableAnimationsOf(context);
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(covariant _TurnAvatar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _sync();
+  }
+
+  /// Respiration seulement pour le joueur actif, et seulement si les animations sont voulues.
+  void _sync() {
+    if (widget.active && _animate) {
+      if (!_breath.isAnimating) _breath.repeat();
+    } else {
+      _breath
+        ..stop()
+        ..value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _breath.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = ludoAvatarSizeFor(active: widget.active);
+    final box = size + 6;
+    final light = Color.lerp(widget.tone, ComicPalette.white, 0.45)!;
+    final dark = Color.lerp(widget.tone, ComicPalette.ink, 0.35)!;
+    final badge = AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: box,
+      height: box,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        // Relief : dégradé clair en haut à gauche, sombre en bas à droite.
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [light, widget.tone, dark],
+        ),
+        boxShadow: widget.active
+            ? [
+                BoxShadow(
+                  color: ComicPalette.ink.withValues(alpha: 0.4),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ]
+            : null,
+      ),
+      padding: const EdgeInsets.all(3),
+      child: ClipOval(
+        child: AvatarView(
+          avatarId: widget.avatarId,
+          state: widget.state,
+          size: size,
+          // Joueur dont c'est le tour : pleine opacité, sans grisé (#663).
+          // Les autres restent atténués. Le relief de la couleur fait office d'anneau.
+          isActive: widget.active,
+          semanticLabel: widget.semanticLabel,
+        ),
+      ),
+    );
+    return AnimatedBuilder(
+      animation: _breath,
+      builder: (context, child) => Transform.scale(
+        scale: widget.active && _animate ? ludoBreathScale(_breath.value) : 1,
+        child: child,
+      ),
+      child: badge,
     );
   }
 }
