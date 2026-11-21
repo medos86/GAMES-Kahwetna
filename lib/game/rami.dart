@@ -662,12 +662,33 @@ RamiState cancelStaged(RamiState state) {
   );
 }
 
+/// Indice du paquet posé pendant ce tour (avant ouverture) qui porte [meldId], ou -1.
+int _stagedGroupIndex(RamiState state, String meldId) {
+  final meldIndex = state.table.indexWhere((item) => item.id == meldId);
+  if (meldIndex < 0) return -1;
+  final ids = {for (final card in state.table[meldIndex].cards) card.id};
+  for (var i = 0; i < state.staged.length; i++) {
+    final group = state.staged[i];
+    if (group.length == ids.length &&
+        group.every((card) => ids.contains(card.id))) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+/// Vrai si [meldId] est un paquet posé pendant le tour courant, avant ouverture (#660).
+bool isStagedMeld(RamiState state, String meldId) =>
+    _stagedGroupIndex(state, meldId) >= 0;
+
 RamiState layOff(RamiState state, String cardId, String meldId) {
   final seat = state.turn;
-  if (state.phase != RamiPhase.play ||
-      state.firstTour ||
-      !state.opened[seat] ||
-      state.staged.isNotEmpty) return state;
+  if (state.phase != RamiPhase.play || state.firstTour) return state;
+  // Un paquet posé pendant le tour reste modifiable, avant comme après ouverture (#660).
+  final stagedIndex = _stagedGroupIndex(state, meldId);
+  final refused =
+      state.staged.isNotEmpty ? stagedIndex < 0 : !state.opened[seat];
+  if (refused) return state;
   final hand = state.hands[seat];
   final cardIndex = hand.indexWhere((item) => item.id == cardId);
   final meldIndex = state.table.indexWhere((item) => item.id == meldId);
@@ -689,11 +710,21 @@ RamiState layOff(RamiState state, String cardId, String meldId) {
           ? Meld(id: item.id, cards: cards, owner: item.owner)
           : item,
   ];
-  return _setHand(
+  final next = _setHand(
     state.copyWith(table: table),
     seat,
     hand.where((item) => item.id != cardId).toList(),
   );
+  if (stagedIndex < 0) return next;
+
+  // Avant ouverture : le paquet compte pour l'ouverture avec sa nouvelle carte.
+  final turnCards = [
+    for (var i = 0; i < state.staged.length; i++)
+      i == stagedIndex ? cards : state.staged[i],
+  ];
+  final total = turnCards.fold<int>(0, (sum, item) => sum + pointsOf(item));
+  if (total < minOpening(state)) return next.copyWith(staged: turnCards);
+  return _open(next, seat, total);
 }
 
 /// Reprise d'un joker posé sur la table (#390) : la carte naturelle de la main
