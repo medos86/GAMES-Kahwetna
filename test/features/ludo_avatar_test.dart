@@ -27,4 +27,32 @@ void main() {
     await tester.pump();
     expect(find.byType(AvatarView), findsNWidgets(LudoColor.values.length));
   });
+
+  testWidgets(
+    '#663 : avatar du joueur actif en pleine opacité, les autres atténués',
+    (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: LudoScreen(difficulty: Difficulty.facile, players: 2),
+        ),
+      );
+      await tester.pump();
+      final views = tester.widgetList<AvatarView>(find.byType(AvatarView));
+      expect(views.where((v) => v.isActive).length, 1);
+      final opacities = tester
+          .widgetList<AnimatedOpacity>(
+            find.descendant(
+              of: find.byType(AvatarView),
+              matching: find.byType(AnimatedOpacity),
+            ),
+          )
+          .map((o) => o.opacity)
+          .toList();
+      expect(opacities.where((o) => o == 1).length, 1);
+      expect(
+        opacities.where((o) => o == 0.55).length,
+        LudoColor.values.length - 1,
+      );
+    },
+  );
 }
