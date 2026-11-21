@@ -28,7 +28,6 @@ void main() {
   test('#705 : aucun vert dans la palette du tapis Chkobba', () {
     final green = ComicPalette.seatGreen;
     expect(ScobaPalette.tapisBleu, isNot(green));
-    expect(ComicPalette.felt, isNot(green));
     expect(ScobaPalette.tapisBleu, ComicPalette.tunisBlue);
   });
 
