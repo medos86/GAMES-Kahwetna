@@ -238,6 +238,7 @@ class RoundState {
     required this.pointsWon,
     required this.lastWinner,
     required this.belote,
+    this.played = const <CoincheCard>[],
   });
 
   factory RoundState.fromJson(Map<String, dynamic> json) => RoundState(
@@ -267,6 +268,9 @@ class RoundState {
         pointsWon: _teamCountsFromJson(json['pointsWon']),
         lastWinner: _seatOrNull(json['lastWinner']),
         belote: _teamOrNull(json['belote']),
+        played: json['played'] == null
+            ? const <CoincheCard>[]
+            : _cardsFromJson(json['played']),
       );
 
   final Seat dealer;
@@ -283,6 +287,9 @@ class RoundState {
   final Seat? lastWinner;
   final Team? belote;
 
+  /// Cartes des plis terminés (#440 : compte des atouts tombés). Vide si absent du JSON.
+  final List<CoincheCard> played;
+
   /// Les champs nullables (turn, contract, lastWinner, belote) se remettent à null
   /// avec une valeur explicite ; omis, ils gardent leur valeur.
   RoundState copyWith({
@@ -298,6 +305,7 @@ class RoundState {
     Map<Team, int>? pointsWon,
     Object? lastWinner = _unset,
     Object? belote = _unset,
+    List<CoincheCard>? played,
   }) {
     return RoundState(
       dealer: dealer,
@@ -315,6 +323,7 @@ class RoundState {
       lastWinner:
           identical(lastWinner, _unset) ? this.lastWinner : lastWinner as Seat?,
       belote: identical(belote, _unset) ? this.belote : belote as Team?,
+      played: played ?? this.played,
     );
   }
 
@@ -335,6 +344,7 @@ class RoundState {
         'pointsWon': _teamCountsToJson(pointsWon),
         'lastWinner': lastWinner?.name,
         'belote': belote?.name,
+        'played': [for (final c in played) c.toJson()],
       };
 }
 
@@ -671,6 +681,7 @@ RoundState collectTrick(RoundState round) {
     tricksWon: {...round.tricksWon, team: round.tricksWon[team]! + 1},
     pointsWon: {...round.pointsWon, team: round.pointsWon[team]! + points},
     lastWinner: winner.seat,
+    played: [...round.played, for (final play in round.trick) play.card],
   );
 }
 
@@ -777,6 +788,38 @@ BidAction chooseBid(
   return ValueBid(value, bestSuit);
 }
 
+/// Atouts non encore joués et hors de la main de [seat] (#440, compte des atouts tombés).
+/// Les cartes du pli en cours sont considérées comme jouées.
+List<CoincheCard> unseenTrumps(RoundState round, Seat seat, CoincheSuit mode) {
+  final seen = <(CoincheSuit, CoincheRank)>{
+    for (final c in round.played) (c.suit, c.rank),
+    for (final p in round.trick) (p.card.suit, p.card.rank),
+    for (final c in round.hands[seat] ?? const <CoincheCard>[])
+      (c.suit, c.rank),
+  };
+  return [
+    for (final rank in trumpOrder)
+      if (!seen.contains((mode, rank)))
+        CoincheCard(suit: mode, rank: rank, id: '${mode.name}-${rank.label}'),
+  ];
+}
+
+/// Atout maître de [seat] (#440) : carte d'atout de la main qu'aucun atout plus fort
+/// ne peut battre (tous les atouts supérieurs sont tombés ou dans la main).
+CoincheCard? masterTrump(RoundState round, Seat seat, CoincheSuit mode) {
+  final hand = round.hands[seat] ?? const <CoincheCard>[];
+  final unseen = unseenTrumps(round, seat, mode);
+  CoincheCard? best;
+  for (final card in hand) {
+    if (!isTrump(card, mode)) continue;
+    final power = _power(card, mode);
+    final higherUnseen = unseen.any((c) => _power(c, mode) > power);
+    if (higherUnseen) continue;
+    if (best == null || power > _power(best, mode)) best = card;
+  }
+  return best;
+}
+
 /// Probabilité, pour le niveau facile, de jouer une carte au hasard au lieu de l'heuristique (#282).
 const double coincheEasyNoise = 0.35;
 
@@ -812,6 +855,15 @@ String chooseCard(
       sortedStable(cards, compare).last;
 
   if (round.trick.isEmpty) {
+    // Difficile (#440) : atout maître en main, avec des atouts encore dehors : on joue le maître
+    // pour les faire tomber et prendre le pli.
+    if (level == CoincheAiLevel.difficile &&
+        unseenTrumps(round, seat, mode).isNotEmpty) {
+      final master = masterTrump(round, seat, mode);
+      if (master != null && moves.any((c) => c.id == master.id)) {
+        return master.id;
+      }
+    }
     final plain = moves.where((c) => !isTrump(c, mode)).toList();
     if (plain.isNotEmpty) {
       final top = priciest(plain);
