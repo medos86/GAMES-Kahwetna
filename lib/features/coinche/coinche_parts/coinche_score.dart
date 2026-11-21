@@ -11,50 +11,17 @@ class _Header extends StatelessWidget {
     return GameHeader(
       onMenu: () => Navigator.of(context).maybePop(),
       center: Expanded(
-        child: Column(
-          children: [
-            Wrap(
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 6,
-              children: [
-                Text(
-                  'Manche ${controller.match.round}',
-                  style: const TextStyle(fontWeight: FontWeight.w800),
-                ),
-                DifficultyChip(difficulty: difficulty),
-              ],
-            ),
-          ],
-        ),
-      ),
-      trailing: Semantics(
-        label: tf('sMatchTarget', {'n': '${controller.match.target}'}),
-        child: SizedBox(
-          width: 48,
-          height: 48,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              const Icon(
-                Icons.emoji_events,
-                size: 48,
-                color: Color(0xFFFBBF24),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text(
-                  '${controller.match.target}',
-                  style: const TextStyle(
-                    color: _inkColor,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-            ],
+        child: Center(
+          child: Text(
+            'Manche ${controller.match.round}',
+            style: const TextStyle(fontWeight: FontWeight.w800),
           ),
         ),
+      ),
+      trailing: TrophyBadge(
+        target: controller.match.target,
+        size: 48,
+        tint: difficultyTint(difficulty),
       ),
     );
   }

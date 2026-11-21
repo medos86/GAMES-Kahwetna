@@ -280,7 +280,6 @@ class _RamiScreenState extends State<RamiScreen>
                   tf('round', {'n': '${g.round}'}),
                   style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
-                DifficultyChip(difficulty: widget.difficulty),
               ],
             ),
           ],
@@ -299,7 +298,12 @@ class _RamiScreenState extends State<RamiScreen>
             child: SizedBox(
               width: 48,
               height: 48,
-              child: Center(child: TrophyBadge(target: g.targetScore)),
+              child: Center(
+                child: TrophyBadge(
+                  target: g.targetScore,
+                  tint: difficultyTint(widget.difficulty),
+                ),
+              ),
             ),
           ),
         ],

@@ -6,6 +6,11 @@ import '../features/menu/menu_models.dart';
 
 /// Pastille BD discrète qui indique le niveau de la partie en cours (issue #220).
 /// Couleurs et icône repris du menu (difficultyOptions), pour que le joueur reconnaisse le niveau choisi.
+/// Couleur de la difficulté choisie (#657) : teinte la coupe et son halo.
+Color difficultyTint(Difficulty difficulty) => difficultyOptions
+    .firstWhere((o) => o.difficulty == difficulty)
+    .activeBackground;
+
 class DifficultyChip extends StatelessWidget {
   const DifficultyChip({super.key, required this.difficulty});
 

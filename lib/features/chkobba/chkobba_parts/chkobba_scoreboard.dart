@@ -1,37 +1,5 @@
 part of '../chkobba_screen.dart';
 
-/// Pastille du score cible (trophée jaune avec le nombre dessus).
-class _TargetBadge extends StatelessWidget {
-  const _TargetBadge({required this.target});
-
-  final int target;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 44,
-      height: 44,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          const Icon(Icons.emoji_events, size: 44, color: Color(0xFFFBBF24)),
-          Align(
-            alignment: const Alignment(0, -0.25),
-            child: Text(
-              '$target',
-              style: const TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 15,
-                color: Color(0xFF20284B),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// Tableau de bord : score de chaque joueur, Chkobba, cartes ramassées et pioche.
 class _Scoreboard extends StatelessWidget {
   const _Scoreboard({

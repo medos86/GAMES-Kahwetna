@@ -20,7 +20,6 @@ import '../../widgets/exit_guard.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
-import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
 import '../../widgets/pulse_glow.dart';
 import '../../core/theme/comic_palette.dart';
@@ -217,10 +216,7 @@ class _LudoScreenState extends State<LudoScreen> {
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               child: Column(
                 children: [
-                  _Header(
-                    controller: c,
-                    difficulty: widget.difficulty,
-                  ),
+                  _Header(controller: c),
                   const SizedBox(height: 8),
                   Expanded(
                     child: landscapeShort

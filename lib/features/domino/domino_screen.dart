@@ -28,6 +28,7 @@ import '../../widgets/exit_guard.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../widgets/difficulty_chip.dart';
+import '../../widgets/trophy_badge.dart';
 import '../../widgets/game_header.dart';
 import '../../core/avatars/avatar_catalog.dart';
 import '../../core/avatars/game_avatars.dart';
