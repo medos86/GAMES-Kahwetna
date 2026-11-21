@@ -143,12 +143,20 @@ List<PlacedToken> layoutTokens(List<Token> tokens) {
   }
 
   final seen = <String, int>{};
-  final baseSlot = <LudoColor, int>{for (final c in LudoColor.values) c: 0};
+  // Place fixe de chaque pion dans sa base : son rang parmi les pions de sa couleur,
+  // quel que soit l'état des autres. Ainsi un pion qui sort ne fait pas bouger les autres.
+  final ownRank = <String, int>{};
+  final rankCount = <LudoColor, int>{};
+  for (final token in tokens) {
+    final rank = rankCount[token.color] ?? 0;
+    ownRank[token.id] = rank;
+    rankCount[token.color] = rank + 1;
+  }
 
   return [
     for (final p in positions)
       if (p.cell == null)
-        _basePlacement(p.token, baseSlot)
+        _basePlacement(p.token, ownRank[p.token.id]!)
       else if (p.token.progress == ludoFinish)
         _finishPlacement(p.token)
       else
@@ -161,9 +169,8 @@ PlacedToken _finishPlacement(Token token) {
   return PlacedToken(token: token, x: slot.x, y: slot.y, size: 0.5);
 }
 
-PlacedToken _basePlacement(Token token, Map<LudoColor, int> baseSlot) {
-  final slot = ludoBaseSlots[baseSlot[token.color]!];
-  baseSlot[token.color] = baseSlot[token.color]! + 1;
+PlacedToken _basePlacement(Token token, int rank) {
+  final slot = ludoBaseSlots[rank];
   final corner = ludoCorner(token.color);
   return PlacedToken(
     token: token,

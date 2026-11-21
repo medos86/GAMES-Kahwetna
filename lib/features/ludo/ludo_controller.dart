@@ -9,9 +9,9 @@ import '../../game/ludo.dart';
 /// Couleurs humaines dans l'ordre du source : les N premières sont jouées par l'humain.
 const ludoHumanOrder = [
   LudoColor.blue,
-  LudoColor.yellow,
   LudoColor.red,
   LudoColor.green,
+  LudoColor.yellow,
 ];
 
 /// Délai de l'IA quand la fin de partie est accélérée (#387).
@@ -78,10 +78,13 @@ class LudoController extends PersistentGameController {
     notifyListeners();
   }
 
-  /// La partie se termine tout de suite, avec le classement actuel (#387).
+  /// Regarder la fin : l'IA finit sa marche à vitesse normale, et le menu
+  /// de fin n'apparaît qu'une fois la dernière arrivée jouée.
   void showEnd() {
     _choiceMade = true;
-    _setGame(endLudoGameNow(_game));
+    _fastAi = false;
+    _reschedule();
+    notifyListeners();
   }
 
   /// Pions jouables au tour de l'humain.
@@ -108,11 +111,23 @@ class LudoController extends PersistentGameController {
   void restart() {
     _choiceMade = false;
     _fastAi = false;
+    _lastFaces.clear();
     _setGame(newLudoGame());
   }
 
+  /// Dernière face obtenue par chaque couleur : son dé la garde affichée (pas de retour à 5).
+  final Map<LudoColor, int> _lastFaces = {};
+
+  /// Face à afficher pour le dé de [color] : sa dernière valeur, null avant son premier lancer.
+  int? lastFaceOf(LudoColor color) => _lastFaces[color];
+
   void _setGame(LudoState next) {
     if (identical(next, _game)) return;
+    if (next.dice != null &&
+        next.diceOwner != null &&
+        next.rollId != _game.rollId) {
+      _lastFaces[next.diceOwner!] = next.dice!;
+    }
     _game = next;
     _reschedule();
     notifyListeners();

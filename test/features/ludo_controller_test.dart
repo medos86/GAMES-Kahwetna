@@ -110,7 +110,8 @@ void main() {
     expect(c.choiceOpen, isTrue);
 
     c.showEnd();
-    expect(c.roundOver, isTrue);
+    // La marche de l'IA continue : le menu de fin n'est pas affiché tout de suite.
+    expect(c.roundOver, isFalse);
     expect(c.choiceOpen, isFalse);
     c.dispose();
   });

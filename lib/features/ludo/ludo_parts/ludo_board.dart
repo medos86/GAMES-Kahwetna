@@ -29,6 +29,7 @@ class _Board extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(14),
+                clipBehavior: Clip.none,
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
