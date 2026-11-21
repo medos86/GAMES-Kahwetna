@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+const _boardPath = 'lib/features/ludo/ludo_parts/ludo_board.dart';
+
 void main() {
-  final source = File('lib/features/ludo/ludo_parts/ludo_board.dart')
-      .readAsStringSync();
+  final source = File(_boardPath).readAsStringSync();
 
   test('#689 : le cadre externe du plateau n a pas de contour', () {
-    // Le DecoratedBox du plateau ne doit plus porter de bordure de 6 px.
     expect(source.contains('Border.all(color: _brown, width: 6)'), isFalse);
   });
 
