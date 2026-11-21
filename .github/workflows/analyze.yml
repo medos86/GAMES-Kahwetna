@@ -59,17 +59,17 @@ jobs:
             paths: test/widgets
           # Le shard game était le goulot (11 min seul) : découpé en trois.
           - name: game-rami-a-l
-            paths: "test/game/rami_[a-l]*"
+            paths: "test/game/rami_[a-l]*_test.dart"
           - name: game-rami-m-z
-            paths: "test/game/rami_[m-z]*"
+            paths: "test/game/rami_[m-z]*_test.dart test/game/rami_test.dart"
           - name: game-autres
-            paths: "test/game/[cdls]*"
+            paths: "test/game/[cdls]*_test.dart"
           - name: features-a-d
-            paths: "test/features/[a-d]*"
+            paths: "test/features/[a-d]*_test.dart test/features/age_gate"
           - name: features-e-m
-            paths: "test/features/[e-m]*"
+            paths: "test/features/[e-m]*_test.dart"
           - name: features-n-z
-            paths: "test/features/[n-z]*"
+            paths: "test/features/[n-z]*_test.dart test/features/menu test/features/settings"
           - name: reste
             paths: test/app test/layout test/parity test/style test/rami_scores_overlay_test.dart test/rami_seat_badge_test.dart
     steps:
