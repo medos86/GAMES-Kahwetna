@@ -53,7 +53,7 @@ void main() {
   testWidgets('pseudo complet (14 caractères) affiché sans « … » (#714)', (
     tester,
   ) async {
-    const name = 'Sfaxi_Dragon_12'; // 14 caractères = longueur maximale
+    const name = 'Sfaxi_Dragon_1'; // 14 caractères = longueur maximale
     expect(name.length, 14);
     await tester.pumpWidget(
       MaterialApp(
