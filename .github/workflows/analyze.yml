@@ -59,7 +59,10 @@ jobs:
             paths: test/widgets
           # Le shard game était le goulot (11 min seul) : découpé en trois.
           - name: game-rami-a-l
-            paths: "test/game/rami_[a-l]*_test.dart"
+            paths: "test/game/rami_ai_test.dart test/game/rami_discard_rule_test.dart test/game/rami_draw_exhausted_test.dart test/game/rami_easy_draw_test.dart"
+          # Garde-fou niveaux IA : un seul test de simulation d'environ 8 min, isolé pour ne pas rallonger les autres shards.
+          - name: game-rami-levels
+            paths: test/game/rami_levels_smoke_test.dart
           - name: game-rami-m-z
             paths: "test/game/rami_[m-z]*_test.dart test/game/rami_test.dart"
           - name: game-autres
