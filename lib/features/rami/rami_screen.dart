@@ -402,11 +402,7 @@ class _RamiScreenState extends State<RamiScreen>
           child: RamiScoresTab(
             key: _key('scoretab'),
             open: _scoresOpen,
-            myScore: g.scores[0],
             myTurn: _c.myTurn,
-            turnLabel: _c.myTurn
-                ? Strings.turnShortMine
-                : tf('ramiOtherTurn', {'n': _seatNames[g.turn]}),
             onTap: () => setState(() => _scoresOpen = true),
           ),
         ),
