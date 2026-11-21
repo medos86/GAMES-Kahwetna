@@ -9,6 +9,7 @@ import '../../core/avatars/avatar_catalog.dart';
 import '../../core/avatars/game_avatars.dart';
 import '../../game/ludo.dart';
 import '../menu/menu_models.dart';
+import 'ludo_backdrop.dart';
 import 'ludo_controller.dart';
 import 'ludo_layout.dart';
 import '../../core/i18n/app_language.dart';
@@ -173,19 +174,7 @@ class _LudoScreenState extends State<LudoScreen> {
           final c = _controller;
           return GameScaffold(
             showAd: !_adFree.value,
-            background: const DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF0B4F9C),
-                    Color(0xFF1676D2),
-                    Color(0xFF2A8CE6),
-                  ],
-                ),
-              ),
-            ),
+            background: const LudoBackdrop(),
             overlays: [
               if (c.roundOver)
                 Positioned.fill(
