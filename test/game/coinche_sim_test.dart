@@ -22,8 +22,7 @@ void main() {
     test("une donne jouée jusqu'au bout couvre les 32 cartes", () {
       final everyCard = {
         for (final suit in CoincheSuit.values)
-          for (final rank in CoincheRank.values)
-            '${suit.name}-${rank.label}',
+          for (final rank in CoincheRank.values) '${suit.name}-${rank.label}',
       };
       expect(everyCard, hasLength(32));
 
