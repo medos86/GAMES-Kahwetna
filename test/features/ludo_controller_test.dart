@@ -47,7 +47,7 @@ void main() {
 
   test('les humains sont les N premières couleurs du source', () {
     final c = LudoController(playerCount: 2, difficulty: LudoAiLevel.facile);
-    expect(c.humans, [LudoColor.blue, LudoColor.yellow]);
+    expect(c.humans, [LudoColor.blue, LudoColor.red]);
     expect(c.solo, isFalse);
     c.dispose();
   });
