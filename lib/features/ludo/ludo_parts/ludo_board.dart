@@ -337,8 +337,16 @@ class _HopTokenState extends State<_HopToken>
     final after = widget.placed;
     final from = before.token.progress;
     final to = after.token.progress;
+    // Reconstruction sans déplacement (lancer de dé, tour suivant) : l'animation
+    // en cours, saut ou catapulte, va jusqu'au bout (#679).
+    final action = ludoHopAction(
+      from: from,
+      to: to,
+      reduced: MediaQuery.disableAnimationsOf(context),
+    );
+    if (action == LudoHopAction.keep) return;
     _victimTimer?.cancel();
-    if (from == to || MediaQuery.disableAnimationsOf(context)) {
+    if (action == LudoHopAction.instant) {
       _hop.stop();
       _path = const [];
       _capture = false;

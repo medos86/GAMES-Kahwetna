@@ -210,3 +210,18 @@ const _ludoPipTable = <int, List<int>>{
   5: [0, 2, 4, 6, 8],
   6: [0, 2, 3, 5, 6, 8],
 };
+
+/// Action à prendre sur l'animation d'un pion quand le plateau est reconstruit (#679).
+/// [keep] : progression inchangée, on ne touche à rien (une capture en cours reste visible).
+/// [instant] : déplacement sans animation (animations système désactivées).
+/// [play] : déplacement animé.
+enum LudoHopAction { keep, instant, play }
+
+LudoHopAction ludoHopAction({
+  required int from,
+  required int to,
+  required bool reduced,
+}) {
+  if (from == to) return LudoHopAction.keep;
+  return reduced ? LudoHopAction.instant : LudoHopAction.play;
+}
