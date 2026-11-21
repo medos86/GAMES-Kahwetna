@@ -226,8 +226,11 @@ class RamiController extends PersistentGameController {
   void cancel() => _apply(rules.cancelStaged(_game));
 
   /// Paquet posé pendant le tour, repris en main tant que le tour n'est pas fini (#661).
-  bool canTakeBack(String meldId) =>
-      canPlay && rules.isTurnMeld(_game, meldId);
+  bool canTakeBack(String meldId) => canPlay && rules.isTurnMeld(_game, meldId);
+
+  /// Action d'appui long sur un paquet : null hors du tour ou si rien n'est repris.
+  void Function()? takeBackAction(String meldId) =>
+      canTakeBack(meldId) ? () => takeBackMeld(meldId) : null;
 
   void takeBackMeld(String meldId) {
     if (!canTakeBack(meldId)) return;
