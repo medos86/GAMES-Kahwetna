@@ -5,6 +5,7 @@ import 'package:kahwetne/core/services/pseudo.dart';
 
 /// Issue #543 : génération et validation du pseudo.
 void main() {
+  rulesTests();
   test('1000 pseudos générés sont tous valides', () {
     final random = Random(42);
     for (var i = 0; i < 1000; i++) {
@@ -39,5 +40,28 @@ void main() {
   test('lettres arabes et accents acceptés', () {
     expect(validatePseudo('محمد'), isNull);
     expect(validatePseudo('Élodie'), isNull);
+  });
+}
+
+/// Issue #715 : chiffres autorisés, caractères spéciaux refusés, longueur 3 à 14.
+void rulesTests() {
+  test('chiffres, _ et espaces sont autorisés', () {
+    expect(validatePseudo('Lion42'), isNull);
+    expect(validatePseudo('Sfaxi_12'), isNull);
+    expect(validatePseudo('Ali Ben 7'), isNull);
+  });
+
+  test('caractères spéciaux et ponctuation refusés', () {
+    expect(validatePseudo('Lion-7'), PseudoError.invalidCharacters);
+    expect(validatePseudo('Lion.7'), PseudoError.invalidCharacters);
+    expect(validatePseudo('Lion@'), PseudoError.invalidCharacters);
+    expect(validatePseudo('Lion#1'), PseudoError.invalidCharacters);
+  });
+
+  test('bornes : 3 et 14 caractères acceptés, 2 et 15 refusés', () {
+    expect(validatePseudo('abc'), isNull);
+    expect(validatePseudo('a' * 14), isNull);
+    expect(validatePseudo('a' * 2), PseudoError.tooShort);
+    expect(validatePseudo('a' * 15), PseudoError.tooLong);
   });
 }
