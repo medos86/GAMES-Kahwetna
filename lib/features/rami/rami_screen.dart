@@ -933,6 +933,9 @@ class _RamiScreenState extends State<RamiScreen>
             hot: _isHotMeld(target, meld.id),
             eligible: c.layEligible,
             onTap: c.layEligible ? () => c.layOffSelected(meld.id) : null,
+            onLongPress: c.canTakeBack(meld.id)
+                ? () => c.takeBackMeld(meld.id)
+                : null,
           ),
         ),
     ];

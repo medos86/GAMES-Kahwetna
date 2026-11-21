@@ -290,6 +290,102 @@ void main() {
     });
   });
 
+  group('reprise d\'un paquet posé pendant le tour (#661)', () {
+    // Même main que le groupe #660 : rois posés, puis quatre (ou deux) posés.
+    RamiState turnPair({int rank = 4}) {
+      final s = inPlay(
+        fixedDeal(),
+        hands: [
+          [
+            c(RamiSuit.epees, 13, 'k1'),
+            c(RamiSuit.coupes, 13, 'k2'),
+            c(RamiSuit.deniers, 13, 'k3'),
+            c(RamiSuit.batons, 13, 'k4'),
+            c(RamiSuit.epees, rank, 'f1'),
+            c(RamiSuit.coupes, rank, 'f2'),
+            c(RamiSuit.deniers, rank, 'f3'),
+            c(RamiSuit.epees, 2, 'x'),
+          ],
+          [c(RamiSuit.coupes, 2)],
+          [c(RamiSuit.coupes, 3)],
+          [c(RamiSuit.coupes, 4)],
+        ],
+      );
+      return poseMeld(poseMeld(s, ['k1', 'k2', 'k3']), ['f1', 'f2', 'f3']);
+    }
+
+    String meldOf(RamiState s, int rank) =>
+        s.table.firstWhere((m) => m.cards.first.rank == rank).id;
+
+    test('une carte reprise d\'un paquet de 4 revient en main', () {
+      final base = turnPair(rank: 2);
+      final s = layOff(base, 'k4', meldOf(base, 13));
+      final kings = meldOf(s, 13);
+      final next = takeBackFromMeld(s, 'k4', kings);
+      expect(identical(next, s), isFalse);
+      expect(next.table.firstWhere((m) => m.id == kings).cards.length, 3);
+      expect(next.hands[0].any((card) => card.id == 'k4'), isTrue);
+      expect(next.staged.first.length, 3);
+    });
+
+    test('retrait refusé si le paquet restant ne serait plus valide', () {
+      final s = turnPair();
+      final kings = meldOf(s, 13);
+      expect(identical(takeBackFromMeld(s, 'k3', kings), s), isTrue);
+    });
+
+    test('paquet inconnu : reprise refusée', () {
+      final s = turnPair();
+      expect(identical(takeBackFromMeld(s, 'k3', 'inconnu'), s), isTrue);
+    });
+
+    test('paquet entier du tour repris : cartes revenues en main', () {
+      final s = turnPair(rank: 2);
+      final twos = meldOf(s, 2);
+      final next = takeBackMeld(s, twos);
+      expect(next.table.any((m) => m.id == twos), isFalse);
+      expect(next.hands[0].where((card) => card.rank == 2).length, 4);
+      expect(next.staged.length, 1);
+      expect(next.turnMeldIds.contains(twos), isFalse);
+    });
+
+    test('paquet d\'un tour précédent : reprise refusée', () {
+      final s = inPlay(
+        fixedDeal(),
+        hands: [
+          [c(RamiSuit.epees, 2), c(RamiSuit.batons, 5)],
+          [c(RamiSuit.coupes, 2)],
+          [c(RamiSuit.coupes, 3)],
+          [c(RamiSuit.coupes, 4)],
+        ],
+      ).copyWith(
+        table: [
+          Meld(
+            id: 'old',
+            cards: [
+              c(RamiSuit.batons, 7, 'a'),
+              c(RamiSuit.batons, 8, 'b'),
+              c(RamiSuit.batons, 9, 'd'),
+            ],
+          ),
+        ],
+      );
+      expect(isTurnMeld(s, 'old'), isFalse);
+      expect(identical(takeBackMeld(s, 'old'), s), isTrue);
+    });
+
+    test('après ouverture : reprise refusée si le seuil tomberait', () {
+      final opened = layOff(turnPair(), 'k4', meldOf(turnPair(), 13));
+      expect(opened.opened[0], isTrue);
+      expect(opened.turnOpenMin, 51);
+      final kings = meldOf(opened, 13);
+      // Total après retrait : 3 rois (30) + 3 quatre (12) = 42 < 51.
+      expect(identical(takeBackFromMeld(opened, 'k4', kings), opened), isTrue);
+      final fours = meldOf(opened, 4);
+      expect(identical(takeBackMeld(opened, fours), opened), isTrue);
+    });
+  });
+
   group('défausse', () {
     test('carte prise à la défausse refusée si la main a plus d une carte', () {
       final s = inPlay(
