@@ -10,7 +10,13 @@ import '../../core/strings.dart';
 import '../../game/domino.dart';
 
 const _pipColor = Color(0xFF17304B);
-const _faceColor = Color(0xFFFFF9E9);
+// Issue #686 : face teintée du bleu du tapis (au lieu d'un crème blanc isolé),
+// pour que les pierres fassent partie du tapis. Contraste des points vérifié en test.
+const _faceColor = Color(0xFFF3FAFD);
+
+/// Couleurs publiques des pierres (utilisées par les tests de contraste).
+const Color dominoPipColor = _pipColor;
+const Color dominoFaceColor = _faceColor;
 const _edgeColor = Color(0xFF24364B);
 // Style cartoon : contour sombre épais et ombre dure.
 const _outlineColor = Color(0xFF1B2A44);
