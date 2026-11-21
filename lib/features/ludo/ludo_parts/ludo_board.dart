@@ -67,9 +67,7 @@ class _Board extends StatelessWidget {
                           child: DecoratedBox(
                             decoration: BoxDecoration(
                               color: _toneOf(color).fill,
-                              border: Border.all(
-                                color: _brown.withValues(alpha: 0.3),
-                              ),
+                              border: Border.all(color: ludoGridLineColor),
                             ),
                           ),
                         ),
@@ -105,6 +103,14 @@ class _Board extends StatelessWidget {
     );
   }
 }
+
+/// Trait de grille entre les cases (#664) : couleur opaque, calculée une fois.
+/// Un trait semi-transparent se superpose à celui de la case voisine, et les
+/// intersections deviennent plus sombres, d'où les angles noirs.
+final Color ludoGridLineColor = Color.alphaBlend(
+  _brown.withValues(alpha: 0.3),
+  _cream,
+);
 
 /// Carré positionné dans le Stack du plateau (coordonnées en pixels). Doit rester un `Positioned`
 /// direct : un Stack ne accepte pas un widget qui en enveloppe un autre.
@@ -160,7 +166,7 @@ Positioned _trackCell(int index, Cell cell, double u) {
     child: DecoratedBox(
       decoration: BoxDecoration(
         color: starter != null ? _toneOf(starter).fill : _cream,
-        border: Border.all(color: _brown.withValues(alpha: 0.3)),
+        border: Border.all(color: ludoGridLineColor),
       ),
       // Étoile dorée qui occupe toute la case, avec un reflet (#623).
       child: isSafe && starter == null
