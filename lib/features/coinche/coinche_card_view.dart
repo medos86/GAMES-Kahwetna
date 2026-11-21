@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../game/coinche.dart';
 import '../../core/strings.dart';
+import '../rami/rami_card_view.dart' show ramiCardBackAsset, ramiCardsFolder;
 
 /// Symbole de chaque couleur (suitSymbols du source).
 String coincheSuitSymbol(CoincheSuit suit) => switch (suit) {
@@ -51,6 +52,27 @@ const List<double> _dimMatrix = [
   0,
 ];
 
+/// Image Rami (CC0) d'une carte Coinche : valeurs 7 à 10 en chiffres, V = valet, D = dame, R = roi, A = as.
+String coincheCardAsset(CoincheCard card) {
+  final rank = switch (card.rank) {
+    CoincheRank.seven => '7',
+    CoincheRank.eight => '8',
+    CoincheRank.nine => '9',
+    CoincheRank.ten => '10',
+    CoincheRank.valet => 'jack',
+    CoincheRank.dame => 'queen',
+    CoincheRank.roi => 'king',
+    CoincheRank.ace => 'ace',
+  };
+  final suit = switch (card.suit) {
+    CoincheSuit.deniers => 'diamonds',
+    CoincheSuit.coupes => 'hearts',
+    CoincheSuit.epees => 'spades',
+    CoincheSuit.batons => 'clubs',
+  };
+  return '$ramiCardsFolder/${rank}_of_$suit.webp';
+}
+
 /// Carte Coinche : face (rang + couleur) ou dos. Hauteur = 1,4 × largeur, comme le source.
 class CoincheCardView extends StatelessWidget {
   const CoincheCardView({
@@ -90,79 +112,25 @@ class CoincheCardView extends StatelessWidget {
   }
 
   Widget _front(CoincheCard c, double width, double height) {
-    final color = coincheSuitColor(c.suit);
-    final symbol = coincheSuitSymbol(c.suit);
-    return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFFFFBEB), Color(0xFFFFFFFF)],
-        ),
-        borderRadius: BorderRadius.circular(width * 0.12),
-        border: Border.all(color: const Color(0xFF15264D), width: 1.5),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            left: width * 0.08,
-            top: height * 0.04,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  c.rank.label,
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w900,
-                    fontSize: height * 0.2,
-                    height: 1,
-                  ),
-                ),
-                Text(
-                  symbol,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: height * 0.16,
-                    height: 1,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Center(
-            child: Text(
-              symbol,
-              style: TextStyle(color: color, fontSize: height * 0.4, height: 1),
-            ),
-          ),
-        ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(width * 0.12),
+      child: Image.asset(
+        coincheCardAsset(c),
+        fit: BoxFit.fill,
+        gaplessPlayback: true,
+        excludeFromSemantics: true,
       ),
     );
   }
 
   Widget _back(double width) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFB91C1C), Color(0xFF7F1D1D)],
-        ),
-        borderRadius: BorderRadius.circular(width * 0.12),
-        border: Border.all(color: const Color(0xFF15264D), width: 1.5),
-      ),
-      child: Center(
-        child: FractionallySizedBox(
-          widthFactor: 0.68,
-          heightFactor: 0.72,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              border: Border.all(color: const Color(0xCCCA8A04), width: 2),
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-        ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(width * 0.12),
+      child: Image.asset(
+        ramiCardBackAsset,
+        fit: BoxFit.fill,
+        gaplessPlayback: true,
+        excludeFromSemantics: true,
       ),
     );
   }
