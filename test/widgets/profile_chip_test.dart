@@ -71,7 +71,10 @@ void main() {
     expect(text.overflow, isNull);
     expect(text.style?.fontFamily, 'Bangers');
     expect(
-      find.ancestor(of: find.text('SFAXI_DRAGON_1').first, matching: find.byType(FittedBox)),
+      find.ancestor(
+        of: find.text('SFAXI_DRAGON_1').first,
+        matching: find.byType(FittedBox),
+      ),
       findsOneWidget,
     );
     expect(tester.takeException(), isNull);
