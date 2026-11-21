@@ -8,7 +8,6 @@ import '../../core/avatars/avatar_catalog.dart';
 import '../../core/avatars/game_avatars.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/interstitial_service.dart';
-import '../../widgets/avatar_view.dart';
 import '../../widgets/turn_avatar.dart';
 import '../../widgets/tapis_background.dart';
 import '../../core/i18n/app_language.dart';

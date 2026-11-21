@@ -16,7 +16,6 @@ import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/game_end_watcher.dart';
 import '../../core/services/interstitial_service.dart';
-import '../../widgets/avatar_view.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
