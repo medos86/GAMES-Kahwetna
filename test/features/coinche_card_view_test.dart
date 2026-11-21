@@ -10,7 +10,11 @@ void main() {
       final assets = <String>{};
       for (final suit in CoincheSuit.values) {
         for (final rank in CoincheRank.values) {
-          final card = CoincheCard(suit: suit, rank: rank, id: '${suit.name}-${rank.label}');
+          final card = CoincheCard(
+            suit: suit,
+            rank: rank,
+            id: '${suit.name}-${rank.label}',
+          );
           final path = coincheCardAsset(card);
           expect(path, startsWith('assets/images/cards_rami/'));
           expect(File(path).existsSync(), isTrue, reason: path);
