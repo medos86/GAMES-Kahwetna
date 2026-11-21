@@ -40,8 +40,6 @@ const _brown = Color(0xFF4A2A10);
 const Color kLudoSafeStarColor = Color(0xFFB8860B);
 const _pipAxis = [22.0, 50.0, 78.0];
 
-
-
 /// Couleurs de joueurs (#597) : identiques aux valeurs de [_toneOf].
 const kLudoFills = <LudoColor, Color>{
   LudoColor.red: Color(0xFFFF6F00),
