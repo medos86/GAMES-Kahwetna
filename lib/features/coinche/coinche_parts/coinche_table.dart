@@ -265,7 +265,8 @@ class _SeatInfo extends StatelessWidget {
               padding: const EdgeInsets.only(top: 4),
               child: Container(
                 key: ValueKey('contract:${seat.name}'),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: _goldColor,
                   borderRadius: BorderRadius.circular(8),
@@ -305,7 +306,7 @@ class _SeatInfo extends StatelessWidget {
   }
 }
 
-/// Libellé du contrat affiché sur la place de l'annonceur (#733) : « 130 ♥ ×2 · Nous ».
+/// Libellé du contrat sur la place de l'annonceur (#733), ex. « 130 ♥ ×2 · Nous ».
 String coincheContractLabel(Contract contract) {
   final mult = contract.multiplier > 1 ? ' ×${contract.multiplier}' : '';
   final team = teamOf(contract.seat) == Team.ns ? 'Nous' : 'Eux';

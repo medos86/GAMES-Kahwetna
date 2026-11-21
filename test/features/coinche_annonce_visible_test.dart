@@ -4,7 +4,7 @@ import 'package:kahwetne/game/coinche.dart';
 
 /// Issue #733 : l'annonce reste visible sur la place de l'annonceur pendant le jeu.
 void main() {
-  test('libellé du contrat : valeur, couleur et équipe', () {
+  test('libellé : valeur, couleur et équipe', () {
     const c = Contract(
       seat: Seat.north,
       value: 130,
@@ -14,7 +14,7 @@ void main() {
     expect(coincheContractLabel(c), '130 ♥ · Nous');
   });
 
-  test('libellé du contrat : multiplicateur contré affiché, équipe adverse', () {
+  test('libellé : multiplicateur contré, équipe adverse', () {
     const c = Contract(
       seat: Seat.west,
       value: 80,
