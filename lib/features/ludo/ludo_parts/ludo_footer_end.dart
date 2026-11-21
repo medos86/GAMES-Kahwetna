@@ -84,7 +84,7 @@ class LudoDie extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final face = value ?? 5;
-    final pips = _pipLayout[face]!;
+    final pips = ludoPipIndexes(face);
     final reduce = MediaQuery.disableAnimationsOf(context);
     final still = reduce || !animate;
     return TweenAnimationBuilder<double>(
