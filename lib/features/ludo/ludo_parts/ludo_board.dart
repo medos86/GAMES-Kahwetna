@@ -12,6 +12,9 @@ class _Board extends StatelessWidget {
         final side = math.min(constraints.maxWidth, constraints.maxHeight);
         final u = side / ludoBoardUnits;
         final legal = controller.legalIds;
+        // Couleur de l'attaquant du dernier coup, si c'était une capture (#662).
+        final note = controller.game.note;
+        final attacker = note is CapturedNote ? note.color : null;
         return Semantics(
           label: t('ludoBoard'),
           child: SizedBox(
@@ -91,6 +94,7 @@ class _Board extends StatelessWidget {
                           u: u,
                           clickable: legal.contains(placed.token.id),
                           onTap: () => controller.tapToken(placed.token.id),
+                          capturing: placed.token.color == attacker,
                         ),
                       ),
                   ],
@@ -273,18 +277,24 @@ class _GoalPainter extends CustomPainter {
 
 /// Pion qui saute case par case jusqu'à sa nouvelle position (#378).
 /// Le Positioned du plateau reste à l'arrivée ; seul le décalage visuel anime le trajet.
+/// Capture (#662) : l'attaquant saute haut sur les dernières cases et grandit au sommet,
+/// puis la victime est catapultée vers sa base.
 class _HopToken extends StatefulWidget {
   const _HopToken({
     required this.placed,
     required this.u,
     required this.clickable,
     required this.onTap,
+    this.capturing = false,
   });
 
   final PlacedToken placed;
   final double u;
   final bool clickable;
   final VoidCallback onTap;
+
+  /// Le pion vient de capturer un autre pion (#662).
+  final bool capturing;
 
   @override
   State<_HopToken> createState() => _HopTokenState();
@@ -293,7 +303,6 @@ class _HopToken extends StatefulWidget {
 class _HopTokenState extends State<_HopToken>
     with SingleTickerProviderStateMixin {
   static const _msPerCell = 150;
-  static const _jumpHeight = 0.45; // hauteur du saut, en unités de case
 
   late final AnimationController _hop =
       AnimationController(vsync: this, duration: Duration.zero);
@@ -303,6 +312,13 @@ class _HopTokenState extends State<_HopToken>
 
   // Longueur cumulée du trajet à chaque point : la vitesse reste constante (#386).
   List<double> _lengths = const [0];
+
+  // Coup de capture de ce pion : saut haut sur les deux dernières cases (#662).
+  bool _capture = false;
+
+  // Pion renvoyé à la base : arc de catapulte, après le coup de l'attaquant (#662).
+  bool _victim = false;
+  Timer? _victimTimer;
 
   void _setPath(List<({double x, double y})> points) {
     _path = points;
@@ -321,16 +337,44 @@ class _HopTokenState extends State<_HopToken>
     final after = widget.placed;
     final from = before.token.progress;
     final to = after.token.progress;
-    if (from == to || to == 0 || MediaQuery.disableAnimationsOf(context)) {
+    _victimTimer?.cancel();
+    if (from == to || MediaQuery.disableAnimationsOf(context)) {
       _hop.stop();
       _path = const [];
+      _capture = false;
+      _victim = false;
       return;
     }
+    if (to == 0) {
+      // Renvoyé à la base : la catapulte part une fois l'attaquant posé.
+      // Le pion reste à sa place (début du trajet) pendant l'attente.
+      _victim = true;
+      _capture = false;
+      _hop
+        ..stop()
+        ..value = 0;
+      _setPath([
+        (x: before.x, y: before.y),
+        (x: after.x, y: after.y),
+      ]);
+      _victimTimer = Timer(
+        const Duration(milliseconds: ludoVictimDelayMs),
+        _play,
+      );
+      return;
+    }
+    _victim = false;
+    _capture = widget.capturing;
     _setPath([
       (x: before.x, y: before.y),
       ...ludoHopWaypoints(after.token.color, from, to),
       (x: after.x, y: after.y),
     ]);
+    _play();
+  }
+
+  void _play() {
+    if (!mounted) return;
     _hop
       ..duration = Duration(milliseconds: (_msPerCell * _lengths.last).round())
       ..forward(from: 0);
@@ -338,14 +382,14 @@ class _HopTokenState extends State<_HopToken>
 
   @override
   void dispose() {
+    _victimTimer?.cancel();
     _hop.dispose();
     super.dispose();
   }
 
-  /// Décalage visuel par rapport à la position finale, saut compris.
-  Offset _offset() {
-    if (_path.length < 2 || _lengths.last == 0) return Offset.zero;
-    // Position le long du trajet, à vitesse constante (distance réelle, pas nombre de cases).
+  /// Position le long du trajet, à vitesse constante (distance réelle, pas nombre de cases).
+  ({double x, double y, double local, int segment})? _locate() {
+    if (_path.length < 2 || _lengths.last == 0) return null;
     final s = _hop.value * _lengths.last;
     var i = 0;
     while (i < _path.length - 2 && _lengths[i + 1] < s) {
@@ -355,11 +399,42 @@ class _HopTokenState extends State<_HopToken>
     final local = segment == 0 ? 0.0 : (s - _lengths[i]) / segment;
     final a = _path[i];
     final b = _path[i + 1];
-    final x = a.x + (b.x - a.x) * local;
-    final y = a.y + (b.y - a.y) * local;
-    final lift = math.sin(math.pi * local) * _jumpHeight;
+    return (
+      x: a.x + (b.x - a.x) * local,
+      y: a.y + (b.y - a.y) * local,
+      local: local,
+      segment: i,
+    );
+  }
+
+  /// Vrai sur les deux dernières cases d'un coup de capture.
+  bool _onLastCells(int segment) => segment >= _path.length - 3;
+
+  /// Décalage visuel par rapport à la position finale, saut compris.
+  Offset _offset() {
+    final at = _locate();
+    if (at == null) return Offset.zero;
     final end = _path.last;
-    return Offset((x - end.x) * widget.u, (y - lift - end.y) * widget.u);
+    final lift = _victim
+        ? ludoCatapultLift(at.local)
+        : ludoLiftAt(
+            at.local,
+            capture: _capture,
+            lastCells: _onLastCells(at.segment),
+          );
+    return Offset(
+      (at.x - end.x) * widget.u,
+      (at.y - lift - end.y) * widget.u,
+    );
+  }
+
+  /// Agrandissement de l'attaquant au sommet de son saut de capture (#662).
+  double _scale() {
+    final at = _locate();
+    if (at == null || !_capture || _victim || !_onLastCells(at.segment)) {
+      return 1;
+    }
+    return ludoCaptureScale(at.local);
   }
 
   @override
@@ -369,8 +444,10 @@ class _HopTokenState extends State<_HopToken>
     final visual = placed.size * widget.u * (widget.clickable ? 1.12 : 1);
     return AnimatedBuilder(
       animation: _hop,
-      builder: (context, child) =>
-          Transform.translate(offset: _offset(), child: child),
+      builder: (context, child) => Transform.translate(
+        offset: _offset(),
+        child: Transform.scale(scale: _scale(), child: child),
+      ),
       child: PulseGlow(
         active: widget.clickable,
         radius: visual / 2,
