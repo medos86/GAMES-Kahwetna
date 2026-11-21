@@ -111,7 +111,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           cursorColor: ComicPalette.ink,
                           decoration: InputDecoration(
                             labelText: Strings.profileName,
-                            labelStyle: const TextStyle(color: ComicPalette.ink),
+                            labelStyle: const TextStyle(
+                              color: ComicPalette.ink,
+                            ),
                             floatingLabelStyle: const TextStyle(
                               color: ComicPalette.ink,
                               fontWeight: FontWeight.w700,
