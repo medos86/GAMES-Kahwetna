@@ -382,6 +382,7 @@ class _RamiScreenState extends State<RamiScreen>
                 cards: g.hands[seat].length,
                 avatarId: _avatarIds[seat],
                 avatarState: _avatarStateOf(seat, g),
+                quarterTurns: ramiSeatQuarterTurns(seat),
               ),
             ),
           ),

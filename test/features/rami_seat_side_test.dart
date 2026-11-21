@@ -17,4 +17,34 @@ void main() {
   test('#589 : moi (siège 0) n\'a pas de badge sur le bord', () {
     expect(() => ramiSeatAlignment(0), throwsArgumentError);
   });
+
+  test('#666 : sièges latéraux écrits verticalement, haut horizontal', () {
+    expect(ramiSeatQuarterTurns(1), 3);
+    expect(ramiSeatQuarterTurns(3), 1);
+    expect(ramiSeatQuarterTurns(2), 0);
+  });
+
+  testWidgets(
+    '#666 : le badge latéral est tourné, celui du haut non',
+    (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                RamiSeatBadge(name: 'Ali', cards: 5, quarterTurns: 3),
+                RamiSeatBadge(name: 'Karim', cards: 4),
+              ],
+            ),
+          ),
+        ),
+      );
+      final turns = tester
+          .widgetList<RotatedBox>(find.byType(RotatedBox))
+          .map((r) => r.quarterTurns)
+          .toList();
+      expect(turns, [3]);
+      expect(find.text('Ali ×5'), findsOneWidget);
+    },
+  );
 }
