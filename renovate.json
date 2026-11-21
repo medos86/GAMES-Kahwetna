@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "timezone": "Europe/Paris",
+  "schedule": ["before 6am on monday"],
+  "dependencyDashboard": true,
+  "labels": ["deps"],
+  "packageRules": [
+    {
+      "description": "Dart/Flutter : mises à jour mineures et correctifs regroupées",
+      "matchManagers": ["pub"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "dépendances Dart/Flutter (mineures et correctifs)",
+      "labels": ["deps", "pub"]
+    },
+    {
+      "description": "Actions GitHub : mises à jour mineures et correctifs regroupées",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "actions GitHub (mineures et correctifs)",
+      "labels": ["deps", "ci"]
+    },
+    {
+      "description": "Mises à jour majeures : PR distinctes, validation via le tableau de bord",
+      "matchUpdateTypes": ["major"],
+      "separateMultipleMajor": true,
+      "dependencyDashboardApproval": true,
+      "labels": ["deps", "major"]
+    }
+  ]
+}
