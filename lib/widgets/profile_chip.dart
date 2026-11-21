@@ -34,10 +34,11 @@ class ProfileChip extends StatelessWidget {
             children: [
               AvatarView(avatarId: avatarId, size: 40, semanticLabel: name),
               const SizedBox(width: 8),
+              // Pseudo entier (#714) : pas de « … », le texte passe à la ligne si besoin.
               Flexible(
                 child: Text(
                   name,
-                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
                   style: const TextStyle(
                     fontWeight: FontWeight.w900,
                     color: Colors.white,

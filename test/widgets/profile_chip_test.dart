@@ -49,4 +49,26 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('pseudo complet (14 caractères) affiché sans « … » (#714)', (
+    tester,
+  ) async {
+    const name = 'Sfaxi_Dragon_12'; // 14 caractères = longueur maximale
+    expect(name.length, 14);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Row(
+            children: [
+              ProfileChip(name: name, avatarId: 'cat', onTap: () {}),
+            ],
+          ),
+        ),
+      ),
+    );
+    final text = tester.widget<Text>(find.text(name));
+    expect(text.data, name);
+    expect(text.overflow, isNull);
+    expect(text.maxLines, isNull);
+  });
 }
