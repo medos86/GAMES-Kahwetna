@@ -113,6 +113,7 @@ class _MeldView extends StatelessWidget {
     this.hot = false,
     this.eligible = false,
     this.onTap,
+    this.onLongPress,
   });
 
   final List<rules.RamiCard> cards;
@@ -121,6 +122,9 @@ class _MeldView extends StatelessWidget {
   final bool hot;
   final bool eligible;
   final VoidCallback? onTap;
+
+  /// Appui long : reprend le paquet posé pendant le tour (#661).
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -134,6 +138,7 @@ class _MeldView extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Stack(
         clipBehavior: Clip.none,
         children: [

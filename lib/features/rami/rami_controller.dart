@@ -225,6 +225,26 @@ class RamiController extends PersistentGameController {
   /// Annule les poses du tour en cours : les cartes reviennent en main.
   void cancel() => _apply(rules.cancelStaged(_game));
 
+  /// Paquet posé pendant le tour, repris en main tant que le tour n'est pas fini (#661).
+  bool canTakeBack(String meldId) => canPlay && rules.isTurnMeld(_game, meldId);
+
+  /// Action d'appui long sur un paquet : null hors du tour ou si rien n'est repris.
+  void Function()? takeBackAction(String meldId) =>
+      canTakeBack(meldId) ? () => takeBackMeld(meldId) : null;
+
+  void takeBackMeld(String meldId) {
+    if (!canTakeBack(meldId)) return;
+    _apply(rules.takeBackMeld(_game, meldId), Strings.ramiCannotLayOff);
+  }
+
+  void takeBackCard(String cardId, String meldId) {
+    if (!canTakeBack(meldId)) return;
+    _apply(
+      rules.takeBackFromMeld(_game, cardId, meldId),
+      Strings.ramiCannotLayOff,
+    );
+  }
+
   void layOffCard(String cardId, String meldId) {
     // Un paquet posé pendant le tour reste modifiable avant ouverture (#660).
     final ownMeld = rules.isStagedMeld(_game, meldId);

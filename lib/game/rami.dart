@@ -115,6 +115,8 @@ class RamiState {
     this.firstTour = false,
     this.openings = const [0, 0, 0, 0],
     this.recycles = 0,
+    this.turnMeldIds = const [],
+    this.turnOpenMin = 0,
   });
 
   factory RamiState.fromJson(Map<String, dynamic> json) => RamiState(
@@ -145,6 +147,10 @@ class RamiState {
             ? const [0, 0, 0, 0]
             : [for (final o in json['openings'] as List) o as int],
         recycles: (json['recycles'] as int?) ?? 0,
+        turnMeldIds: json['turnMeldIds'] == null
+            ? const []
+            : [for (final id in json['turnMeldIds'] as List) id as String],
+        turnOpenMin: (json['turnOpenMin'] as int?) ?? 0,
       );
 
   final int targetScore;
@@ -175,6 +181,14 @@ class RamiState {
   /// Nombre de fois où la défausse a été recyclée en pioche cette manche.
   final int recycles;
 
+  /// Paquets posés pendant le tour courant, avant ou après ouverture (#661).
+  /// Seuls ceux-là peuvent être repris ; ils sont vidés à la défausse.
+  final List<String> turnMeldIds;
+
+  /// Seuil d'ouverture franchi pendant le tour courant (0 : pas ouvert pendant ce tour).
+  /// Une reprise ne doit pas faire retomber le total sous ce seuil (#661).
+  final int turnOpenMin;
+
   /// Les champs nullables (takenId, roundResult, matchWinner) se remettent à null avec une valeur explicite.
   RamiState copyWith({
     RamiPhase? phase,
@@ -193,6 +207,8 @@ class RamiState {
     bool? firstTour,
     List<int>? openings,
     int? recycles,
+    List<String>? turnMeldIds,
+    int? turnOpenMin,
   }) {
     return RamiState(
       targetScore: targetScore,
@@ -218,6 +234,8 @@ class RamiState {
       firstTour: firstTour ?? this.firstTour,
       openings: openings ?? this.openings,
       recycles: recycles ?? this.recycles,
+      turnMeldIds: turnMeldIds ?? this.turnMeldIds,
+      turnOpenMin: turnOpenMin ?? this.turnOpenMin,
     );
   }
 
@@ -245,6 +263,8 @@ class RamiState {
         'firstTour': firstTour,
         'openings': openings,
         'recycles': recycles,
+        'turnMeldIds': turnMeldIds,
+        'turnOpenMin': turnOpenMin,
       };
 }
 
@@ -611,11 +631,13 @@ RamiState poseMeld(RamiState state, List<String> cardIds) {
   final cards = arrangeMeld(picked);
   final rest = hand.where((card) => !cardIds.contains(card.id)).toList();
   if (rest.isEmpty) return state;
+  final meldId = _newMeldId(state.table, cards);
   final placed = _setHand(state, seat, rest).copyWith(
     table: [
       ...state.table,
-      Meld(id: _newMeldId(state.table, cards), cards: cards, owner: seat),
+      Meld(id: meldId, cards: cards, owner: seat),
     ],
+    turnMeldIds: [...state.turnMeldIds, meldId],
   );
   if (state.opened[seat]) return placed;
 
@@ -628,6 +650,7 @@ RamiState poseMeld(RamiState state, List<String> cardIds) {
 /// Ouvre le joueur : ses points d'ouverture sont enregistrés et le compte du tour est remis à zéro.
 RamiState _open(RamiState state, int seat, int points) => state.copyWith(
       staged: const [],
+      turnOpenMin: minOpening(state),
       lastOpening: points,
       openings: [
         for (var i = 0; i < state.openings.length; i++)
@@ -656,7 +679,14 @@ RamiState cancelStaged(RamiState state) {
   ];
   final returned = [for (final group in state.staged) ...group];
   return _setHand(
-    state.copyWith(table: table, staged: const []),
+    state.copyWith(
+      table: table,
+      staged: const [],
+      turnMeldIds: [
+        for (final id in state.turnMeldIds)
+          if (table.any((meld) => meld.id == id)) id,
+      ],
+    ),
     seat,
     [...state.hands[seat], ...returned],
   );
@@ -676,6 +706,10 @@ int _stagedGroupIndex(RamiState state, String meldId) {
   }
   return -1;
 }
+
+/// Vrai si [meldId] a été posé pendant le tour courant (#661).
+bool isTurnMeld(RamiState state, String meldId) =>
+    state.turnMeldIds.contains(meldId);
 
 /// Vrai si [meldId] est un paquet posé pendant le tour courant, avant ouverture (#660).
 bool isStagedMeld(RamiState state, String meldId) =>
@@ -725,6 +759,93 @@ RamiState layOff(RamiState state, String cardId, String meldId) {
   final total = turnCards.fold<int>(0, (sum, item) => sum + pointsOf(item));
   if (total < minOpening(state)) return next.copyWith(staged: turnCards);
   return _open(next, seat, total);
+}
+
+/// Total des points des paquets posés pendant le tour (#661).
+int _turnPoints(RamiState state) {
+  var total = 0;
+  for (final meld in state.table) {
+    if (state.turnMeldIds.contains(meld.id)) total += pointsOf(meld.cards);
+  }
+  return total;
+}
+
+/// Reprend une carte d'un paquet posé pendant le tour, dans la main (#661).
+/// Le paquet restant doit rester valide (3 cartes au moins). Un joker ne se reprend pas ici.
+RamiState takeBackFromMeld(RamiState state, String cardId, String meldId) {
+  final seat = state.turn;
+  if (state.phase != RamiPhase.play ||
+      state.firstTour ||
+      !state.turnMeldIds.contains(meldId)) return state;
+  final meldIndex = state.table.indexWhere((item) => item.id == meldId);
+  if (meldIndex < 0) return state;
+  final meld = state.table[meldIndex];
+  final cardIndex = meld.cards.indexWhere((item) => item.id == cardId);
+  if (cardIndex < 0 || meld.cards[cardIndex].isJoker) return state;
+  final card = meld.cards[cardIndex];
+  final remaining = [
+    for (final item in meld.cards)
+      if (item.id != cardId) item,
+  ];
+  if (remaining.length < 3 || !isValidMeld(remaining)) return state;
+  final cards = arrangeMeld(remaining);
+
+  final stagedIndex = _stagedGroupIndex(state, meldId);
+  if (!state.opened[seat] && stagedIndex < 0) return state;
+  final table = [
+    for (final item in state.table)
+      item.id == meldId
+          ? Meld(id: item.id, cards: cards, owner: item.owner)
+          : item,
+  ];
+  final next = _setHand(
+    state.copyWith(table: table),
+    seat,
+    [...state.hands[seat], card],
+  );
+  if (!state.opened[seat]) {
+    // Avant ouverture : le paquet du tour est mis à jour (il compte pour l'ouverture).
+    final staged = [
+      for (var i = 0; i < state.staged.length; i++)
+        i == stagedIndex ? cards : state.staged[i],
+    ];
+    return next.copyWith(staged: staged);
+  }
+  if (state.turnOpenMin > 0 && _turnPoints(next) < state.turnOpenMin) {
+    return state; // l'ouverture du tour ne tiendrait plus
+  }
+  return next;
+}
+
+/// Reprend un paquet entier posé pendant le tour, avec toutes ses cartes (#661).
+RamiState takeBackMeld(RamiState state, String meldId) {
+  final seat = state.turn;
+  if (state.phase != RamiPhase.play ||
+      state.firstTour ||
+      !state.turnMeldIds.contains(meldId)) return state;
+  final meldIndex = state.table.indexWhere((item) => item.id == meldId);
+  if (meldIndex < 0) return state;
+  final meld = state.table[meldIndex];
+  final table = [
+    for (final item in state.table)
+      if (item.id != meldId) item,
+  ];
+  var next = state.copyWith(
+    table: table,
+    turnMeldIds: [
+      for (final id in state.turnMeldIds)
+        if (id != meldId) id,
+    ],
+  );
+  if (!state.opened[seat]) {
+    final stagedIndex = _stagedGroupIndex(state, meldId);
+    if (stagedIndex < 0) return state;
+    final staged = [...state.staged]..removeAt(stagedIndex);
+    next = next.copyWith(staged: staged);
+  } else if (state.turnOpenMin > 0 && _turnPoints(next) < state.turnOpenMin) {
+    return state; // l'ouverture du tour ne tiendrait plus
+  }
+  return _setHand(next, seat, [...state.hands[seat], ...meld.cards]);
 }
 
 /// Reprise d'un joker posé sur la table (#390) : la carte naturelle de la main
@@ -795,6 +916,8 @@ RamiState discardCard(RamiState state, String cardId) {
     phase: RamiPhase.draw,
     firstTour: state.firstTour && seat != state.dealer,
     staged: const [],
+    turnMeldIds: const [],
+    turnOpenMin: 0,
   );
 }
 
