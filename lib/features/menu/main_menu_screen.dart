@@ -4,7 +4,6 @@ import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/theme/comic_palette.dart';
@@ -25,7 +24,6 @@ import 'profile_setup_screen.dart';
 import 'welcome_banner.dart';
 import '../../widgets/pressable.dart';
 import '../../widgets/texture_patterns.dart';
-import 'game_icons.dart';
 import 'menu_models.dart';
 import '../../core/strings.dart';
 import '../../core/services/ad_free_service.dart';
