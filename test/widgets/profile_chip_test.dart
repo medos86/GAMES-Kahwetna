@@ -21,8 +21,8 @@ void main() {
         ),
       ),
     );
-    expect(find.text('Sfaxi_Lion'), findsOneWidget);
-    await tester.tap(find.text('Sfaxi_Lion'));
+    expect(find.text('SFAXI_LION'), findsWidgets);
+    await tester.tap(find.text('SFAXI_LION').first);
     expect(taps, 1);
   });
 
@@ -50,7 +50,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('pseudo complet (14 caractères) affiché sans « … » (#714)', (
+  testWidgets('pseudo en MAJUSCULES, style BD, sans « … » (#721)', (
     tester,
   ) async {
     const name = 'Sfaxi_Dragon_1'; // 14 caractères = longueur maximale
@@ -66,12 +66,15 @@ void main() {
         ),
       ),
     );
-    final text = tester.widget<Text>(find.text(name));
-    expect(text.data, name);
+    expect(find.text('SFAXI_DRAGON_1'), findsWidgets);
+    final text = tester.widget<Text>(find.text('SFAXI_DRAGON_1').first);
     expect(text.overflow, isNull);
-    expect(text.softWrap, isFalse);
+    expect(text.style?.fontFamily, 'Bangers');
     expect(
-      find.ancestor(of: find.text(name), matching: find.byType(FittedBox)),
+      find.ancestor(
+        of: find.text('SFAXI_DRAGON_1').first,
+        matching: find.byType(FittedBox),
+      ),
       findsOneWidget,
     );
     expect(tester.takeException(), isNull);
