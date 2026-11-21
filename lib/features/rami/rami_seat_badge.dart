@@ -28,6 +28,14 @@ Alignment ramiSeatAlignment(int seat) {
   }
 }
 
+/// Quart de tour du badge (#666) : les sièges latéraux (gauche, droite) sont écrits
+/// verticalement, pour libérer de la place pour les cartes. Le haut reste horizontal.
+int ramiSeatQuarterTurns(int seat) {
+  if (seat == 1) return 3;
+  if (seat == 3) return 1;
+  return 0;
+}
+
 /// Badge d'un adversaire posé sur le bord du tapis : nom et nombre de cartes (#532).
 /// Passif et superposé, il ne prend aucune place dans la mise en page.
 class RamiSeatBadge extends StatelessWidget {
@@ -37,6 +45,7 @@ class RamiSeatBadge extends StatelessWidget {
     required this.cards,
     this.avatarId,
     this.avatarState = AvatarState.neutral,
+    this.quarterTurns = 0,
   });
 
   final String name;
@@ -45,6 +54,9 @@ class RamiSeatBadge extends StatelessWidget {
   /// Avatar du siège (issue #552) ; absent, le badge reste textuel.
   final String? avatarId;
   final AvatarState avatarState;
+
+  /// Quarts de tour appliqués au badge (#666) : 3 à gauche, 1 à droite, 0 en haut.
+  final int quarterTurns;
 
   @override
   Widget build(BuildContext context) {
@@ -65,19 +77,22 @@ class RamiSeatBadge extends StatelessWidget {
         ),
       ),
     );
-    if (id == null) return badge;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AvatarView(
-          avatarId: id,
-          state: avatarState,
-          size: 26,
-          semanticLabel: name,
-        ),
-        const SizedBox(width: 4),
-        badge,
-      ],
-    );
+    final content = id == null
+        ? badge
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AvatarView(
+                avatarId: id,
+                state: avatarState,
+                size: 26,
+                semanticLabel: name,
+              ),
+              const SizedBox(width: 4),
+              badge,
+            ],
+          );
+    if (quarterTurns == 0) return content;
+    return RotatedBox(quarterTurns: quarterTurns, child: content);
   }
 }
