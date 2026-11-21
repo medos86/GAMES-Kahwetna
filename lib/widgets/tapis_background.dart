@@ -2,19 +2,19 @@ import 'package:flutter/widgets.dart';
 
 import '../core/theme/comic_palette.dart';
 
-/// Fond « tapis » plein écran : feutre uni + motif de la porte utilisé comme masque
+/// Fond « tapis » plein écran : fond bleu + masque de la photo (#705) répété sans changer son ratio
 /// (alpha = encre du dessin), répété et teinté en or.
 class TapisBackground extends StatelessWidget {
   const TapisBackground({super.key});
 
-  static const String motifAsset = 'assets/images/tapis/tapis_motif.png';
+  static const String motifAsset = 'assets/images/tapis/tapis_masque.png';
 
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
       key: const ValueKey('tapis-background'),
       decoration: const BoxDecoration(
-        color: ComicPalette.felt,
+        color: ComicPalette.tunisBlue,
         image: DecorationImage(
           image: AssetImage(motifAsset),
           repeat: ImageRepeat.repeat,
