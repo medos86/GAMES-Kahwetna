@@ -215,6 +215,81 @@ void main() {
     });
   });
 
+  group('ajout sur un paquet posé pendant le tour (#660)', () {
+    // Main : quatre rois, trois quatre (ou deux, voir rank) et un deux. Pose des rois puis des quatre.
+    RamiState stagedPair({int rank = 4}) {
+      final s = inPlay(
+        fixedDeal(),
+        hands: [
+          [
+            c(RamiSuit.epees, 13, 'k1'),
+            c(RamiSuit.coupes, 13, 'k2'),
+            c(RamiSuit.deniers, 13, 'k3'),
+            c(RamiSuit.batons, 13, 'k4'),
+            c(RamiSuit.epees, rank, 'f1'),
+            c(RamiSuit.coupes, rank, 'f2'),
+            c(RamiSuit.deniers, rank, 'f3'),
+            c(RamiSuit.epees, 2, 'x'),
+          ],
+          [c(RamiSuit.coupes, 2)],
+          [c(RamiSuit.coupes, 3)],
+          [c(RamiSuit.coupes, 4)],
+        ],
+      );
+      return poseMeld(poseMeld(s, ['k1', 'k2', 'k3']), ['f1', 'f2', 'f3']);
+    }
+
+    test('carte valide ajoutée à un paquet posé avant ouverture', () {
+      // Trois rois (30) + trois deux (6) = 36 ; l'ajout d'un roi donne 46 : sous le seuil.
+      final s = stagedPair(rank: 2);
+      expect(s.opened[0], isFalse);
+      final kings = s.table.firstWhere((m) => m.cards.first.rank == 13).id;
+      expect(isStagedMeld(s, kings), isTrue);
+      final next = layOff(s, 'k4', kings);
+      expect(identical(next, s), isFalse);
+      expect(next.table.firstWhere((m) => m.id == kings).cards.length, 4);
+      expect(next.hands[0].any((card) => card.id == 'k4'), isFalse);
+      expect(next.staged.length, 2);
+      expect(next.opened[0], isFalse);
+    });
+
+    test("l'ajout qui atteint le seuil ouvre le joueur", () {
+      final s = stagedPair();
+      final kings = s.table.firstWhere((m) => m.cards.first.rank == 13).id;
+      final next = layOff(s, 'k4', kings);
+      // 4 rois (40) + 3 quatre (12) = 52, au-dessus de 51.
+      expect(next.opened[0], isTrue);
+      expect(next.staged, isEmpty);
+      expect(next.lastOpening, 52);
+    });
+
+    test('carte invalide refusée, la main et la table restent inchangées', () {
+      final s = stagedPair();
+      final kings = s.table.firstWhere((m) => m.cards.first.rank == 13).id;
+      expect(identical(layOff(s, 'x', kings), s), isTrue);
+    });
+
+    test('paquets du tour reconnus, identifiant inconnu refusé', () {
+      final s = stagedPair();
+      final other = s.table.firstWhere((m) => m.cards.first.rank == 4).id;
+      expect(isStagedMeld(s, other), isTrue);
+      expect(isStagedMeld(s, 'inconnu'), isFalse);
+    });
+
+    test('la main ne se vide jamais par un ajout', () {
+      final s = stagedPair().copyWith(
+        hands: [
+          [c(RamiSuit.batons, 13, 'k4')],
+          [c(RamiSuit.coupes, 2)],
+          [c(RamiSuit.coupes, 3)],
+          [c(RamiSuit.coupes, 4)],
+        ],
+      );
+      final kings = s.table.firstWhere((m) => m.cards.first.rank == 13).id;
+      expect(identical(layOff(s, 'k4', kings), s), isTrue);
+    });
+  });
+
   group('défausse', () {
     test('carte prise à la défausse refusée si la main a plus d une carte', () {
       final s = inPlay(

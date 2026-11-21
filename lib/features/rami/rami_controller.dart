@@ -226,11 +226,13 @@ class RamiController extends PersistentGameController {
   void cancel() => _apply(rules.cancelStaged(_game));
 
   void layOffCard(String cardId, String meldId) {
-    if (!opened) {
+    // Un paquet posé pendant le tour reste modifiable avant ouverture (#660).
+    final ownMeld = rules.isStagedMeld(_game, meldId);
+    if (!opened && !ownMeld) {
       onMessage?.call("Ouvre d'abord avec $openMinimum points");
       return;
     }
-    if (_game.staged.isNotEmpty) {
+    if (_game.staged.isNotEmpty && !ownMeld) {
       onMessage?.call(Strings.ramiFinishOpeningFirst);
       return;
     }
