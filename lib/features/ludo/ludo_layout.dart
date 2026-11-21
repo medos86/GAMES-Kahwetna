@@ -18,6 +18,17 @@ const ludoStackOffsets = <List<double>>[
   [0.24, 0.24],
 ];
 
+/// Décalage d'un pion parmi [count] sur une même case ([order] à partir de 0) (#681).
+/// Jusqu'à 4 pions : diagonales fixes. Au-delà : grille carrée, donc aucun nombre de pions ne sort des bornes.
+List<double> ludoStackOffset(int order, int count) {
+  if (count <= ludoStackOffsets.length) {
+    return ludoStackOffsets[count == 2 ? order * 3 : order];
+  }
+  final side = math.sqrt(count).ceil();
+  final step = 0.48 / (side - 1);
+  return [-0.24 + (order % side) * step, -0.24 + (order ~/ side) * step];
+}
+
 /// Emplacements des pions en base, relatifs au coin de la maison ([dr, dc]).
 const ludoBaseSlots = <List<double>>[
   [1.5, 1.5],
@@ -178,7 +189,7 @@ PlacedToken _trackPlacement(
     return PlacedToken(token: token, x: x, y: y, size: ludoTokenSize);
   }
   // Deux pions : diagonale 0 puis 3 ; trois et plus : index d'ordre.
-  final offset = ludoStackOffsets[count == 2 ? order * 3 : order];
+  final offset = ludoStackOffset(order, count);
   return PlacedToken(
     token: token,
     x: x + offset[0],
