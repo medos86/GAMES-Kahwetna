@@ -9,6 +9,7 @@ import '../../core/avatars/game_avatars.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/interstitial_service.dart';
 import '../../widgets/avatar_view.dart';
+import '../../widgets/tapis_background.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
 import '../../core/theme/game_style.dart';
@@ -377,8 +378,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     final columns = size.width < 600 ? 4 : 6;
     // Hauteur de carte : 11 % de l'écran, bornée pour laisser la place au tapis.
     final cardHeight = math.min(math.max(size.height * 0.11, 56.0), 92.0);
-    // Même bois que Rami, Domino et Coinche (issue #633).
-    const background = ColoredBox(color: ComicPalette.tableWood);
+    // Tapis plein écran (#695) : le motif de la porte remplace le bois.
+    const background = TapisBackground();
 
     return ListenableBuilder(
       listenable: Listenable.merge([
@@ -476,11 +477,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
               child: Container(
                 key: const ValueKey('chkobba-felt'),
                 margin: const EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(
-                  color: ComicPalette.felt,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: ComicPalette.ink, width: 3),
-                ),
+                // Pas de cadre : le tapis est le fond de tout l'écran (#695).
+                decoration: const BoxDecoration(color: Colors.transparent),
                 child: Column(
                   children: [
                     // Main de l'adversaire : dos des cartes, sauf celle qu'il montre.
