@@ -1,4 +1,5 @@
-// Pions multiples sur une même case (#681) : aucun nombre de pions ne doit faire planter le plateau.
+// Pions multiples sur une même case (#681) : aucun nombre de pions ne doit
+// faire planter le plateau.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/ludo/ludo_layout.dart';
 import 'package:kahwetne/game/ludo.dart';
@@ -10,10 +11,13 @@ void main() {
       ];
 
   for (final count in [2, 3, 4, 5, 9, 16]) {
-    test('#681 : $count pions sur une même case, sans exception, positions distinctes', () {
+    test('#681 : $count pions sur une case, positions distinctes', () {
       final placed = layoutTokens(stacked(count));
       expect(placed, hasLength(count));
-      final spots = {for (final p in placed) '${p.x.toStringAsFixed(4)}:${p.y.toStringAsFixed(4)}'};
+      final spots = {
+        for (final p in placed)
+          '${p.x.toStringAsFixed(4)}:${p.y.toStringAsFixed(4)}',
+      };
       expect(spots, hasLength(count));
     });
   }
