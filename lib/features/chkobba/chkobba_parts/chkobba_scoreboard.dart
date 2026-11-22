@@ -80,12 +80,12 @@ class _SidePanel extends StatelessWidget {
         avatar,
         Positioned(
           // Adversaire à droite : le sticker part vers l'intérieur du tapis.
-          left: opponentSide ? -34 : null,
-          right: opponentSide ? null : -34,
-          top: -22,
+          left: opponentSide ? -44 : null,
+          right: opponentSide ? null : -44,
+          top: -30,
           child: ReactionSticker(
             mood: reaction,
-            size: 40,
+            size: 58,
             semanticLabel: name,
           ),
         ),
