@@ -8,6 +8,12 @@ platform="${1:?usage: apply_app_identity.sh android|ios}"
 name="Korti Fans"
 icon=assets/images/app_icon.png
 
+# Le runner Ubuntu n'a pas ImageMagick par défaut : on l'installe si besoin.
+if ! command -v convert >/dev/null 2>&1; then
+  sudo apt-get update -qq
+  sudo apt-get install -y -qq imagemagick
+fi
+
 case "$platform" in
   android)
     manifest=android/app/src/main/AndroidManifest.xml
