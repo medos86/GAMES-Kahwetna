@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:material_ui/material_ui.dart';
 
 import '../core/theme/comic_palette.dart';
+import 'paper_confetti.dart';
 
 /// Boîte de dialogue de fin de manche / de partie, en style BD (issue #295).
 /// Affichée par [ResultDialog.show] sur fond flouté (4 px) et assombri.
@@ -15,6 +16,7 @@ class ResultDialog extends StatelessWidget {
     this.accent,
     this.children = const [],
     this.actions = const [],
+    this.celebrate = false,
   });
 
   final String title;
@@ -24,6 +26,9 @@ class ResultDialog extends StatelessWidget {
   final Color? accent;
   final List<Widget> children;
   final List<Widget> actions;
+
+  /// `true` : victoire, pluie de papiers jetés par-dessus la carte (issue #773).
+  final bool celebrate;
 
   /// Ouvre le dialogue. Non fermable en touchant l'extérieur (sauf [dismissible]).
   static Future<T?> show<T>(
@@ -79,39 +84,46 @@ class ResultDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        margin: const EdgeInsets.all(24),
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-        constraints: const BoxConstraints(maxWidth: 420),
-        decoration: BoxDecoration(
-          color: ComicPalette.paper,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: ComicPalette.ink, width: 4),
-          boxShadow: const [
-            BoxShadow(color: ComicPalette.ink, offset: Offset(0, 7)),
+    final card = Container(
+      margin: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+      constraints: const BoxConstraints(maxWidth: 420),
+      decoration: BoxDecoration(
+        color: ComicPalette.paper,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: ComicPalette.ink, width: 4),
+        boxShadow: const [
+          BoxShadow(color: ComicPalette.ink, offset: Offset(0, 7)),
+        ],
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (icon != null) Icon(icon, size: 40, color: ComicPalette.ink),
+            _titleWidget(),
+            const SizedBox(height: 12),
+            ...children,
+            if (actions.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              ...actions
+                  .expand((w) => [w, const SizedBox(height: 10)])
+                  .toList()
+                ..removeLast(),
+            ],
           ],
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (icon != null) Icon(icon, size: 40, color: ComicPalette.ink),
-              _titleWidget(),
-              const SizedBox(height: 12),
-              ...children,
-              if (actions.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                ...actions
-                    .expand((w) => [w, const SizedBox(height: 10)])
-                    .toList()
-                  ..removeLast(),
-              ],
-            ],
-          ),
-        ),
+      ),
+    );
+    return Material(
+      color: Colors.transparent,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          card,
+          if (celebrate) const Positioned.fill(child: PaperConfetti()),
+        ],
       ),
     );
   }

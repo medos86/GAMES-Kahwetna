@@ -37,6 +37,7 @@ class RoundResultPanel extends StatelessWidget {
     required this.actions,
     this.subtitle,
     this.accent = ComicPalette.yellow,
+    this.celebrate = false,
   });
 
   final String title;
@@ -46,12 +47,16 @@ class RoundResultPanel extends StatelessWidget {
   final List<Widget> actions;
   final Color accent;
 
+  /// Victoire : déclenche la pluie de papiers (issue #773).
+  final bool celebrate;
+
   @override
   Widget build(BuildContext context) {
     return ResultDialog(
       title: title,
       accent: accent,
       actions: actions,
+      celebrate: celebrate,
       children: [
         Center(child: _Badge(badge)),
         if (subtitle != null) ...[
