@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/reactions/reaction_mood.dart';
+import 'package:kahwetne/core/services/card_animations.dart';
 import 'package:kahwetne/widgets/reaction_sticker.dart';
 
 Widget host(Widget child, {bool disableAnimations = false}) => MediaQuery(
@@ -44,6 +45,29 @@ void main() {
       ),
     );
     expect(transform.transform.storage[0], 1.0);
+  });
+
+  testWidgets('apparition : petit puis taille pleine (#788)', (tester) async {
+    cardAnimations.value = true;
+    addTearDown(() => cardAnimations.value = false);
+    await tester.pumpWidget(
+      host(const ReactionSticker(mood: ReactionMood.angry)),
+    );
+    double scale() => tester
+        .widget<Transform>(
+          find.descendant(
+            of: find.byType(ReactionSticker),
+            matching: find.byType(Transform),
+          ),
+        )
+        .transform
+        .storage[0];
+
+    expect(scale(), closeTo(reactionPopStartScale, 1e-6));
+    await tester.pump(reactionPopDuration ~/ 2);
+    expect(scale(), greaterThan(reactionPopStartScale));
+    await tester.pumpAndSettle();
+    expect(scale(), closeTo(1.0, 1e-6));
   });
 
   testWidgets('sticker non bloquant pour le toucher', (tester) async {

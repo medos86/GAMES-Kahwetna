@@ -80,7 +80,7 @@ class ChkobbaController extends PersistentGameController {
   Timer? _hayaTimer;
 
   /// Stickers de réaction affichés près des avatars (#761).
-  static const reactionDuration = Duration(milliseconds: 1200);
+  static const reactionDuration = Duration(milliseconds: 2000);
   Timer? _reactionTimer;
   Map<Player, ReactionMood> _reactions = const {};
 
@@ -162,6 +162,7 @@ class ChkobbaController extends PersistentGameController {
       result.state,
       haya: result.haya ? Player.player : null,
       chkobba: result.chkobba ? Player.player : null,
+      capturer: _capturerOf(_game, result.state),
       sfx: Sfx.place,
     );
   }
@@ -195,10 +196,19 @@ class ChkobbaController extends PersistentGameController {
     _update();
   }
 
+  /// Joueur dont la pile de prises s'est agrandie entre [before] et [after] (#788).
+  static Player? _capturerOf(ChkobbaState before, ChkobbaState after) {
+    for (final p in Player.values) {
+      if (after.won[p]!.length > before.won[p]!.length) return p;
+    }
+    return null;
+  }
+
   void _apply(
     ChkobbaState next, {
     Player? haya,
     Player? chkobba,
+    Player? capturer,
     Sfx? sfx,
   }) {
     _game = next;
@@ -220,7 +230,9 @@ class ChkobbaController extends PersistentGameController {
         notifyListeners();
       });
     }
-    _showReactions(chkobbaReactions(chkobba: chkobba, haya: haya));
+    _showReactions(
+      chkobbaReactions(chkobba: chkobba, haya: haya, capturer: capturer),
+    );
     if (sfx != null) Sounds.play(sfx);
     _update();
   }
@@ -296,6 +308,7 @@ class ChkobbaController extends PersistentGameController {
           result.state,
           haya: result.haya ? Player.opponent : null,
           chkobba: result.chkobba ? Player.opponent : null,
+          capturer: _capturerOf(_game, result.state),
           sfx: Sfx.place,
         );
       });
