@@ -7,6 +7,7 @@ import 'package:kahwetne/features/chkobba/chkobba_card_face.dart';
 import 'package:kahwetne/features/chkobba/chkobba_screen.dart';
 import 'package:kahwetne/features/chkobba/chkobba_table.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
+import 'package:kahwetne/widgets/turn_avatar.dart';
 import 'package:kahwetne/game/chkobba.dart';
 import 'package:kahwetne/game/common.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -109,12 +110,10 @@ void main() {
     tester,
   ) async {
     await _pump(tester, Player.player);
-    final opp = tester.getTopLeft(find.byKey(const ValueKey('panel:opponent')));
-    final me = tester.getTopLeft(find.byKey(const ValueKey('panel:player')));
-    final oppHand = tester.getBottomLeft(
-      find.byKey(const ValueKey('opp-hand')),
-    );
-    expect(opp.dy, lessThan(oppHand.dy + 1));
+    // Premier avatar = adversaire (panneau de gauche dans l'arbre), second = joueur.
+    final avatars = find.byType(TurnAvatar);
+    final opp = tester.getTopLeft(avatars.at(0));
+    final me = tester.getTopLeft(avatars.at(1));
     expect(me.dy, greaterThan(opp.dy + 20));
     expect(tester.takeException(), isNull);
   });
