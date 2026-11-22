@@ -39,6 +39,7 @@ import '../../widgets/card_motion.dart';
 part 'chkobba_parts/chkobba_scoreboard.dart';
 part 'chkobba_parts/chkobba_table_parts.dart';
 part 'chkobba_parts/chkobba_round_cards.dart';
+part 'chkobba_parts/chkobba_seat_row.dart';
 
 /// Nom du joueur tant que le profil n'est pas lu, ou s'il est vide (#766).
 const _fallbackPlayerName = 'Joueur';
@@ -421,8 +422,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     final canPlay = !over && game.winner == null && game.turn == Player.player;
     final cardWidth = cardHeight * 0.7;
     final style = GameStyle.current;
-    // La pioche est côté adversaire quand il commence, côté joueur sinon (#745).
-    final deckOnTop = game.starter == Player.opponent;
 
     // Emplacements du tapis : au moins 12, multiple du nombre de colonnes (comme TABLE_MIN_SLOTS).
     // Chaque carte garde son emplacement : les autres ne glissent pas après un jeu.
@@ -495,91 +494,41 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                     child: Column(
                       children: [
                         const SizedBox(height: 6),
-                        // Main de l'adversaire : dos des cartes, sauf celle qu'il montre.
-                        KeyedSubtree(
-                          key: _key('opp-hand'),
-                          child: _Hand(
-                            cards: game.hands[Player.opponent]!,
-                            width: cardWidth * 0.8,
-                            height: cardHeight * 0.8,
-                            builder: (card) => KeyedSubtree(
-                              key: _key('opp:${card.id}'),
-                              child: card.id == revealed
-                                  ? ChkobbaCardFace(card: card, highlight: true)
-                                  : const ChkobbaCardBack(),
+                        // Rangée de l'adversaire : pile et pioche à gauche, main, avatar à droite (#800).
+                        _SeatRow(
+                          corner: corner,
+                          left: _pileLane(
+                            game: game,
+                            owner: Player.opponent,
+                            color: ScobaPalette.redText,
+                            showDeck: game.starter == Player.opponent,
+                            deckAbove: true,
+                          ),
+                          hand: KeyedSubtree(
+                            key: _key('opp-hand'),
+                            child: _Hand(
+                              cards: game.hands[Player.opponent]!,
+                              width: cardWidth * 0.8,
+                              height: cardHeight * 0.8,
+                              builder: (card) => _opponentCard(card, revealed),
                             ),
                           ),
+                          right: _avatarLane(
+                            game: game,
+                            player: Player.opponent,
+                            name: _opponentName,
+                            color: ScobaPalette.redText,
+                          ),
                         ),
+                        // Tapis : toute la hauteur libre entre les deux rangées (#800).
                         Expanded(
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              // Adversaire en haut à droite, joueur en bas à gauche (#766).
-                              Align(
-                                alignment: Alignment.topRight,
-                                child: SizedBox(
-                                  width: corner,
-                                  child: _SidePanel(
-                                    key: _key('panel:opponent'),
-                                    game: game,
-                                    player: Player.opponent,
-                                    name: _opponentName,
-                                    color: ScobaPalette.redText,
-                                    avatarId: _avatarIds[Player.opponent.index],
-                                    wonKey: _key('won:opponent'),
-                                    chkobbaCards:
-                                        _shownChkobbaCards(Player.opponent),
-                                    reaction:
-                                        _controller.reactionOf(Player.opponent),
-                                    opponentSide: true,
-                                  ),
-                                ),
-                              ),
-                              Align(
-                                alignment: Alignment.bottomLeft,
-                                child: SizedBox(
-                                  width: corner,
-                                  child: _SidePanel(
-                                    key: _key('panel:player'),
-                                    game: game,
-                                    player: Player.player,
-                                    name: _playerName,
-                                    color: ScobaPalette.blueText,
-                                    avatarId: _avatarIds[Player.player.index],
-                                    wonKey: _key('won:player'),
-                                    chkobbaCards:
-                                        _shownChkobbaCards(Player.player),
-                                    reaction:
-                                        _controller.reactionOf(Player.player),
-                                    opponentSide: false,
-                                  ),
-                                ),
-                              ),
-                              // Pioche (#766) : du côté opposé à l'avatar du joueur qui commence.
-                              Align(
-                                alignment: deckOnTop
-                                    ? Alignment.topLeft
-                                    : Alignment.bottomRight,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(4),
-                                  child: Semantics(
-                                    label: tf('sDeckLeft', {
-                                      'n': '${game.deck.length}',
-                                    }),
-                                    child: KeyedSubtree(
-                                      key: _key('deck'),
-                                      child: ChkobbaDeckPile(
-                                        count: game.deck.length,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              // Tapis : pleine largeur, réserve verticale pour les deux coins (cartes plus grandes).
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 4,
-                                  vertical: _cornerReserve,
+                                  vertical: 4,
                                 ),
                                 child: Center(child: centre),
                               ),
@@ -616,16 +565,32 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                             ],
                           ),
                         ),
-                        // Main du joueur, plus grande que celle de l'adversaire.
-                        _Hand(
-                          cards: game.hands[Player.player]!,
-                          width: cardWidth,
-                          height: cardHeight,
-                          builder: (card) => ChkobbaCardFace(
-                            key: _key('hand:${card.id}'),
-                            card: card,
-                            onTap:
-                                canPlay ? () => _onPlayerCard(card.id) : null,
+                        // Rangée du joueur : avatar à gauche, main, pile et pioche à droite (#800).
+                        _SeatRow(
+                          corner: corner,
+                          left: _avatarLane(
+                            game: game,
+                            player: Player.player,
+                            name: _playerName,
+                            color: ScobaPalette.blueText,
+                          ),
+                          hand: _Hand(
+                            cards: game.hands[Player.player]!,
+                            width: cardWidth,
+                            height: cardHeight,
+                            builder: (card) => ChkobbaCardFace(
+                              key: _key('hand:${card.id}'),
+                              card: card,
+                              onTap:
+                                  canPlay ? () => _onPlayerCard(card.id) : null,
+                            ),
+                          ),
+                          right: _pileLane(
+                            game: game,
+                            owner: Player.player,
+                            color: ScobaPalette.blueText,
+                            showDeck: game.starter == Player.player,
+                            deckAbove: false,
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -657,12 +622,75 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     );
   }
 
-  /// Hauteur réservée en haut et en bas du tapis pour les coins (avatar, score, pile) (#766).
-  static const double _cornerReserve = 150;
-
   /// Largeur d'un coin latéral (#766) : entre 88 et 100 dp selon l'écran.
   static double _cornerWidth(double screenWidth) =>
       math.min(math.max(screenWidth * 0.24, 88.0), 100.0);
+
+  /// Carte de l'adversaire : dos, sauf celle qu'il montre (#766).
+  Widget _opponentCard(ChkobbaCard card, String? revealedId) {
+    return KeyedSubtree(
+      key: _key('opp:${card.id}'),
+      child: card.id == revealedId
+          ? ChkobbaCardFace(card: card, highlight: true)
+          : const ChkobbaCardBack(),
+    );
+  }
+
+  /// Coin d'avatar (#800) : identité seule, à l'extérieur de la rangée.
+  Widget _avatarLane({
+    required ChkobbaState game,
+    required Player player,
+    required String name,
+    required Color color,
+  }) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: _SidePanel(
+        key: _key('panel:${player.name}'),
+        game: game,
+        player: player,
+        name: name,
+        color: color,
+        avatarId: _avatarIds[player.index],
+        opponentSide: player == Player.opponent,
+        reaction: _controller.reactionOf(player),
+      ),
+    );
+  }
+
+  /// Coin de pile et de pioche (#800), côté opposé aux avatars. La pioche n'est
+  /// là que chez celui qui commence : au-dessus de la pile en haut, dessous en bas.
+  Widget _pileLane({
+    required ChkobbaState game,
+    required Player owner,
+    required Color color,
+    required bool showDeck,
+    required bool deckAbove,
+  }) {
+    final pile = _WonPile(
+      key: _key('won:${owner.name}'),
+      color: color,
+      chkobbaCards: _shownChkobbaCards(owner),
+    );
+    final deck = Semantics(
+      label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
+      child: KeyedSubtree(
+        key: _key('deck'),
+        child: ChkobbaDeckPile(count: game.deck.length),
+      ),
+    );
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showDeck && deckAbove) ...[deck, const SizedBox(height: 6)],
+          pile,
+          if (showDeck && !deckAbove) ...[const SizedBox(height: 6), deck],
+        ],
+      ),
+    );
+  }
 
   /// Cartes de Chkobba sous le tas, une fois arrivées (pas pendant leur vol, #594, #626).
   List<ChkobbaCard> _shownChkobbaCards(Player p) => [

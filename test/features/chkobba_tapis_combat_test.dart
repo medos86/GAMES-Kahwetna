@@ -80,14 +80,15 @@ void main() {
     final avatars = find.byType(TurnAvatar);
     final opp = tester.getCenter(avatars.at(0));
     final me = tester.getCenter(avatars.at(1));
-    expect(me.dx, lessThan(table.left));
-    expect(me.dy, greaterThan(table.center.dy));
-    expect(opp.dx, greaterThan(table.right));
-    expect(opp.dy, lessThan(table.center.dy));
+    // Avatars sur leur rangée (#800) : joueur en bas à gauche, adversaire en haut à droite.
+    expect(me.dx, lessThan(table.center.dx));
+    expect(me.dy, greaterThan(table.bottom));
+    expect(opp.dx, greaterThan(table.center.dx));
+    expect(opp.dy, lessThan(table.top));
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('pile du joueur hors du contour, au-dessus de son avatar', (
+  testWidgets('pile du joueur hors contour, à droite de son avatar (#800)', (
     tester,
   ) async {
     final won = [
@@ -100,11 +101,13 @@ void main() {
     final pile = _piles(tester)[1];
     expect(tester.getRect(pile).overlaps(table), isFalse);
     final me = tester.getCenter(find.byType(TurnAvatar).at(1));
-    expect(tester.getCenter(pile).dy, lessThan(me.dy));
+    expect(tester.getCenter(pile).dx, greaterThan(me.dx));
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('pile adverse hors du contour, sous son avatar', (tester) async {
+  testWidgets('pile adverse hors contour, à gauche de son avatar (#800)', (
+    tester,
+  ) async {
     final won = [
       _card(ChkobbaSuit.deniers, 1),
       _card(ChkobbaSuit.deniers, 4),
@@ -116,7 +119,7 @@ void main() {
     final pile = _piles(tester)[0];
     expect(tester.getRect(pile).overlaps(table), isFalse);
     final opp = tester.getCenter(find.byType(TurnAvatar).at(0));
-    expect(tester.getCenter(pile).dy, greaterThan(opp.dy));
+    expect(tester.getCenter(pile).dx, lessThan(opp.dx));
     expect(tester.takeException(), isNull);
   });
 
