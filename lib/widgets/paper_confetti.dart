@@ -110,7 +110,8 @@ class _PaperConfettiState extends State<PaperConfetti>
 }
 
 class _PaperConfettiPainter extends CustomPainter {
-  _PaperConfettiPainter(this.pieces, this.animation) : super(repaint: animation);
+  _PaperConfettiPainter(this.pieces, this.animation)
+    : super(repaint: animation);
 
   final List<PaperPiece> pieces;
   final Animation<double> animation;
