@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/reactions/reaction_mood.dart';
+import 'package:kahwetne/core/services/card_animations.dart';
 import 'package:kahwetne/widgets/reaction_sticker.dart';
 
 Widget host(Widget child, {bool disableAnimations = false}) => MediaQuery(
@@ -47,6 +48,8 @@ void main() {
   });
 
   testWidgets('apparition : petit puis taille pleine (#788)', (tester) async {
+    cardAnimations.value = true;
+    addTearDown(() => cardAnimations.value = false);
     await tester.pumpWidget(
       host(const ReactionSticker(mood: ReactionMood.angry)),
     );
