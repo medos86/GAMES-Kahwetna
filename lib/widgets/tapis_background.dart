@@ -16,7 +16,7 @@ class TapisBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       key: const ValueKey('tapis-background'),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: color,
         image: DecorationImage(
           image: AssetImage(motifAsset),
