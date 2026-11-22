@@ -266,8 +266,7 @@ class _SeatInfo extends StatelessWidget {
               padding: const EdgeInsets.only(top: 4),
               child: Container(
                 key: ValueKey('contract:${seat.name}'),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: _goldColor,
                   borderRadius: BorderRadius.circular(8),

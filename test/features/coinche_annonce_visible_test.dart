@@ -4,7 +4,7 @@ import 'package:kahwetne/game/coinche.dart';
 
 /// Issue #733 : l'annonce reste visible sur la place de l'annonceur pendant le jeu.
 void main() {
-  test('libellé : valeur, couleur et équipe', () {
+  test('libellé : valeur, couleur, équipe', () {
     const c = Contract(
       seat: Seat.north,
       value: 130,
