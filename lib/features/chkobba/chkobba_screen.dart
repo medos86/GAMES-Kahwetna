@@ -586,7 +586,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(top: 22),
+                            padding: const EdgeInsets.only(top: 30),
                             child: _SidePanel(
                               key: _key('panel:player'),
                               game: game,

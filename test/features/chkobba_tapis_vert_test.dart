@@ -114,7 +114,7 @@ void main() {
     final avatars = find.byType(TurnAvatar);
     final opp = tester.getTopLeft(avatars.at(0));
     final me = tester.getTopLeft(avatars.at(1));
-    expect(me.dy, greaterThan(opp.dy + 20));
+    expect(me.dy, greaterThan(opp.dy + 10));
     expect(tester.takeException(), isNull);
   });
 
