@@ -88,6 +88,7 @@ class _Table extends StatelessWidget {
           Center(
             child: _TrickArea(
               trick: round.trick,
+              trumpMode: round.contract?.mode,
               cardWidth: cardWidth,
               keyOf: keyOf,
               landing: landing,
@@ -324,12 +325,16 @@ String _callText(BidAction call) => switch (call) {
 class _TrickArea extends StatelessWidget {
   const _TrickArea({
     required this.trick,
+    this.trumpMode,
     required this.cardWidth,
     required this.keyOf,
     required this.landing,
   });
 
   final List<Play> trick;
+
+  /// Couleur d'atout du contrat (#734), null tant qu'il n'y en a pas.
+  final CoincheSuit? trumpMode;
   final double cardWidth;
   final GlobalKey Function(String name) keyOf;
   final Set<String> landing;
@@ -349,7 +354,11 @@ class _TrickArea extends StatelessWidget {
                 key: keyOf('trick:${play.card.id}'),
                 child: MaskedSlot(
                   hidden: landing.contains(play.card.id),
-                  child: CoincheCardView(width: cardWidth, card: play.card),
+                  child: CoincheCardView(
+                    width: cardWidth,
+                    card: play.card,
+                    trump: play.card.suit == trumpMode,
+                  ),
                 ),
               ),
             ),

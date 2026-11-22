@@ -73,6 +73,13 @@ String coincheCardAsset(CoincheCard card) {
   return '$ramiCardsFolder/${rank}_of_$suit.webp';
 }
 
+/// Couleur dorée des cartes d'atout (#734).
+const Color coincheTrumpGold = Color(0xFFFFD700);
+
+/// Vrai si la carte est de la couleur d'atout du contrat en cours (#734).
+bool coincheIsTrump(CoincheCard card, Contract? contract) =>
+    contract != null && card.suit == contract.mode;
+
 /// Carte Coinche : face (rang + couleur) ou dos. Hauteur = 1,4 × largeur, comme le source.
 class CoincheCardView extends StatelessWidget {
   const CoincheCardView({
@@ -81,6 +88,7 @@ class CoincheCardView extends StatelessWidget {
     this.card,
     this.onTap,
     this.dimmed = false,
+    this.trump = false,
   });
 
   final double width;
@@ -91,6 +99,9 @@ class CoincheCardView extends StatelessWidget {
 
   /// Carte non jouable pendant le tour du joueur.
   final bool dimmed;
+
+  /// Carte d'atout : bordure et reflet dorés (#734).
+  final bool trump;
 
   @override
   Widget build(BuildContext context) {
@@ -112,14 +123,31 @@ class CoincheCardView extends StatelessWidget {
   }
 
   Widget _front(CoincheCard c, double width, double height) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(width * 0.12),
+    final radius = BorderRadius.circular(width * 0.12);
+    final image = ClipRRect(
+      borderRadius: radius,
       child: Image.asset(
         coincheCardAsset(c),
         fit: BoxFit.fill,
         gaplessPlayback: true,
         excludeFromSemantics: true,
       ),
+    );
+    if (!trump) return image;
+    return DecoratedBox(
+      key: const ValueKey('trump-gold'),
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        border: Border.all(color: coincheTrumpGold, width: width * 0.05),
+        boxShadow: [
+          BoxShadow(
+            color: coincheTrumpGold.withValues(alpha: 0.6),
+            blurRadius: width * 0.25,
+            spreadRadius: width * 0.02,
+          ),
+        ],
+      ),
+      child: image,
     );
   }
 
