@@ -7,6 +7,6 @@ abstract final class LudoBackdropPalette {
   static const Color middle = Color(0xFF1676D2);
   static const Color bottom = Color(0xFF2A8CE6);
 
-  /// Teinte du masque : blanc translucide, le trait de l'image ressort sur le bleu.
-  static const Color maskTint = Color(0x33FFFFFF);
+  /// Teinte du masque : blanc translucide (25 %), traits épaissis dans l'image pour rester lisibles sur mobile (#746).
+  static const Color maskTint = Color(0x40FFFFFF);
 }
