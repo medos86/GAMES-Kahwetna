@@ -25,55 +25,64 @@ class ChkobbaTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final rows = math.max(1, (cards.length / columns).ceil());
-    // Ratio du tapis : colonnes × 5 / lignes × 7, comme le source React.
-    final ratio = (columns * 5) / (rows * 7);
     final tableEmpty = cards.whereType<Widget>().isEmpty;
 
-    // Pas de cadre intérieur : seul le feutre vert reste, les cartes occupent presque toute la place.
-    return AspectRatio(
-      aspectRatio: ratio,
-      child: ClipRRect(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(color: ScobaPalette.tapisVert),
+    // Tapis pleine largeur (#801) : il remplit la place qu'on lui donne, sans ratio imposé.
+    // Pas de cadre intérieur : seul le feutre vert reste.
+    return ClipRRect(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(color: ScobaPalette.tapisVert),
+          ),
+          CustomPaint(painter: _DotsPainter()),
+          Padding(
+            padding: const EdgeInsets.all(2),
+            child: LayoutBuilder(
+              builder: (context, c) {
+                final cellW = c.maxWidth / columns;
+                final cellH = c.maxHeight / rows;
+                return Stack(
+                  children: [
+                    for (var i = 0; i < cards.length; i++)
+                      if (cards[i] != null)
+                        Positioned(
+                          left: (i % columns) * cellW + 1,
+                          top: (i ~/ columns) * cellH + 1,
+                          width: cellW - 2,
+                          height: cellH - 2,
+                          child: _CardInCell(child: cards[i]!),
+                        ),
+                  ],
+                );
+              },
             ),
-            CustomPaint(painter: _DotsPainter()),
-            Padding(
-              padding: const EdgeInsets.all(2),
-              child: LayoutBuilder(
-                builder: (context, c) {
-                  final cellW = c.maxWidth / columns;
-                  final cellH = c.maxHeight / rows;
-                  return Stack(
-                    children: [
-                      for (var i = 0; i < cards.length; i++)
-                        if (cards[i] != null)
-                          Positioned(
-                            left: (i % columns) * cellW + 1,
-                            top: (i ~/ columns) * cellH + 1,
-                            width: cellW - 2,
-                            height: cellH - 2,
-                            child: cards[i]!,
-                          ),
-                    ],
-                  );
-                },
+          ),
+          if (tableEmpty && emptyLabel != null)
+            Center(
+              child: ChkobbaBanner(
+                text: emptyLabel!,
+                colors: GameStyle.current.chkobbaGradient,
+                angle: -0.1,
               ),
             ),
-            if (tableEmpty && emptyLabel != null)
-              Center(
-                child: ChkobbaBanner(
-                  text: emptyLabel!,
-                  colors: GameStyle.current.chkobbaGradient,
-                  angle: -0.1,
-                ),
-              ),
-          ],
-        ),
+        ],
       ),
     );
+  }
+}
+
+/// Carte posée dans sa case : proportions 5/7 conservées, centrée (#801).
+/// Le `Center` desserre les contraintes serrées de la case, sinon la carte serait déformée.
+class _CardInCell extends StatelessWidget {
+  const _CardInCell({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(child: AspectRatio(aspectRatio: 5 / 7, child: child));
   }
 }
 
