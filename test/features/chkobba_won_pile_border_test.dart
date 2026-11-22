@@ -55,7 +55,7 @@ void main() {
     );
     await tester.pump();
 
-    // Le tas est le Container de 48 x 36 qui porte le compteur de cartes.
+    // Le tas est le Container de 56 x 44 (#766) qui porte le compteur de cartes.
     final piles = tester
         .widgetList<Container>(find.byType(Container))
         .where((c) => _isPile(tester, c))
@@ -74,5 +74,5 @@ void main() {
 
 bool _isPile(WidgetTester tester, Container c) {
   final size = tester.getSize(find.byWidget(c));
-  return size.width == 48 && size.height == 36;
+  return size.width == 56 && size.height == 44;
 }

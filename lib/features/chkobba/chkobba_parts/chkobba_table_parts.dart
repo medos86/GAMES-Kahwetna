@@ -1,74 +1,57 @@
 part of '../chkobba_screen.dart';
 
-/// Pioche : cartes empilées posées directement sur le tapis (sans cadre carré),
-/// avec le nombre de cartes restantes. Issue #685 : intégrée au tapis.
+/// Pioche (#766) : dos de cartes Chkobba empilés hors du tapis, avec le nombre de cartes restantes.
 class ChkobbaDeckPile extends StatelessWidget {
   const ChkobbaDeckPile({super.key, required this.count});
 
   final int count;
 
+  /// Largeur d'une carte du tas : même dos que les cartes Chkobba.
+  static const double _cardWidth = 38;
+
+  /// Une carte du tas, décalée et tournée pour faire une pile.
+  Widget _back({required double angle, required Offset offset}) {
+    return Transform.translate(
+      offset: offset,
+      child: Transform.rotate(
+        angle: angle,
+        child: const SizedBox(width: _cardWidth, child: ChkobbaCardBack()),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Cartes aux coins arrondis et ombre douce, sans bordure carrée épaisse.
-    Widget pile(Color color) => Container(
-          width: 18,
-          height: 26,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: ScobaPalette.ink, width: 1.5),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x55000000),
-                offset: Offset(0, 2),
-                blurRadius: 3,
-              ),
-            ],
-          ),
-        );
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          width: 46,
-          height: 46,
+          width: _cardWidth + 12,
+          height: _cardWidth * 707 / 480 + 6,
           child: Stack(
             alignment: Alignment.center,
             clipBehavior: Clip.none,
             children: [
-              Transform.translate(
-                offset: const Offset(-4, 0),
-                child: Transform.rotate(
-                  angle: -0.2,
-                  child: pile(ScobaPalette.blue),
-                ),
-              ),
-              Transform.translate(
-                offset: const Offset(4, 0),
-                child: Transform.rotate(
-                  angle: 0.2,
-                  child: pile(ScobaPalette.red),
-                ),
-              ),
-              pile(ScobaPalette.red),
+              _back(angle: -0.12, offset: const Offset(-3, 2)),
+              _back(angle: 0.1, offset: const Offset(3, 0)),
+              _back(angle: 0, offset: Offset.zero),
               Positioned(
-                top: -2,
-                right: -2,
+                top: -4,
+                right: -4,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
+                    horizontal: 5,
                     vertical: 1,
                   ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFFDF5),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black),
+                    border: Border.all(color: Colors.black, width: 2),
                   ),
                   child: Text(
                     '$count',
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 13,
                       fontWeight: FontWeight.w900,
                       color: ScobaPalette.ink,
                     ),
@@ -78,14 +61,7 @@ class ChkobbaDeckPile extends StatelessWidget {
             ],
           ),
         ),
-        Text(
-          t('draw'),
-          style: TextStyle(
-            fontSize: 9,
-            fontWeight: FontWeight.w900,
-            color: ScobaPalette.ink,
-          ),
-        ),
+        Text(t('draw'), style: _comicText(size: 14, fill: ComicPalette.white)),
       ],
     );
   }

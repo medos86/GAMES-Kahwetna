@@ -63,7 +63,7 @@ void main() {
     final piles = tester
         .widgetList<Container>(find.byType(Container))
         .map((c) => tester.getRect(find.byWidget(c)))
-        .where((r) => r.width == 48 && r.height == 36)
+        .where((r) => r.width == 56 && r.height == 44)
         .toList();
     expect(piles, isNotEmpty);
     final top = scoba.top;
