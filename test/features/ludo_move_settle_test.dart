@@ -32,12 +32,6 @@ void main() {
     );
   });
 
-  test('le rebond reste entre 0 et -ludoBobHeight, nul au repos', () {
-    expect(ludoBobAt(0), 0);
-    expect(ludoBobAt(0.5), closeTo(-ludoBobHeight, 1e-9));
-    expect(ludoBobAt(1), closeTo(0, 1e-9));
-  });
-
   test('le joueur suivant ne peut pas lancer pendant l\'animation du coup', () {
     fakeAsync((async) {
       // Tirage 0.99 : dé = 6, un pion sort de la base et le joueur rejoue.

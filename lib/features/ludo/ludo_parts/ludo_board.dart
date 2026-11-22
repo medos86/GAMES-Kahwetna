@@ -303,11 +303,17 @@ class _HopToken extends StatefulWidget {
 }
 
 class _HopTokenState extends State<_HopToken>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   static const _msPerCell = ludoHopMsPerCell;
 
   late final AnimationController _hop =
       AnimationController(vsync: this, duration: Duration.zero);
+
+  // Rebond continu d'un pion jouable (remplace l'ancien contour or, #779).
+  late final AnimationController _bob = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 600),
+  );
 
   // Points du trajet (unités de case), le dernier est la position finale.
   List<({double x, double y})> _path = const [];
@@ -322,6 +328,23 @@ class _HopTokenState extends State<_HopToken>
   bool _victim = false;
   Timer? _victimTimer;
 
+  @override
+  void initState() {
+    super.initState();
+    _syncBob();
+  }
+
+  /// Le rebond ne tourne que tant que le pion est jouable.
+  void _syncBob() {
+    if (widget.clickable) {
+      if (!_bob.isAnimating) _bob.repeat(reverse: true);
+    } else {
+      _bob
+        ..stop()
+        ..value = 0;
+    }
+  }
+
   void _setPath(List<({double x, double y})> points) {
     _path = points;
     _lengths = [0];
@@ -335,6 +358,7 @@ class _HopTokenState extends State<_HopToken>
   @override
   void didUpdateWidget(covariant _HopToken oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _syncBob();
     final before = oldWidget.placed;
     final after = widget.placed;
     final from = before.token.progress;
@@ -394,6 +418,7 @@ class _HopTokenState extends State<_HopToken>
   void dispose() {
     _victimTimer?.cancel();
     _hop.dispose();
+    _bob.dispose();
     super.dispose();
   }
 
@@ -452,12 +477,16 @@ class _HopTokenState extends State<_HopToken>
     final placed = widget.placed;
     // Pion jouable : un peu plus grand, avec halo pulsé.
     final visual = placed.size * widget.u * (widget.clickable ? 1.12 : 1);
+    final reduce = MediaQuery.disableAnimationsOf(context);
     return AnimatedBuilder(
-      animation: _hop,
-      builder: (context, child) => Transform.translate(
-        offset: _offset(),
-        child: Transform.scale(scale: _scale(), child: child),
-      ),
+      animation: Listenable.merge([_hop, _bob]),
+      builder: (context, child) {
+        final bob = reduce ? 0.0 : ludoBobAt(_bob.value) * widget.u;
+        return Transform.translate(
+          offset: _offset() + Offset(0, bob),
+          child: Transform.scale(scale: _scale(), child: child),
+        );
+      },
       child: PulseGlow(
         active: widget.clickable,
         radius: visual / 2,
@@ -472,12 +501,9 @@ class _HopTokenState extends State<_HopToken>
   }
 }
 
-/// Liseré or du pion jouable (remplace le blanc pur, trop criard).
-const Color ludoPawnRim = Color(0xFFFFD653);
-
-/// Couleur du contour : or pour un pion jouable, brun cartoon sinon.
-Color ludoPawnOutlineColor({required bool clickable}) =>
-    clickable ? ludoPawnRim : _brown;
+/// Contour brun cartoon de tous les pions : un pion jouable se signale par son
+/// rebond et son halo, pas par un contour de couleur (#779).
+const Color ludoPawnOutline = _brown;
 
 /// Zone tactile d'un pion : au moins 44 px (issue #23), même si le pion dessiné est plus petit.
 double _tokenHitSize(double visual) => math.max(visual, 44);
@@ -514,8 +540,8 @@ class _TokenButton extends StatelessWidget {
               painter: _PawnPainter(
                 fill: tone.fill,
                 dark: tone.dark,
-                outline: ludoPawnOutlineColor(clickable: clickable),
-                outlineWidth: clickable ? 2.5 : 2,
+                outline: ludoPawnOutline,
+                outlineWidth: 2,
               ),
             ),
           ),
