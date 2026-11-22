@@ -472,6 +472,13 @@ class _HopTokenState extends State<_HopToken>
   }
 }
 
+/// Liseré or du pion jouable (remplace le blanc pur, trop criard).
+const Color ludoPawnRim = Color(0xFFFFD653);
+
+/// Couleur du contour : or pour un pion jouable, brun cartoon sinon.
+Color ludoPawnOutlineColor({required bool clickable}) =>
+    clickable ? ludoPawnRim : _brown;
+
 /// Zone tactile d'un pion : au moins 44 px (issue #23), même si le pion dessiné est plus petit.
 double _tokenHitSize(double visual) => math.max(visual, 44);
 
@@ -507,8 +514,8 @@ class _TokenButton extends StatelessWidget {
               painter: _PawnPainter(
                 fill: tone.fill,
                 dark: tone.dark,
-                outline: clickable ? Colors.white : _brown,
-                outlineWidth: clickable ? 3 : 2,
+                outline: ludoPawnOutlineColor(clickable: clickable),
+                outlineWidth: clickable ? 2.5 : 2,
               ),
             ),
           ),
@@ -547,6 +554,16 @@ class _PawnPainter extends CustomPainter {
       ..close();
     final rect = Rect.fromCircle(center: headCenter, radius: radius);
     canvas.drawShadow(path, _brown, 3, false);
+    if (outline != _brown) {
+      // Contour brun sous le liseré : garde la lisibilité sur tous les fonds.
+      canvas.drawPath(
+        path,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = outlineWidth + 2
+          ..color = _brown,
+      );
+    }
     canvas.drawPath(
       path,
       Paint()
