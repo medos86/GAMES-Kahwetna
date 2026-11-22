@@ -13,7 +13,10 @@ void main() {
   testWidgets('Coinche : trois médaillons 3D, au plus un actif', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: CoincheScreen(difficulty: Difficulty.facile, targetScore: 1000),
+        home: CoincheScreen(
+          difficulty: Difficulty.facile,
+          targetScore: 1000,
+        ),
       ),
     );
     await tester.pump();
