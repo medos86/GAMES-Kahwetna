@@ -177,6 +177,10 @@ class _SeatInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final call = round.phase == CoinchePhase.bidding ? round.calls[seat] : null;
+    // Annonceur (#733) : son contrat reste affiché pendant tout le jeu.
+    final contract =
+        round.phase == CoinchePhase.bidding ? null : round.contract;
+    final announces = contract != null && contract.seat == seat;
     final count = round.hands[seat]!.length;
     final active = round.turn == seat &&
         (round.phase == CoinchePhase.bidding ||
@@ -257,6 +261,27 @@ class _SeatInfo extends StatelessWidget {
                 ),
               ),
             ),
+          if (announces)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Container(
+                key: ValueKey('contract:${seat.name}'),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: _goldColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: _frameColor, width: 2),
+                ),
+                child: Text(
+                  coincheContractLabel(contract),
+                  style: const TextStyle(
+                    color: _inkColor,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
           if (count > 0)
             Padding(
               padding: const EdgeInsets.only(top: 4),
@@ -279,6 +304,13 @@ class _SeatInfo extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Libellé du contrat sur la place de l'annonceur (#733).
+String coincheContractLabel(Contract contract) {
+  final mult = contract.multiplier > 1 ? ' ×${contract.multiplier}' : '';
+  final team = teamOf(contract.seat) == Team.ns ? 'Nous' : 'Eux';
+  return '${contract.value} ${coincheSuitSymbol(contract.mode)}$mult · $team';
 }
 
 String _callText(BidAction call) => switch (call) {
