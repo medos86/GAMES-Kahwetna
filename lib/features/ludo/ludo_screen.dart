@@ -26,6 +26,8 @@ import '../../core/theme/comic_palette.dart';
 import '../../widgets/dialog_button.dart';
 import '../../widgets/round_result_panel.dart';
 import '../../widgets/turn_avatar.dart';
+import '../../widgets/difficulty_chip.dart';
+import '../../widgets/trophy_badge.dart';
 
 part 'ludo_parts/ludo_header_players.dart';
 part 'ludo_parts/ludo_die.dart';
@@ -195,7 +197,7 @@ class _LudoScreenState extends State<LudoScreen> {
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               child: Column(
                 children: [
-                  _Header(controller: c),
+                  _Header(controller: c, difficulty: widget.difficulty),
                   const SizedBox(height: 8),
                   Expanded(
                     child: landscapeShort
