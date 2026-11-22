@@ -20,9 +20,12 @@ List<int> _ludoWinners(LudoController controller) {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.controller});
+  const _Header({required this.controller, required this.difficulty});
 
   final LudoController controller;
+
+  /// Niveau de la partie : teinte la coupe (4 pions à faire arriver).
+  final Difficulty difficulty;
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +52,12 @@ class _Header extends StatelessWidget {
           ],
         ),
       ),
-      // Équilibre la pastille Menu : le centre reste au milieu de l'écran.
-      trailing: const SizedBox(width: 48),
+      // Coupe teintée selon la difficulté (4 pions à faire arriver).
+      trailing: TrophyBadge(
+        target: 4,
+        size: 36,
+        tint: difficultyTint(difficulty),
+      ),
     );
   }
 }
