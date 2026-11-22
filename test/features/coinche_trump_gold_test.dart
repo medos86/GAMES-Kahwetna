@@ -28,7 +28,7 @@ void main() {
     expect(coincheIsTrump(heart, null), isFalse);
   });
 
-  testWidgets('carte atout : bordure dorée', (tester) async {
+  testWidgets('carte atout : fond teinté', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
@@ -36,10 +36,10 @@ void main() {
         ),
       ),
     );
-    expect(find.byKey(const ValueKey('trump-gold')), findsOneWidget);
+    expect(find.byKey(const ValueKey('trump-tint')), findsOneWidget);
   });
 
-  testWidgets('carte non atout : pas de dorure', (tester) async {
+  testWidgets('carte non atout : pas de teinte', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
@@ -47,6 +47,6 @@ void main() {
         ),
       ),
     );
-    expect(find.byKey(const ValueKey('trump-gold')), findsNothing);
+    expect(find.byKey(const ValueKey('trump-tint')), findsNothing);
   });
 }
