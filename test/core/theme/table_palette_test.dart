@@ -41,8 +41,8 @@ void main() {
     );
   });
 
-  test('le tapis de Chkobba est bleu, sans vert (#705)', () {
-    expect(ScobaPalette.tapisBleu, ComicPalette.tunisBlue);
+  test('le tapis de Chkobba est bleu BD, sans vert (#705, #752)', () {
+    expect(ScobaPalette.tapisBleu.b, greaterThan(ScobaPalette.tapisBleu.r));
   });
 
   test('plus de couleur de table d\'origine écrite en dur', () {

@@ -9,11 +9,11 @@ abstract final class ScobaPalette {
   static const Color felt = Color(0xFF56CCF2);
   static const Color feltDeep = Color(0xFF2F9BD6);
 
-  /// Tapis de Chkobba : bleu tunisien (#705, remplace le vert #393).
-  static const Color tapisBleu = ComicPalette.tunisBlue;
+  /// Fond bleu BD de la Chkobba (#752) : bleu vif de dessin animé, plus clair que le bleu tunisien.
+  static const Color tapisBleu = Color(0xFF1E9BFF);
 
-  /// Feutre vert du tapis de Chkobba (#745) : couvre cartes, avatars et scores.
-  static const Color tapisVert = Color(0xFF1E7D45);
+  /// Feutre vert BD du tapis de Chkobba (#752) : vert vif de dessin animé, contour encre.
+  static const Color tapisVert = Color(0xFF2FBF5B);
 
   /// Fond des panneaux (cartes de manche, choix de prise).
   static const Color panel = ComicPalette.paper;

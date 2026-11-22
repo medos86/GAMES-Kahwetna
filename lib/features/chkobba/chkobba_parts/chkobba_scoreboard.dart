@@ -20,6 +20,7 @@ class _SidePanel extends StatelessWidget {
     required this.wonKey,
     required this.wonCount,
     required this.chkobbaCards,
+    this.horizontal = false,
   });
 
   final ChkobbaState game;
@@ -33,11 +34,85 @@ class _SidePanel extends StatelessWidget {
   final int wonCount;
   final List<ChkobbaCard> chkobbaCards;
 
+  /// Panneau en ligne (#752) : avatar, score et nom côte à côte, pile à droite, en haut ou en bas du tapis.
+  final bool horizontal;
+
   @override
   Widget build(BuildContext context) {
     final finished = game.winner != null;
     final winners = game.winner == null ? <int>[] : [game.winner!.index];
     final score = game.scores[player]!;
+    final avatar = TurnAvatar(
+      tone: color,
+      active: game.winner == null && game.turn == player,
+      avatarId: avatarId,
+      state: gameAvatarState(
+        seat: player.index,
+        finished: finished,
+        winners: winners,
+      ),
+      semanticLabel: name,
+      baseSize: _sideAvatarSize,
+      activeSize: _sideAvatarActiveSize,
+    );
+    final scorePill = Container(
+      width: 40,
+      height: 30,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: ComicPalette.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color, width: 2),
+      ),
+      child: Text(
+        '$score',
+        style: TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w900,
+          color: color,
+        ),
+      ),
+    );
+    final nameLabel = Text(
+      name.toUpperCase(),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w900,
+        color: color,
+        letterSpacing: 0.5,
+      ),
+    );
+    final pile = _WonPile(
+      key: wonKey,
+      count: wonCount,
+      color: color,
+      chkobbaCards: chkobbaCards,
+    );
+
+    if (horizontal) {
+      // Une ligne : médaillon, score et nom, puis la pile (#752).
+      return Semantics(
+        container: true,
+        label: '$name $score',
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            avatar,
+            const SizedBox(width: 8),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [scorePill, const SizedBox(height: 2), nameLabel],
+            ),
+            const SizedBox(width: 12),
+            pile,
+          ],
+        ),
+      );
+    }
+
     return SizedBox(
       width: _sidePanelWidth,
       child: Semantics(
@@ -46,57 +121,13 @@ class _SidePanel extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TurnAvatar(
-              tone: color,
-              active: game.winner == null && game.turn == player,
-              avatarId: avatarId,
-              state: gameAvatarState(
-                seat: player.index,
-                finished: finished,
-                winners: winners,
-              ),
-              semanticLabel: name,
-              baseSize: _sideAvatarSize,
-              activeSize: _sideAvatarActiveSize,
-            ),
+            avatar,
             const SizedBox(height: 4),
-            Container(
-              width: 40,
-              height: 30,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: ComicPalette.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: color, width: 2),
-              ),
-              child: Text(
-                '$score',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w900,
-                  color: color,
-                ),
-              ),
-            ),
+            scorePill,
             const SizedBox(height: 2),
-            Text(
-              name.toUpperCase(),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-                color: color,
-                letterSpacing: 0.5,
-              ),
-            ),
+            nameLabel,
             const SizedBox(height: 6),
-            _WonPile(
-              key: wonKey,
-              count: wonCount,
-              color: color,
-              chkobbaCards: chkobbaCards,
-            ),
+            pile,
           ],
         ),
       ),
