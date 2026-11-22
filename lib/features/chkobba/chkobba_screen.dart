@@ -6,8 +6,10 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/avatars/avatar_catalog.dart';
 import '../../core/avatars/game_avatars.dart';
+import '../../core/reactions/reaction_mood.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/interstitial_service.dart';
+import '../../widgets/reaction_sticker.dart';
 import '../../widgets/turn_avatar.dart';
 import '../../widgets/tapis_background.dart';
 import '../../core/i18n/app_language.dart';
@@ -528,6 +530,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                                     wonCount: _shownWon(Player.opponent),
                                     chkobbaCards:
                                         _shownChkobbaCards(Player.opponent),
+                                    reaction:
+                                        _controller.reactionOf(Player.opponent),
                                     opponentSide: true,
                                   ),
                                 ),
@@ -547,6 +551,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                                     wonCount: _shownWon(Player.player),
                                     chkobbaCards:
                                         _shownChkobbaCards(Player.player),
+                                    reaction:
+                                        _controller.reactionOf(Player.player),
                                     opponentSide: false,
                                   ),
                                 ),

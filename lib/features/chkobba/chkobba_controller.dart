@@ -3,7 +3,9 @@ import '../../core/services/persistent_game_controller.dart';
 import 'dart:async';
 
 import '../../core/audio/sounds.dart';
+import '../../core/reactions/reaction_mood.dart';
 import '../../game/chkobba.dart';
+import '../../game/chkobba_reactions.dart';
 import '../../game/common.dart';
 
 /// Choix de capture en attente quand une carte peut prendre plusieurs combinaisons.
@@ -75,6 +77,14 @@ class ChkobbaController extends PersistentGameController {
 
   Timer? _timer;
   Timer? _hayaTimer;
+
+  /// Stickers de réaction affichés près des avatars (#761).
+  static const reactionDuration = Duration(milliseconds: 1200);
+  Timer? _reactionTimer;
+  Map<Player, ReactionMood> _reactions = const {};
+
+  /// Humeur à afficher près de l'avatar de [player], ou null.
+  ReactionMood? reactionOf(Player player) => _reactions[player];
 
   ChkobbaState get game => _game;
 
@@ -209,8 +219,19 @@ class ChkobbaController extends PersistentGameController {
         notifyListeners();
       });
     }
+    _showReactions(chkobbaReactions(chkobba: chkobba, haya: haya));
     if (sfx != null) Sounds.play(sfx);
     _update();
+  }
+
+  void _showReactions(Map<Player, ReactionMood> moods) {
+    if (moods.isEmpty) return;
+    _reactions = moods;
+    _reactionTimer?.cancel();
+    _reactionTimer = Timer(reactionDuration, () {
+      _reactions = const {};
+      notifyListeners();
+    });
   }
 
   /// Notifie l'interface puis programme la prochaine étape automatique (équivalent des useEffect du source).
@@ -299,6 +320,7 @@ class ChkobbaController extends PersistentGameController {
     _timer?.cancel();
     _hayaTimer?.cancel();
     _chkobbaTimer?.cancel();
+    _reactionTimer?.cancel();
     super.dispose();
   }
 }
