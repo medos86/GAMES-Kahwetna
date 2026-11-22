@@ -20,7 +20,7 @@ void main() {
 
   tearDown(() => cardAnimations.value = false);
 
-  testWidgets('le compteur attend l\'arrivée des cartes au tas', (
+  testWidgets('les cartes gagnées arrivent au tas sans compteur (#354)', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844) * 3;
@@ -72,10 +72,10 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.text(twoCards), findsNothing);
 
-    // Après l'arrivée au tas, il passe à 2.
+    // Après l'arrivée au tas, le nombre n'est pas affiché (compteur retiré du tas).
     await tester.pump(const Duration(seconds: 2));
     expect(tester.takeException(), isNull);
-    expect(find.text(twoCards), findsOneWidget);
+    expect(find.text(twoCards), findsNothing);
 
     await tester.pumpWidget(const SizedBox());
     await tester.pump();

@@ -6,9 +6,7 @@ import '../../core/theme/game_style.dart';
 import '../../core/theme/scoba_palette.dart';
 import '../../widgets/comic/action_burst.dart';
 
-const double _zelligeBand = 6;
-
-/// Tapis de Chkobba (#745) : feutre vert avec cadre BD, bordure zellige (si activée), cartes en grille.
+/// Tapis de Chkobba (#745) : feutre vert sans cadre intérieur (#766 retiré), cartes en grille.
 /// `cards` contient un élément par emplacement ; null = emplacement vide.
 class ChkobbaTable extends StatelessWidget {
   const ChkobbaTable({
@@ -26,70 +24,53 @@ class ChkobbaTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = GameStyle.current;
     final rows = math.max(1, (cards.length / columns).ceil());
     // Ratio du tapis : colonnes × 5 / lignes × 7, comme le source React.
     final ratio = (columns * 5) / (rows * 7);
     final tableEmpty = cards.whereType<Widget>().isEmpty;
-    final inset = style.showZellige ? _zelligeBand + 8 : 10.0;
 
+    // Pas de cadre intérieur : seul le feutre vert reste, les cartes occupent presque toute la place.
     return AspectRatio(
       aspectRatio: ratio,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: style.frame,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: style.outline, width: 3),
-          boxShadow: [
-            BoxShadow(color: style.outline, offset: const Offset(0, 8)),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(6),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                DecoratedBox(
-                  decoration: BoxDecoration(color: ScobaPalette.tapisVert),
-                ),
-                CustomPaint(painter: _DotsPainter()),
-                if (style.showZellige)
-                  CustomPaint(painter: _ComicBorderPainter(style)),
-                Padding(
-                  padding: EdgeInsets.all(inset),
-                  child: LayoutBuilder(
-                    builder: (context, c) {
-                      final cellW = c.maxWidth / columns;
-                      final cellH = c.maxHeight / rows;
-                      return Stack(
-                        children: [
-                          for (var i = 0; i < cards.length; i++)
-                            if (cards[i] != null)
-                              Positioned(
-                                left: (i % columns) * cellW + 3,
-                                top: (i ~/ columns) * cellH + 3,
-                                width: cellW - 6,
-                                height: cellH - 6,
-                                child: cards[i]!,
-                              ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-                if (tableEmpty && emptyLabel != null)
-                  Center(
-                    child: ChkobbaBanner(
-                      text: emptyLabel!,
-                      colors: style.chkobbaGradient,
-                      angle: -0.1,
-                    ),
-                  ),
-              ],
+      child: ClipRRect(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(color: ScobaPalette.tapisVert),
             ),
-          ),
+            CustomPaint(painter: _DotsPainter()),
+            Padding(
+              padding: const EdgeInsets.all(2),
+              child: LayoutBuilder(
+                builder: (context, c) {
+                  final cellW = c.maxWidth / columns;
+                  final cellH = c.maxHeight / rows;
+                  return Stack(
+                    children: [
+                      for (var i = 0; i < cards.length; i++)
+                        if (cards[i] != null)
+                          Positioned(
+                            left: (i % columns) * cellW + 1,
+                            top: (i ~/ columns) * cellH + 1,
+                            width: cellW - 2,
+                            height: cellH - 2,
+                            child: cards[i]!,
+                          ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            if (tableEmpty && emptyLabel != null)
+              Center(
+                child: ChkobbaBanner(
+                  text: emptyLabel!,
+                  colors: GameStyle.current.chkobbaGradient,
+                  angle: -0.1,
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -173,43 +154,4 @@ class _DotsPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-/// Bordure fine du tapis : bande étroite avec une trame de points très légère.
-class _ComicBorderPainter extends CustomPainter {
-  const _ComicBorderPainter(this.style);
-
-  final GameStyle style;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const b = _zelligeBand;
-    final band = Paint()..color = style.zellige;
-    final dot = Paint()..color = style.outline.withValues(alpha: 0.33);
-    final outline = Paint()
-      ..color = style.outline
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    final rects = [
-      Rect.fromLTWH(0, 0, size.width, b),
-      Rect.fromLTWH(0, size.height - b, size.width, b),
-      Rect.fromLTWH(0, 0, b, size.height),
-      Rect.fromLTWH(size.width - b, 0, b, size.height),
-    ];
-    for (final r in rects) {
-      canvas.drawRect(r, band);
-      // Trame de points (halftone BD).
-      for (double y = r.top + 1.5; y < r.bottom; y += 3) {
-        for (double x = r.left + 1.5; x < r.right; x += 3) {
-          canvas.drawCircle(Offset(x, y), 0.5, dot);
-        }
-      }
-      canvas.drawRect(r, outline..strokeWidth = 1.5);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _ComicBorderPainter oldDelegate) =>
-      oldDelegate.style != style;
 }

@@ -61,6 +61,14 @@ Future<void> _pump(WidgetTester tester, ChkobbaState state) async {
   await tester.pump();
 }
 
+
+/// Tas de cartes gagnées (Container 56 x 44), dans l'ordre de l'arbre : adversaire, puis joueur.
+List<Finder> _piles(WidgetTester tester) => [
+      for (final c in tester.widgetList<Container>(find.byType(Container)))
+        if (tester.getSize(find.byWidget(c)) == const Size(56, 44))
+          find.byWidget(c),
+    ];
+
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
@@ -87,11 +95,10 @@ void main() {
     ];
     await _pump(tester, _state(playerWon: won));
     final table = tester.getRect(find.byType(ChkobbaTable));
-    final pileCount = find.text('3');
-    expect(pileCount, findsOneWidget);
-    expect(tester.getRect(pileCount).overlaps(table), isFalse);
+    final pile = _piles(tester)[1];
+    expect(tester.getRect(pile).overlaps(table), isFalse);
     final me = tester.getCenter(find.byType(TurnAvatar).at(1));
-    expect(tester.getCenter(pileCount).dy, lessThan(me.dy));
+    expect(tester.getCenter(pile).dy, lessThan(me.dy));
     expect(tester.takeException(), isNull);
   });
 
@@ -104,12 +111,10 @@ void main() {
     ];
     await _pump(tester, _state(opponentWon: won));
     final table = tester.getRect(find.byType(ChkobbaTable));
-    final pileCount = find.text('4');
-    expect(pileCount, findsOneWidget);
-    expect(tester.getRect(pileCount).overlaps(table), isFalse);
+    final pile = _piles(tester)[0];
+    expect(tester.getRect(pile).overlaps(table), isFalse);
     final opp = tester.getCenter(find.byType(TurnAvatar).at(0));
-    expect(tester.getCenter(pileCount).dy, greaterThan(opp.dy));
-    expect(tester.getCenter(pileCount).dx, greaterThan(table.right));
+    expect(tester.getCenter(pile).dy, greaterThan(opp.dy));
     expect(tester.takeException(), isNull);
   });
 

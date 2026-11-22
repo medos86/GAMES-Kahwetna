@@ -61,7 +61,6 @@ class ChkobbaDeckPile extends StatelessWidget {
             ],
           ),
         ),
-        Text(t('draw'), style: _comicText(size: 14, fill: ComicPalette.white)),
       ],
     );
   }

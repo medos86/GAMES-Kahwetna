@@ -114,10 +114,14 @@ class ChkobbaCardBack extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: Image.asset(
-            cardBackAsset,
-            fit: BoxFit.fill,
-            gaplessPlayback: true,
+          // Seule une partie centrale du dos est affichée (zoom) : le motif n'est plus écrasé.
+          child: Transform.scale(
+            scale: 2,
+            child: Image.asset(
+              cardBackAsset,
+              fit: BoxFit.cover,
+              gaplessPlayback: true,
+            ),
           ),
         ),
       ),
