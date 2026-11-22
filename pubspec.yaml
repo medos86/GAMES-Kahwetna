@@ -32,6 +32,7 @@ flutter:
     - assets/images/cards_rami/
     - assets/images/game_bg/
     - assets/images/ludo/
+    - assets/images/reactions/
     - assets/images/tapis/
     - assets/images/avatars/neutral/
     - assets/images/avatars/happy/

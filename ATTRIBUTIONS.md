@@ -26,3 +26,5 @@
 ## Non repris du React
 
 - Les composants shadcn/ui (licence MIT) ne sont pas utilisés dans le Flutter.
+
+- **Stickers de réaction** (`assets/images/reactions/*.png`, 9 bouches BD avec onomatopées) : découpés depuis une image fournie par le porteur du projet (#758). Origine et licence de l'image source à confirmer avant publication.
