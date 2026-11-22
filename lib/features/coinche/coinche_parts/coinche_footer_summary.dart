@@ -25,6 +25,7 @@ class _HandFooter extends StatelessWidget {
           width: cardWidth,
           card: card,
           dimmed: dimmed && !playable,
+          trump: coincheIsTrump(card, controller.round.contract),
           onTap: dimmed && playable ? play : null,
         ),
       ),
