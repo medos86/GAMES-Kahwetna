@@ -8,7 +8,7 @@ import '../../widgets/comic/action_burst.dart';
 
 const double _zelligeBand = 6;
 
-/// Tapis de Chkobba : cadre, feutre, coins noirs, bordure zellige (si activée), cartes en grille.
+/// Tapis de Chkobba (#745) : feutre vert avec cadre BD, bordure zellige (si activée), cartes en grille.
 /// `cards` contient un élément par emplacement ; null = emplacement vide.
 class ChkobbaTable extends StatelessWidget {
   const ChkobbaTable({
@@ -52,32 +52,11 @@ class ChkobbaTable extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 DecoratedBox(
-                  decoration: BoxDecoration(color: ScobaPalette.tapisBleu),
+                  decoration: BoxDecoration(color: ScobaPalette.tapisVert),
                 ),
                 CustomPaint(painter: _DotsPainter()),
                 if (style.showZellige)
                   CustomPaint(painter: _ComicBorderPainter(style)),
-                // Coins noirs épais, comme les décorations du source React.
-                const Positioned(
-                  left: 8,
-                  top: 8,
-                  child: _Corner(top: true, left: true),
-                ),
-                const Positioned(
-                  right: 8,
-                  top: 8,
-                  child: _Corner(top: true, left: false),
-                ),
-                const Positioned(
-                  left: 8,
-                  bottom: 8,
-                  child: _Corner(top: false, left: true),
-                ),
-                const Positioned(
-                  right: 8,
-                  bottom: 8,
-                  child: _Corner(top: false, left: false),
-                ),
                 Padding(
                   padding: EdgeInsets.all(inset),
                   child: LayoutBuilder(
@@ -174,31 +153,6 @@ class ChkobbaBanner extends StatelessWidget {
             ),
             Text(text, style: base.copyWith(color: Colors.white)),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Coin décoratif : deux bords noirs épais formant un angle.
-class _Corner extends StatelessWidget {
-  const _Corner({required this.top, required this.left});
-
-  final bool top;
-  final bool left;
-
-  @override
-  Widget build(BuildContext context) {
-    const side = BorderSide(color: Colors.black, width: 4);
-    return Container(
-      width: 26,
-      height: 26,
-      decoration: BoxDecoration(
-        border: Border(
-          top: top ? side : BorderSide.none,
-          bottom: top ? BorderSide.none : side,
-          left: left ? side : BorderSide.none,
-          right: left ? BorderSide.none : side,
         ),
       ),
     );

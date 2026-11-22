@@ -146,12 +146,16 @@ class _WonPile extends StatelessWidget {
             Center(
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: ComicPalette.ink,
-                  borderRadius: BorderRadius.circular(6),
+                  color: ScobaPalette.yellow,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.black, width: 2.5),
+                  boxShadow: const [
+                    BoxShadow(color: Colors.black, offset: Offset(0, 2)),
+                  ],
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
+                    horizontal: 7,
                     vertical: 1,
                   ),
                   child: Text(
@@ -159,7 +163,7 @@ class _WonPile extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
-                      color: ComicPalette.white,
+                      color: ComicPalette.ink,
                     ),
                   ),
                 ),
