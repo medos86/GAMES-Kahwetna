@@ -9,6 +9,7 @@ import '../../core/avatars/avatar_catalog.dart';
 import '../../core/avatars/game_avatars.dart';
 import '../../core/layout/device_metrics.dart';
 import '../../game/coinche.dart';
+import 'coinche_contract_label.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/theme/game_style.dart';
 import '../menu/menu_models.dart';
