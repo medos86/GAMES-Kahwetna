@@ -16,6 +16,8 @@ void main() {
     );
 
     expect(find.text('12'), findsOneWidget);
+    // Plus de libellé « PIOCHE » sous la pioche.
+    expect(find.text('PIOCHE'), findsNothing);
     expect(find.byIcon(Icons.layers), findsNothing);
     expect(find.byType(Icon), findsNothing);
     expect(tester.takeException(), isNull);

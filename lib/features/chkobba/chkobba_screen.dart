@@ -527,7 +527,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                                     color: ScobaPalette.redText,
                                     avatarId: _avatarIds[Player.opponent.index],
                                     wonKey: _key('won:opponent'),
-                                    wonCount: _shownWon(Player.opponent),
                                     chkobbaCards:
                                         _shownChkobbaCards(Player.opponent),
                                     reaction:
@@ -548,7 +547,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                                     color: ScobaPalette.blueText,
                                     avatarId: _avatarIds[Player.player.index],
                                     wonKey: _key('won:player'),
-                                    wonCount: _shownWon(Player.player),
                                     chkobbaCards:
                                         _shownChkobbaCards(Player.player),
                                     reaction:
@@ -577,10 +575,11 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                                   ),
                                 ),
                               ),
-                              // Tapis entre les deux coins.
+                              // Tapis : pleine largeur, réserve verticale pour les deux coins (cartes plus grandes).
                               Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: corner,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                  vertical: _cornerReserve,
                                 ),
                                 child: Center(child: centre),
                               ),
@@ -658,13 +657,12 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     );
   }
 
+  /// Hauteur réservée en haut et en bas du tapis pour les coins (avatar, score, pile) (#766).
+  static const double _cornerReserve = 150;
+
   /// Largeur d'un coin latéral (#766) : entre 88 et 100 dp selon l'écran.
   static double _cornerWidth(double screenWidth) =>
       math.min(math.max(screenWidth * 0.24, 88.0), 100.0);
-
-  /// Cartes gagnées déjà arrivées au tas (les cartes en vol ne sont pas comptées, #354).
-  int _shownWon(Player p) =>
-      _controller.game.won[p]!.where((c) => !_capturing.contains(c.id)).length;
 
   /// Cartes de Chkobba sous le tas, une fois arrivées (pas pendant leur vol, #594, #626).
   List<ChkobbaCard> _shownChkobbaCards(Player p) => [

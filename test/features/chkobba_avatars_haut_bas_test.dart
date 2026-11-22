@@ -68,14 +68,14 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('#766 : le tapis occupe la place centrale entre les coins', (
+  testWidgets('#766 : le tapis occupe la place centrale, cartes agrandies', (
     tester,
   ) async {
     await _pump(tester);
     final felt = tester.getRect(find.byKey(const ValueKey('chkobba-felt')));
     final table = tester.getRect(find.byType(ChkobbaTable));
     expect(table.width, greaterThan(felt.width * 0.4));
-    expect(table.width, lessThan(felt.width * 0.8));
+    expect(table.width, lessThanOrEqualTo(felt.width));
     expect(tester.takeException(), isNull);
   });
 
