@@ -7,6 +7,7 @@ class _Table extends StatelessWidget {
     required this.keyOf,
     required this.landing,
     required this.avatarIds,
+    required this.seatNames,
   });
 
   final CoincheController controller;
@@ -17,10 +18,14 @@ class _Table extends StatelessWidget {
   // Avatar de chaque siège, indexé par Seat (issue #554).
   final List<String> avatarIds;
 
+  // Prénoms des adversaires, tirés au hasard à chaque partie (issue #770).
+  final Map<Seat, String> seatNames;
+
   @override
   Widget build(BuildContext context) {
     final round = controller.round;
-    final status = controller.isBiddingTurn ? null : _statusText(round);
+    final status =
+        controller.isBiddingTurn ? null : _statusText(round, seatNames);
     final yourTurnToPlay = controller.isHumanPlayTurn;
 
     return Container(
@@ -51,6 +56,7 @@ class _Table extends StatelessWidget {
                   round: round,
                   cardWidth: cardWidth * 0.6,
                   avatarId: avatarIds[Seat.north.index],
+                  name: coincheSeatName(seatNames, Seat.north),
                 ),
               ),
             ),
@@ -66,6 +72,7 @@ class _Table extends StatelessWidget {
                   round: round,
                   cardWidth: cardWidth * 0.6,
                   avatarId: avatarIds[Seat.west.index],
+                  name: coincheSeatName(seatNames, Seat.west),
                 ),
               ),
             ),
@@ -81,6 +88,7 @@ class _Table extends StatelessWidget {
                   round: round,
                   cardWidth: cardWidth * 0.6,
                   avatarId: avatarIds[Seat.east.index],
+                  name: coincheSeatName(seatNames, Seat.east),
                 ),
               ),
             ),
@@ -145,7 +153,7 @@ class _Table extends StatelessWidget {
   }
 }
 
-String? _statusText(RoundState round) {
+String? _statusText(RoundState round, Map<Seat, String> seatNames) {
   if (round.phase == CoinchePhase.redeal)
     return 'Tout le monde passe, nouvelle donne…';
   if (round.phase == CoinchePhase.done) return 'Manche terminée';
@@ -157,7 +165,7 @@ String? _statusText(RoundState round) {
         ? 'À toi d’annoncer'
         : 'À toi de jouer';
   }
-  return '${_seatLabel[turn]} réfléchit…';
+  return '${coincheSeatName(seatNames, turn)} réfléchit…';
 }
 
 class _SeatInfo extends StatelessWidget {
@@ -166,6 +174,7 @@ class _SeatInfo extends StatelessWidget {
     required this.round,
     required this.cardWidth,
     required this.avatarId,
+    required this.name,
   });
 
   final Seat seat;
@@ -174,6 +183,9 @@ class _SeatInfo extends StatelessWidget {
 
   // Avatar du siège (issue #554).
   final String avatarId;
+
+  // Nom affiché sous l'avatar (issue #770).
+  final String name;
 
   @override
   Widget build(BuildContext context) {
@@ -204,49 +216,16 @@ class _SeatInfo extends StatelessWidget {
               finished: round.phase == CoinchePhase.done,
               winners: coincheWinnerSeats(round),
             ),
-            semanticLabel: _seatLabel[seat]!,
+            semanticLabel: name,
             baseSize: 28,
             activeSize: 40,
           ),
           const SizedBox(height: 2),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: active ? _goldColor : Colors.black.withValues(alpha: 0.35),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: active ? _frameColor : Colors.black26,
-                width: 2,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _seatLabel[seat]!,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 12,
-                    color: active ? const Color(0xFF513B00) : Colors.white,
-                  ),
-                ),
-                if (round.dealer == seat) ...[
-                  const SizedBox(width: 4),
-                  const CircleAvatar(
-                    radius: 8,
-                    backgroundColor: Colors.white,
-                    child: Text(
-                      'D',
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: _inkColor,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
+          _SeatNamePill(
+            seat: seat,
+            name: name,
+            active: active,
+            isDealer: round.dealer == seat,
           ),
           if (call != null)
             Padding(
@@ -379,4 +358,67 @@ class _TrickArea extends StatelessWidget {
         Seat.west => Alignment.centerLeft,
         Seat.east => Alignment.centerRight,
       };
+}
+
+/// Pastille du nom d'un siège. Les sièges latéraux (ouest, est) sont écrits verticalement,
+/// comme au Rami, pour libérer de la place pour les cartes (issue #770).
+class _SeatNamePill extends StatelessWidget {
+  const _SeatNamePill({
+    required this.seat,
+    required this.name,
+    required this.active,
+    required this.isDealer,
+  });
+
+  final Seat seat;
+  final String name;
+  final bool active;
+  final bool isDealer;
+
+  @override
+  Widget build(BuildContext context) {
+    final pill = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: active ? _goldColor : Colors.black.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: active ? _frameColor : Colors.black26,
+          width: 2,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            name,
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 12,
+              color: active ? const Color(0xFF513B00) : Colors.white,
+            ),
+          ),
+          if (isDealer) ...[
+            const SizedBox(width: 4),
+            const CircleAvatar(
+              radius: 8,
+              backgroundColor: Colors.white,
+              child: Text(
+                'D',
+                style: TextStyle(
+                  fontSize: 9,
+                  color: _inkColor,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+    return RotatedBox(
+      quarterTurns: coincheSeatQuarterTurns(seat),
+      child: pill,
+    );
+  }
 }

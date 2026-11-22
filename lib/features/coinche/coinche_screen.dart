@@ -14,6 +14,7 @@ import '../../core/theme/game_style.dart';
 import '../menu/menu_models.dart';
 import 'coinche_card_view.dart';
 import 'coinche_controller.dart';
+import 'coinche_opponent_names.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/game_end_watcher.dart';
 import '../../core/services/interstitial_service.dart';
@@ -46,12 +47,6 @@ const _inkColor = Color(0xFF20284B);
 const _goldColor = Color(0xFFFFE16B);
 
 const _teamLabel = {Team.ns: 'Nous', Team.ew: 'Eux'};
-const _seatLabel = {
-  Seat.south: 'Toi',
-  Seat.north: 'Partenaire',
-  Seat.west: 'Adversaire',
-  Seat.east: 'Adversaire',
-};
 final _suitNames = CoincheSuit.values;
 
 /// Écran de la Coinche (Belote au menu). Logique dans CoincheController et lib/game/coinche.dart.
@@ -73,6 +68,9 @@ class _CoincheScreenState extends State<CoincheScreen>
     with CardMotionMixin<CoincheScreen> {
   // Avatars des 4 sièges, indexés par Seat (issue #554) ; 0 = joueur.
   List<String> _avatarIds = [defaultAvatar.id, 'lion', 'tiger', 'panda'];
+
+  // Prénoms des adversaires, tirés au hasard à chaque partie (issue #770).
+  final Map<Seat, String> _seatNames = pickCoincheOpponentNames(math.Random());
 
   late final CoincheController _controller = CoincheController(
     store: const SharedPreferencesSavedGameStore(),
@@ -296,6 +294,7 @@ class _CoincheScreenState extends State<CoincheScreen>
                       keyOf: _key,
                       landing: landing,
                       avatarIds: _avatarIds,
+                      seatNames: _seatNames,
                     ),
                   ),
                   const SizedBox(height: 8),
