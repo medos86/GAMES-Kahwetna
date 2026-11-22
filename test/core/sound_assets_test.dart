@@ -35,7 +35,8 @@ void main() {
   };
 
   group('fichiers audio', () {
-    for (final sfx in Sfx.values) {
+    // capture et dice sont ajoutés par l'issue #791.
+    for (final sfx in Sfx.values.where((s) => s != Sfx.capture && s != Sfx.dice)) {
       test('${sfx.name} existe et respecte sa durée maximale', () {
         final file = File(sfx.assetPath);
         expect(file.existsSync(), isTrue, reason: '${sfx.assetPath} manquant');
