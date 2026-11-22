@@ -287,7 +287,7 @@ class _CoincheScreenState extends State<CoincheScreen>
                 children: [
                   _Header(controller: c, difficulty: widget.difficulty),
                   const SizedBox(height: 8),
-                  _ScoreBar(controller: c, avatarIds: _avatarIds),
+                  _ScoreBar(controller: c),
                   const SizedBox(height: 8),
                   Expanded(
                     child: _Table(
