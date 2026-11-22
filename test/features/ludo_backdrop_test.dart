@@ -45,24 +45,27 @@ void main() {
     expect(LudoBackdropPalette.maskTint.value & 0x00FFFFFF, 0x00FFFFFF);
   });
 
-  testWidgets('les traits du masque sont épais : assez de pixels opaques', (tester) async {
-    // Avant #746 : ~3 % des pixels avaient un alpha > 128 ; après épaississement : ~19 %.
-    await tester.runAsync(() async {
-      final bytes = File(ludoBackdropMaskAsset).readAsBytesSync();
-      final codec = await ui.instantiateImageCodec(bytes);
-      final frame = await codec.getNextFrame();
-      final data = await frame.image.toByteData(
-        format: ui.ImageByteFormat.rawRgba,
-      );
-      final rgba = data!.buffer.asUint8List();
-      var opaque = 0;
-      for (var i = 3; i < rgba.length; i += 4) {
-        if (rgba[i] > 128) opaque++;
-      }
-      final ratio = opaque / (rgba.length ~/ 4);
-      expect(ratio, greaterThanOrEqualTo(0.10), reason: 'traits trop fins');
-    });
-  });
+  testWidgets(
+    'les traits du masque sont épais : assez de pixels opaques',
+    (tester) async {
+      // Avant #746 : ~3 % des pixels avaient un alpha > 128 ; après : ~19 %.
+      await tester.runAsync(() async {
+        final bytes = File(ludoBackdropMaskAsset).readAsBytesSync();
+        final codec = await ui.instantiateImageCodec(bytes);
+        final frame = await codec.getNextFrame();
+        final data = await frame.image.toByteData(
+          format: ui.ImageByteFormat.rawRgba,
+        );
+        final rgba = data!.buffer.asUint8List();
+        var opaque = 0;
+        for (var i = 3; i < rgba.length; i += 4) {
+          if (rgba[i] > 128) opaque++;
+        }
+        final ratio = opaque / (rgba.length ~/ 4);
+        expect(ratio, greaterThanOrEqualTo(0.10), reason: 'traits trop fins');
+      });
+    },
+  );
 
   testWidgets('le fond du Ludo se peint sans erreur', (tester) async {
     await tester.pumpWidget(
