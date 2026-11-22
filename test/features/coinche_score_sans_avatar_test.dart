@@ -20,6 +20,7 @@ void main() {
       ),
     );
     await tester.pump();
-    expect(find.byType(AvatarView), findsNWidgets(4));
+    // Trois sièges à avatar (nord, ouest, est) ; le sud est la main du joueur.
+    expect(find.byType(AvatarView), findsNWidgets(3));
   });
 }
