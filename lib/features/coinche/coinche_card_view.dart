@@ -73,8 +73,8 @@ String coincheCardAsset(CoincheCard card) {
   return '$ramiCardsFolder/${rank}_of_$suit.webp';
 }
 
-/// Couleur dorée des cartes d'atout (#734).
-const Color coincheTrumpGold = Color(0xFFFFD700);
+/// Fond teinté derrière les cartes d'atout (#786, remplace la dorure #734).
+const Color coincheTrumpTint = Color(0x553FA7D6);
 
 /// Vrai si la carte est de la couleur d'atout du contrat en cours (#734).
 bool coincheIsTrump(CoincheCard card, Contract? contract) =>
@@ -135,17 +135,10 @@ class CoincheCardView extends StatelessWidget {
     );
     if (!trump) return image;
     return DecoratedBox(
-      key: const ValueKey('trump-gold'),
+      key: const ValueKey('trump-tint'),
       decoration: BoxDecoration(
         borderRadius: radius,
-        border: Border.all(color: coincheTrumpGold, width: width * 0.05),
-        boxShadow: [
-          BoxShadow(
-            color: coincheTrumpGold.withValues(alpha: 0.6),
-            blurRadius: width * 0.25,
-            spreadRadius: width * 0.02,
-          ),
-        ],
+        color: coincheTrumpTint,
       ),
       child: image,
     );
