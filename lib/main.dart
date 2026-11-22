@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 import 'app/game_routes.dart';
+import 'core/app/app_identity.dart';
 import 'core/audio/sounds.dart';
 import 'core/layout/device_metrics.dart';
 import 'core/services/ad_free_service.dart';
@@ -83,7 +84,7 @@ class KahwetneApp extends StatelessWidget {
         scaffoldMessengerKey: _messengerKey,
         onGenerateRoute: (settings) => buildGameRoute(settings.name),
         debugShowCheckedModeBanner: false,
-        title: 'Kahwetne',
+        title: kAppName,
         theme: kComicStyle
             ? buildComicTheme()
             : ThemeData(

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/app/app_identity.dart';
 import '../../core/strings.dart';
 import '../../widgets/game_safe_area.dart';
 
@@ -104,7 +105,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      'Kahwetne',
+                      kAppName,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'BowlbyOneSC',
