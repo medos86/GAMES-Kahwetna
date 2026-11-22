@@ -9,7 +9,7 @@ void main() {
       expect(chkobbaReactions(), isEmpty);
     });
 
-    test('Chkobba du joueur : il rit, l\'adversaire est choqué', () {
+    test('Chkobba du joueur : rire pour lui, choc pour l\'autre', () {
       final moods = chkobbaReactions(chkobba: Player.player);
       expect(moods, {
         Player.player: ReactionMood.laugh,
@@ -17,7 +17,7 @@ void main() {
       });
     });
 
-    test('Chkobba de l\'adversaire : inversé', () {
+    test('Chkobba de l\'adversaire inversée', () {
       final moods = chkobbaReactions(chkobba: Player.opponent);
       expect(moods, {
         Player.opponent: ReactionMood.laugh,
@@ -25,7 +25,7 @@ void main() {
       });
     });
 
-    test('Haya seule : surprise pour celui qui la ramasse', () {
+    test('Haya seule : surprise pour qui la ramasse', () {
       final moods = chkobbaReactions(haya: Player.opponent);
       expect(moods, {Player.opponent: ReactionMood.surprise});
     });

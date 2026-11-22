@@ -5,9 +5,9 @@ import 'common.dart';
 
 /// Humeur de l'avatar de chaque joueur après un coup.
 ///
-/// [chkobba] : joueur qui réalise une Chkobba (il rit, l'adversaire est choqué).
-/// [haya] : joueur qui ramasse le 7 de deniers (il est surpris).
-/// Sans action, la carte est vide. Une Chkobba l'emporte sur la Haya du même joueur.
+/// [chkobba] : joueur qui fait une Chkobba (il rit, l'autre est choqué).
+/// [haya] : joueur qui ramasse le 7 de deniers (surprise).
+/// Une Chkobba l'emporte sur la Haya du même joueur.
 Map<Player, ReactionMood> chkobbaReactions({Player? chkobba, Player? haya}) {
   final moods = <Player, ReactionMood>{};
   if (haya != null) moods[haya] = ReactionMood.surprise;
