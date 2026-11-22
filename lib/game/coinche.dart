@@ -48,6 +48,9 @@ const belotePoints = 20;
 const dixDeDerPoints = 10;
 const bidThreshold = 36;
 
+/// Difficile : seuil abaissé (sait gérer ses atouts, voir règle des trois atouts).
+const difficileBidThreshold = 32;
+
 const trumpOrder = [
   CoincheRank.seven,
   CoincheRank.eight,
@@ -770,8 +773,11 @@ BidAction chooseBid(
       bestSuit = suit;
     }
   }
-  final threshold =
-      level == CoincheAiLevel.facile ? bidThreshold + 10 : bidThreshold;
+  final threshold = switch (level) {
+    CoincheAiLevel.facile => bidThreshold + 10,
+    CoincheAiLevel.difficile => difficileBidThreshold,
+    CoincheAiLevel.moyen => bidThreshold,
+  };
   if (bestSuit == null || bestStrength < threshold) return const PassBid();
   // Difficile : annonce seulement avec au moins trois atouts (maîtrise), pour ne pas surenchérir à tort.
   if (level == CoincheAiLevel.difficile &&

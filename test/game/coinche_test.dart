@@ -472,5 +472,23 @@ void main() {
       expect(action, isA<ValueBid>());
       expect((action as ValueBid).value, 90);
     });
+
+    test('difficile annonce avec une force de 32 (moyen passe, #730)', () {
+      // Valet 20 + neuf 14 + sept 0 = 34 à trois atouts : entre le seuil difficile (32)
+      // et le seuil moyen (36). Pas de contrat : la valeur justifiée est 80.
+      final hand = [
+        card(CoincheSuit.coupes, CoincheRank.valet),
+        card(CoincheSuit.coupes, CoincheRank.nine),
+        card(CoincheSuit.coupes, CoincheRank.seven),
+      ];
+      final round = makeRound(hands: {Seat.south: hand});
+      expect(
+        chooseBid(round, Seat.south, CoincheAiLevel.moyen),
+        isA<PassBid>(),
+      );
+      final action = chooseBid(round, Seat.south, CoincheAiLevel.difficile);
+      expect(action, isA<ValueBid>());
+      expect((action as ValueBid).value, 80);
+    });
   });
 }
