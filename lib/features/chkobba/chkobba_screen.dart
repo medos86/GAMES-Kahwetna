@@ -406,6 +406,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     final canPlay = !over && game.winner == null && game.turn == Player.player;
     final cardWidth = cardHeight * 0.7;
     final style = GameStyle.current;
+    // La pioche est côté adversaire quand il commence, côté joueur sinon (#745).
+    final deckOnTop = game.starter == Player.opponent;
 
     // Emplacements du tapis : au moins 12, multiple du nombre de colonnes (comme TABLE_MIN_SLOTS).
     // Chaque carte garde son emplacement : les autres ne glissent pas après un jeu.
@@ -527,7 +529,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                                         ),
                                       // Pioche (#745) : côté adversaire si c'est lui qui commence, sinon côté joueur.
                                       Align(
-                                        alignment: game.starter == Player.opponent
+                                        alignment: deckOnTop
                                             ? Alignment.topCenter
                                             : Alignment.bottomCenter,
                                         child: Padding(

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/theme/scoba_palette.dart';
 import 'package:kahwetne/features/chkobba/chkobba_card_face.dart';
-import 'package:kahwetne/features/chkobba/chkobba_parts/chkobba_table_parts.dart';
 import 'package:kahwetne/features/chkobba/chkobba_screen.dart';
 import 'package:kahwetne/features/chkobba/chkobba_table.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
@@ -70,13 +69,12 @@ void main() {
         ),
       ),
     );
+    final boxes = find.descendant(
+      of: find.byType(ChkobbaTable),
+      matching: find.byType(DecoratedBox),
+    );
     final decorations = tester
-        .widgetList<DecoratedBox>(
-          find.descendant(
-            of: find.byType(ChkobbaTable),
-            matching: find.byType(DecoratedBox),
-          ),
-        )
+        .widgetList<DecoratedBox>(boxes)
         .map((b) => b.decoration)
         .whereType<BoxDecoration>();
     expect(decorations.any((d) => d.color == ScobaPalette.tapisVert), isTrue);
@@ -113,7 +111,9 @@ void main() {
     await _pump(tester, Player.player);
     final opp = tester.getTopLeft(find.byKey(const ValueKey('panel:opponent')));
     final me = tester.getTopLeft(find.byKey(const ValueKey('panel:player')));
-    final oppHand = tester.getBottomLeft(find.byKey(const ValueKey('opp-hand')));
+    final oppHand = tester.getBottomLeft(
+      find.byKey(const ValueKey('opp-hand')),
+    );
     expect(opp.dy, lessThan(oppHand.dy + 1));
     expect(me.dy, greaterThan(opp.dy + 20));
     expect(tester.takeException(), isNull);
@@ -132,12 +132,11 @@ void main() {
         ),
       ),
     );
-    final box = tester.widget<DecoratedBox>(
-      find.descendant(
-        of: find.byType(ChkobbaCardFace),
-        matching: find.byType(DecoratedBox),
-      ).first,
+    final faceBoxes = find.descendant(
+      of: find.byType(ChkobbaCardFace),
+      matching: find.byType(DecoratedBox),
     );
+    final box = tester.widget<DecoratedBox>(faceBoxes.first);
     final deco = box.decoration as BoxDecoration;
     expect(deco.border!.top.color, Colors.black);
     expect(deco.border!.top.width, greaterThanOrEqualTo(2.5));
