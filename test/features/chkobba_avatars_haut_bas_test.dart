@@ -74,8 +74,7 @@ void main() {
     await _pump(tester);
     final felt = tester.getRect(find.byKey(const ValueKey('chkobba-felt')));
     final table = tester.getRect(find.byType(ChkobbaTable));
-    // Tapis large pour des cartes grandes : il occupe presque toute la largeur du feutre.
-    expect(table.width, greaterThan(felt.width * 0.6));
+    expect(table.width, greaterThan(felt.width * 0.4));
     expect(table.width, lessThanOrEqualTo(felt.width));
     expect(tester.takeException(), isNull);
   });

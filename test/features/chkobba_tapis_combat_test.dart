@@ -63,11 +63,14 @@ Future<void> _pump(WidgetTester tester, ChkobbaState state) async {
 
 
 /// Tas de cartes gagnées (Container 56 x 44), dans l'ordre de l'arbre : adversaire, puis joueur.
-List<Finder> _piles(WidgetTester tester) => [
-      for (final c in tester.widgetList<Container>(find.byType(Container)))
-        if (tester.getSize(find.byWidget(c)) == const Size(56, 44))
-          find.byWidget(c),
-    ];
+List<Finder> _piles(WidgetTester tester) {
+  final found = <Finder>[];
+  for (final c in tester.widgetList<Container>(find.byType(Container))) {
+    final finder = find.byWidget(c);
+    if (tester.getSize(finder) == const Size(56, 44)) found.add(finder);
+  }
+  return found;
+}
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
