@@ -61,9 +61,10 @@ void main() {
     final playerPile = find.text('1');
     expect(opponentPile, findsOneWidget);
     expect(playerPile, findsOneWidget);
+    // Adversaire en haut, joueur en bas (#752).
     expect(
-      tester.getCenter(opponentPile).dx,
-      lessThan(tester.getCenter(playerPile).dx),
+      tester.getCenter(opponentPile).dy,
+      lessThan(tester.getCenter(playerPile).dy),
     );
     expect(tester.takeException(), isNull);
 

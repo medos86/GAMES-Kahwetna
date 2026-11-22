@@ -78,10 +78,10 @@ void main() {
     final playerScore = find.text('4');
     expect(opponentScore, findsOneWidget);
     expect(playerScore, findsOneWidget);
-    // Adversaire à gauche, joueur à droite.
+    // Adversaire en haut, joueur en bas (#752).
     expect(
-      tester.getCenter(opponentScore).dx,
-      lessThan(tester.getCenter(playerScore).dx),
+      tester.getCenter(opponentScore).dy,
+      lessThan(tester.getCenter(playerScore).dy),
     );
     expect(tester.takeException(), isNull);
   });

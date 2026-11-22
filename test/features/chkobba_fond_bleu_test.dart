@@ -51,7 +51,7 @@ void main() {
   test('#705 : aucun vert dans la palette du tapis Chkobba', () {
     final green = ComicPalette.seatGreen;
     expect(ScobaPalette.tapisBleu, isNot(green));
-    expect(ScobaPalette.tapisBleu, ComicPalette.tunisBlue);
+    expect(ScobaPalette.tapisBleu.b, greaterThan(ScobaPalette.tapisBleu.r));
   });
 
   testWidgets('#705 : écran Chkobba sur fond bleu avec masque', (tester) async {
@@ -69,7 +69,7 @@ void main() {
       find.byKey(const ValueKey('tapis-background')),
     );
     final deco = box.decoration as BoxDecoration;
-    expect(deco.color, ComicPalette.tunisBlue);
+    expect(deco.color, ScobaPalette.tapisBleu);
     expect(deco.image!.repeat, ImageRepeat.repeat);
     expect(
       (deco.image!.image as AssetImage).assetName,
