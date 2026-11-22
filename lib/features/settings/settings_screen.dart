@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/i18n/app_language.dart';
 import '../../core/services/card_animations.dart';
+import '../../core/services/reaction_stickers.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../widgets/comic/comic_backdrop.dart';
 import '../../widgets/comic/comic_panel.dart';
@@ -91,6 +92,17 @@ class SettingsScreen extends StatelessWidget {
                           builder: (context, on, _) => Switch(
                             value: on,
                             onChanged: setCardAnimations,
+                          ),
+                        ),
+                      ),
+                      // Réactions BD à côté des avatars (#762) : activées par défaut.
+                      _SettingRow(
+                        label: t('settingsReactionStickers'),
+                        trailing: ValueListenableBuilder<bool>(
+                          valueListenable: reactionStickers,
+                          builder: (context, on, _) => Switch(
+                            value: on,
+                            onChanged: setReactionStickers,
                           ),
                         ),
                       ),

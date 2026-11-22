@@ -12,6 +12,7 @@ import 'core/services/age_gate_service.dart';
 import 'features/age_gate/age_gate_screen.dart';
 import 'core/services/ads_service.dart';
 import 'core/services/card_animations.dart';
+import 'core/services/reaction_stickers.dart';
 import 'core/services/toast.dart';
 import 'core/i18n/app_language.dart';
 import 'core/theme/app_colors.dart';
@@ -46,6 +47,8 @@ Future<void> main() async {
   await loadLanguage();
   // Réglage des animations de cartes relu avant le premier écran (#224).
   await loadCardAnimations();
+  // Réglage des réactions BD relu avant le premier écran (#762).
+  await loadReactionStickers();
   // Échéance du mode sans pub relue avant le premier écran : pas de bannière qui clignote au démarrage.
   await AdFreeService.instance.load();
   // Réponse à la question d'âge relue avant le premier écran (#567).

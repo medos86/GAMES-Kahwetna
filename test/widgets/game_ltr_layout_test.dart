@@ -51,7 +51,7 @@ void main() {
       appLanguage.value = language;
       await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
       await tester.pump();
-      return tester.getCenter(find.byType(Switch));
+      return tester.getCenter(find.byType(Switch).first);
     }
 
     final fr = await switchCenter(AppLanguage.fr);

@@ -1,6 +1,7 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/reactions/reaction_mood.dart';
+import 'package:kahwetne/core/services/reaction_stickers.dart';
 import 'package:kahwetne/features/chkobba/chkobba_controller.dart';
 import 'package:kahwetne/game/chkobba.dart';
 import 'package:kahwetne/game/common.dart';
@@ -29,6 +30,27 @@ ChkobbaState chkobbaSetup() => ChkobbaState(
 
 void main() {
   group('ChkobbaController : réactions des avatars (#761)', () {
+    tearDown(() {
+      reactionStickers.value = true;
+    });
+
+    test('réglage désactivé : aucune réaction après une Chkobba', () {
+      fakeAsync((async) {
+        reactionStickers.value = false;
+        final ctrl = ChkobbaController(
+          targetScore: 11,
+          level: ChkobbaAiLevel.facile,
+          initialState: chkobbaSetup(),
+        );
+
+        ctrl.tapPlayerCard('batons-9');
+        expect(ctrl.reactionOf(Player.player), isNull);
+        expect(ctrl.reactionOf(Player.opponent), isNull);
+
+        ctrl.dispose();
+      });
+    });
+
     test('aucune réaction au départ', () {
       final ctrl = ChkobbaController(
         targetScore: 11,
