@@ -63,9 +63,8 @@ void main() {
     await _pump(tester);
     final felt = tester.getRect(find.byKey(const ValueKey('chkobba-felt')));
     final table = tester.getRect(find.byType(ChkobbaTable));
-    // Marges et bourrages du feutre et de l'écran : 20 dp au total.
-    expect(table.width, greaterThan(felt.width - 24));
-    expect(table.width, lessThanOrEqualTo(felt.width));
+    // Feutre : padding 6 + bordure 3 de chaque côté, puis padding 4 de l'écran : 26 dp au total.
+    expect(table.width, closeTo(felt.width - 26, 1));
     expect(tester.takeException(), isNull);
   });
 
