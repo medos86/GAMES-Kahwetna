@@ -226,7 +226,7 @@ class _TitleBlock extends StatelessWidget {
       alignment: Alignment.center,
       children: [
         Text(
-          'Kahwetne',
+          kAppName,
           style: base.copyWith(
             foreground: Paint()
               ..style = PaintingStyle.stroke
@@ -235,7 +235,7 @@ class _TitleBlock extends StatelessWidget {
               ..color = ComicPalette.ink,
           ),
         ),
-        Text('Kahwetne', style: base.copyWith(color: ComicPalette.yellow)),
+        Text(kAppName, style: base.copyWith(color: ComicPalette.yellow)),
       ],
     );
   }
@@ -279,7 +279,7 @@ class _TitleBlock extends StatelessWidget {
         kComicMenu
             ? _comicTitle(titleSize)
             : Text(
-                'Kahwetne',
+                kAppName,
                 style: TextStyle(
                   fontFamily: 'BowlbyOneSC',
                   fontSize: titleSize,

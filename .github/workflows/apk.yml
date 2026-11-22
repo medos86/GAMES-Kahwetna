@@ -29,6 +29,9 @@ jobs:
       - name: Dossier Android
         run: flutter create --platforms=android --project-name kahwetne --org com.kahwetne .
 
+      - name: Nom et icône « Korti Fans »
+        run: bash tool/apply_app_identity.sh android
+
       - name: IDs AdMob (Android)
         run: bash tool/patch_ad_app_ids.sh android
 

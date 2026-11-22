@@ -1,3 +1,4 @@
+import '../../core/app/app_identity.dart';
 import 'dart:async';
 import 'dart:ui' show ImageFilter;
 import 'dart:math' as math;
