@@ -48,6 +48,9 @@ const belotePoints = 20;
 const dixDeDerPoints = 10;
 const bidThreshold = 36;
 
+/// Difficile : seuil abaissé (sait gérer ses atouts, voir règle des trois atouts).
+const difficileBidThreshold = 32;
+
 const trumpOrder = [
   CoincheRank.seven,
   CoincheRank.eight,
@@ -770,8 +773,11 @@ BidAction chooseBid(
       bestSuit = suit;
     }
   }
-  final threshold =
-      level == CoincheAiLevel.facile ? bidThreshold + 10 : bidThreshold;
+  final threshold = switch (level) {
+    CoincheAiLevel.facile => bidThreshold + 10,
+    CoincheAiLevel.difficile => difficileBidThreshold,
+    CoincheAiLevel.moyen => bidThreshold,
+  };
   if (bestSuit == null || bestStrength < threshold) return const PassBid();
   // Difficile : annonce seulement avec au moins trois atouts (maîtrise), pour ne pas surenchérir à tort.
   if (level == CoincheAiLevel.difficile &&
@@ -779,13 +785,17 @@ BidAction chooseBid(
     return const PassBid();
   }
 
+  // La valeur vient de la force de la main : on ne surenchérit jamais au-delà
+  // de ce que la main justifie (sinon boucle jusqu'à 160 sans les moyens).
   final minValue = minBidValue(round);
-  final value = math.min(
+  final strengthValue = math.min(
     maxBid,
-    math.max(minValue, minBid + ((bestStrength - threshold) / 8).floor() * 10),
+    minBid + ((bestStrength - threshold) / 8).floor() * 10,
   );
-  if (value < minValue || value > maxBid) return const PassBid();
-  return ValueBid(value, bestSuit);
+  if (strengthValue < minValue || strengthValue > maxBid) {
+    return const PassBid();
+  }
+  return ValueBid(strengthValue, bestSuit);
 }
 
 /// Atouts non encore joués et hors de la main de [seat] (#440, compte des atouts tombés).
