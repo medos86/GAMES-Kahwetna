@@ -18,7 +18,6 @@ import '../../core/services/ad_free_service.dart';
 import '../../core/services/game_end_watcher.dart';
 import '../../core/services/interstitial_service.dart';
 import '../../core/theme/comic_palette.dart';
-import '../../widgets/avatar_view.dart';
 import '../../widgets/turn_avatar.dart';
 import 'coinche_avatars.dart';
 import '../../widgets/comic/comic_panel.dart';
