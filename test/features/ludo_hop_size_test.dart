@@ -4,23 +4,14 @@ import 'package:kahwetne/features/ludo/ludo_layout.dart';
 
 void main() {
   test('#798 : un pion en mouvement garde sa taille pleine', () {
-    expect(
-      ludoVisualBaseSize(moving: true, placedSize: ludoStackSize),
-      ludoTokenSize,
-    );
+    expect(ludoVisualBaseSize(true, ludoStackSize), ludoTokenSize);
   });
 
   test('#798 : pion arrivé en pile, taille réduite', () {
-    expect(
-      ludoVisualBaseSize(moving: false, placedSize: ludoStackSize),
-      ludoStackSize,
-    );
+    expect(ludoVisualBaseSize(false, ludoStackSize), ludoStackSize);
   });
 
   test('#798 : un pion seul arrivé garde la taille normale', () {
-    expect(
-      ludoVisualBaseSize(moving: false, placedSize: ludoTokenSize),
-      ludoTokenSize,
-    );
+    expect(ludoVisualBaseSize(false, ludoTokenSize), ludoTokenSize);
   });
 }

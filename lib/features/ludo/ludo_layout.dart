@@ -21,10 +21,9 @@ const ludoStackOffsets = <List<double>>[
 
 /// Taille d'un pion à l'écran : un pion en mouvement garde sa taille pleine,
 /// il ne se réduit qu'en arrivant sur sa case (#798).
-double ludoVisualBaseSize({
-  required bool moving,
-  required double placedSize,
-}) => moving ? ludoTokenSize : placedSize;
+double ludoVisualBaseSize(bool moving, double placedSize) {
+  return moving ? ludoTokenSize : placedSize;
+}
 
 /// Décalage d'un pion parmi [count] sur une même case ([order] à partir de 0) (#681).
 /// Jusqu'à 4 pions : diagonales fixes. Au-delà : grille carrée, donc aucun nombre de pions ne sort des bornes.
