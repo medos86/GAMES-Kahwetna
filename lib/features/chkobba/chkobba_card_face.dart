@@ -66,11 +66,13 @@ class ChkobbaCardFace extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          border: highlight
-              ? Border.all(color: const Color(0xFFFACC15), width: 3)
-              : null,
+          // Contour BD (#745) : trait noir épais et ombre dure.
+          border: Border.all(
+            color: highlight ? const Color(0xFFFACC15) : Colors.black,
+            width: highlight ? 3.5 : 2.5,
+          ),
           boxShadow: const [
-            BoxShadow(color: Colors.black, offset: Offset(0, 3)),
+            BoxShadow(color: Colors.black, offset: Offset(0, 4)),
           ],
         ),
         child: ClipRRect(

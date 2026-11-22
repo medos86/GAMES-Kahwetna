@@ -20,7 +20,6 @@ import '../../game/common.dart';
 import '../menu/menu_models.dart';
 import 'chkobba_card_face.dart';
 import 'chkobba_controller.dart';
-import 'chkobba_rules_screen.dart';
 import 'chkobba_table.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/round_result_panel.dart';
@@ -407,6 +406,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     final canPlay = !over && game.winner == null && game.turn == Player.player;
     final cardWidth = cardHeight * 0.7;
     final style = GameStyle.current;
+    // La pioche est côté adversaire quand il commence, côté joueur sinon (#745).
+    final deckOnTop = game.starter == Player.opponent;
 
     // Emplacements du tapis : au moins 12, multiple du nombre de colonnes (comme TABLE_MIN_SLOTS).
     // Chaque carte garde son emplacement : les autres ne glissent pas après un jeu.
@@ -439,15 +440,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    IconButton(
-                      tooltip: t('chkobbaRules'),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const ChkobbaRulesScreen(),
-                        ),
-                      ),
-                      icon: const Icon(Icons.menu_book, color: Colors.white),
-                    ),
                     if (game.winner != null)
                       IconButton(
                         tooltip: t('newGame'),
@@ -467,9 +459,14 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
             Expanded(
               child: Container(
                 key: const ValueKey('chkobba-felt'),
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                // Pas de cadre : le tapis est le fond de tout l'écran (#695).
-                decoration: const BoxDecoration(color: Colors.transparent),
+                // Feutre vert (#745) : couvre mains, avatars et scores ; le fond bleu reste en haut et en bas.
+                margin: const EdgeInsets.fromLTRB(4, 6, 4, 6),
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                decoration: BoxDecoration(
+                  color: ScobaPalette.tapisVert,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: Colors.black, width: 3),
+                ),
                 child: Column(
                   children: [
                     // Main de l'adversaire : dos des cartes, sauf celle qu'il montre.
@@ -491,32 +488,23 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                     Expanded(
                       child: Row(
                         children: [
-                          _SidePanel(
-                            key: _key('panel:opponent'),
-                            game: game,
-                            player: Player.opponent,
-                            name: t('opponent'),
-                            color: ScobaPalette.redText,
-                            avatarId: _avatarIds[Player.opponent.index],
-                            wonKey: _key('won:opponent'),
-                            wonCount: _shownWon(Player.opponent),
-                            chkobbaCards: _shownChkobbaCards(Player.opponent),
+                          Transform.translate(
+                            offset: const Offset(0, -8),
+                            child: _SidePanel(
+                              key: _key('panel:opponent'),
+                              game: game,
+                              player: Player.opponent,
+                              name: t('opponent'),
+                              color: ScobaPalette.redText,
+                              avatarId: _avatarIds[Player.opponent.index],
+                              wonKey: _key('won:opponent'),
+                              wonCount: _shownWon(Player.opponent),
+                              chkobbaCards: _shownChkobbaCards(Player.opponent),
+                            ),
                           ),
                           Expanded(
                             child: Column(
                               children: [
-                                // Pioche au centre, entre les deux panneaux (#726).
-                                Semantics(
-                                  label: tf('sDeckLeft', {
-                                    'n': '${game.deck.length}',
-                                  }),
-                                  child: KeyedSubtree(
-                                    key: _key('deck'),
-                                    child: ChkobbaDeckPile(
-                                      count: game.deck.length,
-                                    ),
-                                  ),
-                                ),
                                 Expanded(
                                   child: Stack(
                                     alignment: Alignment.center,
@@ -530,7 +518,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                                           ),
                                           child: ConstrainedBox(
                                             constraints: const BoxConstraints(
-                                              maxWidth: 400,
+                                              maxWidth: 560,
                                             ),
                                             child: ChkobbaTable(
                                               key: _key('table'),
@@ -539,6 +527,26 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                                             ),
                                           ),
                                         ),
+                                      // Pioche (#745) : côté adversaire si c'est lui qui commence, sinon côté joueur.
+                                      Align(
+                                        alignment: deckOnTop
+                                            ? Alignment.topCenter
+                                            : Alignment.bottomCenter,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4),
+                                          child: Semantics(
+                                            label: tf('sDeckLeft', {
+                                              'n': '${game.deck.length}',
+                                            }),
+                                            child: KeyedSubtree(
+                                              key: _key('deck'),
+                                              child: ChkobbaDeckPile(
+                                                count: game.deck.length,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                       if (_controller.chkobbaBy != null)
                                         Positioned.fill(
                                           child: Center(
@@ -577,16 +585,19 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                               ],
                             ),
                           ),
-                          _SidePanel(
-                            key: _key('panel:player'),
-                            game: game,
-                            player: Player.player,
-                            name: t('you'),
-                            color: ScobaPalette.blueText,
-                            avatarId: _avatarIds[Player.player.index],
-                            wonKey: _key('won:player'),
-                            wonCount: _shownWon(Player.player),
-                            chkobbaCards: _shownChkobbaCards(Player.player),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 30),
+                            child: _SidePanel(
+                              key: _key('panel:player'),
+                              game: game,
+                              player: Player.player,
+                              name: t('you'),
+                              color: ScobaPalette.blueText,
+                              avatarId: _avatarIds[Player.player.index],
+                              wonKey: _key('won:player'),
+                              wonCount: _shownWon(Player.player),
+                              chkobbaCards: _shownChkobbaCards(Player.player),
+                            ),
                           ),
                         ],
                       ),
