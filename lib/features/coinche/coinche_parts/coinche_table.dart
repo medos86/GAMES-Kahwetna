@@ -142,7 +142,10 @@ class _Table extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: SingleChildScrollView(
-                    child: _BidPanel(controller: controller),
+                    child: _BidPanel(
+                      controller: controller,
+                      seatNames: seatNames,
+                    ),
                   ),
                 ),
               ),

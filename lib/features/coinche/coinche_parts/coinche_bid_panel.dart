@@ -1,9 +1,10 @@
 part of '../coinche_screen.dart';
 
 class _BidPanel extends StatelessWidget {
-  const _BidPanel({required this.controller});
+  const _BidPanel({required this.controller, this.seatNames = const {}});
 
   final CoincheController controller;
+  final Map<Seat, String> seatNames;
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +39,7 @@ class _BidPanel extends StatelessWidget {
                 ),
               ),
               Text(
-                contract == null
-                    ? 'Aucune annonce'
-                    : 'Actuel : ${contract.value} ${coincheSuitSymbol(contract.mode)}',
+                coincheContractLabel(contract, seatNames),
                 style: const TextStyle(
                   color: _inkColor,
                   fontSize: 12,
@@ -298,3 +297,4 @@ class _ActionButton extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // Main du joueur
 // ---------------------------------------------------------------------------
+
