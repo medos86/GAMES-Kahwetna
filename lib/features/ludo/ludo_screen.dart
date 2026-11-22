@@ -16,7 +16,6 @@ import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/game_end_watcher.dart';
 import '../../core/services/interstitial_service.dart';
-import '../../widgets/avatar_view.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
@@ -26,6 +25,7 @@ import '../../widgets/pulse_glow.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../widgets/dialog_button.dart';
 import '../../widgets/round_result_panel.dart';
+import '../../widgets/turn_avatar.dart';
 
 part 'ludo_parts/ludo_header_players.dart';
 part 'ludo_parts/ludo_die.dart';
