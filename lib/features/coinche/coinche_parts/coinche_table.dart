@@ -192,15 +192,21 @@ class _SeatInfo extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AvatarView(
+          // Médaillon 3D (#735) : le joueur dont c'est le tour est agrandi, comme au Ludo.
+          TurnAvatar(
+            tone: teamOf(seat) == Team.ns
+                ? const Color(0xFF047857)
+                : const Color(0xFFB91C1C),
+            active: active,
             avatarId: avatarId,
             state: gameAvatarState(
               seat: seat.index,
               finished: round.phase == CoinchePhase.done,
               winners: coincheWinnerSeats(round),
             ),
-            size: 28,
             semanticLabel: _seatLabel[seat]!,
+            baseSize: 28,
+            activeSize: 40,
           ),
           const SizedBox(height: 2),
           Container(
