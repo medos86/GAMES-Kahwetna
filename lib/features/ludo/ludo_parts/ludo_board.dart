@@ -304,7 +304,7 @@ class _HopToken extends StatefulWidget {
 
 class _HopTokenState extends State<_HopToken>
     with SingleTickerProviderStateMixin {
-  static const _msPerCell = 150;
+  static const _msPerCell = ludoHopMsPerCell;
 
   late final AnimationController _hop =
       AnimationController(vsync: this, duration: Duration.zero);

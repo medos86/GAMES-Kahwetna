@@ -232,3 +232,55 @@ LudoHopAction ludoHopAction({
   if (from == to) return LudoHopAction.keep;
   return reduced ? LudoHopAction.instant : LudoHopAction.play;
 }
+
+/// Vitesse du saut : millisecondes par case parcourue (#386). Même valeur que le plateau.
+const int ludoHopMsPerCell = 150;
+
+/// Décalage vertical du rebond d'un pion jouable, en cases (négatif = vers le haut).
+const double ludoBobHeight = 0.18;
+
+/// Rebond d'un pion jouable à la phase [t] (0 à 1) du cycle.
+double ludoBobAt(double t) => -ludoBobHeight * math.sin(math.pi * t);
+
+int _pathMs(List<({double x, double y})> points) {
+  var cells = 0.0;
+  for (var i = 1; i < points.length; i++) {
+    final dx = points[i].x - points[i - 1].x;
+    final dy = points[i].y - points[i - 1].y;
+    cells += math.sqrt(dx * dx + dy * dy);
+  }
+  return (cells * ludoHopMsPerCell).round();
+}
+
+/// Durée (ms) de l'animation d'un coup : le pion joué saute case par case, puis
+/// une victime éventuelle (progress remis à 0) part après [ludoVictimDelayMs]
+/// et rejoint sa base. Renvoie 0 si aucun pion n'a bougé.
+int ludoMoveSettleMs(List<Token> before, List<Token> after) {
+  final placedBefore = {for (final p in layoutTokens(before)) p.token.id: p};
+  final placedAfter = {for (final p in layoutTokens(after)) p.token.id: p};
+  var moverMs = 0;
+  var victimEnd = 0;
+  for (final token in after) {
+    final old = placedBefore[token.id];
+    final now = placedAfter[token.id];
+    if (old == null || now == null) continue;
+    final from = old.token.progress;
+    final to = token.progress;
+    if (from == to) continue;
+    if (to == 0) {
+      final victimMs = _pathMs([
+        (x: old.x, y: old.y),
+        (x: now.x, y: now.y),
+      ]);
+      victimEnd = math.max(victimEnd, ludoVictimDelayMs + victimMs);
+      continue;
+    }
+    final path = <({double x, double y})>[
+      (x: old.x, y: old.y),
+      ...ludoHopWaypoints(token.color, from, to),
+      (x: now.x, y: now.y),
+    ];
+    moverMs = math.max(moverMs, _pathMs(path));
+  }
+  return math.max(moverMs, victimEnd);
+}

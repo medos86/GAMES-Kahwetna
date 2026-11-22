@@ -5,6 +5,7 @@ import 'dart:async';
 import '../../core/audio/sounds.dart';
 import '../../game/common.dart';
 import '../../game/ludo.dart';
+import 'ludo_layout.dart';
 
 /// Couleurs humaines dans l'ordre du source : les N premières sont jouées par l'humain.
 const ludoHumanOrder = [
@@ -49,6 +50,10 @@ class LudoController extends PersistentGameController {
   Timer? _timer;
   bool _disposed = false;
 
+  /// Animation du dernier coup en cours : personne ne lance ni ne joue (#778).
+  Timer? _settleTimer;
+  bool get _settling => _settleTimer != null;
+
   LudoState get game => _game;
 
   List<LudoColor> get humans => ludoHumanOrder.take(playerCount).toList();
@@ -88,13 +93,16 @@ class LudoController extends PersistentGameController {
   }
 
   /// Pions jouables au tour de l'humain.
-  Set<String> get legalIds =>
-      humanTurn ? legalTokenIds(_game).toSet() : const <String>{};
+  Set<String> get legalIds {
+    if (!humanTurn || _settling) return const <String>{};
+    return legalTokenIds(_game).toSet();
+  }
 
-  bool get canRoll => humanTurn && _game.phase == LudoPhase.roll;
+  bool get canRoll => humanTurn && !_settling && _game.phase == LudoPhase.roll;
 
   /// Le joueur lance le dé.
   void roll() {
+    if (_settling) return;
     final next = rollDice(_game, _random);
     if (!identical(next, _game)) Sounds.play(Sfx.dice);
     _setGame(next);
@@ -102,6 +110,7 @@ class LudoController extends PersistentGameController {
 
   /// Le joueur touche un pion (sans effet si le coup n'est pas légal).
   void tapToken(String tokenId) {
+    if (_settling) return;
     final next = moveToken(_game, tokenId);
     if (!identical(next, _game)) Sounds.play(Sfx.place);
     _setGame(next);
@@ -109,6 +118,8 @@ class LudoController extends PersistentGameController {
 
   /// Nouvelle partie, mêmes joueurs et niveau.
   void restart() {
+    _settleTimer?.cancel();
+    _settleTimer = null;
     _choiceMade = false;
     _fastAi = false;
     _lastFaces.clear();
@@ -128,7 +139,19 @@ class LudoController extends PersistentGameController {
         next.rollId != _game.rollId) {
       _lastFaces[next.diceOwner!] = next.dice!;
     }
+    final settle = ludoMoveSettleMs(_game.tokens, next.tokens);
     _game = next;
+    if (settle > 0) {
+      _settleTimer?.cancel();
+      _settleTimer = Timer(Duration(milliseconds: settle), _endSettle);
+    }
+    _reschedule();
+    notifyListeners();
+  }
+
+  /// Fin de l'animation du coup : le tour suivant peut enfin démarrer.
+  void _endSettle() {
+    _settleTimer = null;
     _reschedule();
     notifyListeners();
   }
@@ -137,7 +160,7 @@ class LudoController extends PersistentGameController {
   void _reschedule() {
     _timer?.cancel();
     _timer = null;
-    if (_disposed) return;
+    if (_disposed || _settling) return;
     if (humanTurn) {
       // Un seul pion jouable : il avance tout seul après un court instant (#388).
       if (_game.phase != LudoPhase.move || legalIds.length != 1) return;
@@ -179,6 +202,8 @@ class LudoController extends PersistentGameController {
     _disposed = true;
     _timer?.cancel();
     _timer = null;
+    _settleTimer?.cancel();
+    _settleTimer = null;
     super.dispose();
   }
 }
