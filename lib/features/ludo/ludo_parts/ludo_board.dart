@@ -472,29 +472,33 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final placed = widget.placed;
-    // Pion jouable : un peu plus grand, avec halo pulsé.
-    final visual = placed.size * widget.u * (widget.clickable ? 1.12 : 1);
     final reduce = MediaQuery.disableAnimationsOf(context);
     return AnimatedBuilder(
       animation: Listenable.merge([_hop, _bob]),
-      builder: (context, child) {
+      builder: (context, _) {
+        final placed = widget.placed;
+        // Pion jouable : un peu plus grand, avec halo pulsé. Pendant le saut il garde
+        // sa taille pleine et ne se réduit qu'à l'arrivée (#798).
+        final base = ludoVisualBaseSize(_hop.isAnimating, placed.size);
+        final visual = base * widget.u * (widget.clickable ? 1.12 : 1);
         final bob = reduce ? 0.0 : ludoBobAt(_bob.value) * widget.u;
         return Transform.translate(
           offset: _offset() + Offset(0, bob),
-          child: Transform.scale(scale: _scale(), child: child),
+          child: Transform.scale(
+            scale: _scale(),
+            child: PulseGlow(
+              active: widget.clickable,
+              radius: visual / 2,
+              child: _TokenButton(
+                token: placed.token,
+                clickable: widget.clickable,
+                onTap: widget.onTap,
+                visualSize: visual,
+              ),
+            ),
+          ),
         );
       },
-      child: PulseGlow(
-        active: widget.clickable,
-        radius: visual / 2,
-        child: _TokenButton(
-          token: placed.token,
-          clickable: widget.clickable,
-          onTap: widget.onTap,
-          visualSize: visual,
-        ),
-      ),
     );
   }
 }
