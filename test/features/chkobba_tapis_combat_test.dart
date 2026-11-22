@@ -61,7 +61,6 @@ Future<void> _pump(WidgetTester tester, ChkobbaState state) async {
   await tester.pump();
 }
 
-
 /// Tas de cartes gagnées (Container 56 x 44), dans l'ordre de l'arbre : adversaire, puis joueur.
 List<Finder> _piles(WidgetTester tester) {
   final found = <Finder>[];
