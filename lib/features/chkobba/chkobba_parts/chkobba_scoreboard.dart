@@ -1,14 +1,30 @@
 part of '../chkobba_screen.dart';
 
-/// Taille de l'avatar inactif et de l'avatar du joueur dont c'est le tour, en dp (#728).
-const double _sideAvatarSize = 30;
-const double _sideAvatarActiveSize = 40;
+/// Taille de l'avatar inactif et de l'avatar du joueur dont c'est le tour, en dp (#728, #766).
+const double _sideAvatarSize = 26;
+const double _sideAvatarActiveSize = 32;
 
-/// Largeur d'un panneau latéral (#726) : étroit pour laisser la place au tapis sur 360 px.
-const double _sidePanelWidth = 72;
+/// Écriture BD (score, nom) : Bangers, contour encre et ombre portée (#766).
+/// Un seul widget Text, pour que le score reste lisible par un seul texte.
+TextStyle _comicText({required double size, required Color fill}) {
+  return TextStyle(
+    fontFamily: 'Bangers',
+    fontSize: size,
+    height: 1.0,
+    letterSpacing: 0.5,
+    color: fill,
+    shadows: const [
+      Shadow(color: Colors.black, offset: Offset(-1.5, -1.5)),
+      Shadow(color: Colors.black, offset: Offset(1.5, -1.5)),
+      Shadow(color: Colors.black, offset: Offset(-1.5, 1.5)),
+      Shadow(color: Colors.black, offset: Offset(1.5, 1.5)),
+      Shadow(color: Colors.black, offset: Offset(0, 3)),
+    ],
+  );
+}
 
-/// Panneau latéral d'un joueur (#726) : avatar, score, nom et sa pile de cartes gagnées (#727).
-/// Gauche = adversaire, droite = joueur. Le joueur dont c'est le tour a un médaillon agrandi (#728).
+/// Coin d'un joueur (#766) : avatar et score en autocollant BD, nom en Bangers, pile de cartes gagnées.
+/// Joueur en bas à gauche : pile au-dessus de l'avatar. Adversaire en haut à droite : pile sous l'avatar.
 class _SidePanel extends StatelessWidget {
   const _SidePanel({
     super.key,
@@ -20,7 +36,7 @@ class _SidePanel extends StatelessWidget {
     required this.wonKey,
     required this.wonCount,
     required this.chkobbaCards,
-    this.horizontal = false,
+    required this.opponentSide,
   });
 
   final ChkobbaState game;
@@ -34,8 +50,8 @@ class _SidePanel extends StatelessWidget {
   final int wonCount;
   final List<ChkobbaCard> chkobbaCards;
 
-  /// Panneau en ligne (#752) : avatar, score et nom côte à côte, pile à droite, en haut ou en bas du tapis.
-  final bool horizontal;
+  /// Vrai pour l'adversaire : coin haut-droit, pile entre l'avatar et le tapis.
+  final bool opponentSide;
 
   @override
   Widget build(BuildContext context) {
@@ -55,34 +71,23 @@ class _SidePanel extends StatelessWidget {
       baseSize: _sideAvatarSize,
       activeSize: _sideAvatarActiveSize,
     );
-    final scorePill = Container(
-      width: 40,
-      height: 30,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: ComicPalette.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color, width: 2),
-      ),
-      child: Text(
-        '$score',
-        style: TextStyle(
-          fontSize: 17,
-          fontWeight: FontWeight.w900,
-          color: color,
-        ),
+    // Mise à l'échelle si le coin est étroit : avatar et score ne débordent jamais.
+    final identity = FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          avatar,
+          const SizedBox(width: 4),
+          _ScoreSticker(score: score, color: color),
+        ],
       ),
     );
     final nameLabel = Text(
       name.toUpperCase(),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.w900,
-        color: color,
-        letterSpacing: 0.5,
-      ),
+      style: _comicText(size: 15, fill: ComicPalette.white),
     );
     final pile = _WonPile(
       key: wonKey,
@@ -90,52 +95,55 @@ class _SidePanel extends StatelessWidget {
       color: color,
       chkobbaCards: chkobbaCards,
     );
-
-    if (horizontal) {
-      // Une ligne : médaillon, score et nom, puis la pile (#752).
-      return Semantics(
-        container: true,
-        label: '$name $score',
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            avatar,
-            const SizedBox(width: 8),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [scorePill, const SizedBox(height: 2), nameLabel],
-            ),
-            const SizedBox(width: 12),
-            pile,
-          ],
-        ),
-      );
-    }
-
-    return SizedBox(
-      width: _sidePanelWidth,
-      child: Semantics(
-        container: true,
-        label: '$name $score',
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            avatar,
-            const SizedBox(height: 4),
-            scorePill,
-            const SizedBox(height: 2),
-            nameLabel,
-            const SizedBox(height: 6),
-            pile,
-          ],
-        ),
+    return Semantics(
+      container: true,
+      label: '$name $score',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment:
+            opponentSide ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          if (!opponentSide) ...[pile, const SizedBox(height: 6)],
+          identity,
+          const SizedBox(height: 2),
+          nameLabel,
+          if (opponentSide) ...[const SizedBox(height: 6), pile],
+        ],
       ),
     );
   }
 }
 
-/// Tas de cartes gagnées d'un joueur, posé de son côté du tapis (#534) : adversaire en haut, moi en bas.
+/// Score en autocollant BD (#766) : chiffre Bangers blanc, contour encre, léger penché.
+class _ScoreSticker extends StatelessWidget {
+  const _ScoreSticker({required this.score, required this.color});
+
+  final int score;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.rotate(
+      angle: -0.1,
+      child: Container(
+        constraints: const BoxConstraints(minWidth: 32),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.black, width: 2.5),
+          boxShadow: const [
+            BoxShadow(color: Colors.black, offset: Offset(0, 3)),
+          ],
+        ),
+        child: Text('$score', style: _comicText(size: 22, fill: Colors.white)),
+      ),
+    );
+  }
+}
+
+/// Tas de cartes gagnées d'un joueur, posé de son côté du tapis (#534, #766, plus grand).
 class _WonPile extends StatelessWidget {
   const _WonPile({
     super.key,
@@ -150,20 +158,22 @@ class _WonPile extends StatelessWidget {
   /// Cartes de Chkobba (Scoba), posées légèrement tournées sous le tas (#594, #626).
   final List<ChkobbaCard> chkobbaCards;
 
-  /// Taille de la carte de Chkobba affichée : seule sa moitié haute est visible (#626).
-  static const _cardWidth = 30.0;
-  static const _cardHeight = 42.0;
+  /// Dimensions du tas et de la carte de Chkobba affichée : seule sa moitié haute est visible (#626).
+  static const _pileWidth = 56.0;
+  static const _pileHeight = 44.0;
+  static const _cardWidth = 36.0;
+  static const _cardHeight = 50.0;
 
   /// Décalage horizontal entre deux cartes de Chkobba, la suivante par-dessus (#626).
-  static const _overlap = 7.0;
+  static const _overlap = 8.0;
 
   /// Dos de carte (comme les cartes en jeu, #632) et nombre de cartes sur une
   /// étiquette encre, pour un contraste suffisant.
   @override
   Widget build(BuildContext context) {
     final pile = Container(
-      width: 48,
-      height: 36,
+      width: _pileWidth,
+      height: _pileHeight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 3))],
@@ -192,7 +202,7 @@ class _WonPile extends StatelessWidget {
                   child: Text(
                     '$count',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.w900,
                       color: ComicPalette.ink,
                     ),
@@ -208,15 +218,14 @@ class _WonPile extends StatelessWidget {
     // Les Scobas sont glissées sous le tas : leur moitié haute est cachée par le tas, seule la
     // moitié basse dépasse (#649). Chaque carte suivante se pose par-dessus la précédente (#626).
     final width = _cardWidth + _overlap * (chkobbaCards.length - 1);
-    const pileHeight = 36.0;
     return SizedBox(
-      width: 48,
-      height: pileHeight + _cardHeight / 2,
+      width: _pileWidth,
+      height: _pileHeight + _cardHeight / 2,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Positioned(
-            top: pileHeight - _cardHeight / 2,
+            top: _pileHeight - _cardHeight / 2,
             left: 0,
             right: 0,
             child: Center(
