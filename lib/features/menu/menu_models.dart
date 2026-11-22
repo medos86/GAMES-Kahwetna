@@ -114,7 +114,7 @@ const gameEntries = <GameEntry>[
     route: '/game',
     targets: [11, 21],
     defaultTarget: 11,
-    backgroundAsset: 'assets/images/game_bg/chkobba_sfax.webp',
+    backgroundAsset: 'assets/images/game_bg/rays_chkobba.webp',
   ),
   GameEntry(
     name: 'Domino',
@@ -126,7 +126,7 @@ const gameEntries = <GameEntry>[
     route: '/domino',
     targets: [50, 100, 200],
     defaultTarget: 50,
-    backgroundAsset: 'assets/images/game_bg/domino_medina_tunis.webp',
+    backgroundAsset: 'assets/images/game_bg/rays_domino.webp',
   ),
   GameEntry(
     name: 'Belote',
@@ -138,7 +138,7 @@ const gameEntries = <GameEntry>[
     route: '/coinche',
     targets: [500, 1000],
     defaultTarget: 1000,
-    backgroundAsset: 'assets/images/game_bg/coinche_kairouan.webp',
+    backgroundAsset: 'assets/images/game_bg/rays_belote.webp',
   ),
   GameEntry(
     name: 'Ludo',
