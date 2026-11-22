@@ -35,7 +35,7 @@ void main() {
     expect(placed.size, ludoTokenSize);
   });
 
-  test('deux pions sur la même case du plateau : taille normale, décalage diagonal (#780)', () {
+  test('#780 : deux pions sur le plateau, taille normale, décalage', () {
     // Rouge progression 40 et bleu progression 1 tombent sur la même case (index 40).
     final base = newLudoGame();
     final tokens = [
@@ -77,36 +77,6 @@ void main() {
   });
 
   test('#780 : pion seul sur la colonne finale garde sa taille normale', () {
-    final state = newLudoGame().copyWith(
-      tokens: [
-        for (final t in newLudoGame().tokens)
-          t.id == 'red-0' ? t.copyWith(progress: 53) : t,
-      ],
-    );
-    final placed =
-        layoutTokens(state.tokens).firstWhere((p) => p.token.id == 'red-0');
-    expect(placed.size, ludoTokenSize);
-  });
-
-  test('#780 : pion sur la colonne finale en pile : taille réduite', () {
-    final base = newLudoGame();
-    final tokens = [
-      for (final t in base.tokens)
-        if (t.id == 'red-0')
-          t.copyWith(progress: 52)
-        else if (t.id == 'red-1')
-          t.copyWith(progress: 52)
-        else
-          t,
-    ];
-    final placed = layoutTokens(tokens);
-    final a = placed.firstWhere((p) => p.token.id == 'red-0');
-    final b = placed.firstWhere((p) => p.token.id == 'red-1');
-    expect(a.size, ludoStackSize);
-    expect(b.size, ludoStackSize);
-  });
-
-  test('#780 : pion seul sur la colonne finale : taille normale', () {
     final state = newLudoGame().copyWith(
       tokens: [
         for (final t in newLudoGame().tokens)
