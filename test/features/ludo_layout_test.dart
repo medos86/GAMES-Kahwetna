@@ -92,7 +92,12 @@ void main() {
     final base = newLudoGame();
     final tokens = [
       for (final t in base.tokens)
-        if (t.id == 'red-0' || t.id == 'red-1') t.copyWith(progress: 52) else t,
+        if (t.id == 'red-0')
+          t.copyWith(progress: 52)
+        else if (t.id == 'red-1')
+          t.copyWith(progress: 52)
+        else
+          t,
     ];
     final placed = layoutTokens(tokens);
     final a = placed.firstWhere((p) => p.token.id == 'red-0');
