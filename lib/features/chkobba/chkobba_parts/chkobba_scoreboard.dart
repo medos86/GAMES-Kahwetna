@@ -23,8 +23,8 @@ TextStyle _comicText({required double size, required Color fill}) {
   );
 }
 
-/// Coin d'un joueur (#766) : avatar et score en autocollant BD, nom en Bangers, pile de cartes gagnées.
-/// Joueur en bas à gauche : pile au-dessus de l'avatar. Adversaire en haut à droite : pile sous l'avatar.
+/// Coin d'un joueur (#766, #800) : avatar et score en autocollant BD, nom en Bangers.
+/// La pile gagnée et la pioche sont dans l'autre coin de la même rangée (voir `_SeatRow`).
 class _SidePanel extends StatelessWidget {
   const _SidePanel({
     super.key,
@@ -33,8 +33,6 @@ class _SidePanel extends StatelessWidget {
     required this.name,
     required this.color,
     required this.avatarId,
-    required this.wonKey,
-    required this.chkobbaCards,
     required this.opponentSide,
     this.reaction,
   });
@@ -45,11 +43,7 @@ class _SidePanel extends StatelessWidget {
   final Color color;
   final String avatarId;
 
-  /// Clé de la pile (cible de l'animation de capture).
-  final Key wonKey;
-  final List<ChkobbaCard> chkobbaCards;
-
-  /// Vrai pour l'adversaire : coin haut-droit, pile entre l'avatar et le tapis.
+  /// Vrai pour l'adversaire : score côté tapis, avatar à l'extérieur (#800).
   final bool opponentSide;
 
   /// Sticker BD près de l'avatar (#761), ou null.
@@ -128,24 +122,10 @@ class _SidePanel extends StatelessWidget {
         children: [identity, const SizedBox(height: 2), nameLabel],
       ),
     );
-    final pile = _WonPile(
-      key: wonKey,
-      color: color,
-      chkobbaCards: chkobbaCards,
-    );
     return Semantics(
       container: true,
       label: '$name $score',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment:
-            opponentSide ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          if (!opponentSide) ...[pile, const SizedBox(height: 6)],
-          box,
-          if (opponentSide) ...[const SizedBox(height: 6), pile],
-        ],
-      ),
+      child: box,
     );
   }
 }
