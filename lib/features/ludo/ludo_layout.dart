@@ -192,8 +192,12 @@ PlacedToken _trackPlacement(
   seen[key] = order + 1;
   final x = cell.col + 0.5;
   final y = cell.row + 0.5;
+  // Le pion ne rétrécit que sur la colonne finale (progression >= 52) ; sur le
+  // plateau il garde sa taille, même quand une autre pièce occupe la case (#780).
+  final shrink = count > 1 && token.progress >= ludoTrackLength;
+  final size = shrink ? ludoStackSize : ludoTokenSize;
   if (count == 1) {
-    return PlacedToken(token: token, x: x, y: y, size: ludoTokenSize);
+    return PlacedToken(token: token, x: x, y: y, size: size);
   }
   // Deux pions : diagonale 0 puis 3 ; trois et plus : index d'ordre.
   final offset = ludoStackOffset(order, count);
@@ -201,7 +205,7 @@ PlacedToken _trackPlacement(
     token: token,
     x: x + offset[0],
     y: y + offset[1],
-    size: ludoStackSize,
+    size: size,
   );
 }
 
