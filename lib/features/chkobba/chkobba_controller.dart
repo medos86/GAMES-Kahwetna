@@ -4,6 +4,7 @@ import 'dart:async';
 
 import '../../core/audio/sounds.dart';
 import '../../core/reactions/reaction_mood.dart';
+import '../../core/services/reaction_stickers.dart';
 import '../../game/chkobba.dart';
 import '../../game/chkobba_reactions.dart';
 import '../../game/common.dart';
@@ -225,7 +226,7 @@ class ChkobbaController extends PersistentGameController {
   }
 
   void _showReactions(Map<Player, ReactionMood> moods) {
-    if (moods.isEmpty) return;
+    if (moods.isEmpty || !reactionStickers.value) return;
     _reactions = moods;
     _reactionTimer?.cancel();
     _reactionTimer = Timer(reactionDuration, () {
