@@ -37,6 +37,7 @@ class _SidePanel extends StatelessWidget {
     required this.wonCount,
     required this.chkobbaCards,
     required this.opponentSide,
+    this.reaction,
   });
 
   final ChkobbaState game;
@@ -52,6 +53,9 @@ class _SidePanel extends StatelessWidget {
 
   /// Vrai pour l'adversaire : coin haut-droit, pile entre l'avatar et le tapis.
   final bool opponentSide;
+
+  /// Sticker BD près de l'avatar (#761), ou null.
+  final ReactionMood? reaction;
 
   @override
   Widget build(BuildContext context) {
@@ -71,13 +75,29 @@ class _SidePanel extends StatelessWidget {
       baseSize: _sideAvatarSize,
       activeSize: _sideAvatarActiveSize,
     );
+    // Sticker de réaction posé à côté de l'avatar, sans décaler la mise en page (#761).
+    final avatarSlot = Stack(
+      clipBehavior: Clip.none,
+      children: [
+        avatar,
+        Positioned(
+          right: -34,
+          top: -22,
+          child: ReactionSticker(
+            mood: reaction,
+            size: 40,
+            semanticLabel: name,
+          ),
+        ),
+      ],
+    );
     // Mise à l'échelle si le coin est étroit : avatar et score ne débordent jamais.
     final identity = FittedBox(
       fit: BoxFit.scaleDown,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          avatar,
+          avatarSlot,
           const SizedBox(width: 4),
           _ScoreSticker(score: score, color: color),
         ],
