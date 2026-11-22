@@ -178,7 +178,8 @@ class _SeatInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final call = round.phase == CoinchePhase.bidding ? round.calls[seat] : null;
     // Annonceur (#733) : son contrat reste affiché pendant tout le jeu.
-    final contract = round.phase == CoinchePhase.bidding ? null : round.contract;
+    final contract =
+        round.phase == CoinchePhase.bidding ? null : round.contract;
     final announces = contract != null && contract.seat == seat;
     final count = round.hands[seat]!.length;
     final active = round.turn == seat &&
@@ -306,7 +307,7 @@ class _SeatInfo extends StatelessWidget {
   }
 }
 
-/// Libellé du contrat sur la place de l'annonceur (#733), ex. « 130 ♥ ×2 · Nous ».
+/// Libellé du contrat sur la place de l'annonceur (#733).
 String coincheContractLabel(Contract contract) {
   final mult = contract.multiplier > 1 ? ' ×${contract.multiplier}' : '';
   final team = teamOf(contract.seat) == Team.ns ? 'Nous' : 'Eux';
