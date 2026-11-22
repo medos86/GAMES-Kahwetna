@@ -5,26 +5,33 @@ import 'package:kahwetne/features/menu/menu_models.dart';
 
 GameEntry _byName(String name) => gameEntries.firstWhere((g) => g.name == name);
 
-// Fond photo par jeu sur l'écran de choix du niveau (#335).
+// Fond rayons pop-art par jeu sur l'écran de choix du niveau (#781).
 void main() {
-  test('Chkobba, Domino et Belote ont chacun leur photo', () {
+  test('chaque jeu a son fond rayons', () {
     expect(
       _byName('Chkobba').backgroundAsset,
-      'assets/images/game_bg/chkobba_sfax.webp',
+      'assets/images/game_bg/rays_chkobba.webp',
     );
     expect(
       _byName('Domino').backgroundAsset,
-      'assets/images/game_bg/domino_medina_tunis.webp',
+      'assets/images/game_bg/rays_domino.webp',
     );
     expect(
       _byName('Belote').backgroundAsset,
-      'assets/images/game_bg/coinche_kairouan.webp',
+      'assets/images/game_bg/rays_belote.webp',
+    );
+    expect(
+      _byName('Ludo').backgroundAsset,
+      'assets/images/game_bg/rays_ludo.webp',
+    );
+    expect(
+      _byName('Rami').backgroundAsset,
+      'assets/images/game_bg/rays_rami.webp',
     );
   });
 
-  test('les photos référencées existent dans les assets', () {
+  test('les fonds référencés existent dans les assets', () {
     for (final game in gameEntries) {
-      if (game.backgroundAsset == kMenuBackgroundAsset) continue;
       expect(
         File(game.backgroundAsset).existsSync(),
         isTrue,
@@ -33,17 +40,8 @@ void main() {
     }
   });
 
-  test('les trois photos sont distinctes', () {
-    final assets = {
-      _byName('Chkobba').backgroundAsset,
-      _byName('Domino').backgroundAsset,
-      _byName('Belote').backgroundAsset,
-    };
-    expect(assets.length, 3);
-  });
-
-  test('Ludo et Rami gardent le fond commun', () {
-    expect(_byName('Ludo').backgroundAsset, kMenuBackgroundAsset);
-    expect(_byName('Rami').backgroundAsset, kMenuBackgroundAsset);
+  test('les fonds des cinq jeux sont distincts', () {
+    final assets = {for (final g in gameEntries) g.backgroundAsset};
+    expect(assets.length, gameEntries.length);
   });
 }
