@@ -25,6 +25,12 @@ jobs:
           channel: stable
           cache: true
 
+      # Le runner ubuntu-latest n'a plus ImageMagick (`convert`) : tool/apply_app_identity.sh en a besoin (#751).
+      - name: Installer ImageMagick
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick
+
       # Le dépôt ne contient pas le dossier android/ : on le génère ici, sans toucher à lib/ ni à pubspec.yaml.
       - name: Dossier Android
         run: flutter create --platforms=android --project-name kahwetne --org com.kahwetne .
