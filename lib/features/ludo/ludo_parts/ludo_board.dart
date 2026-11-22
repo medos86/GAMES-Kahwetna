@@ -302,8 +302,7 @@ class _HopToken extends StatefulWidget {
   State<_HopToken> createState() => _HopTokenState();
 }
 
-class _HopTokenState extends State<_HopToken>
-    with TickerProviderStateMixin {
+class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
   static const _msPerCell = ludoHopMsPerCell;
 
   late final AnimationController _hop =
@@ -339,9 +338,8 @@ class _HopTokenState extends State<_HopToken>
     if (widget.clickable) {
       if (!_bob.isAnimating) _bob.repeat(reverse: true);
     } else {
-      _bob
-        ..stop()
-        ..value = 0;
+      _bob.stop();
+      _bob.value = 0;
     }
   }
 
