@@ -32,7 +32,7 @@ class _Header extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _ScoreBar extends StatelessWidget {
-  const _ScoreBar({required this.controller, required this.avatarIds});
+  const _ScoreBar({required this.controller});
 
   final CoincheController controller;
 
