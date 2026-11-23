@@ -1,24 +1,5 @@
 part of '../domino_screen.dart';
 
-class _WoodShadeBackground extends StatelessWidget {
-  const _WoodShadeBackground();
-
-  @override
-  Widget build(BuildContext context) {
-    // Dégradé d'ombre en haut : approximation des couches de bois du source.
-    return const DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0x4D000000), Color(0x00000000)],
-        ),
-      ),
-      child: SizedBox.expand(),
-    );
-  }
-}
-
 class _Header extends StatelessWidget {
   const _Header({
     required this.difficulty,
