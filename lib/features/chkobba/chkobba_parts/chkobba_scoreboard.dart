@@ -98,7 +98,8 @@ class _NamePill extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 110),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: active ? ComicPalette.gold : Colors.black.withValues(alpha: 0.35),
+        color:
+            active ? ComicPalette.gold : Colors.black.withValues(alpha: 0.35),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: active ? ComicPalette.ink : Colors.black26,

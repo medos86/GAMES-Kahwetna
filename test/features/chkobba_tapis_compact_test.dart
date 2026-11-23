@@ -1,4 +1,4 @@
-// Tapis Chkobba épuré : pas de libellé « PIOCHE », score de l'adversaire à gauche de son avatar,
+// Tapis Chkobba épuré : pas de libellé « PIOCHE », score sous l'avatar comme à la Belote,
 // dos de carte zoomé (pas écrasé), tapis sans cadre intérieur.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -61,21 +61,25 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('adversaire : score à gauche, avatar tout à droite', (
+  testWidgets('adversaire : score sous son avatar, comme à la Belote', (
     tester,
   ) async {
     await _pump(tester);
     final opponentScore = tester.getCenter(find.text('7'));
     final opponentAvatar = tester.getCenter(find.byType(TurnAvatar).at(0));
-    expect(opponentScore.dx, lessThan(opponentAvatar.dx));
+    expect(opponentScore.dy, greaterThan(opponentAvatar.dy));
+    expect(opponentScore.dx, closeTo(opponentAvatar.dx, 2));
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('joueur : avatar à gauche, score à droite', (tester) async {
+  testWidgets('joueur : score sous son avatar, comme à la Belote', (
+    tester,
+  ) async {
     await _pump(tester);
     final playerScore = tester.getCenter(find.text('4'));
     final playerAvatar = tester.getCenter(find.byType(TurnAvatar).at(1));
-    expect(playerAvatar.dx, lessThan(playerScore.dx));
+    expect(playerScore.dy, greaterThan(playerAvatar.dy));
+    expect(playerScore.dx, closeTo(playerAvatar.dx, 2));
     expect(tester.takeException(), isNull);
   });
 

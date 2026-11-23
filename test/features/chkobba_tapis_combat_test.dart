@@ -158,20 +158,20 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('pseudo du joueur, pas « vous »', (tester) async {
+  testWidgets('pseudo du joueur en pastille, pas « vous »', (tester) async {
     SharedPreferences.setMockInitialValues({
       profileNamePrefsKey: 'Karima',
       profileAvatarPrefsKey: 'cat',
     });
     await _pump(tester, _state());
-    expect(find.text('KARIMA'), findsOneWidget);
+    expect(find.text('Karima'), findsOneWidget);
     expect(find.text('VOUS'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
   testWidgets('adversaire avec un prénom tiré au hasard', (tester) async {
     await _pump(tester, _state());
-    final names = chkobbaOpponentNames.map((n) => n.toUpperCase()).toList();
+    final names = chkobbaOpponentNames;
     expect(
       find.byWidgetPredicate((w) => w is Text && names.contains(w.data)),
       findsOneWidget,
