@@ -4,13 +4,12 @@ part of '../rami_screen.dart';
 const double _ramiCardScale = ramiHandCardScale;
 
 /// Clé partagée avec le mode sans pub (même nom que le web).
-// Palette de table partagée (issues #633 et #634) : tapis vert BD, encre noire, bois commun.
+// Palette de table partagée (issues #633 et #634) : tapis vert BD, encre noire.
 const _feltColor = ComicPalette.felt;
 const _frameColor = ComicPalette.ink;
 const _creamColor = ComicPalette.paper;
 const _inkColor = ComicPalette.ink;
 const _goldColor = ComicPalette.gold;
-const _woodColor = ComicPalette.tableWood;
 const _dragThreshold = 8.0;
 
 const _seatNames = ['Toi', 'Ali', 'Karim', 'Sami'];

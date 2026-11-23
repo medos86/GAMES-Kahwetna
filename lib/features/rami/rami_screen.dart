@@ -24,6 +24,7 @@ import '../../core/services/game_end_watcher.dart';
 import '../../core/services/interstitial_service.dart';
 import '../../widgets/avatar_view.dart';
 import '../../widgets/exit_guard.dart';
+import '../../widgets/game_rays_background.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../widgets/pulse_glow.dart';
 import '../../core/services/saved_game_store.dart';
@@ -230,7 +231,8 @@ class _RamiScreenState extends State<RamiScreen>
           final g = _c.game;
           return GameScaffold(
             showAd: !_adFree.value,
-            background: const ColoredBox(color: _woodColor),
+            // Fond rayons propre au Rami (#809).
+            background: const GameRaysBackground(gameName: 'Rami'),
             overlays: [
               if (g.phase == rules.RamiPhase.end && g.roundResult != null)
                 Positioned.fill(
