@@ -23,7 +23,7 @@ double wavDurationSeconds(Uint8List bytes) {
 }
 
 void main() {
-  // Durées maximales par type de son (issue #820 : catalogue ; #790 : un mouvement ne dépasse pas 1 s).
+  // Durées maximales par type de son (#820 ; #790 : un mouvement ≤ 1 s).
   const maxSeconds = {
     Sfx.place: 1.0,
     Sfx.draw: 1.0,
@@ -44,7 +44,7 @@ void main() {
     expect(maxSeconds.keys.toSet(), Sfx.values.toSet());
   });
 
-  test('chaque effet prévu par jeu existe dans l\'enum', () {
+  test("chaque effet prévu par jeu existe dans l'enum", () {
     for (final entry in gameSfx.entries) {
       for (final sfx in entry.value) {
         expect(Sfx.values, contains(sfx), reason: entry.key);

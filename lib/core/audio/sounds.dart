@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 
-/// Effets sonores du jeu (issue #820). Pose, pioche, passe, victoire et défaite sont dans assets/sounds/domino/ ;
-/// capture et dé sont dans assets/sounds/common/ ; clics de menu, cartes et pions ont leur dossier propre.
+/// Effets sonores du jeu (issue #820). Domino : assets/sounds/domino/ ;
+/// capture et dé : assets/sounds/common/ ; menu, cartes et pions : leurs dossiers.
 enum Sfx {
   place,
   draw,
@@ -37,7 +37,14 @@ extension SfxPath on Sfx {
 const gameSfx = <String, List<Sfx>>{
   'chkobba': [Sfx.place, Sfx.draw, Sfx.cardDeal, Sfx.win, Sfx.lose],
   'coinche': [Sfx.place, Sfx.cardDeal, Sfx.win, Sfx.lose],
-  'ludo': [Sfx.dice, Sfx.place, Sfx.pawnMove, Sfx.pawnHome, Sfx.capture, Sfx.win],
+  'ludo': [
+    Sfx.dice,
+    Sfx.place,
+    Sfx.pawnMove,
+    Sfx.pawnHome,
+    Sfx.capture,
+    Sfx.win,
+  ],
   'rami': [Sfx.place, Sfx.draw, Sfx.cardDeal, Sfx.win, Sfx.lose],
   'domino': [Sfx.place, Sfx.draw, Sfx.pass, Sfx.win, Sfx.lose],
 };
