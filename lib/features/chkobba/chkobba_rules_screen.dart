@@ -2,11 +2,10 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/theme/comic_palette.dart';
 
+import '../../widgets/game_rays_background.dart';
 import '../../widgets/game_safe_area.dart';
-import '../../widgets/texture_patterns.dart';
 import '../../core/strings.dart';
 
-const _woodColor = ComicPalette.tableWood;
 const _inkColor = Color(0xFF78350F);
 const _purpleColor = Color(0xFF7E22CE);
 
@@ -76,19 +75,11 @@ class ChkobbaRulesScreen extends StatelessWidget {
     return MediaQuery.withClampedTextScaling(
       maxScaleFactor: 1,
       child: Scaffold(
-        backgroundColor: _woodColor,
+        backgroundColor: ComicPalette.tableWood,
         body: Stack(
           children: [
             const Positioned.fill(
-              child: DecoratedBox(decoration: BoxDecoration(color: _woodColor)),
-            ),
-            const Positioned.fill(
-              child: IgnorePointer(
-                child: Opacity(
-                  opacity: 0.2,
-                  child: DotPattern(spacing: 4, radius: 1, color: Colors.black),
-                ),
-              ),
+              child: GameRaysBackground(gameName: 'Chkobba'),
             ),
             GameSafeArea(
               child: SingleChildScrollView(
