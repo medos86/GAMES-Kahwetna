@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
-/// Petit bouclier du seuil d'ouverture, placé en haut à droite du tapis (#522).
+/// Petit bouclier rouge du seuil d'ouverture, placé en bas à droite du tapis (#522, #838).
 /// Passif : aucun événement de clic, le seuil reste lisible en permanence.
 class RamiMinOpeningShield extends StatelessWidget {
   const RamiMinOpeningShield({
@@ -26,7 +26,7 @@ class RamiMinOpeningShield extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF4A8FD6), Color(0xFF1F5A96)],
+            colors: [Color(0xFFE5484D), Color(0xFF9E1B22)],
           ),
           border: Border.fromBorderSide(
             BorderSide(color: Color(0xFFF3E3B0), width: 2),

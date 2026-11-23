@@ -15,7 +15,7 @@ void main() {
   });
 
   test('#589 : moi (siège 0) n\'a pas de badge sur le bord', () {
-    expect(() => ramiSeatAlignment(0), throwsArgumentError);
+    expect(ramiSeatAlignment(0), Alignment.topLeft);
   });
 
   test('#666 : sièges latéraux écrits verticalement, haut horizontal', () {

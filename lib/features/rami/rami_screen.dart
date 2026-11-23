@@ -28,6 +28,7 @@ import '../../widgets/game_rays_background.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../widgets/pulse_glow.dart';
 import '../../core/services/saved_game_store.dart';
+import '../../core/services/profile_store.dart';
 import '../../widgets/resume_game.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../widgets/dialog_button.dart';
@@ -76,6 +77,9 @@ class _RamiScreenState extends State<RamiScreen>
   _Drag? _drag;
   // Largeur réelle des cartes de la main (la carte glissée garde cette taille).
   double _handCardWidth = 0;
+  // Pseudo du joueur (siège 0) : tiré du profil local, « Toi » par défaut (#838).
+  String _myName = 'Toi';
+
   // Avatars des 4 sièges, siège 0 = joueur (issue #552).
   List<String> _avatarIds = [defaultAvatar.id, 'lion', 'tiger', 'panda'];
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
@@ -90,6 +94,11 @@ class _RamiScreenState extends State<RamiScreen>
     InterstitialService.instance.preload();
     loadGameAvatars(seats: 4).then((ids) {
       if (mounted) setState(() => _avatarIds = ids);
+    });
+    loadProfile().then((profile) {
+      if (mounted && profile.name.trim().isNotEmpty) {
+        setState(() => _myName = profile.name.trim());
+      }
     });
     _c.addListener(_endWatcher.check);
     _c.addListener(_onRamiChanged);
@@ -123,6 +132,9 @@ class _RamiScreenState extends State<RamiScreen>
   }
 
   GlobalKey _key(String name) => _keys.putIfAbsent(name, () => GlobalKey());
+
+  /// Nom affiché d'un siège : mon pseudo pour moi (siège 0), sinon le prénom de l'adversaire (#838).
+  String _nameOf(int seat) => seat == 0 ? _myName : _seatNames[seat];
 
   // -------------------------------------------------------------------------
   // Glisser-déposer : positions calculées à partir des clés
@@ -253,8 +265,6 @@ class _RamiScreenState extends State<RamiScreen>
                       _header(g),
                       const SizedBox(height: 6),
                       Expanded(child: _tableWithScores(handWidth, g)),
-                      const SizedBox(height: 6),
-                      _footer(handWidth),
                     ],
                   ),
                 ),
@@ -384,14 +394,30 @@ class _RamiScreenState extends State<RamiScreen>
               ),
               child: RamiSeatBadge(
                 key: _key('dest:$seat'),
-                name: _seatNames[seat],
+                name: _nameOf(seat),
                 cards: g.hands[seat].length,
                 avatarId: _avatarIds[seat],
                 avatarState: _avatarStateOf(seat, g),
                 quarterTurns: ramiSeatQuarterTurns(seat),
+                active: g.turn == seat && g.phase != rules.RamiPhase.end,
               ),
             ),
           ),
+        // Mon badge (pseudo et avatar), en haut à gauche du tapis comme les adversaires (#838).
+        Align(
+          alignment: ramiSeatAlignment(0),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 4, top: 4),
+            child: RamiSeatBadge(
+              key: _key('dest:0'),
+              name: _nameOf(0),
+              cards: g.hands[0].length,
+              avatarId: _avatarIds[0],
+              avatarState: _avatarStateOf(0, g),
+              active: _c.myTurn,
+            ),
+          ),
+        ),
         // Voile qui s'estompe avec le panneau (#591) ; toucher le tapis hors du
         // panneau le referme (sans jouer le coup).
         Positioned.fill(
@@ -420,9 +446,28 @@ class _RamiScreenState extends State<RamiScreen>
           child: RamiScoresPanel(
             open: _scoresOpen,
             onClose: _closeScores,
+            // Le panneau sort du tapis : même vert et même cadre (#838).
+            feltColor: _feltColor,
+            frameColor: _frameColor,
             child: _scores(g),
           ),
         ),
+        // Bouclier du seuil d'ouverture : en bas à droite du tapis (#838).
+        if (!g.opened[0] && g.phase != rules.RamiPhase.end)
+          Positioned(
+            right: -6,
+            bottom: -8,
+            child: Transform.scale(
+              scale: 0.6,
+              child: RamiMinOpeningShield(
+                minimum: rules.minOpening(g),
+                label: tf(
+                  'ramiMinOpen',
+                  {'n': '${rules.minOpening(g)}'},
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -531,6 +576,11 @@ class _RamiScreenState extends State<RamiScreen>
                 ),
               ],
             ),
+          ),
+          // Ma main est posée dans le même tapis : un seul grand tapis (#838).
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: _handRow(handWidth),
           ),
         ],
       ),
@@ -861,21 +911,6 @@ class _RamiScreenState extends State<RamiScreen>
                     ),
                   ),
                 ),
-                if (!g.opened[0] && g.phase != rules.RamiPhase.end)
-                  Positioned(
-                    top: -8,
-                    right: -8,
-                    child: Transform.scale(
-                      scale: 0.6,
-                      child: RamiMinOpeningShield(
-                        minimum: rules.minOpening(g),
-                        label: tf(
-                          'ramiMinOpen',
-                          {'n': '${rules.minOpening(g)}'},
-                        ),
-                      ),
-                    ),
-                  ),
               ],
             ),
           ],
@@ -991,18 +1026,6 @@ class _RamiScreenState extends State<RamiScreen>
 
   /// Pied : seulement la main (#121 : plus de tri, de compteur ni de libellé de paquets).
   /// Main posée sur le tapis (#831) : fond vert, pas crème.
-  Widget _footer(double handWidth) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
-      decoration: BoxDecoration(
-        color: _feltColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _frameColor, width: 3),
-      ),
-      child: _handRow(handWidth),
-    );
-  }
-
   List<Widget> _actions() {
     final c = _c;
     final pose = RamiActionButton(
@@ -1187,7 +1210,7 @@ class _RamiScreenState extends State<RamiScreen>
   String _revealBurst(rules.RamiState g) {
     final winner = g.roundResult?.winner;
     if (winner == null) return 'FIN !';
-    return winner == 0 ? 'GAGNÉ !' : '${_seatNames[winner]} GAGNE !';
+    return winner == 0 ? 'GAGNÉ !' : '${_nameOf(winner)} GAGNE !';
   }
 
   Widget _summary(rules.RamiState g) {
@@ -1200,7 +1223,7 @@ class _RamiScreenState extends State<RamiScreen>
             ? Strings.roundWon
             : winner == null
                 ? Strings.drawExhausted
-                : '${_seatNames[winner]} gagne la manche';
+                : '${_nameOf(winner)} gagne la manche';
     final isOver = matchWinner != null;
     final badge = isOver ? Strings.matchOver : 'MANCHE ${g.round}';
     return ColoredBox(
@@ -1215,7 +1238,7 @@ class _RamiScreenState extends State<RamiScreen>
             rows: [
               for (var seat = 0; seat < 4; seat++)
                 RoundResultRow(
-                  name: _seatNames[seat],
+                  name: _nameOf(seat),
                   color: RoundResultColors.seat(seat),
                   avatarId: _avatarIds[seat],
                   avatarState: _avatarStateOf(seat, g),

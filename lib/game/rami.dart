@@ -356,9 +356,11 @@ List<RamiCard>? _runOrder(List<RamiCard> cards) => _runSpan(cards)?.order;
     }
 
     final len = cards.length;
-    final low = math.max(1, slots.last.pos - len + 1);
-    final high = math.min(slots.first.pos, _aceHigh + 1 - len);
-    if (low > high) continue;
+    final lowest = math.max(1, slots.last.pos - len + 1);
+    final highest = math.min(slots.first.pos, _aceHigh + 1 - len);
+    if (lowest > highest) continue;
+    // Joker posé à droite de la suite (dernier de la liste) : il prend la place la plus haute (#838).
+    final low = cards.last.isJoker ? highest : lowest;
 
     final order = <RamiCard>[];
     var joker = 0;
@@ -394,6 +396,13 @@ bool isValidMeld(List<RamiCard> cards) {
 
 List<RamiCard> arrangeMeld(List<RamiCard> cards) =>
     _isSet(cards) ? cards : (_runOrder(cards) ?? cards);
+
+/// Liste à passer à [arrangeMeld] quand on ajoute [card] à [cards] : un joker resté à droite
+/// garde sa place la plus haute, la nouvelle carte se glisse avant lui (#838).
+List<RamiCard> extendMeld(List<RamiCard> cards, RamiCard card) =>
+    cards.isNotEmpty && cards.last.isJoker
+        ? [...cards.sublist(0, cards.length - 1), card, cards.last]
+        : [...cards, card];
 
 /// Paquets valides formés par des cartes voisines dans l'ordre de la main.
 List<List<RamiCard>> meldGroups(List<RamiCard> hand) {
@@ -735,7 +744,7 @@ RamiState layOff(RamiState state, String cardId, String meldId) {
   final taken = takeJoker(state, cardId, meldId);
   if (!identical(taken, state)) return taken;
 
-  final cards = arrangeMeld([...meld.cards, card]);
+  final cards = arrangeMeld(extendMeld(meld.cards, card));
   if (!isValidMeld(cards)) return state;
 
   final table = [
@@ -1058,7 +1067,7 @@ String _newMeldId(List<Meld> table, List<RamiCard> cards) {
     for (final meld in state.table) {
       // Même test que layOff (arrangeMeld), et seulement sur la combinaison que layOff retrouve par son id (#450).
       if (!identical(_firstWithId(state.table, meld.id), meld)) continue;
-      if (isValidMeld(arrangeMeld([...meld.cards, card])))
+      if (isValidMeld(arrangeMeld(extendMeld(meld.cards, card))))
         return (cardId: card.id, meldId: meld.id);
     }
   }
