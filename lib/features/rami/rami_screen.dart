@@ -1208,6 +1208,7 @@ class _RamiScreenState extends State<RamiScreen>
           child: RoundResultPanel(
             title: title,
             badge: badge,
+            won: isOver ? matchWinner == 0 : null,
             rows: [
               for (var seat = 0; seat < 4; seat++)
                 RoundResultRow(

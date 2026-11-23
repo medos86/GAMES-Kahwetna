@@ -98,6 +98,7 @@ class ChkobbaRoundCard extends StatelessWidget {
     return RoundResultPanel(
       title: 'Manche ${state.round}',
       badge: 'OBJECTIF ${state.targetScore} POINTS',
+      won: hasWinner ? state.winner == Player.player : null,
       rows: [
         RoundResultRow(
           name: t('you'),

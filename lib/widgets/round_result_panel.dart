@@ -4,6 +4,7 @@ import '../core/avatars/avatar_catalog.dart';
 import '../core/theme/comic_palette.dart';
 import 'avatar_view.dart';
 import 'result_dialog.dart';
+import 'win_celebration.dart';
 
 /// Couleurs d'identité des joueurs et équipes dans les écrans de fin (issue #526).
 /// Même ordre pour tous les jeux : 0 bleu, 1 rouge, 2 vert, 3 jaune.
@@ -37,6 +38,7 @@ class RoundResultPanel extends StatelessWidget {
     required this.actions,
     this.subtitle,
     this.accent = ComicPalette.yellow,
+    this.won,
   });
 
   final String title;
@@ -46,8 +48,26 @@ class RoundResultPanel extends StatelessWidget {
   final List<Widget> actions;
   final Color accent;
 
+  /// Fin de partie (issue #814) : `true` lance la fête (confettis, boule disco),
+  /// `false` un effet sobre de défaite. `null` (fin de manche) : rien.
+  final bool? won;
+
   @override
   Widget build(BuildContext context) {
+    final dialog = _buildDialog();
+    final outcome = won;
+    if (outcome == null) return dialog;
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        dialog,
+        Positioned.fill(child: WinCelebration(won: outcome)),
+      ],
+    );
+  }
+
+  Widget _buildDialog() {
     return ResultDialog(
       title: title,
       accent: accent,

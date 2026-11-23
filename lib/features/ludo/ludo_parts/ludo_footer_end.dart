@@ -180,6 +180,7 @@ class _EndDialog extends StatelessWidget {
           child: RoundResultPanel(
             title: title,
             badge: 'PARTIE TERMINÉE',
+            won: solo ? first == LudoColor.blue : null,
             rows: [
               for (var i = 0; i < game.rankings.length; i++)
                 RoundResultRow(

@@ -165,6 +165,7 @@ class _SummaryDialog extends StatelessWidget {
             title: title,
             badge: ended ? 'PARTIE TERMINÉE' : 'MANCHE ${match.round - 1}',
             subtitle: subtitle,
+            won: ended ? roundWinner == teamOf(Seat.south) : null,
             rows: [
               for (final team in Team.values)
                 RoundResultRow(
