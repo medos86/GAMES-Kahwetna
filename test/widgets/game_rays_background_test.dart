@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:kahwetne/widgets/game_rays_background.dart';
+import 'package:kahwetne/widgets/texture_patterns.dart';
 
 void main() {
   test('chaque jeu retrouve les rayons de son écran de niveau', () {
@@ -30,17 +31,14 @@ void main() {
     expect(() => GameRaysBackground.assetFor('Inconnu'), throwsStateError);
   });
 
-  testWidgets('affiche une image des rayons du jeu', (tester) async {
+  testWidgets('affiche un dégradé et une trame de points, sans image', (tester) async {
     await tester.pumpWidget(
       const Directionality(
         textDirection: TextDirection.ltr,
         child: GameRaysBackground(gameName: 'Rami'),
       ),
     );
-    final image = tester.widget<Image>(find.byType(Image));
-    expect(
-      (image.image as AssetImage).assetName,
-      'assets/images/game_bg/rays_rami.webp',
-    );
+    expect(find.byType(Image), findsNothing);
+    expect(find.byType(DotPattern), findsOneWidget);
   });
 }
