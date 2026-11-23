@@ -139,7 +139,8 @@ Positioned _cornerHouse(LudoColor color, double u) {
     size: 6 * u,
     child: DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF),
+        // Même blanc crème que les cases (#837).
+        color: _cream,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: tone.fill, width: 4),
       ),
@@ -327,10 +328,25 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
   bool _victim = false;
   Timer? _victimTimer;
 
+  // Dernier segment de trajet dont le pas a été joué (#837).
+  int _stepSegment = 0;
+
   @override
   void initState() {
     super.initState();
+    _hop.addListener(_onHopTick);
     _syncBob();
+  }
+
+  /// Un son de pas à chaque case franchie par le pion (#837). La victime renvoyée à la base n'en joue pas.
+  void _onHopTick() {
+    if (_victim || _path.length < 2) return;
+    final at = _locate();
+    if (at == null) return;
+    if (ludoStepTriggers(_stepSegment, at.segment)) {
+      Sounds.play(Sfx.pawnStep);
+    }
+    _stepSegment = at.segment;
   }
 
   /// Le rebond ne tourne que tant que le pion est jouable.
@@ -407,6 +423,7 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
 
   void _play() {
     if (!mounted) return;
+    _stepSegment = 0;
     _hop
       ..duration = Duration(milliseconds: (_msPerCell * _lengths.last).round())
       ..forward(from: 0);
@@ -415,6 +432,7 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
   @override
   void dispose() {
     _victimTimer?.cancel();
+    _hop.removeListener(_onHopTick);
     _hop.dispose();
     _bob.dispose();
     super.dispose();
@@ -482,8 +500,9 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
         final base = ludoVisualBaseSize(_hop.isAnimating, placed.size);
         final visual = base * widget.u * (widget.clickable ? 1.12 : 1);
         final bob = reduce ? 0.0 : ludoBobAt(_bob.value) * widget.u;
+        // La pointe du pion (en bas) tombe au centre de la case (#837).
         return Transform.translate(
-          offset: _offset() + Offset(0, bob),
+          offset: _offset() + Offset(0, bob + ludoPawnTipShift(visual)),
           child: Transform.scale(
             scale: _scale(),
             child: PulseGlow(
@@ -537,7 +556,7 @@ class _TokenButton extends StatelessWidget {
         child: Center(
           child: SizedBox(
             width: visualSize,
-            height: visualSize * 1.2,
+            height: visualSize * ludoPawnHeightRatio,
             child: CustomPaint(
               painter: _PawnPainter(
                 fill: tone.fill,

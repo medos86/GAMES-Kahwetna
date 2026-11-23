@@ -106,6 +106,15 @@ const double ludoCaptureMaxScale = 1.4;
 /// Attente avant le départ de la victime : l'attaquant arrive d'abord (#662).
 const int ludoVictimDelayMs = 900;
 
+/// Hauteur du pion dessiné, en multiple de sa largeur (la pointe est en bas).
+const double ludoPawnHeightRatio = 1.2;
+
+/// Décalage vertical du pion pour que sa pointe tombe au centre de la case (#837).
+double ludoPawnTipShift(double visual) => -visual * ludoPawnHeightRatio / 2;
+
+/// Vrai quand le pion vient de franchir une case : un son de pas se joue (#837).
+bool ludoStepTriggers(int previous, int current) => current > previous;
+
 /// Hauteur du saut à la position [t] (0 à 1) d'un segment de trajet.
 double ludoLiftAt(double t, {required bool capture, required bool lastCells}) {
   final height = capture && lastCells ? ludoCaptureHopHeight : ludoHopHeight;

@@ -37,6 +37,7 @@ void main() {
     Sfx.cardDeal: 1.0,
     Sfx.cardFlip: 0.5,
     Sfx.pawnMove: 0.5,
+    Sfx.pawnStep: 0.3,
     Sfx.pawnHome: 1.0,
   };
 

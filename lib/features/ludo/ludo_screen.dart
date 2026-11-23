@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 
 import 'package:flutter/foundation.dart' show ValueListenable;
 
+import '../../core/audio/sounds.dart';
 import '../../core/avatars/avatar_catalog.dart';
 import '../../core/avatars/game_avatars.dart';
 import '../../game/ludo.dart';

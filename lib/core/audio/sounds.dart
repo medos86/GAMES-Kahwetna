@@ -16,6 +16,7 @@ enum Sfx {
   cardDeal,
   cardFlip,
   pawnMove,
+  pawnStep,
   pawnHome,
 }
 
@@ -28,6 +29,7 @@ extension SfxPath on Sfx {
         Sfx.cardDeal => 'assets/sounds/cards/card_deal.wav',
         Sfx.cardFlip => 'assets/sounds/cards/card_flip.wav',
         Sfx.pawnMove => 'assets/sounds/ludo/pawn_move.wav',
+        Sfx.pawnStep => 'assets/sounds/ludo/pawn_step.wav',
         Sfx.pawnHome => 'assets/sounds/ludo/pawn_home.wav',
         _ => 'assets/sounds/domino/$name.wav',
       };
@@ -41,6 +43,7 @@ const gameSfx = <String, List<Sfx>>{
     Sfx.dice,
     Sfx.place,
     Sfx.pawnMove,
+    Sfx.pawnStep,
     Sfx.pawnHome,
     Sfx.capture,
     Sfx.win,

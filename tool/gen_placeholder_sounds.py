@@ -57,6 +57,7 @@ SOUNDS = {
         s * (1.0 if random.random() > 0.15 else 0.2)
         for s in tone(lambda t: 1200, 1.2, 2.5, noise=0.95)
     ],
+    "ludo/pawn_step.wav": lambda: tone(lambda t: 180, 0.09, 40, noise=0.45),
 }
 
 if __name__ == "__main__":
