@@ -99,6 +99,7 @@ class DominoRoundOverlay extends StatelessWidget {
             badge: matchOver
                 ? Strings.dominoMatchOver.toUpperCase()
                 : 'MANCHE ${game.round} TERMINÉE',
+            won: matchOver ? game.matchWinner == Player.player : null,
             rows: [
               RoundResultRow(
                 name: t('you'),
