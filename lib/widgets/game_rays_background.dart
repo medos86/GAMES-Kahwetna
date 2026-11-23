@@ -1,27 +1,46 @@
 import 'package:flutter/widgets.dart';
 
 import '../features/menu/menu_models.dart';
+import 'texture_patterns.dart';
 
-/// Fond des écrans de jeu : les rayons propres à chaque jeu (#804).
-/// C'est la même image que l'écran de choix du niveau (`GameEntry.backgroundAsset`).
+/// Fond des écrans de jeu (#821) : dégradé aux couleurs du jeu + trame de points.
+/// Plus de rayons : les lignes fatiguaient la vue.
 class GameRaysBackground extends StatelessWidget {
   const GameRaysBackground({super.key, required this.gameName});
 
   /// Nom du jeu tel qu'il figure dans [gameEntries] (ex. « Chkobba »).
   final String gameName;
 
-  /// Asset des rayons du jeu ; lève une erreur si le jeu est inconnu.
-  static String assetFor(String gameName) =>
-      gameEntries.firstWhere((g) => g.name == gameName).backgroundAsset;
+  /// Entrée du jeu ; lève une erreur si le jeu est inconnu.
+  static GameEntry entryFor(String gameName) =>
+      gameEntries.firstWhere((g) => g.name == gameName);
+
+  /// Asset historique des rayons (conservé pour l'écran de choix du niveau).
+  static String assetFor(String gameName) => entryFor(gameName).backgroundAsset;
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(
-      assetFor(gameName),
-      key: ValueKey(gameName),
-      fit: BoxFit.cover,
-      alignment: Alignment.center,
-      gaplessPlayback: true,
+    final entry = entryFor(gameName);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              center: const Alignment(0, -0.6),
+              radius: 1.1,
+              colors: [entry.gradientFrom, entry.gradientTo],
+            ),
+          ),
+        ),
+        const Positioned.fill(
+          child: DotPattern(
+            spacing: 18,
+            radius: 1.5,
+            color: Color(0x26FFFFFF),
+          ),
+        ),
+      ],
     );
   }
 }
