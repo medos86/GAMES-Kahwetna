@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/chkobba/chkobba_screen.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:kahwetne/features/chkobba/chkobba_card_face.dart';
-import 'package:kahwetne/widgets/tapis_background.dart';
+import 'package:kahwetne/widgets/game_rays_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -34,7 +34,7 @@ void main() {
     },
   );
 
-  testWidgets('#695 : fond Chkobba = tapis', (tester) async {
+  testWidgets('#805 : fond Chkobba = rayons du jeu', (tester) async {
     tester.view.physicalSize = const Size(360, 780);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -45,7 +45,11 @@ void main() {
       ),
     );
     await tester.pump();
-    expect(find.byType(TapisBackground), findsOneWidget);
+    expect(find.byType(GameRaysBackground), findsOneWidget);
+    final rays = tester.widget<GameRaysBackground>(
+      find.byType(GameRaysBackground),
+    );
+    expect(rays.gameName, 'Chkobba');
     expect(tester.takeException(), isNull);
   });
 }

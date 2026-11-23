@@ -11,7 +11,7 @@ import '../../core/services/ad_free_service.dart';
 import '../../core/services/interstitial_service.dart';
 import '../../widgets/reaction_sticker.dart';
 import '../../widgets/turn_avatar.dart';
-import '../../widgets/tapis_background.dart';
+import '../../widgets/game_rays_background.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
 import '../../core/theme/game_style.dart';
@@ -393,8 +393,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     final columns = size.width < 600 ? 4 : 6;
     // Hauteur de carte : 11 % de l'écran, bornée pour laisser la place au tapis.
     final cardHeight = math.min(math.max(size.height * 0.11, 56.0), 92.0);
-    // Tapis plein écran (#695) : le motif de la porte remplace le bois.
-    const background = TapisBackground(color: ScobaPalette.tapisBleu);
+    // Fond rayons propre à la Chkobba (#805).
+    const background = GameRaysBackground(gameName: 'Chkobba');
 
     return ListenableBuilder(
       listenable: Listenable.merge([

@@ -7,7 +7,6 @@ import 'package:kahwetne/features/chkobba/chkobba_table.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:kahwetne/game/chkobba.dart';
 import 'package:kahwetne/game/common.dart';
-import 'package:kahwetne/widgets/tapis_background.dart';
 import 'package:kahwetne/widgets/turn_avatar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -83,7 +82,5 @@ void main() {
     expect(ScobaPalette.tapisBleu.b, greaterThan(ScobaPalette.tapisBleu.r));
     expect(ScobaPalette.tapisVert.g, greaterThan(ScobaPalette.tapisVert.r));
     expect(ScobaPalette.tapisVert.g, greaterThan(ScobaPalette.tapisVert.b));
-    const background = TapisBackground(color: ScobaPalette.tapisBleu);
-    expect(background.color, ScobaPalette.tapisBleu);
   });
 }
