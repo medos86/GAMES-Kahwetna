@@ -26,6 +26,10 @@ jobs:
         # Le dépôt ne contient pas ios/ : on le génère ici, sans toucher à lib/ ni à pubspec.yaml.
         run: flutter create --platforms=ios --project-name kahwetne --org com.kahwetne .
 
+      - name: Installer ImageMagick
+        # apply_app_identity.sh utilise `identify` et `convert` (absents de macos-latest).
+        run: brew install imagemagick
+
       - name: Nom et icône « Korti Fans »
         run: bash tool/apply_app_identity.sh ios
 
