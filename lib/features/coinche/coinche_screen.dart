@@ -303,7 +303,8 @@ class _CoincheScreenState extends State<CoincheScreen>
                   const SizedBox(height: 8),
                   _HandFooter(
                     controller: c,
-                    cardWidth: metrics.coincheCardWidth,
+                    // Cartes du joueur agrandies (#831).
+                    cardWidth: metrics.coincheCardWidth * 1.2,
                     keyOf: _key,
                     landing: landing,
                   ),

@@ -990,11 +990,12 @@ class _RamiScreenState extends State<RamiScreen>
   }
 
   /// Pied : seulement la main (#121 : plus de tri, de compteur ni de libellé de paquets).
+  /// Main posée sur le tapis (#831) : fond vert, pas crème.
   Widget _footer(double handWidth) {
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
       decoration: BoxDecoration(
-        color: _creamColor,
+        color: _feltColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: _frameColor, width: 3),
       ),
