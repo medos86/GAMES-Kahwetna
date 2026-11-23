@@ -112,7 +112,6 @@ class LudoController extends PersistentGameController {
   void tapToken(String tokenId) {
     if (_settling) return;
     final next = moveToken(_game, tokenId);
-    if (!identical(next, _game)) Sounds.play(Sfx.place);
     _setGame(next);
   }
 
@@ -139,6 +138,8 @@ class LudoController extends PersistentGameController {
         next.rollId != _game.rollId) {
       _lastFaces[next.diceOwner!] = next.dice!;
     }
+    final sfx = ludoMoveSfx(_game, next);
+    if (sfx != null) Sounds.play(sfx);
     final settle = ludoMoveSettleMs(_game.tokens, next.tokens);
     _game = next;
     if (settle > 0) {
@@ -206,4 +207,19 @@ class LudoController extends PersistentGameController {
     _settleTimer = null;
     super.dispose();
   }
+}
+
+/// Son d'un coup de Ludo (issue #794) : capture, entrée maison, sinon pas de pion.
+/// Null si aucun pion n'a bougé (lancer de dé seul, tour passé).
+Sfx? ludoMoveSfx(LudoState before, LudoState after) {
+  if (!_anyTokenMoved(before.tokens, after.tokens)) return null;
+  final note = after.note;
+  if (note is CapturedNote) return Sfx.capture;
+  if (note is FinishedNote) return Sfx.pawnHome;
+  return Sfx.pawnMove;
+}
+
+bool _anyTokenMoved(List<Token> before, List<Token> after) {
+  final oldProgress = {for (final t in before) t.id: t.progress};
+  return after.any((t) => oldProgress[t.id] != t.progress);
 }
