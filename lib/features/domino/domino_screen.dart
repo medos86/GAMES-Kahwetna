@@ -36,6 +36,7 @@ import '../../widgets/avatar_view.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../widgets/dialog_button.dart';
 import '../../widgets/round_result_panel.dart';
+import '../../widgets/game_rays_background.dart';
 
 part 'domino_parts/domino_header_score.dart';
 part 'domino_parts/domino_table.dart';
@@ -118,24 +119,8 @@ class _DominoScreenState extends State<DominoScreen> {
           return GameScaffold(
             showAd: !_adFree.value,
             // Trames du fond : points 4px (opacité 0.2) et rayures verticales 11px (opacité 0.1 × 0.2).
-            background: Stack(
-              fit: StackFit.expand,
-              children: [
-                const ColoredBox(color: ComicPalette.tableWood),
-                const _WoodShadeBackground(),
-                const DotPattern(
-                  spacing: 4,
-                  radius: 1,
-                  color: Color(0x33000000),
-                ),
-                const StripePattern(
-                  period: 11,
-                  width: 1,
-                  color: Color(0x05000000),
-                  vertical: true,
-                ),
-              ],
-            ),
+            // Fond rayons propre au Domino (#806).
+            background: const GameRaysBackground(gameName: 'Domino'),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               child: Column(
