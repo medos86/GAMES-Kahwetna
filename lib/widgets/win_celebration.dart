@@ -211,14 +211,14 @@ class WinCelebrationPainter extends CustomPainter {
         center.dx + math.sin(a) * radius * 0.7,
         center.dy + row * radius * 0.45,
       );
+      final shade = alpha * (0.3 + 0.7 * depth);
       canvas.drawRect(
         Rect.fromCenter(
           center: mirror,
           width: radius * 0.4,
           height: radius * 0.4,
         ),
-        Paint()
-          ..color = _mirror.withValues(alpha: alpha * (0.3 + 0.7 * depth)),
+        Paint()..color = _mirror.withValues(alpha: shade),
       );
     }
   }

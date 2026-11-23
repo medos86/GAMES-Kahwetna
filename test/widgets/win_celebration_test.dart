@@ -72,6 +72,7 @@ void main() {
           children: [
             Positioned.fill(
               child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: () => taps++,
                 child: const SizedBox.expand(),
               ),
