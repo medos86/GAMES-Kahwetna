@@ -9,7 +9,6 @@ import '../../core/avatars/avatar_catalog.dart';
 import '../../core/avatars/game_avatars.dart';
 import '../../game/ludo.dart';
 import '../menu/menu_models.dart';
-import 'ludo_backdrop.dart';
 import 'ludo_controller.dart';
 import 'ludo_layout.dart';
 import '../../core/i18n/app_language.dart';
@@ -17,6 +16,7 @@ import '../../core/services/ad_free_service.dart';
 import '../../core/services/game_end_watcher.dart';
 import '../../core/services/interstitial_service.dart';
 import '../../widgets/exit_guard.dart';
+import '../../widgets/game_rays_background.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
@@ -176,7 +176,8 @@ class _LudoScreenState extends State<LudoScreen> {
           final c = _controller;
           return GameScaffold(
             showAd: !_adFree.value,
-            background: const LudoBackdrop(),
+            // Fond rayons propre au Ludo (#808).
+            background: const GameRaysBackground(gameName: 'Ludo'),
             overlays: [
               if (c.roundOver)
                 Positioned.fill(
