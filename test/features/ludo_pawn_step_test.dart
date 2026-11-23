@@ -6,7 +6,7 @@ import 'package:kahwetne/core/audio/sounds.dart';
 import 'package:kahwetne/features/ludo/ludo_layout.dart';
 
 void main() {
-  test('la pointe du pion tombe au centre : décalage de la moitié de sa hauteur', () {
+  test('pointe du pion au centre : décalage de la moitié de la hauteur', () {
     expect(ludoPawnTipShift(10), closeTo(-6, 1e-9));
     expect(ludoPawnTipShift(0), 0);
   });
