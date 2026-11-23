@@ -1,30 +1,13 @@
 part of '../chkobba_screen.dart';
 
-/// Taille de l'avatar inactif et de l'avatar du joueur dont c'est le tour, en dp (#728, #766).
-const double _sideAvatarSize = 26;
-const double _sideAvatarActiveSize = 32;
+/// Taille de l'avatar inactif et de l'avatar du joueur dont c'est le tour, en dp.
+/// Mêmes tailles que les médaillons de la Belote (`_SeatInfo`).
+const double _sideAvatarSize = 28;
+const double _sideAvatarActiveSize = 40;
 
-/// Écriture BD (score, nom) : Bangers, contour encre et ombre portée (#766).
-/// Un seul widget Text, pour que le score reste lisible par un seul texte.
-TextStyle _comicText({required double size, required Color fill}) {
-  return TextStyle(
-    fontFamily: 'Bangers',
-    fontSize: size,
-    height: 1.0,
-    letterSpacing: 0.5,
-    color: fill,
-    shadows: const [
-      Shadow(color: Colors.black, offset: Offset(-1.5, -1.5)),
-      Shadow(color: Colors.black, offset: Offset(1.5, -1.5)),
-      Shadow(color: Colors.black, offset: Offset(-1.5, 1.5)),
-      Shadow(color: Colors.black, offset: Offset(1.5, 1.5)),
-      Shadow(color: Colors.black, offset: Offset(0, 3)),
-    ],
-  );
-}
-
-/// Coin d'un joueur (#766, #800) : avatar et score en autocollant BD, nom en Bangers.
-/// La pile gagnée et la pioche sont dans l'autre coin de la même rangée (voir `_SeatRow`).
+/// Coin d'un joueur, mis en page comme à la Belote (`_SeatInfo`) : avatar, pastille du pseudo,
+/// puis pastille du score (même style que le score de la Belote). La pile gagnée et la pioche
+/// sont dans l'autre coin de la même rangée (voir `_SeatRow`).
 class _SidePanel extends StatelessWidget {
   const _SidePanel({
     super.key,
@@ -43,7 +26,7 @@ class _SidePanel extends StatelessWidget {
   final Color color;
   final String avatarId;
 
-  /// Vrai pour l'adversaire : score côté tapis, avatar à l'extérieur (#800).
+  /// Vrai pour l'adversaire : le sticker de réaction part vers l'intérieur du tapis.
   final bool opponentSide;
 
   /// Sticker BD près de l'avatar (#761), ou null.
@@ -54,9 +37,10 @@ class _SidePanel extends StatelessWidget {
     final finished = game.winner != null;
     final winners = game.winner == null ? <int>[] : [game.winner!.index];
     final score = game.scores[player]!;
+    final active = game.winner == null && game.turn == player;
     final avatar = TurnAvatar(
       tone: color,
-      active: game.winner == null && game.turn == player,
+      active: active,
       avatarId: avatarId,
       state: gameAvatarState(
         seat: player.index,
@@ -73,7 +57,6 @@ class _SidePanel extends StatelessWidget {
       children: [
         avatar,
         Positioned(
-          // Adversaire à droite : le sticker part vers l'intérieur du tapis.
           left: opponentSide ? -44 : null,
           right: opponentSide ? null : -44,
           top: -30,
@@ -85,75 +68,84 @@ class _SidePanel extends StatelessWidget {
         ),
       ],
     );
-    // Adversaire : score puis avatar à droite. Joueur : avatar puis score.
-    final identityChildren = [
-      avatarSlot,
-      const SizedBox(width: 4),
-      _ScoreSticker(score: score, color: color),
-    ];
-    // Mise à l'échelle si le coin est étroit : avatar et score ne débordent jamais.
-    final identity = FittedBox(
-      fit: BoxFit.scaleDown,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: opponentSide
-            ? identityChildren.reversed.toList()
-            : identityChildren,
-      ),
-    );
-    final nameLabel = Text(
-      name.toUpperCase(),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: _comicText(size: 15, fill: ComicPalette.white),
-    );
-    // Avatar, score et pseudo groupés dans un même encadré BD (lisible sur le feutre).
-    final box = Container(
-      padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
-      decoration: BoxDecoration(
-        color: ComicPalette.ink,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black, width: 2.5),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 3))],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [identity, const SizedBox(height: 2), nameLabel],
-      ),
-    );
     return Semantics(
       container: true,
       label: '$name $score',
-      child: box,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          avatarSlot,
+          const SizedBox(height: 2),
+          _NamePill(name: name, active: active),
+          const SizedBox(height: 4),
+          _ScorePill(score: score, color: color),
+        ],
+      ),
     );
   }
 }
 
-/// Score en autocollant BD (#766) : chiffre Bangers blanc, contour encre, léger penché.
-class _ScoreSticker extends StatelessWidget {
-  const _ScoreSticker({required this.score, required this.color});
+/// Pastille du pseudo, comme la Belote : dorée quand c'est son tour, sombre sinon.
+class _NamePill extends StatelessWidget {
+  const _NamePill({required this.name, required this.active});
+
+  final String name;
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 110),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: active ? ComicPalette.gold : Colors.black.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: active ? ComicPalette.ink : Colors.black26,
+          width: 2,
+        ),
+      ),
+      child: Text(
+        name,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontWeight: FontWeight.w900,
+          fontSize: 12,
+          color: active ? const Color(0xFF513B00) : ComicPalette.white,
+        ),
+      ),
+    );
+  }
+}
+
+/// Pastille du score, comme le score d'équipe de la Belote : fond blanc, chiffre à la couleur du joueur.
+class _ScorePill extends StatelessWidget {
+  const _ScorePill({required this.score, required this.color});
 
   final int score;
   final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return Transform.rotate(
-      angle: -0.1,
-      child: Container(
-        constraints: const BoxConstraints(minWidth: 32),
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(
+    return Container(
+      constraints: const BoxConstraints(minWidth: 44),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: ComicPalette.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color, width: 2),
+      ),
+      child: Text(
+        '$score',
+        textAlign: TextAlign.center,
+        style: TextStyle(
           color: color,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.black, width: 2.5),
-          boxShadow: const [
-            BoxShadow(color: Colors.black, offset: Offset(0, 3)),
-          ],
+          fontWeight: FontWeight.w900,
+          fontSize: 20,
         ),
-        child: Text('$score', style: _comicText(size: 22, fill: Colors.white)),
       ),
     );
   }
