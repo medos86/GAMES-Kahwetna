@@ -24,6 +24,7 @@ import '../../widgets/turn_avatar.dart';
 import 'coinche_avatars.dart';
 import '../../widgets/comic/comic_panel.dart';
 import '../../widgets/exit_guard.dart';
+import '../../widgets/game_rays_background.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
@@ -269,7 +270,8 @@ class _CoincheScreenState extends State<CoincheScreen>
           final c = _controller;
           return GameScaffold(
             showAd: !_adFree.value,
-            background: const ColoredBox(color: ComicPalette.tableWood),
+            // Fond rayons propre à la Belote (#807).
+            background: const GameRaysBackground(gameName: 'Belote'),
             overlays: [
               if (c.summary != null)
                 Positioned.fill(
