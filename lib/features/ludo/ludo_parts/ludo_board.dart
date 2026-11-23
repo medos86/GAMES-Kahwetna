@@ -139,7 +139,8 @@ Positioned _cornerHouse(LudoColor color, double u) {
     size: 6 * u,
     child: DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF),
+        // Même crème que les cases du plateau (#837).
+        color: _cream,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: tone.fill, width: 4),
       ),
@@ -327,10 +328,27 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
   bool _victim = false;
   Timer? _victimTimer;
 
+  // Dernier segment du trajet atteint : sert à jouer un pas à chaque case franchie (#837).
+  int _lastSegment = 0;
+
   @override
   void initState() {
     super.initState();
     _syncBob();
+    _hop.addListener(_onHopTick);
+  }
+
+  /// Un son de pas par case traversée. Le point d'arrivée n'en joue pas :
+  /// le son de fin de coup (pion posé) reste celui de [ludoMoveSfx].
+  void _onHopTick() {
+    final at = _locate();
+    if (at == null || _victim) return;
+    final segment = at.segment;
+    if (segment <= _lastSegment) return;
+    for (var j = _lastSegment + 1; j <= segment; j++) {
+      if (j < _path.length - 1) Sounds.play(Sfx.pawnStep);
+    }
+    _lastSegment = segment;
   }
 
   /// Le rebond ne tourne que tant que le pion est jouable.
@@ -407,6 +425,7 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
 
   void _play() {
     if (!mounted) return;
+    _lastSegment = 0;
     _hop
       ..duration = Duration(milliseconds: (_msPerCell * _lengths.last).round())
       ..forward(from: 0);
@@ -535,15 +554,20 @@ class _TokenButton extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: clickable ? onTap : null,
         child: Center(
-          child: SizedBox(
-            width: visualSize,
-            height: visualSize * 1.2,
-            child: CustomPaint(
-              painter: _PawnPainter(
-                fill: tone.fill,
-                dark: tone.dark,
-                outline: ludoPawnOutline,
-                outlineWidth: 2,
+          // La pointe du pion (bas du dessin) tombe au centre de la case (#837) :
+          // on remonte le dessin de 0,6 × sa taille, soit la moitié de sa hauteur (1,2 × taille).
+          child: Transform.translate(
+            offset: Offset(0, -visualSize * 0.6),
+            child: SizedBox(
+              width: visualSize,
+              height: visualSize * 1.2,
+              child: CustomPaint(
+                painter: _PawnPainter(
+                  fill: tone.fill,
+                  dark: tone.dark,
+                  outline: ludoPawnOutline,
+                  outlineWidth: 2,
+                ),
               ),
             ),
           ),
