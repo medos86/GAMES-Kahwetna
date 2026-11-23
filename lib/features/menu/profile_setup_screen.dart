@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/audio/sounds.dart';
 import '../../core/services/profile_store.dart';
 import '../../core/services/pseudo.dart';
 import '../../core/strings.dart';
@@ -89,6 +90,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         const SizedBox(height: 20),
                         Center(
                           child: Pressable(
+                            sound: Sfx.uiClick,
                             semanticLabel: Strings.profileChangeAvatar,
                             onTap: () => _pickAvatar(),
                             child: AvatarView(

@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/audio/sounds.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../core/theme/game_style.dart';
 import '../../widgets/comic/comic_panel.dart';
@@ -535,6 +536,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     );
 
     return Pressable(
+      sound: Sfx.uiClick,
       semanticLabel: active ? '${o.label}, sélectionné' : o.label,
       onTap: () => setState(() => _difficulty = o.difficulty),
       child: AnimatedContainer(
@@ -623,6 +625,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     required VoidCallback onTap,
   }) {
     return Pressable(
+      sound: Sfx.uiClick,
       semanticLabel: label,
       onTap: onTap,
       child: Container(

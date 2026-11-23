@@ -20,6 +20,7 @@ class _AdFreeButton extends StatelessWidget {
         active ? '$minutes:${seconds.toString().padLeft(2, '0')}' : '30:00';
 
     return Pressable(
+      sound: Sfx.uiClick,
       semanticLabel: active
           ? 'Mode sans publicité actif, $minutes minutes et $seconds secondes restantes'
           : Strings.menuAdFreeEnable,
@@ -243,6 +244,7 @@ class _LaunchButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Pressable(
+      sound: Sfx.uiClick,
       semanticLabel: Strings.menuLaunch,
       onTap: onTap,
       pressedScale: 0.98,
