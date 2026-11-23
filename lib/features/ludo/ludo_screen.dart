@@ -9,7 +9,6 @@ import '../../core/avatars/avatar_catalog.dart';
 import '../../core/avatars/game_avatars.dart';
 import '../../game/ludo.dart';
 import '../menu/menu_models.dart';
-import 'ludo_backdrop.dart';
 import 'ludo_controller.dart';
 import 'ludo_layout.dart';
 import '../../core/i18n/app_language.dart';
