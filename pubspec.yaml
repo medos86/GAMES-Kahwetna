@@ -36,7 +36,11 @@ flutter:
     - assets/images/avatars/happy/
     - assets/images/avatars/angry/
     - assets/icons/
+    - assets/sounds/common/
     - assets/sounds/domino/
+    - assets/sounds/menu/
+    - assets/sounds/cards/
+    - assets/sounds/ludo/
   fonts:
     # Licences : voir ATTRIBUTIONS.md (OFL pour Nunito et Bowlby One SC, Apache 2.0 pour Roboto Slab).
     - family: Nunito

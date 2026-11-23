@@ -21,7 +21,8 @@
 
 ## Sons
 
-- Effets du Domino (`assets/sounds/domino/*.wav`) : origine et licence à renseigner avant publication. Les fichiers ne sont pas encore fournis dans le dépôt.
+- Effets du Domino (`assets/sounds/domino/*.wav`) : origine et licence à renseigner avant publication.
+- Sons de remplacement (`assets/sounds/{common,menu,cards,ludo}/*.wav`, issue #820) : synthétisés par `tool/gen_placeholder_sounds.py`, sans source tierce. Ils peuvent être remplacés par des sons CC0 (Kenney Casino Audio, UI Audio) en gardant les mêmes noms et durées max.
 
 ## Non repris du React
 

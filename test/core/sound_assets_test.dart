@@ -23,7 +23,7 @@ double wavDurationSeconds(Uint8List bytes) {
 }
 
 void main() {
-  // Durées maximales par type de son (cf. issue #790 : un mouvement ne dépasse pas 1 s).
+  // Durées maximales par type de son (#820 ; #790 : un mouvement ≤ 1 s).
   const maxSeconds = {
     Sfx.place: 1.0,
     Sfx.draw: 1.0,
@@ -31,14 +31,29 @@ void main() {
     Sfx.win: 1.5,
     Sfx.lose: 1.5,
     Sfx.capture: 1.0,
-    Sfx.dice: 1.0,
+    Sfx.dice: 1.5,
+    Sfx.uiClick: 0.3,
+    Sfx.uiOpen: 0.5,
+    Sfx.cardDeal: 1.0,
+    Sfx.cardFlip: 0.5,
+    Sfx.pawnMove: 0.5,
+    Sfx.pawnHome: 1.0,
   };
 
+  test('chaque effet a une durée maximale déclarée', () {
+    expect(maxSeconds.keys.toSet(), Sfx.values.toSet());
+  });
+
+  test("chaque effet prévu par jeu existe dans l'enum", () {
+    for (final entry in gameSfx.entries) {
+      for (final sfx in entry.value) {
+        expect(Sfx.values, contains(sfx), reason: entry.key);
+      }
+    }
+  });
+
   group('fichiers audio', () {
-    // capture et dice sont ajoutés par l'issue #791.
-    for (final sfx in Sfx.values.where(
-      (s) => s != Sfx.capture && s != Sfx.dice,
-    )) {
+    for (final sfx in Sfx.values) {
       test('${sfx.name} existe et respecte sa durée maximale', () {
         final file = File(sfx.assetPath);
         expect(file.existsSync(), isTrue, reason: '${sfx.assetPath} manquant');
