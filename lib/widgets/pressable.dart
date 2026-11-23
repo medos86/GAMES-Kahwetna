@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import '../core/audio/sounds.dart';
 
 /// Équivalent de `whileTap` (motion/react) : réduit légèrement le bouton à l'appui.
 class Pressable extends StatefulWidget {
@@ -8,12 +9,16 @@ class Pressable extends StatefulWidget {
     this.onTap,
     this.pressedScale = 0.97,
     this.semanticLabel,
+    this.sound,
   });
 
   final Widget child;
   final VoidCallback? onTap;
   final double pressedScale;
   final String? semanticLabel;
+
+  /// Son joué à chaque tap (issue #792 : clics du menu). Null = silencieux.
+  final Sfx? sound;
 
   @override
   State<Pressable> createState() => _PressableState();
@@ -36,6 +41,8 @@ class _PressableState extends State<Pressable> {
             ? null
             : (_) {
                 setState(() => _pressed = false);
+                final sfx = widget.sound;
+                if (sfx != null) Sounds.play(sfx);
                 onTap();
               },
         onTapCancel:

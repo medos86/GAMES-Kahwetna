@@ -159,6 +159,7 @@ class _CarouselItem extends StatelessWidget {
           alignment: Alignment.center,
           transform: transform,
           child: Pressable(
+            sound: Sfx.uiClick,
             semanticLabel: game.name,
             onTap: onTap,
             child: SizedBox.square(
@@ -325,6 +326,7 @@ class _ArrowButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Pressable(
+        sound: Sfx.uiClick,
         semanticLabel: semanticLabel,
         onTap: onTap,
         child: Container(

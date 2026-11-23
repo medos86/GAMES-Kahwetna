@@ -146,6 +146,7 @@ class _GlassButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (kComicMenu) {
       return Pressable(
+        sound: Sfx.uiClick,
         semanticLabel: semanticLabel,
         onTap: onTap,
         pressedScale: 0.92,
@@ -172,6 +173,7 @@ class _GlassButton extends StatelessWidget {
       );
     }
     return Pressable(
+      sound: Sfx.uiClick,
       semanticLabel: semanticLabel,
       onTap: onTap,
       pressedScale: 0.92,
