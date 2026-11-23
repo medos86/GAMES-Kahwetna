@@ -31,14 +31,17 @@ void main() {
     expect(() => GameRaysBackground.assetFor('Inconnu'), throwsStateError);
   });
 
-  testWidgets('affiche un dégradé et une trame de points, sans image', (tester) async {
-    await tester.pumpWidget(
-      const Directionality(
-        textDirection: TextDirection.ltr,
-        child: GameRaysBackground(gameName: 'Rami'),
-      ),
-    );
-    expect(find.byType(Image), findsNothing);
-    expect(find.byType(DotPattern), findsOneWidget);
-  });
+  testWidgets(
+    'affiche un dégradé et une trame de points, sans image',
+    (tester) async {
+      await tester.pumpWidget(
+        const Directionality(
+          textDirection: TextDirection.ltr,
+          child: GameRaysBackground(gameName: 'Rami'),
+        ),
+      );
+      expect(find.byType(Image), findsNothing);
+      expect(find.byType(DotPattern), findsOneWidget);
+    },
+  );
 }
