@@ -43,7 +43,8 @@ class _HandFooter extends StatelessWidget {
       key: keyOf('seat:south'),
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
       decoration: BoxDecoration(
-        color: _creamColor,
+        // Main du joueur posée sur le tapis (#831) : fond vert, pas crème.
+        color: _feltColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: _frameColor, width: 3),
       ),
@@ -56,18 +57,27 @@ class _HandFooter extends StatelessWidget {
                 child: Text(
                   'TA MAIN · ${hand.length} cartes',
                   style: const TextStyle(
-                    color: _inkColor,
+                    color: Colors.white,
                     fontWeight: FontWeight.w900,
                     fontSize: 12,
                   ),
                 ),
               ),
               if (contract != null)
-                Text(
-                  'Atout : ${coincheSuitSymbol(contract.mode)}',
-                  style: TextStyle(
-                    color: coincheSuitColor(contract.mode),
-                    fontWeight: FontWeight.w900,
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: _frameColor, width: 2),
+                  ),
+                  child: Text(
+                    'Atout : ${coincheSuitSymbol(contract.mode)}',
+                    style: TextStyle(
+                      color: coincheSuitColor(contract.mode),
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
             ],
