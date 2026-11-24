@@ -7,14 +7,31 @@ void main() {
     expect(ramiDealSeatOrder, [1, 2, 3, 0]);
   });
 
-  testWidgets('badge : affiche seulement le nombre de cartes', (tester) async {
+  testWidgets('badge : n\'affiche plus le nombre de cartes à côté de l\'avatar',
+      (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: RamiSeatBadge(name: 'Ali', cards: 6),
       ),
     );
-    expect(find.text('×6'), findsOneWidget);
-    expect(find.text('Ali'), findsNothing);
+    expect(find.text('×6'), findsNothing);
+    expect(find.text('Ali'), findsOneWidget);
+  });
+
+  testWidgets('badge : toucher l\'avatar ouvre le popup du siège (#887)',
+      (tester) async {
+    var taps = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: RamiSeatBadge(
+          name: 'Ali',
+          cards: 6,
+          onTap: () => taps++,
+        ),
+      ),
+    );
+    await tester.tap(find.text('Ali'));
+    expect(taps, 1);
   });
 
   testWidgets('badge : le pseudo reste accessible aux lecteurs d\'écran',

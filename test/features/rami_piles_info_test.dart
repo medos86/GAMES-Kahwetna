@@ -30,7 +30,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Rami : bouclier lisible, au-dessus de la pioche (#880)', (
+  testWidgets('Rami : bouclier lisible, à droite de la défausse (#880, #886)', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(360, 780) * 3;
@@ -49,10 +49,10 @@ void main() {
     final stock = find.byType(RamiBackView).first;
     expect(shield, findsOneWidget);
     expect(stock, findsOneWidget);
-    // Taille réelle (pas de réduction) et placé juste au-dessus de la pioche.
+    // Taille réelle (pas de réduction) : à droite de la pioche et de la défausse (#886).
     expect(tester.getSize(shield).width, greaterThanOrEqualTo(30));
-    expect(tester.getBottomLeft(shield).dy,
-        lessThanOrEqualTo(tester.getTopLeft(stock).dy));
+    expect(tester.getTopLeft(shield).dx,
+        greaterThan(tester.getTopRight(stock).dx));
     expect(tester.getTopLeft(stock).dy, greaterThan(0));
   });
 }

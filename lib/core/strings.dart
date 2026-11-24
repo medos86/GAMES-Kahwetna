@@ -120,6 +120,8 @@ abstract final class Strings {
   static String get turnShortMine => t('turnShortMine');
   static String get showScores => t('showScores');
   static String get hideScores => t('hideScores');
+  static String get seatInfoScore => t('seatInfoScore');
+  static String get seatInfoCards => t('seatInfoCards');
   static String get ramiNoMeld => t('ramiNoMeld');
   static String get sortSuit => t('sortSuit');
   static String get sortRank => t('sortRank');

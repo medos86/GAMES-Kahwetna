@@ -8,6 +8,7 @@ class _PlayerChip extends StatelessWidget {
     required this.game,
     required this.avatarId,
     required this.avatarState,
+    this.onAvatarTap,
   });
 
   final int seat;
@@ -16,6 +17,9 @@ class _PlayerChip extends StatelessWidget {
   /// Avatar devant le score (issue #552).
   final String avatarId;
   final AvatarState avatarState;
+
+  /// Touche sur l'avatar : ouvre le popup du siège (#887).
+  final VoidCallback? onAvatarTap;
 
   @override
   Widget build(BuildContext context) {
@@ -43,11 +47,15 @@ class _PlayerChip extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                AvatarView(
-                  avatarId: avatarId,
-                  state: avatarState,
-                  size: 22,
-                  semanticLabel: _seatNames[seat],
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onAvatarTap,
+                  child: AvatarView(
+                    avatarId: avatarId,
+                    state: avatarState,
+                    size: 22,
+                    semanticLabel: _seatNames[seat],
+                  ),
                 ),
                 const SizedBox(width: 3),
                 Flexible(
@@ -87,7 +95,7 @@ class _PlayerChip extends StatelessWidget {
               ),
             ),
             Text(
-              seat == 0 ? opened : '×${game.hands[seat].length} · $opened',
+              opened,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
