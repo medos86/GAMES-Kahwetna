@@ -1015,6 +1015,14 @@ class _RamiScreenState extends State<RamiScreen>
                 ),
               ),
             ...ordered,
+            // Paquet en cours : cartes glissées sur le tapis, pas encore valides (#874).
+            if (c.draftCards.isNotEmpty)
+              _MeldView(
+                cards: c.draftCards,
+                cardWidth: meldWidth,
+                owner: 0,
+                onTap: () => c.removeFromDraft(c.draftIds.last),
+              ),
           ],
         ),
       ),
@@ -1025,13 +1033,7 @@ class _RamiScreenState extends State<RamiScreen>
   /// Main posée sur le tapis (#831) : fond vert, pas crème.
   List<Widget> _actions() {
     final c = _c;
-    final pose = RamiActionButton(
-      label: Strings.actPose,
-      icon: Icons.check,
-      onTap: c.pose,
-      enabled: c.selectionIsMeld,
-      primary: true,
-    );
+    // Pas de bouton « Poser » : un paquet se forme en glissant les cartes sur le tapis (#874).
     final discard = RamiActionButton(
       label: Strings.actDiscard,
       icon: Icons.south,
@@ -1060,9 +1062,9 @@ class _RamiScreenState extends State<RamiScreen>
       onTap: c.ramiDirect,
       enabled: c.canPlay,
     );
-    if (c.canCancel) return [pose, cancel, direct, discard];
-    if (c.canReturnTaken) return [pose, returnTaken, direct, discard];
-    return [pose, direct, discard];
+    if (c.canCancel) return [cancel, direct, discard];
+    if (c.canReturnTaken) return [returnTaken, direct, discard];
+    return [direct, discard];
   }
 
   /// Main du joueur (#141) : les cartes se chevauchent. La carte sélectionnée ou déplacée
