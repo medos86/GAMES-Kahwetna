@@ -215,6 +215,9 @@ class _PlayerCard extends StatelessWidget {
     final dieWidget = active
         ? _RollableDie(
             pulse: clickable,
+            // Lancer consécutif (#857) : le dé affiche déjà ce tour-ci, il ne bouge
+            // pas avant le clic ; seul le halo signale qu'il est cliquable.
+            wobble: !(rolledHere && game.diceOwner == game.turn),
             onTap: clickable ? controller.roll : null,
             child: die,
           )

@@ -11,11 +11,16 @@ class _RollableDie extends StatefulWidget {
     required this.pulse,
     required this.onTap,
     required this.child,
+    this.wobble = true,
   });
 
   final bool pulse;
   final VoidCallback? onTap;
   final Widget child;
+
+  /// Faux si le dé affiche déjà le lancer de ce tour (lancer consécutif) : seul
+  /// le halo reste, le dé ne bouge pas avant le clic (#857).
+  final bool wobble;
 
   @override
   State<_RollableDie> createState() => _RollableDieState();
@@ -41,7 +46,7 @@ class _RollableDieState extends State<_RollableDie>
   }
 
   void _sync() {
-    if (widget.pulse) {
+    if (widget.pulse && widget.wobble) {
       if (!_pulse.isAnimating) _pulse.repeat(reverse: true);
     } else {
       _pulse.stop();
@@ -82,10 +87,10 @@ class _RollableDieState extends State<_RollableDie>
                 child: widget.child,
               ),
               builder: (context, child) {
-                final live = widget.pulse && !reduce;
+                final wobbling = widget.pulse && widget.wobble && !reduce;
                 // Dé qui grossit et oscille légèrement tant qu'il peut être lancé.
-                final scale = live ? 1 + 0.14 * _pulse.value : 1.0;
-                final angle = live ? (_pulse.value - 0.5) * 0.12 : 0.0;
+                final scale = wobbling ? 1 + 0.14 * _pulse.value : 1.0;
+                final angle = wobbling ? (_pulse.value - 0.5) * 0.12 : 0.0;
                 return Transform.rotate(
                   angle: angle,
                   child: Transform.scale(scale: scale, child: child),
