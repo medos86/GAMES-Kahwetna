@@ -27,12 +27,14 @@ void main() {
     expect(ludoMoveSfx(before, moveFirstTokenTo(5)), Sfx.pawnMove);
   });
 
-  test('capture : son de capture', () {
+  // #882 : le pion qui capture avance comme un pion ordinaire ; le son de capture
+  // part avec la galipette de la victime (voir le contrôleur).
+  test('capture : le pion joué fait son bruit de pion, pas le son de capture', () {
     final after = moveFirstTokenTo(
       5,
       note: CapturedNote(first.color, [LudoColor.red]),
     );
-    expect(ludoMoveSfx(before, after), Sfx.capture);
+    expect(ludoMoveSfx(before, after), Sfx.pawnMove);
   });
 
   test('arrivée au centre : son de maison', () {

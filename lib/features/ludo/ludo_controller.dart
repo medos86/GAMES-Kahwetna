@@ -67,6 +67,13 @@ class LudoController extends PersistentGameController {
   /// Joueur qui a lancé sans coup possible, pendant la pause ; null sinon.
   LudoColor? get refusedColor => _holdColor;
 
+  /// Attente (ms) avant la galipette de la victime du dernier coup : l'attaquant arrive d'abord (#882).
+  int _victimDelayMs = 0;
+  int get victimDelayMs => _victimDelayMs;
+
+  /// Son de capture, joué au départ de la galipette de la victime (#882).
+  Timer? _captureSfxTimer;
+
   List<LudoColor> get humans => ludoHumanOrder.take(playerCount).toList();
 
   /// Une seule personne jouant : on affiche « Toi » au lieu de « Bleu ».
@@ -130,6 +137,8 @@ class LudoController extends PersistentGameController {
   void restart() {
     _settleTimer?.cancel();
     _settleTimer = null;
+    _captureSfxTimer?.cancel();
+    _captureSfxTimer = null;
     _holdColor = null;
     _choiceMade = false;
     _fastAi = false;
@@ -152,6 +161,14 @@ class LudoController extends PersistentGameController {
     }
     final sfx = ludoMoveSfx(_game, next);
     if (sfx != null) Sounds.play(sfx);
+    _victimDelayMs = ludoVictimDelayFor(_game.tokens, next.tokens);
+    if (next.note is CapturedNote) {
+      _captureSfxTimer?.cancel();
+      _captureSfxTimer = Timer(
+        Duration(milliseconds: _victimDelayMs),
+        () => Sounds.play(Sfx.capture),
+      );
+    }
     final settle = ludoMoveSettleMs(_game.tokens, next.tokens);
     final refused = next.note is NoMoveNote || next.note is ThreeSixesNote;
     final freshRoll = next.rollId != _game.rollId && next.diceOwner != null;
@@ -226,16 +243,18 @@ class LudoController extends PersistentGameController {
     _timer = null;
     _settleTimer?.cancel();
     _settleTimer = null;
+    _captureSfxTimer?.cancel();
+    _captureSfxTimer = null;
     super.dispose();
   }
 }
 
-/// Son d'un coup de Ludo (issue #794) : capture, entrée maison, sinon pas de pion.
+/// Son d'un coup de Ludo (issue #794) : pion joué, entrée maison, sinon pas de pion.
+/// Une capture joue d'abord le pion qui avance ; le son de capture part avec la galipette (#882).
 /// Null si aucun pion n'a bougé (lancer de dé seul, tour passé).
 Sfx? ludoMoveSfx(LudoState before, LudoState after) {
   if (!_anyTokenMoved(before.tokens, after.tokens)) return null;
   final note = after.note;
-  if (note is CapturedNote) return Sfx.capture;
   if (note is FinishedNote) return Sfx.pawnHome;
   return Sfx.pawnMove;
 }

@@ -28,8 +28,9 @@ void main() {
     ];
     expect(
       ludoMoveSettleMs(before, after),
-      greaterThanOrEqualTo(ludoVictimDelayMs),
+      greaterThanOrEqualTo(ludoVictimDelayFor(before, after)),
     );
+    expect(ludoVictimDelayFor(before, after), greaterThan(0));
   });
 
   test('le joueur suivant ne peut pas lancer pendant l\'animation du coup', () {
@@ -68,8 +69,8 @@ void main() {
       expect(async.pendingTimers, isEmpty);
     });
   });
-  // #869 : une capture se joue plus vite qu'un déplacement normal de même longueur.
-  test('#869 : un coup de capture dure moins longtemps qu\'un coup normal', () {
+  // #882 : la victime ne part qu'une fois l'attaquant arrivé, donc une capture dure plus longtemps.
+  test('#882 : un coup de capture dure plus longtemps qu\'un coup normal', () {
     const redTrack = Token(id: 'r0', color: LudoColor.red, progress: 10);
     const blueBefore = Token(id: 'b0', color: LudoColor.blue, progress: 1);
     const blueMove = Token(id: 'b0', color: LudoColor.blue, progress: 3);
@@ -85,7 +86,7 @@ void main() {
       ],
     );
     expect(normal, greaterThan(0));
-    expect(capture, greaterThanOrEqualTo(ludoVictimDelayMs));
+    expect(capture, greaterThan(normal));
   });
 
   test('#869 : la sortie de base prend une durée positive et rapide', () {
