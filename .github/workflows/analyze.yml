@@ -31,6 +31,12 @@ jobs:
       - name: Dépendances
         run: flutter pub get
 
+      - name: DEBUG dart format diff (temporaire)
+        run: |
+          cp lib/game/rami.dart /tmp/rami_before.dart
+          dart format lib/game/rami.dart test/game/rami_direct_test.dart
+          diff -u /tmp/rami_before.dart lib/game/rami.dart || true
+
       - name: Formatage (dart format)
         # Le pipeline échoue si un fichier Dart n'est pas formaté.
         run: dart format --output=none --set-exit-if-changed .
