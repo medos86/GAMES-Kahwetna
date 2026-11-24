@@ -437,22 +437,6 @@ class _RamiScreenState extends State<RamiScreen>
             child: _scores(g),
           ),
         ),
-        // Bouclier du seuil d'ouverture : en bas à droite du tapis (#838).
-        if (!g.opened[0] && g.phase != rules.RamiPhase.end)
-          Positioned(
-            right: -6,
-            bottom: -8,
-            child: Transform.scale(
-              scale: 0.6,
-              child: RamiMinOpeningShield(
-                minimum: rules.minOpening(g),
-                label: tf(
-                  'ramiMinOpen',
-                  {'n': '${rules.minOpening(g)}'},
-                ),
-              ),
-            ),
-          ),
       ],
     );
   }
@@ -886,6 +870,17 @@ class _RamiScreenState extends State<RamiScreen>
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Bouclier du seuil d'ouverture : au-dessus de la pioche, lisible
+            // et affiché en permanence, y compris après l'ouverture (#880).
+            RamiMinOpeningShield(
+              key: _key('shield'),
+              minimum: rules.minOpening(g),
+              label: tf(
+                'ramiMinOpen',
+                {'n': '${rules.minOpening(g)}'},
+              ),
+            ),
+            const SizedBox(height: 6),
             Stack(
               clipBehavior: Clip.none,
               children: [
