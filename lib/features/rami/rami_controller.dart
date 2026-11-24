@@ -115,18 +115,35 @@ class RamiController extends PersistentGameController {
 
   rules.RamiCard? get top => _game.discard.isEmpty ? null : _game.discard.last;
 
+  /// Cartes glissées sur le tapis mais pas encore posées : le paquet se forme une carte à la fois (#874).
+  final List<String> _draft = [];
+
+  List<String> get draftIds => List.unmodifiable(_draft);
+
+  /// Cartes du paquet en cours, dans l'ordre de dépose (elles restent en main côté moteur).
+  List<rules.RamiCard> get draftCards => [
+        for (final id in _draft)
+          for (final card in hand)
+            if (card.id == id) card,
+      ];
+
   /// Main affichée : l'ordre choisi par le joueur, les nouvelles cartes à la fin.
+  /// Les cartes du paquet en cours sont sur le tapis, donc absentes de la main.
   List<rules.RamiCard> get displayed {
-    final byId = {for (final card in hand) card.id: card};
+    final visible = [
+      for (final card in hand)
+        if (!_draft.contains(card.id)) card,
+    ];
+    final byId = {for (final card in visible) card.id: card};
     final known = [
       for (final id in _order)
         if (byId[id] != null) byId[id]!,
     ];
-    if (known.isEmpty) return sortRamiHand(hand, RamiSortMode.suit);
+    if (known.isEmpty) return sortRamiHand(visible, RamiSortMode.suit);
     final seen = {for (final card in known) card.id};
     return [
       ...known,
-      for (final card in hand)
+      for (final card in visible)
         if (!seen.contains(card.id)) card,
     ];
   }
@@ -235,7 +252,31 @@ class RamiController extends PersistentGameController {
   }
 
   /// Annule les poses du tour en cours : les cartes reviennent en main.
-  void cancel() => _apply(rules.cancelStaged(_game));
+  void cancel() {
+    if (_draft.isNotEmpty) {
+      _draft.clear();
+      notifyListeners();
+    }
+    _apply(rules.cancelStaged(_game));
+  }
+
+  /// Une carte glissée sur le tapis rejoint le paquet en cours. Dès qu'il est valide, il est posé (#874).
+  void _addToDraft(String id) {
+    if (_draft.contains(id)) return;
+    _draft.add(id);
+    final cards = draftCards;
+    if (cards.length >= 3 && rules.isValidMeld(cards)) {
+      _apply(rules.poseMeld(_game, List.of(_draft)), Strings.notAMeld);
+      return;
+    }
+    notifyListeners();
+  }
+
+  /// Retire une carte du paquet en cours : elle redevient une carte de la main.
+  void removeFromDraft(String id) {
+    if (!_draft.remove(id)) return;
+    notifyListeners();
+  }
 
   /// Paquet posé pendant le tour, repris en main tant que le tour n'est pas fini (#661).
   bool canTakeBack(String meldId) => canPlay && rules.isTurnMeld(_game, meldId);
@@ -336,13 +377,8 @@ class RamiController extends PersistentGameController {
       layOffCard(id, t.id);
       return;
     }
-    // Relâché sur la table : il faut un paquet d'au moins 3 cartes.
-    final ids = [for (final card in groupFor(id)) card.id];
-    if (ids.length < 3) {
-      onMessage?.call(Strings.ramiFormFirst);
-      return;
-    }
-    _apply(rules.poseMeld(_game, ids), Strings.notAMeld);
+    // Relâché sur la table : la carte rejoint le paquet en cours, carte par carte (#874).
+    _addToDraft(id);
   }
 
   void nextRound() {
@@ -368,6 +404,7 @@ class RamiController extends PersistentGameController {
       return;
     }
     _game = next;
+    _draft.clear();
     _selected.clear();
     _reschedule();
     notifyListeners();
