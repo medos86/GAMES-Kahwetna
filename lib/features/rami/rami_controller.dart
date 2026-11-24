@@ -228,6 +228,12 @@ class RamiController extends PersistentGameController {
         Strings.notAMeld,
       );
 
+  /// Rami directe (#867) : pose toute la main et gagne. Hors de portée, la tentative est annulée.
+  void ramiDirect() {
+    if (!canPlay) return;
+    _apply(rules.ramiDirect(_game), Strings.ramiDirectImpossible);
+  }
+
   /// Annule les poses du tour en cours : les cartes reviennent en main.
   void cancel() => _apply(rules.cancelStaged(_game));
 

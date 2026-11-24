@@ -126,6 +126,8 @@ abstract final class Strings {
   static String get selectionNotMeld => t('selectionNotMeld');
   static String get ramiFormHint => t('ramiFormHint');
   static String get actPose => t('actPose');
+  static String get actRamiDirect => t('actRamiDirect');
+  static String get ramiDirectImpossible => t('ramiDirectImpossible');
   static String get actDiscard => t('actDiscard');
   static String get jokerLabel => t('jokerLabel');
   static String get ramiFinishOpeningFirst => t('ramiFinishOpeningFirst');
