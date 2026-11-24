@@ -41,6 +41,7 @@ const gameSfx = <String, List<Sfx>>{
   'coinche': [Sfx.place, Sfx.cardDeal, Sfx.win, Sfx.lose],
   'ludo': [
     Sfx.dice,
+    Sfx.pass,
     Sfx.place,
     Sfx.pawnMove,
     Sfx.pawnHome,
