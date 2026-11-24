@@ -35,7 +35,7 @@ int ramiSeatQuarterTurns(int seat) {
 }
 
 /// Badge d'un siège posé sur le tapis : médaillon d'avatar (agrandi quand c'est son tour)
-/// et pastille « nom ×cartes », comme à la Belote (#838).
+/// et pastille « ×cartes ». Le pseudo n'est plus affiché, il reste lu par les lecteurs d'écran (#863).
 /// Passif et superposé, il ne prend aucune place dans la mise en page.
 class RamiSeatBadge extends StatelessWidget {
   const RamiSeatBadge({
@@ -72,7 +72,7 @@ class RamiSeatBadge extends StatelessWidget {
         border: Border.all(color: ComicPalette.ink, width: 2),
       ),
       child: Text(
-        '$name ×$cards',
+        '×$cards',
         style: const TextStyle(
           color: Color(0xFF20284B),
           fontSize: 11,
@@ -98,7 +98,11 @@ class RamiSeatBadge extends StatelessWidget {
               pill,
             ],
           );
-    if (quarterTurns == 0) return content;
-    return RotatedBox(quarterTurns: quarterTurns, child: content);
+    final labelled = Semantics(
+      label: '$name, $cards cartes',
+      child: ExcludeSemantics(child: content),
+    );
+    if (quarterTurns == 0) return labelled;
+    return RotatedBox(quarterTurns: quarterTurns, child: labelled);
   }
 }
