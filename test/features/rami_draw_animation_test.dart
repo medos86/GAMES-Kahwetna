@@ -33,8 +33,8 @@ void main() {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 400)),
     );
-    // Attend la fin de la donne (environ 1,5 s) avant de mesurer.
-    await tester.pump(const Duration(seconds: 3));
+    // Attend la fin de la donne (environ 2 s, #876) avant de mesurer.
+    await tester.pump(const Duration(seconds: 6));
 
     final backs = find.byType(RamiBackView);
     await tester.tap(backs.first);
@@ -65,7 +65,7 @@ void main() {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 400)),
     );
-    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 6));
 
     // Piocher d'abord : la défausse n'est possible qu'ensuite.
     await tester.tap(find.byType(RamiBackView).first);
@@ -128,17 +128,19 @@ void main() {
       () => Future<void>.delayed(const Duration(milliseconds: 400)),
     );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 60));
+    // Milieu de la donne (#876 : environ 2 s) : des cartes sont encore en vol.
+    await tester.pump(const Duration(milliseconds: 900));
     // Les cartes volent en dos (adversaires) ou de face (moi) : on compte les deux.
     final flying = find.byWidgetPredicate(
       (w) => w is RamiCardView || w is RamiBackView,
     );
     final during = flying.evaluate().length;
-    await tester.pump(const Duration(seconds: 3));
+    await tester.pump(const Duration(seconds: 6));
     expect(tester.takeException(), isNull);
     final settled = flying.evaluate().length;
-    // Pendant la donne, des copies volent en plus des cartes déjà posées.
-    expect(during, greaterThan(settled));
+    // Pendant la donne, des cartes sont visibles mais la donne n'est pas finie.
+    expect(during, greaterThan(0));
+    expect(settled, greaterThan(during));
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
