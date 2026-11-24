@@ -28,7 +28,7 @@ Future<void> _pump(WidgetTester tester) async {
 }
 
 void main() {
-  test('Chkobba, Domino, Belote et Rami ont une photo mascotte existante', () {
+  test('photos mascottes présentes', () {
     for (final name in ['Chkobba', 'Domino', 'Belote', 'Rami']) {
       final photo = _game(name).photoAsset;
       expect(photo, isNotNull, reason: name);
