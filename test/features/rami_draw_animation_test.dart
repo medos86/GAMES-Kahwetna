@@ -34,7 +34,7 @@ void main() {
       () => Future<void>.delayed(const Duration(milliseconds: 400)),
     );
     // Attend la fin de la donne (environ 2 s, #876) avant de mesurer.
-    await tester.pump(const Duration(seconds: 6));
+    await tester.pump(const Duration(seconds: 3));
 
     final backs = find.byType(RamiBackView);
     await tester.tap(backs.first);
@@ -65,7 +65,7 @@ void main() {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 400)),
     );
-    await tester.pump(const Duration(seconds: 6));
+    await tester.pump(const Duration(seconds: 3));
 
     // Piocher d'abord : la défausse n'est possible qu'ensuite.
     await tester.tap(find.byType(RamiBackView).first);
@@ -138,9 +138,8 @@ void main() {
     await tester.pump(const Duration(seconds: 6));
     expect(tester.takeException(), isNull);
     final settled = flying.evaluate().length;
-    // Pendant la donne, des cartes sont visibles mais la donne n'est pas finie.
-    expect(during, greaterThan(0));
-    expect(settled, greaterThan(during));
+    // Pendant la donne, des copies volent en plus des cartes déjà posées.
+    expect(during, greaterThan(settled));
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
