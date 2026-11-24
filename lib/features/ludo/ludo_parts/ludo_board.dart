@@ -12,9 +12,6 @@ class _Board extends StatelessWidget {
         final side = math.min(constraints.maxWidth, constraints.maxHeight);
         final u = side / ludoBoardUnits;
         final legal = controller.legalIds;
-        // Couleur de l'attaquant du dernier coup, si c'était une capture (#662).
-        final note = controller.game.note;
-        final attacker = note is CapturedNote ? note.color : null;
         return Semantics(
           label: t('ludoBoard'),
           child: SizedBox(
@@ -96,7 +93,7 @@ class _Board extends StatelessWidget {
                           u: u,
                           clickable: legal.contains(placed.token.id),
                           onTap: () => controller.tapToken(placed.token.id),
-                          capturing: placed.token.color == attacker,
+                          victimDelayMs: controller.victimDelayMs,
                         ),
                       ),
                   ],
@@ -280,15 +277,15 @@ class _GoalPainter extends CustomPainter {
 
 /// Pion qui saute case par case jusqu'à sa nouvelle position (#378).
 /// Le Positioned du plateau reste à l'arrivée ; seul le décalage visuel anime le trajet.
-/// Capture (#662) : l'attaquant saute haut sur les dernières cases et grandit au sommet,
-/// puis la victime est catapultée vers sa base.
+/// Capture (#882) : l'attaquant avance normalement ; la victime, après son arrivée,
+/// fait sa galipette et est catapultée vers sa base.
 class _HopToken extends StatefulWidget {
   const _HopToken({
     required this.placed,
     required this.u,
     required this.clickable,
     required this.onTap,
-    this.capturing = false,
+    required this.victimDelayMs,
   });
 
   final PlacedToken placed;
@@ -296,15 +293,15 @@ class _HopToken extends StatefulWidget {
   final bool clickable;
   final VoidCallback onTap;
 
-  /// Le pion vient de capturer un autre pion (#662).
-  final bool capturing;
+  /// Attente (ms) avant que ce pion, s'il est capturé, parte en galipette (#882).
+  final int victimDelayMs;
 
   @override
   State<_HopToken> createState() => _HopTokenState();
 }
 
 class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
-  // Vitesse du coup en cours : rapide pour une capture, une sortie de base ou une victime (#869).
+  // Vitesse du coup en cours : rapide pour une sortie de base ou une victime (#869).
   int _msPerCell = ludoHopMsPerCell;
 
   late final AnimationController _hop =
@@ -322,10 +319,7 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
   // Longueur cumulée du trajet à chaque point : la vitesse reste constante (#386).
   List<double> _lengths = const [0];
 
-  // Coup de capture de ce pion : saut haut sur les deux dernières cases (#662).
-  bool _capture = false;
-
-  // Pion renvoyé à la base : arc de catapulte, après le coup de l'attaquant (#662).
+  // Pion renvoyé à la base : arc de catapulte et galipettes, après le coup de l'attaquant (#662).
   bool _victim = false;
   Timer? _victimTimer;
 
@@ -392,7 +386,6 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
     if (action == LudoHopAction.instant) {
       _hop.stop();
       _path = const [];
-      _capture = false;
       _victim = false;
       return;
     }
@@ -401,7 +394,6 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
       // Renvoyé à la base : la catapulte part une fois l'attaquant posé.
       // Le pion reste à sa place (début du trajet) pendant l'attente.
       _victim = true;
-      _capture = false;
       _hop
         ..stop()
         ..value = 0;
@@ -410,14 +402,13 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
         (x: after.x, y: after.y),
       ]);
       _victimTimer = Timer(
-        const Duration(milliseconds: ludoVictimDelayMs),
+        Duration(milliseconds: widget.victimDelayMs),
         _play,
       );
       return;
     }
     _victim = false;
-    _capture = widget.capturing;
-    _msPerCell = ludoHopMsPerCellFor(capture: _capture, fromBase: from == 0);
+    _msPerCell = ludoHopMsPerCellFor(fromBase: from == 0);
     _setPath([
       (x: before.x, y: before.y),
       ...ludoHopWaypoints(after.token.color, from, to),
@@ -462,46 +453,23 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
     );
   }
 
-  /// Vrai sur les deux dernières cases d'un coup de capture.
-  bool _onLastCells(int segment) => segment >= _path.length - 3;
-
   /// Décalage visuel par rapport à la position finale, saut compris.
   Offset _offset() {
     final at = _locate();
     if (at == null) return Offset.zero;
     final end = _path.last;
-    final lift = _victim
-        ? ludoCatapultLift(at.local)
-        : ludoLiftAt(
-            at.local,
-            capture: _capture,
-            lastCells: _onLastCells(at.segment),
-          );
+    final lift = _victim ? ludoCatapultLift(at.local) : ludoLiftAt(at.local);
     return Offset(
       (at.x - end.x) * widget.u,
       (at.y - lift - end.y) * widget.u,
     );
   }
 
-  /// Galipettes (#869) : la victime tourne pendant sa catapulte, l'attaquant fait un tour
-  /// sur les deux dernières cases de sa capture.
+  /// Galipettes (#869) : la victime tourne pendant sa catapulte.
   double _spinAngle() {
     final at = _locate();
-    if (at == null) return 0;
-    if (_victim) return ludoVictimSpinAngle(at.local);
-    if (_capture && _onLastCells(at.segment)) {
-      return ludoCaptureSpinAngle(at.local);
-    }
-    return 0;
-  }
-
-  /// Agrandissement de l'attaquant au sommet de son saut de capture (#662).
-  double _scale() {
-    final at = _locate();
-    if (at == null || !_capture || _victim || !_onLastCells(at.segment)) {
-      return 1;
-    }
-    return ludoCaptureScale(at.local);
+    if (at == null || !_victim) return 0;
+    return ludoVictimSpinAngle(at.local);
   }
 
   @override
@@ -520,17 +488,14 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
           offset: _offset() + Offset(0, bob),
           child: Transform.rotate(
             angle: reduce ? 0 : _spinAngle(),
-            child: Transform.scale(
-              scale: _scale(),
-              child: PulseGlow(
-                active: widget.clickable,
-                radius: visual / 2,
-                child: _TokenButton(
-                  token: placed.token,
-                  clickable: widget.clickable,
-                  onTap: widget.onTap,
-                  visualSize: visual,
-                ),
+            child: PulseGlow(
+              active: widget.clickable,
+              radius: visual / 2,
+              child: _TokenButton(
+                token: placed.token,
+                clickable: widget.clickable,
+                onTap: widget.onTap,
+                visualSize: visual,
               ),
             ),
           ),

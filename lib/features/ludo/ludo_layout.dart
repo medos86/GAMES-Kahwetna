@@ -122,42 +122,21 @@ double ludoBreathScale(double t) => turnAvatarBreathScale(t);
 /// Saut ordinaire d'un pion, en cases (#378).
 const double ludoHopHeight = 0.45;
 
-/// Saut de capture sur les deux dernières cases avant la cible (#662).
-const double ludoCaptureHopHeight = 1.0;
-
 /// Arc de la victime renvoyée à la base, en cases (#662).
 const double ludoCatapultHeight = 1.6;
-
-/// Agrandissement maximal de l'attaquant au sommet de son saut de capture (#662).
-const double ludoCaptureMaxScale = 1.4;
-
-/// Attente avant le départ de la victime : l'attaquant arrive d'abord (#662).
-const int ludoVictimDelayMs = 600;
 
 /// Tours complets (galipettes) de la victime pendant sa catapulte.
 const double ludoVictimSpinTurns = 2;
 
-/// Tour complet (galipette) de l'attaquant sur les deux dernières cases de sa capture.
-const double ludoCaptureSpinTurns = 1;
-
 /// Angle (radians) de la victime à la position [t] (0 à 1) de sa catapulte.
 double ludoVictimSpinAngle(double t) => 2 * math.pi * ludoVictimSpinTurns * t;
 
-/// Angle (radians) de l'attaquant à la position [t] (0 à 1) de son saut de capture.
-double ludoCaptureSpinAngle(double t) => 2 * math.pi * ludoCaptureSpinTurns * t;
-
 /// Hauteur du saut à la position [t] (0 à 1) d'un segment de trajet.
-double ludoLiftAt(double t, {required bool capture, required bool lastCells}) {
-  final height = capture && lastCells ? ludoCaptureHopHeight : ludoHopHeight;
-  return math.sin(math.pi * t) * height;
-}
+/// Le pion qui capture saute comme un pion ordinaire (#882).
+double ludoLiftAt(double t) => math.sin(math.pi * t) * ludoHopHeight;
 
 /// Hauteur de l'arc de la victime à la position [t] (0 à 1).
 double ludoCatapultLift(double t) => math.sin(math.pi * t) * ludoCatapultHeight;
-
-/// Agrandissement de l'attaquant : 1 aux extrémités, maximal au sommet.
-double ludoCaptureScale(double t) =>
-    1 + (ludoCaptureMaxScale - 1) * math.sin(math.pi * t);
 
 /// Centres des cases traversées de [from] à [to] (exclus). Sert à faire sauter le pion case par case.
 List<({double x, double y})> ludoHopWaypoints(
@@ -285,9 +264,10 @@ const int ludoHopMsPerCell = 150;
 /// Vitesse rapide : capture et sortie de base (ms par case).
 const int ludoFastHopMsPerCell = 90;
 
-/// Vitesse d'un coup : rapide pour une capture ou une sortie de base, normale sinon.
-int ludoHopMsPerCellFor({required bool capture, required bool fromBase}) =>
-    capture || fromBase ? ludoFastHopMsPerCell : ludoHopMsPerCell;
+/// Vitesse d'un coup : rapide pour une sortie de base, normale sinon (#882 : une capture
+/// avance à vitesse normale).
+int ludoHopMsPerCellFor({required bool fromBase}) =>
+    fromBase ? ludoFastHopMsPerCell : ludoHopMsPerCell;
 
 /// Décalage vertical du rebond d'un pion jouable, en cases (négatif = vers le haut).
 const double ludoBobHeight = 0.18;
@@ -305,41 +285,62 @@ int _pathMs(List<({double x, double y})> points, int msPerCell) {
   return (cells * msPerCell).round();
 }
 
-/// Durée (ms) de l'animation d'un coup : le pion joué saute case par case, puis
-/// une victime éventuelle (progress remis à 0) part après [ludoVictimDelayMs]
-/// et rejoint sa base. Renvoie 0 si aucun pion n'a bougé.
-int ludoMoveSettleMs(List<Token> before, List<Token> after) {
+/// Durée (ms) du trajet de chaque pion qui avance dans ce coup (hors victime).
+/// Renvoie 0 si aucun pion n'a avancé.
+int _moverMs(List<Token> before, List<Token> after) {
   final placedBefore = {for (final p in layoutTokens(before)) p.token.id: p};
   final placedAfter = {for (final p in layoutTokens(after)) p.token.id: p};
   var moverMs = 0;
-  var victimEnd = 0;
-  // Un coup est une capture si un pion retourne à la base dans ce coup (#662).
-  final captured = after.any((t) {
-    final old = placedBefore[t.id];
-    return t.progress == 0 && old != null && old.token.progress != 0;
-  });
   for (final token in after) {
     final old = placedBefore[token.id];
     final now = placedAfter[token.id];
     if (old == null || now == null) continue;
     final from = old.token.progress;
     final to = token.progress;
-    if (from == to) continue;
-    if (to == 0) {
-      final victimMs = _pathMs([
-        (x: old.x, y: old.y),
-        (x: now.x, y: now.y),
-      ], ludoFastHopMsPerCell);
-      victimEnd = math.max(victimEnd, ludoVictimDelayMs + victimMs);
-      continue;
-    }
+    if (from == to || to == 0) continue;
     final path = <({double x, double y})>[
       (x: old.x, y: old.y),
       ...ludoHopWaypoints(token.color, from, to),
       (x: now.x, y: now.y),
     ];
-    final fast = ludoHopMsPerCellFor(capture: captured, fromBase: from == 0);
-    moverMs = math.max(moverMs, _pathMs(path, fast));
+    moverMs = math.max(
+      moverMs,
+      _pathMs(path, ludoHopMsPerCellFor(fromBase: from == 0)),
+    );
+  }
+  return moverMs;
+}
+
+/// Délai (ms) avant le départ de la victime d'une capture : le temps que l'attaquant
+/// arrive sur sa case. La galipette et le son de capture commencent à ce moment (#882).
+/// 0 si le coup ne renvoie aucun pion à la base.
+int ludoVictimDelayFor(List<Token> before, List<Token> after) {
+  final oldProgress = {for (final t in before) t.id: t.progress};
+  final captured = after.any(
+    (t) => t.progress == 0 && (oldProgress[t.id] ?? 0) != 0,
+  );
+  return captured ? _moverMs(before, after) : 0;
+}
+
+/// Durée (ms) de l'animation d'un coup : le pion joué avance, puis une victime
+/// éventuelle (progress remis à 0) part une fois l'attaquant arrivé et rejoint sa base.
+/// Renvoie 0 si aucun pion n'a bougé.
+int ludoMoveSettleMs(List<Token> before, List<Token> after) {
+  final placedBefore = {for (final p in layoutTokens(before)) p.token.id: p};
+  final placedAfter = {for (final p in layoutTokens(after)) p.token.id: p};
+  final moverMs = _moverMs(before, after);
+  final victimDelay = ludoVictimDelayFor(before, after);
+  var victimEnd = 0;
+  for (final token in after) {
+    final old = placedBefore[token.id];
+    final now = placedAfter[token.id];
+    if (old == null || now == null) continue;
+    if (old.token.progress == token.progress || token.progress != 0) continue;
+    final victimMs = _pathMs([
+      (x: old.x, y: old.y),
+      (x: now.x, y: now.y),
+    ], ludoFastHopMsPerCell);
+    victimEnd = math.max(victimEnd, victimDelay + victimMs);
   }
   return math.max(moverMs, victimEnd);
 }
