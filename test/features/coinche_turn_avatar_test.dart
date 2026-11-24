@@ -23,7 +23,8 @@ void main() {
       );
       await tester.pump();
       final badges = tester.widgetList<TurnAvatar>(find.byType(TurnAvatar));
-      expect(badges.length, 3);
+      // Quatre médaillons : le joueur (sud, #838) et les trois adversaires.
+      expect(badges.length, 4);
       expect(badges.where((b) => b.active).length, lessThanOrEqualTo(1));
     },
   );

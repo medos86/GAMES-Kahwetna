@@ -123,8 +123,9 @@ class _Table extends StatelessWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color:
-                                yourTurnToPlay ? _goldColor : const Color(0xFFF97316),
+                            color: yourTurnToPlay
+                                ? _goldColor
+                                : const Color(0xFFF97316),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.black, width: 2),
                           ),
