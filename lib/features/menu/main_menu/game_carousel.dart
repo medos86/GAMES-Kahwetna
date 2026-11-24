@@ -243,20 +243,13 @@ class _GameCard extends StatelessWidget {
                         children: [
                           _MascotPhoto(
                             game: game,
-                            size: c.maxHeight * 0.5,
+                            size: c.maxHeight * 0.36,
                           ),
-                          const SizedBox(height: 10),
-                          Text(
-                            game.name,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontFamily: 'RobotoSlab',
-                              fontSize: 26,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
-                            ),
+                          Transform.translate(
+                            offset: const Offset(0, -28),
+                            child: _ComicTitle(game: game),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 4),
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 18,
@@ -290,8 +283,26 @@ class _GameCard extends StatelessWidget {
   }
 }
 
-/// Photo mascotte du jeu, en médaillon 3D : bord épais, ombre et reflet.
-/// Sans photo (Rami, en attente), elle retombe sur l'icône SVG.
+/// Ombre de contour BD : 8 copies décalées en encre, sans second widget Text.
+List<Shadow> _comicOutline() {
+  const dirs = [
+    Offset(1, 0),
+    Offset(-1, 0),
+    Offset(0, 1),
+    Offset(0, -1),
+    Offset(0.7, 0.7),
+    Offset(-0.7, 0.7),
+    Offset(0.7, -0.7),
+    Offset(-0.7, -0.7),
+  ];
+  return [
+    for (final d in dirs) Shadow(color: _carouselInk, offset: d * 4),
+    const Shadow(color: _carouselInk, offset: Offset(0, 7)),
+  ];
+}
+
+/// Mascotte détourée : elle sort du médaillon 3D (chapeau qui dépasse).
+/// Sans photo (repli), l'icône SVG est posée dans le médaillon.
 class _MascotPhoto extends StatelessWidget {
   const _MascotPhoto({required this.game, required this.size});
 
@@ -301,48 +312,87 @@ class _MascotPhoto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final photo = game.photoAsset;
-    return SizedBox.square(
-      dimension: size,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-          border: Border.all(color: _carouselInk, width: 4),
-          boxShadow: [
-            BoxShadow(color: game.edgeColor, offset: const Offset(0, 10)),
-            const BoxShadow(
-              color: Color(0x55132249),
-              offset: Offset(0, 18),
-              blurRadius: 18,
+    return SizedBox(
+      width: size * 1.5,
+      height: size * 1.5,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.bottomCenter,
+        children: [
+          Positioned(
+            bottom: 0,
+            child: Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  center: const Alignment(-0.3, -0.4),
+                  colors: [Colors.white, game.gradientFrom],
+                ),
+                border: Border.all(color: _carouselInk, width: 5),
+                boxShadow: [
+                  BoxShadow(color: game.edgeColor, offset: const Offset(0, 10)),
+                  const BoxShadow(
+                    color: Color(0x55132249),
+                    offset: Offset(0, 18),
+                    blurRadius: 18,
+                  ),
+                ],
+              ),
             ),
+          ),
+          Positioned(
+            bottom: size * 0.1,
+            child: photo == null
+                ? Padding(
+                    padding: EdgeInsets.all(size * 0.2),
+                    child: SizedBox.square(
+                      dimension: size * 0.8,
+                      child: SvgPicture.string(gameIconSvg[game.name]!),
+                    ),
+                  )
+                : Image.asset(
+                    photo,
+                    height: size * 1.4,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Titre en Bangers sur un bandeau BD, posé par-dessus le pied de la mascotte.
+class _ComicTitle extends StatelessWidget {
+  const _ComicTitle({required this.game});
+
+  final GameEntry game;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.rotate(
+      angle: -0.04,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+        decoration: BoxDecoration(
+          color: game.gradientFrom,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: _carouselInk, width: 3),
+          boxShadow: [
+            BoxShadow(color: game.edgeColor, offset: const Offset(0, 5)),
           ],
         ),
-        child: ClipOval(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              if (photo != null)
-                Image.asset(
-                  photo,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                )
-              else
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: SvgPicture.string(gameIconSvg[game.name]!),
-                ),
-              // Reflet en haut à gauche : donne le volume du médaillon.
-              const DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.center,
-                    colors: [Color(0x80FFFFFF), Color(0x00FFFFFF)],
-                  ),
-                ),
-              ),
-            ],
+        child: Text(
+          game.name,
+          style: TextStyle(
+            fontFamily: 'Bangers',
+            fontSize: 38,
+            letterSpacing: 2,
+            color: Colors.white,
+            shadows: _comicOutline(),
           ),
         ),
       ),

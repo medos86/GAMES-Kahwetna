@@ -115,7 +115,7 @@ const gameEntries = <GameEntry>[
     route: '/game',
     targets: [11, 21],
     defaultTarget: 11,
-    photoAsset: 'assets/images/mascots/chkobba.jpg',
+    photoAsset: 'assets/images/mascots/chkobba.png',
     backgroundAsset: 'assets/images/game_bg/rays_chkobba.webp',
   ),
   GameEntry(
@@ -127,7 +127,7 @@ const gameEntries = <GameEntry>[
     route: '/domino',
     targets: [50, 100, 200],
     defaultTarget: 50,
-    photoAsset: 'assets/images/mascots/domino.jpg',
+    photoAsset: 'assets/images/mascots/domino.png',
     backgroundAsset: 'assets/images/game_bg/rays_domino.webp',
   ),
   GameEntry(
@@ -139,7 +139,7 @@ const gameEntries = <GameEntry>[
     route: '/coinche',
     targets: [500, 1000],
     defaultTarget: 1000,
-    photoAsset: 'assets/images/mascots/belote.jpg',
+    photoAsset: 'assets/images/mascots/belote.png',
     backgroundAsset: 'assets/images/game_bg/rays_belote.webp',
   ),
   GameEntry(
@@ -162,7 +162,7 @@ const gameEntries = <GameEntry>[
     route: '/rami',
     targets: [301, 401, 501, 601],
     defaultTarget: 301,
-    photoAsset: 'assets/images/mascots/rami.jpg',
+    photoAsset: 'assets/images/mascots/rami.png',
     backgroundAsset: 'assets/images/game_bg/rays_rami.webp',
   ),
 ];
