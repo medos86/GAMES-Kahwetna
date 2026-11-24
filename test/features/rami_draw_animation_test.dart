@@ -33,20 +33,21 @@ void main() {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 400)),
     );
-    // Attend la fin de la donne (environ 1,5 s) avant de mesurer.
+    // Attend la fin de la donne (environ 2 s, #876) avant de mesurer.
     await tester.pump(const Duration(seconds: 3));
 
     final backs = find.byType(RamiBackView);
+    final before = backs.evaluate().length;
     await tester.tap(backs.first);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
-    // Pendant le vol : au moins une copie de dos en plus à l'écran.
+    // Pendant le vol : au moins une copie de dos en plus à l'écran (#876 : la donne
+    // est plus lente, on compare donc à l'avant-pioche et non au total final).
     final during = backs.evaluate().length;
+    expect(during, greaterThan(before));
     await tester.pump(const Duration(seconds: 3));
     expect(tester.takeException(), isNull);
-    final settled = backs.evaluate().length;
-    expect(during, greaterThan(settled));
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
@@ -65,11 +66,11 @@ void main() {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 400)),
     );
-    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 3));
 
     // Piocher d'abord : la défausse n'est possible qu'ensuite.
     await tester.tap(find.byType(RamiBackView).first);
-    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 3));
 
     // Carte la plus basse à l'écran : celle de la main, pas la défausse.
     final cards = tester.widgetList<RamiCardView>(find.byType(RamiCardView));
@@ -128,13 +129,14 @@ void main() {
       () => Future<void>.delayed(const Duration(milliseconds: 400)),
     );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 60));
+    // Milieu de la donne (#876 : environ 2 s) : des cartes sont encore en vol.
+    await tester.pump(const Duration(milliseconds: 900));
     // Les cartes volent en dos (adversaires) ou de face (moi) : on compte les deux.
     final flying = find.byWidgetPredicate(
       (w) => w is RamiCardView || w is RamiBackView,
     );
     final during = flying.evaluate().length;
-    await tester.pump(const Duration(seconds: 3));
+    await tester.pump(const Duration(seconds: 6));
     expect(tester.takeException(), isNull);
     final settled = flying.evaluate().length;
     // Pendant la donne, des copies volent en plus des cartes déjà posées.

@@ -131,6 +131,12 @@ enum RamiAiMove { recycle, drawStock, takeDiscard, discard }
 /// Nombre de cartes animées lors d'un recyclage de la défausse (au plus ce nombre, pour rester fluide).
 const int ramiRecycleVisualCards = 6;
 
+/// Distribution (#876) : un tour de table dure [ramiDealStep] par carte ; dans un tour,
+/// chaque siège attend [ramiDealSeatStagger] de plus. Chaque carte vole [ramiDealFlight].
+const Duration ramiDealStep = Duration(milliseconds: 220);
+const Duration ramiDealSeatStagger = Duration(milliseconds: 70);
+const Duration ramiDealFlight = Duration(milliseconds: 420);
+
 /// Décalage entre deux cartes qui reviennent de la défausse vers la pioche.
 const Duration ramiRecycleStagger = Duration(milliseconds: 70);
 
