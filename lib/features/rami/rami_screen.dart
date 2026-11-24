@@ -403,21 +403,6 @@ class _RamiScreenState extends State<RamiScreen>
               ),
             ),
           ),
-        // Mon badge (pseudo et avatar), en haut à gauche du tapis comme les adversaires (#838).
-        Align(
-          alignment: ramiSeatAlignment(0),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 4, top: 4),
-            child: RamiSeatBadge(
-              key: _key('dest:0'),
-              name: _nameOf(0),
-              cards: g.hands[0].length,
-              avatarId: _avatarIds[0],
-              avatarState: _avatarStateOf(0, g),
-              active: _c.myTurn,
-            ),
-          ),
-        ),
         // Voile qui s'estompe avec le panneau (#591) ; toucher le tapis hors du
         // panneau le referme (sans jouer le coup).
         Positioned.fill(
@@ -554,7 +539,8 @@ class _RamiScreenState extends State<RamiScreen>
               },
             ),
           ),
-          // Pioche et défausse à gauche, boutons d'action à leur côté sur la même ligne.
+          // Pioche et défausse à gauche, mon avatar à droite de la défausse (#861),
+          // puis les boutons d'action sur la même ligne.
           Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Row(
@@ -565,6 +551,17 @@ class _RamiScreenState extends State<RamiScreen>
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.bottomLeft,
                     child: _piles(ramiPileWidth(handWidth), g),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, bottom: 2),
+                  child: RamiSeatBadge(
+                    key: _key('dest:0'),
+                    name: _nameOf(0),
+                    cards: g.hands[0].length,
+                    avatarId: _avatarIds[0],
+                    avatarState: _avatarStateOf(0, g),
+                    active: _c.myTurn,
                   ),
                 ),
                 Expanded(

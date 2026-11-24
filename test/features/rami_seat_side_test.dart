@@ -14,8 +14,8 @@ void main() {
     expect(ramiSeatAlignment(3), Alignment.centerRight);
   });
 
-  test('#589 : moi (siège 0) n\'a pas de badge sur le bord', () {
-    expect(ramiSeatAlignment(0), Alignment.topLeft);
+  test('#861 : mon badge est en bas à droite, près de la défausse', () {
+    expect(ramiSeatAlignment(0), Alignment.bottomRight);
   });
 
   test('#666 : sièges latéraux écrits verticalement, haut horizontal', () {

@@ -10,11 +10,11 @@ import '../../widgets/turn_avatar.dart';
 const ramiDealSeatOrder = [1, 2, 3, 0];
 
 /// Côté du tapis où s'affiche le badge d'un siège (#589, #838).
-/// Sens horaire depuis moi : le joueur suivant est à ma gauche. Mon badge est en haut à gauche.
+/// Sens horaire depuis moi : le joueur suivant est à ma gauche. Mon badge est en bas, à droite de la défausse (#861).
 Alignment ramiSeatAlignment(int seat) {
   switch (seat) {
     case 0:
-      return Alignment.topLeft;
+      return Alignment.bottomRight;
     case 1:
       return Alignment.centerLeft;
     case 2:
