@@ -162,6 +162,7 @@ const gameEntries = <GameEntry>[
     route: '/rami',
     targets: [301, 401, 501, 601],
     defaultTarget: 301,
+    photoAsset: 'assets/images/mascots/rami.jpg',
     backgroundAsset: 'assets/images/game_bg/rays_rami.webp',
   ),
 ];

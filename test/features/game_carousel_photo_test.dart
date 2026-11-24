@@ -2,7 +2,6 @@
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/menu/main_menu/game_carousel.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
@@ -29,16 +28,16 @@ Future<void> _pump(WidgetTester tester) async {
 }
 
 void main() {
-  test('Chkobba, Domino et Belote ont une photo mascotte existante', () {
-    for (final name in ['Chkobba', 'Domino', 'Belote']) {
+  test('Chkobba, Domino, Belote et Rami ont une photo mascotte existante', () {
+    for (final name in ['Chkobba', 'Domino', 'Belote', 'Rami']) {
       final photo = _game(name).photoAsset;
       expect(photo, isNotNull, reason: name);
       expect(File(photo!).existsSync(), isTrue, reason: photo);
     }
   });
 
-  test('Rami garde l icône SVG en attendant sa photo', () {
-    expect(_game('Rami').photoAsset, isNull);
+  test('Rami utilise sa photo mascotte', () {
+    expect(_game('Rami').photoAsset, 'assets/images/mascots/rami.jpg');
   });
 
   test('les noms affichés sont en français, sans nom arabe', () {
@@ -62,13 +61,20 @@ void main() {
     expect(find.text('Chkobba'), findsWidgets);
   });
 
-  testWidgets('Rami affiche l icône SVG de repli', (tester) async {
+  testWidgets('Rami affiche sa photo après le repli', (tester) async {
     await _pump(tester);
     // Rami est à l'index 4 : on remonte d'un cran depuis Chkobba (index 0).
     await tester.tap(find.bySemanticsLabel('Jeu précédent'));
     await tester.pumpAndSettle();
 
+    final ramiPhoto = find.byWidgetPredicate(
+      (w) =>
+          w is Image &&
+          w.image is AssetImage &&
+          (w.image as AssetImage).assetName ==
+              'assets/images/mascots/rami.jpg',
+    );
     expect(find.text('Rami'), findsWidgets);
-    expect(find.byType(SvgPicture), findsWidgets);
+    expect(ramiPhoto, findsWidgets);
   });
 }
