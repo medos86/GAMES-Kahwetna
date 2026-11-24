@@ -656,6 +656,131 @@ RamiState poseMeld(RamiState state, List<String> cardIds) {
   return _open(placed, seat, total);
 }
 
+/// Rami directe (#867) : toute la main est posée d'un coup, sans seuil d'ouverture, et la
+/// manche est gagnée. Si la main ne peut pas être entièrement posée, l'état est renvoyé
+/// tel quel (identical) : la tentative est annulée et rien ne change.
+RamiState ramiDirect(RamiState state) {
+  final seat = state.turn;
+  if (state.phase != RamiPhase.play || state.firstTour || state.opened[seat]) {
+    return state;
+  }
+  final cover = _exactCover(state.hands[seat]);
+  if (cover == null) return state;
+  var table = state.table;
+  final turnIds = [...state.turnMeldIds];
+  for (final group in cover) {
+    final cards = arrangeMeld(group);
+    final meldId = _newMeldId(table, cards);
+    table = [...table, Meld(id: meldId, cards: cards, owner: seat)];
+    turnIds.add(meldId);
+  }
+  final placed = _setHand(
+    state.copyWith(table: table, turnMeldIds: turnIds),
+    seat,
+    const [],
+  );
+  return _finish(placed, seat);
+}
+
+/// Recouvrement exact de [hand] par des combinaisons valides, ou null s'il n'existe pas.
+/// Retour arrière sur la première carte non couverte ; garde-fou sur le nombre d'essais.
+List<List<RamiCard>>? _exactCover(List<RamiCard> hand) {
+  if (hand.isEmpty) return null;
+  final candidates = _allMeldCandidates(hand);
+  final used = <String>{};
+  var budget = 200000;
+
+  List<List<RamiCard>>? solve() {
+    final free = [
+      for (final card in hand)
+        if (!used.contains(card.id)) card,
+    ];
+    if (free.isEmpty) return [];
+    final target = free.first;
+    for (final candidate in candidates) {
+      if (--budget < 0) return null;
+      if (!candidate.any((card) => card.id == target.id)) continue;
+      if (candidate.any((card) => used.contains(card.id))) continue;
+      used.addAll(candidate.map((card) => card.id));
+      final rest = solve();
+      if (rest != null) return [candidate, ...rest];
+      used.removeAll(candidate.map((card) => card.id));
+    }
+    return null;
+  }
+
+  return solve();
+}
+
+/// Toutes les combinaisons valides de la main : brelans et carrés (jokers compris) et suites
+/// de tous les intervalles. Contrairement à [_setCandidates] et [_runCandidates], aucune
+/// combinaison n'est écartée : le recouvrement exact doit pouvoir tout trouver.
+List<List<RamiCard>> _allMeldCandidates(List<RamiCard> hand) {
+  final naturals = hand.where((c) => !c.isJoker).toList();
+  final jokers = hand.where((c) => c.isJoker).toList();
+  final out = <List<RamiCard>>[];
+
+  // Brelans et carrés : un sous-ensemble de cartes de même rang, complété par des jokers.
+  for (var rank = 1; rank <= 13; rank++) {
+    final ofRank = [for (final c in naturals) if (c.rank == rank) c];
+    for (var mask = 1; mask < (1 << ofRank.length); mask++) {
+      final chosen = [
+        for (var i = 0; i < ofRank.length; i++)
+          if ((mask & (1 << i)) != 0) ofRank[i],
+      ];
+      for (var m = 0; m <= jokers.length && chosen.length + m <= 4; m++) {
+        final cand = [...chosen, ...jokers.take(m)];
+        if (cand.length >= 3 && isValidMeld(cand)) out.add(cand);
+      }
+    }
+  }
+
+  // Suites : pour chaque couleur et intervalle, un choix de carte par position (ou joker).
+  for (final suit in RamiSuit.values) {
+    for (var low = 1; low <= _aceHigh; low++) {
+      for (var len = 3; len <= 13 && low + len - 1 <= _aceHigh; len++) {
+        final slots = <List<RamiCard?>>[
+          for (var pos = low; pos < low + len; pos++)
+            [
+              for (final c in naturals)
+                if (c.suit == suit && c.rank == (pos == _aceHigh ? 1 : pos)) c,
+              null,
+            ],
+        ];
+        _runProduct(slots, 0, <RamiCard>[], 0, jokers.length, (cards) {
+          if (isValidMeld(cards)) out.add(cards);
+        });
+      }
+    }
+  }
+  return out;
+}
+
+/// Produit cartésien des positions d'une suite ; [null] = joker, au plus [maxJokers].
+void _runProduct(
+  List<List<RamiCard?>> slots,
+  int index,
+  List<RamiCard> acc,
+  int jokersUsed,
+  int maxJokers,
+  void Function(List<RamiCard>) emit,
+) {
+  if (index == slots.length) {
+    emit([...acc]);
+    return;
+  }
+  for (final choice in slots[index]) {
+    if (choice == null) {
+      if (jokersUsed >= maxJokers) continue;
+      _runProduct(slots, index + 1, acc, jokersUsed + 1, maxJokers, emit);
+    } else {
+      acc.add(choice);
+      _runProduct(slots, index + 1, acc, jokersUsed, maxJokers, emit);
+      acc.removeLast();
+    }
+  }
+}
+
 /// Ouvre le joueur : ses points d'ouverture sont enregistrés et le compte du tour est remis à zéro.
 RamiState _open(RamiState state, int seat, int points) => state.copyWith(
       staged: const [],
