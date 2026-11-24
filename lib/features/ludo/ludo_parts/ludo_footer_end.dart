@@ -90,30 +90,9 @@ class LudoDie extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (refused) {
-      // Le dé garde sa face, secoue la tête et affiche « Non » par-dessus (#855).
+      // Le dé garde sa face et secoue la tête pour dire « non », sans mot affiché (#883 / #855).
       return _HeadShake(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            LudoDie(value: value, tone: tone, size: size, animate: false),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: const Color(0xEEFFF9E9),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFF24364B), width: 2),
-              ),
-              child: Text(
-                t('sLudoNoShort'),
-                style: TextStyle(
-                  color: tone,
-                  fontSize: size * 0.3,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
-          ],
-        ),
+        child: LudoDie(value: value, tone: tone, size: size, animate: false),
       );
     }
     final face = value ?? 5;

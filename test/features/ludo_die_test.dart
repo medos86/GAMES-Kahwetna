@@ -58,6 +58,28 @@ void main() {
     expect(_isStill(inactif), isTrue);
   });
 
+  testWidgets('#883 : un dé bloqué secoue la tête sans afficher « Non »', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: LudoDie(
+            value: 3,
+            tone: Colors.red,
+            animate: false,
+            refused: true,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // Le dé reste affiché (face 3), même dans le secouement.
+    expect(find.byType(LudoDie), findsWidgets);
+    expect(find.text('Non'), findsNothing);
+    expect(find.text('لا'), findsNothing);
+  });
+
   test('#598 : la cible tactile du dé respecte le minimum de 48 dp', () {
     expect(kLudoDieTapSize, greaterThanOrEqualTo(48));
   });
