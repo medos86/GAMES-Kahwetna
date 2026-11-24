@@ -48,4 +48,32 @@ void main() {
     expect(ludoHopAction(from: 3, to: 9, reduced: true), LudoHopAction.instant);
     expect(ludoHopAction(from: 5, to: 0, reduced: false), LudoHopAction.play);
   });
+  // #869 : galipettes de la victime et de l'attaquant.
+  test('#869 : la victime fait des galipettes pendant sa catapulte', () {
+    expect(ludoVictimSpinAngle(0), 0);
+    expect(ludoVictimSpinAngle(0.5), closeTo(2 * 3.141592653589793, 1e-9));
+    expect(ludoVictimSpinAngle(1), closeTo(4 * 3.141592653589793, 1e-9));
+  });
+
+  test('#869 : l\'attaquant fait un tour complet sur ses dernières cases', () {
+    expect(ludoCaptureSpinAngle(0), 0);
+    expect(ludoCaptureSpinAngle(1), closeTo(2 * 3.141592653589793, 1e-9));
+  });
+
+  // #869 : mouvements plus rapides pour une capture et une sortie de base.
+  test('#869 : capture et sortie de base plus rapides', () {
+    expect(ludoFastHopMsPerCell, lessThan(ludoHopMsPerCell));
+    expect(
+      ludoHopMsPerCellFor(capture: true, fromBase: false),
+      ludoFastHopMsPerCell,
+    );
+    expect(
+      ludoHopMsPerCellFor(capture: false, fromBase: true),
+      ludoFastHopMsPerCell,
+    );
+    expect(
+      ludoHopMsPerCellFor(capture: false, fromBase: false),
+      ludoHopMsPerCell,
+    );
+  });
 }

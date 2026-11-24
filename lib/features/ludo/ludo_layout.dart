@@ -132,7 +132,19 @@ const double ludoCatapultHeight = 1.6;
 const double ludoCaptureMaxScale = 1.4;
 
 /// Attente avant le départ de la victime : l'attaquant arrive d'abord (#662).
-const int ludoVictimDelayMs = 900;
+const int ludoVictimDelayMs = 600;
+
+/// Tours complets (galipettes) de la victime pendant sa catapulte.
+const double ludoVictimSpinTurns = 2;
+
+/// Tour complet (galipette) de l'attaquant sur les deux dernières cases de sa capture.
+const double ludoCaptureSpinTurns = 1;
+
+/// Angle (radians) de la victime à la position [t] (0 à 1) de sa catapulte.
+double ludoVictimSpinAngle(double t) => 2 * math.pi * ludoVictimSpinTurns * t;
+
+/// Angle (radians) de l'attaquant à la position [t] (0 à 1) de son saut de capture.
+double ludoCaptureSpinAngle(double t) => 2 * math.pi * ludoCaptureSpinTurns * t;
 
 /// Hauteur du saut à la position [t] (0 à 1) d'un segment de trajet.
 double ludoLiftAt(double t, {required bool capture, required bool lastCells}) {
@@ -270,20 +282,27 @@ LudoHopAction ludoHopAction({
 /// Vitesse du saut : millisecondes par case parcourue (#386). Même valeur que le plateau.
 const int ludoHopMsPerCell = 150;
 
+/// Vitesse rapide : capture et sortie de base (ms par case).
+const int ludoFastHopMsPerCell = 90;
+
+/// Vitesse d'un coup : rapide pour une capture ou une sortie de base, normale sinon.
+int ludoHopMsPerCellFor({required bool capture, required bool fromBase}) =>
+    capture || fromBase ? ludoFastHopMsPerCell : ludoHopMsPerCell;
+
 /// Décalage vertical du rebond d'un pion jouable, en cases (négatif = vers le haut).
 const double ludoBobHeight = 0.18;
 
 /// Rebond d'un pion jouable à la phase [t] (0 à 1) du cycle.
 double ludoBobAt(double t) => -ludoBobHeight * math.sin(math.pi * t);
 
-int _pathMs(List<({double x, double y})> points) {
+int _pathMs(List<({double x, double y})> points, int msPerCell) {
   var cells = 0.0;
   for (var i = 1; i < points.length; i++) {
     final dx = points[i].x - points[i - 1].x;
     final dy = points[i].y - points[i - 1].y;
     cells += math.sqrt(dx * dx + dy * dy);
   }
-  return (cells * ludoHopMsPerCell).round();
+  return (cells * msPerCell).round();
 }
 
 /// Durée (ms) de l'animation d'un coup : le pion joué saute case par case, puis
@@ -294,6 +313,11 @@ int ludoMoveSettleMs(List<Token> before, List<Token> after) {
   final placedAfter = {for (final p in layoutTokens(after)) p.token.id: p};
   var moverMs = 0;
   var victimEnd = 0;
+  // Un coup est une capture si un pion retourne à la base dans ce coup (#662).
+  final captured = after.any((t) {
+    final old = placedBefore[t.id];
+    return t.progress == 0 && old != null && old.token.progress != 0;
+  });
   for (final token in after) {
     final old = placedBefore[token.id];
     final now = placedAfter[token.id];
@@ -305,7 +329,7 @@ int ludoMoveSettleMs(List<Token> before, List<Token> after) {
       final victimMs = _pathMs([
         (x: old.x, y: old.y),
         (x: now.x, y: now.y),
-      ]);
+      ], ludoFastHopMsPerCell);
       victimEnd = math.max(victimEnd, ludoVictimDelayMs + victimMs);
       continue;
     }
@@ -314,7 +338,8 @@ int ludoMoveSettleMs(List<Token> before, List<Token> after) {
       ...ludoHopWaypoints(token.color, from, to),
       (x: now.x, y: now.y),
     ];
-    moverMs = math.max(moverMs, _pathMs(path));
+    final fast = ludoHopMsPerCellFor(capture: captured, fromBase: from == 0);
+    moverMs = math.max(moverMs, _pathMs(path, fast));
   }
   return math.max(moverMs, victimEnd);
 }
