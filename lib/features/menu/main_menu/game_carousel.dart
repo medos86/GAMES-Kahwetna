@@ -205,100 +205,95 @@ class _GameCard extends StatelessWidget {
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: radius,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Opacity(
-              opacity: 0.28,
-              child: Image.asset(
-                game.backgroundAsset,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-              ),
-            ),
-            Positioned(
-              right: -30,
-              top: -30,
-              child: Container(
-                width: 150,
-                height: 150,
-                decoration: const BoxDecoration(
-                  color: Color(0x33FFFFFF),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: LayoutBuilder(
-                builder: (context, c) {
-                  return FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: SizedBox(
-                      width: c.maxWidth,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _MascotPhoto(
-                            game: game,
-                            size: c.maxHeight * 0.36,
-                          ),
-                          Transform.translate(
-                            offset: const Offset(0, -28),
-                            child: _ComicTitle(game: game),
-                          ),
-                          const SizedBox(height: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _carouselInk,
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: const Text(
-                              'JOUER',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 2,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
+      child: LayoutBuilder(
+        builder: (context, c) {
+          final side = c.maxWidth;
+          return Stack(
+            // Pas de découpe ici : la tête de la mascotte peut dépasser la carte.
+            clipBehavior: Clip.none,
+            fit: StackFit.expand,
+            children: [
+              ClipRRect(
+                borderRadius: radius,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Opacity(
+                      opacity: 0.28,
+                      child: Image.asset(
+                        game.backgroundAsset,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                       ),
                     ),
-                  );
-                },
+                    Positioned(
+                      right: -30,
+                      top: -30,
+                      child: Container(
+                        width: 150,
+                        height: 150,
+                        decoration: const BoxDecoration(
+                          color: Color(0x33FFFFFF),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+              // Mascotte agrandie au maximum ; la tête sort légèrement du bord haut.
+              Positioned(
+                top: -side * 0.06,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: _MascotPhoto(game: game, size: side * 0.56),
+                ),
+              ),
+              // Le nom du jeu remplace l'ancien bouton « JOUER ».
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 16,
+                child: Center(child: _NamePill(game: game)),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-/// Ombre de contour BD : 8 copies décalées en encre, sans second widget Text.
-List<Shadow> _comicOutline() {
-  const dirs = [
-    Offset(1, 0),
-    Offset(-1, 0),
-    Offset(0, 1),
-    Offset(0, -1),
-    Offset(0.7, 0.7),
-    Offset(-0.7, 0.7),
-    Offset(0.7, -0.7),
-    Offset(-0.7, -0.7),
-  ];
-  return [
-    for (final d in dirs) Shadow(color: _carouselInk, offset: d * 4),
-    const Shadow(color: _carouselInk, offset: Offset(0, 7)),
-  ];
+/// Nom du jeu en Bangers sur une pastille encre, en bas de la carte.
+class _NamePill extends StatelessWidget {
+  const _NamePill({required this.game});
+
+  final GameEntry game;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+      decoration: BoxDecoration(
+        color: _carouselInk,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          game.name,
+          maxLines: 1,
+          style: const TextStyle(
+            fontFamily: 'Bangers',
+            fontSize: 30,
+            letterSpacing: 2,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Mascotte détourée : elle sort du médaillon 3D (chapeau qui dépasse).
@@ -360,41 +355,6 @@ class _MascotPhoto extends StatelessWidget {
                   ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Titre en Bangers sur un bandeau BD, posé par-dessus le pied de la mascotte.
-class _ComicTitle extends StatelessWidget {
-  const _ComicTitle({required this.game});
-
-  final GameEntry game;
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.rotate(
-      angle: -0.04,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-        decoration: BoxDecoration(
-          color: game.gradientFrom,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: _carouselInk, width: 3),
-          boxShadow: [
-            BoxShadow(color: game.edgeColor, offset: const Offset(0, 5)),
-          ],
-        ),
-        child: Text(
-          game.name,
-          style: TextStyle(
-            fontFamily: 'Bangers',
-            fontSize: 38,
-            letterSpacing: 2,
-            color: Colors.white,
-            shadows: _comicOutline(),
-          ),
-        ),
       ),
     );
   }
