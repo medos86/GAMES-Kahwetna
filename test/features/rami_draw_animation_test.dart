@@ -88,11 +88,11 @@ void main() {
       find.byWidgetPredicate((w) => w is RamiCardView && w.selected),
       findsOneWidget,
     );
-    expect(find.text(Strings.actDiscard), findsOneWidget);
+    expect(find.byTooltip(Strings.actDiscard), findsOneWidget);
     // Déclenche le bouton directement : le tap est masqué par la main (layout).
     final discardButton = tester.widget<InkWell>(
-      find.ancestor(
-        of: find.text(Strings.actDiscard),
+      find.descendant(
+        of: find.byTooltip(Strings.actDiscard),
         matching: find.byType(InkWell),
       ),
     );
