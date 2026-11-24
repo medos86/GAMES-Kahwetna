@@ -32,9 +32,17 @@ class _Header extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _ScoreBar extends StatelessWidget {
-  const _ScoreBar({required this.controller});
+  const _ScoreBar({
+    required this.controller,
+    required this.seatNames,
+    required this.me,
+  });
 
   final CoincheController controller;
+
+  // Prénoms des adversaires et pseudo du joueur, pour l'annonceur (#839).
+  final Map<Seat, String> seatNames;
+  final String me;
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +105,18 @@ class _ScoreBar extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (contract != null)
+                    Text(
+                      coincheAnnounceDetail(contract, seatNames, me),
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 10,
+                        color: Color(0xFF17213D),
+                      ),
+                    ),
                 ],
               ),
             ),

@@ -17,6 +17,7 @@ import 'coinche_card_view.dart';
 import 'coinche_controller.dart';
 import 'coinche_opponent_names.dart';
 import '../../core/services/ad_free_service.dart';
+import '../../core/services/profile_store.dart';
 import '../../core/services/game_end_watcher.dart';
 import '../../core/services/interstitial_service.dart';
 import '../../core/theme/comic_palette.dart';
@@ -74,6 +75,9 @@ class _CoincheScreenState extends State<CoincheScreen>
   // Prénoms des adversaires, tirés au hasard à chaque partie (issue #770).
   final Map<Seat, String> _seatNames = pickCoincheOpponentNames(math.Random());
 
+  // Pseudo du joueur (sud), tiré du profil local, « Toi » par défaut (#838).
+  String _myName = 'Toi';
+
   late final CoincheController _controller = CoincheController(
     store: const SharedPreferencesSavedGameStore(),
     target: widget.targetScore,
@@ -110,6 +114,11 @@ class _CoincheScreenState extends State<CoincheScreen>
     InterstitialService.instance.preload();
     loadGameAvatars(seats: 4).then((ids) {
       if (mounted) setState(() => _avatarIds = ids);
+    });
+    loadProfile().then((profile) {
+      if (mounted && profile.name.trim().isNotEmpty) {
+        setState(() => _myName = profile.name.trim());
+      }
     });
     _controller.addListener(_endWatcher.check);
     _controller.addListener(_onChanged);
@@ -288,7 +297,11 @@ class _CoincheScreenState extends State<CoincheScreen>
                 children: [
                   _Header(controller: c, difficulty: widget.difficulty),
                   const SizedBox(height: 8),
-                  _ScoreBar(controller: c),
+                  _ScoreBar(
+                    controller: c,
+                    seatNames: _seatNames,
+                    me: _myName,
+                  ),
                   const SizedBox(height: 8),
                   Expanded(
                     child: _Table(
@@ -298,15 +311,17 @@ class _CoincheScreenState extends State<CoincheScreen>
                       landing: landing,
                       avatarIds: _avatarIds,
                       seatNames: _seatNames,
+                      // Main du joueur dans le même tapis (#838).
+                      footer: _HandFooter(
+                        controller: c,
+                        // Cartes du joueur agrandies (#831).
+                        cardWidth: metrics.coincheCardWidth * 1.2,
+                        keyOf: _key,
+                        landing: landing,
+                        avatarId: _avatarIds[0],
+                        name: _myName,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  _HandFooter(
-                    controller: c,
-                    // Cartes du joueur agrandies (#831).
-                    cardWidth: metrics.coincheCardWidth * 1.2,
-                    keyOf: _key,
-                    landing: landing,
                   ),
                 ],
               ),

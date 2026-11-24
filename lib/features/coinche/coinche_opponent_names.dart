@@ -28,9 +28,9 @@ Map<Seat, String> pickCoincheOpponentNames(math.Random random) {
   };
 }
 
-/// Nom affiché pour un siège : « Toi » pour le joueur, sinon le prénom tiré.
-String coincheSeatName(Map<Seat, String> names, Seat seat) {
-  if (seat == Seat.south) return 'Toi';
+/// Nom affiché pour un siège : le pseudo du joueur (« Toi » par défaut) pour le sud, sinon le prénom tiré.
+String coincheSeatName(Map<Seat, String> names, Seat seat, [String me = 'Toi']) {
+  if (seat == Seat.south) return me;
   return names[seat]!;
 }
 
