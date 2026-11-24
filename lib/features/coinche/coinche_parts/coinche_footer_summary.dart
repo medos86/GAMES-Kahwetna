@@ -6,12 +6,18 @@ class _HandFooter extends StatelessWidget {
     required this.cardWidth,
     required this.keyOf,
     required this.landing,
+    required this.avatarId,
+    required this.name,
   });
 
   final CoincheController controller;
   final double cardWidth;
   final GlobalKey Function(String name) keyOf;
   final Set<String> landing;
+
+  // Avatar et pseudo du joueur (#838), affichés comme ceux des adversaires.
+  final String avatarId;
+  final String name;
 
   /// Une carte de la main : elle reste vide tant qu'elle vole vers la main.
   Widget _handCard(CoincheCard card, Set<String> legal, bool dimmed) {
@@ -39,20 +45,51 @@ class _HandFooter extends StatelessWidget {
     final legal = controller.legalIds;
     final dimmed = controller.isHumanPlayTurn;
 
+    final round = controller.round;
+    final active = round.turn == Seat.south &&
+        (round.phase == CoinchePhase.bidding ||
+            round.phase == CoinchePhase.playing);
+
+    // Main posée dans le grand tapis (#838) : pas de cadre ni de fond propres.
     return Container(
       key: keyOf('seat:south'),
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
-      decoration: BoxDecoration(
-        // Main du joueur posée sur le tapis (#831) : fond vert, pas crème.
-        color: _feltColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _frameColor, width: 3),
-      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
+              TurnAvatar(
+                tone: const Color(0xFF047857),
+                active: active,
+                avatarId: avatarId,
+                state: gameAvatarState(
+                  seat: Seat.south.index,
+                  finished: round.phase == CoinchePhase.done,
+                  winners: coincheWinnerSeats(round),
+                ),
+                semanticLabel: name,
+                baseSize: 28,
+                activeSize: 40,
+              ),
+              const SizedBox(width: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: active ? _goldColor : Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: _frameColor, width: 2),
+                ),
+                child: Text(
+                  name,
+                  style: const TextStyle(
+                    color: _inkColor,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'TA MAIN · ${hand.length} cartes',

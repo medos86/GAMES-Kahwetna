@@ -8,6 +8,7 @@ class _Table extends StatelessWidget {
     required this.landing,
     required this.avatarIds,
     required this.seatNames,
+    required this.footer,
   });
 
   final CoincheController controller;
@@ -20,6 +21,9 @@ class _Table extends StatelessWidget {
 
   // Prénoms des adversaires, tirés au hasard à chaque partie (issue #770).
   final Map<Seat, String> seatNames;
+
+  // Main du joueur, posée dans le même tapis (#838) : un seul grand tapis.
+  final Widget footer;
 
   @override
   Widget build(BuildContext context) {
@@ -43,113 +47,121 @@ class _Table extends StatelessWidget {
           ),
         ],
       ),
-      child: Stack(
+      child: Column(
         children: [
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: KeyedSubtree(
-                key: keyOf('seat:north'),
-                child: _SeatInfo(
-                  seat: Seat.north,
-                  round: round,
-                  cardWidth: cardWidth * 0.6,
-                  avatarId: avatarIds[Seat.north.index],
-                  name: coincheSeatName(seatNames, Seat.north),
-                ),
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 6),
-              child: KeyedSubtree(
-                key: keyOf('seat:west'),
-                child: _SeatInfo(
-                  seat: Seat.west,
-                  round: round,
-                  cardWidth: cardWidth * 0.6,
-                  avatarId: avatarIds[Seat.west.index],
-                  name: coincheSeatName(seatNames, Seat.west),
-                ),
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: KeyedSubtree(
-                key: keyOf('seat:east'),
-                child: _SeatInfo(
-                  seat: Seat.east,
-                  round: round,
-                  cardWidth: cardWidth * 0.6,
-                  avatarId: avatarIds[Seat.east.index],
-                  name: coincheSeatName(seatNames, Seat.east),
-                ),
-              ),
-            ),
-          ),
-          Center(
-            child: _TrickArea(
-              trick: round.trick,
-              trumpMode: round.contract?.mode,
-              cardWidth: cardWidth,
-              keyOf: keyOf,
-              landing: landing,
-            ),
-          ),
-          if (status != null)
-            Positioned(
-              left: 8,
-              right: 8,
-              bottom: 8,
-              child: Center(
-                child: Semantics(
-                  liveRegion: true,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color:
-                          yourTurnToPlay ? _goldColor : const Color(0xFFF97316),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black, width: 2),
-                    ),
-                    child: Text(
-                      status,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        color: yourTurnToPlay
-                            ? const Color(0xFF3D351F)
-                            : Colors.white,
+          Expanded(
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: KeyedSubtree(
+                      key: keyOf('seat:north'),
+                      child: _SeatInfo(
+                        seat: Seat.north,
+                        round: round,
+                        cardWidth: cardWidth * 0.6,
+                        avatarId: avatarIds[Seat.north.index],
+                        name: coincheSeatName(seatNames, Seat.north),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          if (controller.isBiddingTurn)
-            Positioned.fill(
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: SingleChildScrollView(
-                    child: _BidPanel(
-                      controller: controller,
-                      seatNames: seatNames,
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 6),
+                    child: KeyedSubtree(
+                      key: keyOf('seat:west'),
+                      child: _SeatInfo(
+                        seat: Seat.west,
+                        round: round,
+                        cardWidth: cardWidth * 0.6,
+                        avatarId: avatarIds[Seat.west.index],
+                        name: coincheSeatName(seatNames, Seat.west),
+                      ),
                     ),
                   ),
                 ),
-              ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: KeyedSubtree(
+                      key: keyOf('seat:east'),
+                      child: _SeatInfo(
+                        seat: Seat.east,
+                        round: round,
+                        cardWidth: cardWidth * 0.6,
+                        avatarId: avatarIds[Seat.east.index],
+                        name: coincheSeatName(seatNames, Seat.east),
+                      ),
+                    ),
+                  ),
+                ),
+                Center(
+                  child: _TrickArea(
+                    trick: round.trick,
+                    trumpMode: round.contract?.mode,
+                    cardWidth: cardWidth,
+                    keyOf: keyOf,
+                    landing: landing,
+                  ),
+                ),
+                if (status != null)
+                  Positioned(
+                    left: 8,
+                    right: 8,
+                    bottom: 8,
+                    child: Center(
+                      child: Semantics(
+                        liveRegion: true,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: yourTurnToPlay
+                                ? _goldColor
+                                : const Color(0xFFF97316),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.black, width: 2),
+                          ),
+                          child: Text(
+                            status,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              color: yourTurnToPlay
+                                  ? const Color(0xFF3D351F)
+                                  : Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (controller.isBiddingTurn)
+                  Positioned.fill(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: SingleChildScrollView(
+                          child: _BidPanel(
+                            controller: controller,
+                            seatNames: seatNames,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
+          ),
+          footer,
         ],
       ),
     );

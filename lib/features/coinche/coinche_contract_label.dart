@@ -15,3 +15,19 @@ String coincheBidderContractLabel(
   final suit = coincheSuitSymbol(contract.mode);
   return 'Actuel : ${contract.value} $suit · $bidder';
 }
+
+/// Détail de l'annonce affiché sous le contrat du score (#839) : couleur d'atout, contre éventuel
+/// et annonceur. Le pseudo du joueur remplace « Toi » pour le siège sud.
+String coincheAnnounceDetail(
+  Contract contract,
+  Map<Seat, String> seatNames,
+  String me,
+) {
+  final parts = [
+    'Atout ${coincheSuitName(contract.mode)}',
+    if (contract.multiplier >= 4) 'surcontré',
+    if (contract.multiplier == 2) 'contré',
+    'annoncé par ${coincheSeatName(seatNames, contract.seat, me)}',
+  ];
+  return parts.join(' · ');
+}
