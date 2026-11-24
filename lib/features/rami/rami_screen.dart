@@ -611,8 +611,6 @@ class _RamiScreenState extends State<RamiScreen>
   // -------------------------------------------------------------------------
 
   static const _flightStagger = Duration(milliseconds: 40);
-  static const _dealStep = Duration(milliseconds: 90);
-  static const _seatStagger = Duration(milliseconds: 30);
   bool _ready = false;
   bool _restored = false;
   bool _dealPending = false;
@@ -791,7 +789,7 @@ class _RamiScreenState extends State<RamiScreen>
       for (var i = 0; i < ramiDealSeatOrder.length; i++) {
         final seat = ramiDealSeatOrder[i];
         // Un tour par carte, et dans le tour un décalage court : droite, haut, gauche, moi.
-        final delay = _dealStep * k + _seatStagger * i;
+        final delay = ramiDealStep * k + ramiDealSeatStagger * i;
         if (seat == 0) {
           if (k >= mine.length) continue;
           final card = mine[k];
@@ -801,6 +799,7 @@ class _RamiScreenState extends State<RamiScreen>
               to: () => _rectOf(_key('hand:${card.id}')),
               child: RamiCardView(card: card, width: from.width),
               delay: delay,
+              duration: ramiDealFlight,
               landingId: card.id,
             ),
           );
@@ -815,6 +814,7 @@ class _RamiScreenState extends State<RamiScreen>
                 asset: ramiStockBackAsset(g.stock),
               ),
               delay: delay,
+              duration: ramiDealFlight,
             ),
           );
         }
