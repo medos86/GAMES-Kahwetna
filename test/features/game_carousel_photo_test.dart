@@ -1,4 +1,4 @@
-// Photos mascottes du carrousel : une par jeu (Ludo et Rami exclus), nom en français.
+// Photos mascottes du carrousel : une par jeu, nom en français.
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
@@ -7,7 +7,16 @@ import 'package:kahwetne/features/menu/main_menu/game_carousel.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:material_ui/material_ui.dart';
 
+const _chkobbaPath = 'assets/images/mascots/chkobba.jpg';
+const _ramiPath = 'assets/images/mascots/rami.jpg';
+
 GameEntry _game(String name) => gameEntries.firstWhere((g) => g.name == name);
+
+bool _isPhoto(Widget w, String path) {
+  if (w is! Image) return false;
+  final provider = w.image;
+  return provider is AssetImage && provider.assetName == path;
+}
 
 Future<void> _pump(WidgetTester tester) async {
   tester.view.physicalSize = const Size(800, 1200);
@@ -37,27 +46,21 @@ void main() {
   });
 
   test('Rami utilise sa photo mascotte', () {
-    expect(_game('Rami').photoAsset, 'assets/images/mascots/rami.jpg');
+    expect(_game('Rami').photoAsset, _ramiPath);
   });
 
-  test('les noms affichés sont en français, sans nom arabe', () {
+  test('noms en français, sans arabe', () {
+    final ascii = RegExp(r'^[A-Za-zÀ-ÿ ]+$');
     for (final g in gameEntries) {
-      expect(RegExp(r'^[A-Za-zÀ-ÿ ]+$').hasMatch(g.name), isTrue,
-          reason: g.name);
+      expect(ascii.hasMatch(g.name), isTrue, reason: g.name);
     }
   });
 
   testWidgets('le carrousel affiche la photo du jeu central', (tester) async {
     await _pump(tester);
 
-    final chkobbaPhoto = find.byWidgetPredicate(
-      (w) =>
-          w is Image &&
-          w.image is AssetImage &&
-          (w.image as AssetImage).assetName ==
-              'assets/images/mascots/chkobba.jpg',
-    );
-    expect(chkobbaPhoto, findsWidgets);
+    final photo = find.byWidgetPredicate((w) => _isPhoto(w, _chkobbaPath));
+    expect(photo, findsWidgets);
     expect(find.text('Chkobba'), findsWidgets);
   });
 
@@ -67,14 +70,8 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Jeu précédent'));
     await tester.pumpAndSettle();
 
-    final ramiPhoto = find.byWidgetPredicate(
-      (w) =>
-          w is Image &&
-          w.image is AssetImage &&
-          (w.image as AssetImage).assetName ==
-              'assets/images/mascots/rami.jpg',
-    );
+    final photo = find.byWidgetPredicate((w) => _isPhoto(w, _ramiPath));
     expect(find.text('Rami'), findsWidgets);
-    expect(ramiPhoto, findsWidgets);
+    expect(photo, findsWidgets);
   });
 }
