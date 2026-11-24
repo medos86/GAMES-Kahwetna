@@ -33,10 +33,11 @@ void main() {
     final delay = ludoVictimDelayFor(before, after);
     expect(delay, greaterThan(0));
     // Un déplacement sans capture n'attend rien.
-    expect(ludoVictimDelayFor(before, const [
+    const noCapture = [
       Token(id: 'b0', color: LudoColor.blue, progress: 2),
       Token(id: 'r0', color: LudoColor.red, progress: 10),
-    ]), 0);
+    ];
+    expect(ludoVictimDelayFor(before, noCapture), 0);
   });
 
   // Régression #679 : une reconstruction du plateau sans déplacement ne doit pas

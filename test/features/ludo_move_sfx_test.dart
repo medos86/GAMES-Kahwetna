@@ -29,7 +29,7 @@ void main() {
 
   // #882 : le pion qui capture avance comme un pion ordinaire ; le son de capture
   // part avec la galipette de la victime (voir le contrôleur).
-  test('capture : le pion joué fait son bruit de pion, pas le son de capture', () {
+  test('capture : le pion joué garde son bruit de pion', () {
     final after = moveFirstTokenTo(
       5,
       note: CapturedNote(first.color, [LudoColor.red]),
