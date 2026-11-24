@@ -70,13 +70,41 @@ class PlacedToken {
   final double size;
 }
 
-/// Emplacement d'arrivée de chaque couleur : un triangle au centre, côté de sa couleur (#378).
-({double x, double y}) ludoGoalSlot(LudoColor color) => switch (color) {
-      LudoColor.red => (x: 6.7, y: 7.5),
-      LudoColor.green => (x: 7.5, y: 6.7),
-      LudoColor.yellow => (x: 8.3, y: 7.5),
-      LudoColor.blue => (x: 7.5, y: 8.3),
+/// Centre du plateau, en unités de case.
+const ludoGoalCentre = 7.5;
+
+/// Quatre emplacements d'arrivée d'une couleur, relatifs au centre, pour la couleur rouge
+/// (triangle dans la pointe ouest du centre) : trois sommets et le centre du triangle (#859).
+/// Côté 0,9 case, distance centre-sommet 0,52 case : un pion arrivé (diamètre 0,5 case)
+/// ne touche aucun de ses voisins, et le triangle reste dans la pointe ouest.
+const _ludoGoalTriangleRed = <List<double>>[
+  [-1.21, -0.45],
+  [-1.21, 0.45],
+  [-0.43, 0],
+  [-0.95, 0],
+];
+
+/// Nombre de quarts de tour (sens horaire) depuis le rouge : ouest, nord, est, sud.
+int _ludoQuarterTurns(LudoColor color) => switch (color) {
+      LudoColor.red => 0,
+      LudoColor.green => 1,
+      LudoColor.yellow => 2,
+      LudoColor.blue => 3,
     };
+
+/// Emplacement d'arrivée du pion de rang [order] (0 à 3) parmi les pions arrivés de [color] (#378, #859).
+/// Les quatre pions d'une couleur forment un triangle dans la pointe de sa maison ; les autres
+/// couleurs reprennent la même figure, tournée de 90° autour du centre : le plateau reste symétrique.
+({double x, double y}) ludoGoalSlot(LudoColor color, [int order = 0]) {
+  var dx = _ludoGoalTriangleRed[order % _ludoGoalTriangleRed.length][0];
+  var dy = _ludoGoalTriangleRed[order % _ludoGoalTriangleRed.length][1];
+  for (var turn = 0; turn < _ludoQuarterTurns(color); turn++) {
+    final rx = -dy;
+    dy = dx;
+    dx = rx;
+  }
+  return (x: ludoGoalCentre + dx, y: ludoGoalCentre + dy);
+}
 
 /// Taille de l'avatar d'un joueur sur sa carte, en dp (#665).
 const double ludoAvatarSize = 34;
@@ -164,14 +192,14 @@ List<PlacedToken> layoutTokens(List<Token> tokens) {
       if (p.cell == null)
         _basePlacement(p.token, ownRank[p.token.id]!)
       else if (p.token.progress == ludoFinish)
-        _finishPlacement(p.token)
+        _finishPlacement(p.token, ownRank[p.token.id]!)
       else
         _trackPlacement(p.token, p.cell!, counts, seen),
   ];
 }
 
-PlacedToken _finishPlacement(Token token) {
-  final slot = ludoGoalSlot(token.color);
+PlacedToken _finishPlacement(Token token, int rank) {
+  final slot = ludoGoalSlot(token.color, rank);
   return PlacedToken(token: token, x: slot.x, y: slot.y, size: 0.5);
 }
 
