@@ -7,8 +7,8 @@ import 'package:kahwetne/features/menu/main_menu/game_carousel.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:material_ui/material_ui.dart';
 
-const _chkobbaPath = 'assets/images/mascots/chkobba.jpg';
-const _ramiPath = 'assets/images/mascots/rami.jpg';
+const _chkobbaPath = 'assets/images/mascots/chkobba.png';
+const _ramiPath = 'assets/images/mascots/rami.png';
 
 GameEntry _game(String name) => gameEntries.firstWhere((g) => g.name == name);
 
@@ -45,6 +45,13 @@ void main() {
     }
   });
 
+  test('photos détourées en PNG (fond transparent)', () {
+    for (final g in gameEntries.where((g) => g.photoAsset != null)) {
+      final bytes = File(g.photoAsset!).readAsBytesSync();
+      expect(bytes.sublist(1, 4), [0x50, 0x4E, 0x47], reason: g.name);
+    }
+  });
+
   test('Rami utilise sa photo mascotte', () {
     expect(_game('Rami').photoAsset, _ramiPath);
   });
@@ -73,5 +80,14 @@ void main() {
     final photo = find.byWidgetPredicate((w) => _isPhoto(w, _ramiPath));
     expect(find.text('Rami'), findsWidgets);
     expect(photo, findsWidgets);
+  });
+
+  testWidgets('le titre du jeu est en Bangers', (tester) async {
+    await _pump(tester);
+
+    final title = find.byWidgetPredicate(
+      (w) => w is Text && w.style?.fontFamily == 'Bangers',
+    );
+    expect(title, findsWidgets);
   });
 }
