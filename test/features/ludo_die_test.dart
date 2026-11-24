@@ -74,7 +74,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.byType(LudoDie), findsOneWidget);
+    // Le dé reste affiché (face 3), même dans le secouement.
+    expect(find.byType(LudoDie), findsWidgets);
     expect(find.text('Non'), findsNothing);
     expect(find.text('لا'), findsNothing);
   });
