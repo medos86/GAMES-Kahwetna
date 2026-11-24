@@ -13,7 +13,7 @@ void main() {
   testWidgets('sans avatar, le badge reste textuel', (tester) async {
     await pump(tester, const RamiSeatBadge(name: 'Ali', cards: 6));
     expect(find.byType(AvatarView), findsNothing);
-    expect(find.text('Ali ×6'), findsOneWidget);
+    expect(find.text('×6'), findsOneWidget);
   });
 
   testWidgets('avatar neutre pendant la manche', (tester) async {
@@ -24,7 +24,7 @@ void main() {
     final view = tester.widget<AvatarView>(find.byType(AvatarView));
     expect(view.avatarId, 'lion');
     expect(view.state, AvatarState.neutral);
-    expect(find.text('Ali ×6'), findsOneWidget);
+    expect(find.text('×6'), findsOneWidget);
   });
 
   testWidgets('avatar fâché pour un perdant de manche', (tester) async {

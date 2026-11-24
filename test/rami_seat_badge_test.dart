@@ -7,12 +7,23 @@ void main() {
     expect(ramiDealSeatOrder, [1, 2, 3, 0]);
   });
 
-  testWidgets('badge : nom et nombre de cartes', (tester) async {
+  testWidgets('badge : affiche seulement le nombre de cartes', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: RamiSeatBadge(name: 'Ali', cards: 6),
       ),
     );
-    expect(find.text('Ali ×6'), findsOneWidget);
+    expect(find.text('×6'), findsOneWidget);
+    expect(find.text('Ali'), findsNothing);
+  });
+
+  testWidgets('badge : le pseudo reste accessible aux lecteurs d\'écran',
+      (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: RamiSeatBadge(name: 'Ali', cards: 6),
+      ),
+    );
+    expect(find.bySemanticsLabel('Ali, 6 cartes'), findsOneWidget);
   });
 }
