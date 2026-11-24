@@ -691,10 +691,7 @@ List<List<RamiCard>>? _exactCover(List<RamiCard> hand) {
   var budget = 200000;
 
   List<List<RamiCard>>? solve() {
-    final free = [
-      for (final card in hand)
-        if (!used.contains(card.id)) card,
-    ];
+    final free = [for (final card in hand) if (!used.contains(card.id)) card];
     if (free.isEmpty) return [];
     final target = free.first;
     for (final candidate in candidates) {
