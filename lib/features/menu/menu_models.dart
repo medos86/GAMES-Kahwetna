@@ -67,7 +67,6 @@ const kMenuBackgroundAsset = 'assets/images/background.webp';
 class GameEntry {
   const GameEntry({
     required this.name,
-    required this.tunisian,
     required this.gradientFrom,
     required this.gradientTo,
     required this.edgeColor,
@@ -77,13 +76,16 @@ class GameEntry {
     required this.defaultTarget,
     this.available = true,
     this.backgroundAsset = kMenuBackgroundAsset,
+    this.photoAsset,
   });
 
   final String name;
-  final String tunisian;
 
   /// Photo affichée sur l'écran de choix du niveau (avec trame de points).
   final String backgroundAsset;
+
+  /// Photo mascotte affichée au centre du carrousel. Null : icône SVG de repli.
+  final String? photoAsset;
 
   final Color gradientFrom;
   final Color gradientTo;
@@ -106,7 +108,6 @@ class GameEntry {
 const gameEntries = <GameEntry>[
   GameEntry(
     name: 'Chkobba',
-    tunisian: 'شكبة',
     gradientFrom: Color(0xFFFFCF48),
     gradientTo: Color(0xFFF49A28),
     edgeColor: Color(0xFFA64A1D),
@@ -114,11 +115,11 @@ const gameEntries = <GameEntry>[
     route: '/game',
     targets: [11, 21],
     defaultTarget: 11,
+    photoAsset: 'assets/images/mascots/chkobba.jpg',
     backgroundAsset: 'assets/images/game_bg/rays_chkobba.webp',
   ),
   GameEntry(
     name: 'Domino',
-    tunisian: 'دومينو',
     gradientFrom: Color(0xFF56D5C8),
     gradientTo: Color(0xFF149E9F),
     edgeColor: Color(0xFF08706F),
@@ -126,11 +127,11 @@ const gameEntries = <GameEntry>[
     route: '/domino',
     targets: [50, 100, 200],
     defaultTarget: 50,
+    photoAsset: 'assets/images/mascots/domino.jpg',
     backgroundAsset: 'assets/images/game_bg/rays_domino.webp',
   ),
   GameEntry(
     name: 'Belote',
-    tunisian: 'بلوت',
     gradientFrom: Color(0xFFFF7395),
     gradientTo: Color(0xFFD83968),
     edgeColor: Color(0xFF92264C),
@@ -138,11 +139,11 @@ const gameEntries = <GameEntry>[
     route: '/coinche',
     targets: [500, 1000],
     defaultTarget: 1000,
+    photoAsset: 'assets/images/mascots/belote.jpg',
     backgroundAsset: 'assets/images/game_bg/rays_belote.webp',
   ),
   GameEntry(
     name: 'Ludo',
-    tunisian: 'لودو',
     gradientFrom: Color(0xFF8B86FF),
     gradientTo: Color(0xFF5A4ED0),
     edgeColor: Color(0xFF3D3292),
@@ -154,7 +155,6 @@ const gameEntries = <GameEntry>[
   ),
   GameEntry(
     name: 'Rami',
-    tunisian: 'رامي',
     gradientFrom: Color(0xFF4BA9FF),
     gradientTo: Color(0xFF3266D5),
     edgeColor: Color(0xFF214597),

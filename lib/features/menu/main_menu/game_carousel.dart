@@ -241,21 +241,9 @@ class _GameCard extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          SizedBox.square(
-                            dimension: c.maxHeight * 0.44,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0x29FFFFFF),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: const Color(0x66FFFFFF),
-                                ),
-                              ),
-                              padding: const EdgeInsets.all(16),
-                              child: SvgPicture.string(
-                                gameIconSvg[game.name]!,
-                              ),
-                            ),
+                          _MascotPhoto(
+                            game: game,
+                            size: c.maxHeight * 0.5,
                           ),
                           const SizedBox(height: 10),
                           Text(
@@ -266,14 +254,6 @@ class _GameCard extends StatelessWidget {
                               fontSize: 26,
                               fontWeight: FontWeight.w900,
                               color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            game.tunisian,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w900,
-                              color: Color(0xE6FFFFFF),
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -304,6 +284,66 @@ class _GameCard extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Photo mascotte du jeu, en médaillon 3D : bord épais, ombre et reflet.
+/// Sans photo (Rami, en attente), elle retombe sur l'icône SVG.
+class _MascotPhoto extends StatelessWidget {
+  const _MascotPhoto({required this.game, required this.size});
+
+  final GameEntry game;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final photo = game.photoAsset;
+    return SizedBox.square(
+      dimension: size,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white,
+          border: Border.all(color: _carouselInk, width: 4),
+          boxShadow: [
+            BoxShadow(color: game.edgeColor, offset: const Offset(0, 10)),
+            const BoxShadow(
+              color: Color(0x55132249),
+              offset: Offset(0, 18),
+              blurRadius: 18,
+            ),
+          ],
+        ),
+        child: ClipOval(
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (photo != null)
+                Image.asset(
+                  photo,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: SvgPicture.string(gameIconSvg[game.name]!),
+                ),
+              // Reflet en haut à gauche : donne le volume du médaillon.
+              const DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.center,
+                    colors: [Color(0x80FFFFFF), Color(0x00FFFFFF)],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
