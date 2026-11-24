@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
+import 'package:kahwetne/features/rami/rami_card_view.dart';
 import 'package:kahwetne/features/rami/rami_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,12 +46,13 @@ void main() {
     await tester.pump();
 
     final shield = find.byKey(const Key('ramiMinOpeningShield'));
-    final stock = find.byKey(const Key('stock'));
+    final stock = find.byType(RamiBackView).first;
     expect(shield, findsOneWidget);
     expect(stock, findsOneWidget);
     // Taille réelle (pas de réduction) et placé juste au-dessus de la pioche.
     expect(tester.getSize(shield).width, greaterThanOrEqualTo(30));
     expect(tester.getBottomLeft(shield).dy,
         lessThanOrEqualTo(tester.getTopLeft(stock).dy));
+    expect(tester.getTopLeft(stock).dy, greaterThan(0));
   });
 }
