@@ -1,5 +1,5 @@
-// Rami directe (#867) : poser toute la main d'un coup fait gagner la manche, sans seuil
-// d'ouverture. Si ce n'est pas possible, la tentative est annulée (état identique).
+// Rami directe (#867) : poser toute la main d'un coup fait gagner la manche,
+// sans seuil d'ouverture. Sinon la tentative est annulée (état identique).
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/game/rami.dart';
 
@@ -74,7 +74,7 @@ void main() {
       expect(out.table.length, 2);
     });
 
-    test('main non entièrement posable : tentative annulée (état identique)', () {
+    test('main non posable entièrement : tentative annulée', () {
       final state = play([
         c(RamiSuit.epees, 1, 'a1'),
         c(RamiSuit.coupes, 1, 'a2'),
