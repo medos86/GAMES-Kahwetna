@@ -12,6 +12,7 @@ class RamiActionButton extends StatelessWidget {
     this.primary = false,
     this.danger = false,
     this.enabled = true,
+    this.iconOnly = false,
   });
 
   final String label;
@@ -21,6 +22,9 @@ class RamiActionButton extends StatelessWidget {
   final bool danger;
   final bool enabled;
 
+  /// Icône seule (sans libellé visible) : le libellé reste dans l'infobulle et l'accessibilité (#862).
+  final bool iconOnly;
+
   @override
   Widget build(BuildContext context) {
     final Color background = danger
@@ -29,6 +33,32 @@ class RamiActionButton extends StatelessWidget {
             ? const Color(0xFFF2B74E)
             : Colors.white;
     final Color foreground = danger ? Colors.white : _ink;
+    if (iconOnly) {
+      return Semantics(
+        button: true,
+        enabled: enabled,
+        label: label,
+        child: Tooltip(
+          message: label,
+          child: Opacity(
+            opacity: enabled ? 1 : 0.4,
+            child: Material(
+              color: background,
+              borderRadius: BorderRadius.circular(10),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: enabled ? onTap : null,
+                child: Container(
+                  alignment: Alignment.center,
+                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                  child: Icon(icon, size: 20, color: foreground),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return Opacity(
       opacity: enabled ? 1 : 0.4,
       child: Material(
