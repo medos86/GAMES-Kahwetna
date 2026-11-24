@@ -37,16 +37,17 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
 
     final backs = find.byType(RamiBackView);
+    final before = backs.evaluate().length;
     await tester.tap(backs.first);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
-    // Pendant le vol : au moins une copie de dos en plus à l'écran.
+    // Pendant le vol : au moins une copie de dos en plus à l'écran (#876 : la donne
+    // est plus lente, on compare donc à l'avant-pioche et non au total final).
     final during = backs.evaluate().length;
+    expect(during, greaterThan(before));
     await tester.pump(const Duration(seconds: 3));
     expect(tester.takeException(), isNull);
-    final settled = backs.evaluate().length;
-    expect(during, greaterThan(settled));
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
@@ -69,7 +70,7 @@ void main() {
 
     // Piocher d'abord : la défausse n'est possible qu'ensuite.
     await tester.tap(find.byType(RamiBackView).first);
-    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 3));
 
     // Carte la plus basse à l'écran : celle de la main, pas la défausse.
     final cards = tester.widgetList<RamiCardView>(find.byType(RamiCardView));
