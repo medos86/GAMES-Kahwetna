@@ -120,7 +120,7 @@ class _PlayerSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final active = controller.game.turn == color && !controller.roundOver;
+    final active = controller.shownTurn == color && !controller.roundOver;
     final card = _PlayerCard(
       controller: controller,
       color: color,
@@ -210,6 +210,7 @@ class _PlayerCard extends StatelessWidget {
         tone: tone,
         size: _dieSize,
         animate: rolledHere,
+        refused: controller.refusedColor == color,
       ),
     );
     final dieWidget = active

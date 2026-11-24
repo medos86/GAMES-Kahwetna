@@ -9,16 +9,18 @@ class _Footer extends StatelessWidget {
   Widget build(BuildContext context) {
     final game = controller.game;
     final solo = controller.solo;
-    final turnName = _colorName(game.turn, solo);
+    final turnName = _colorName(controller.shownTurn, solo);
     final prompt = controller.roundOver
         ? ''
-        : game.note != null
-            ? _noteText(game.note!, solo)
-            : controller.humanTurn
-                ? game.phase == LudoPhase.roll
-                    ? '${solo ? 'À toi' : 'À $turnName'} : lance le dé'
-                    : 'Touche un pion en surbrillance'
-                : '$turnName joue…';
+        : controller.refusedColor != null
+            ? t('sLudoNoMove')
+            : game.note != null
+                ? _noteText(game.note!, solo)
+                : controller.humanTurn
+                    ? game.phase == LudoPhase.roll
+                        ? '${solo ? 'À toi' : 'À $turnName'} : lance le dé'
+                        : 'Touche un pion en surbrillance'
+                    : '$turnName joue…';
 
     return Container(
       padding: const EdgeInsets.all(10),
@@ -74,6 +76,7 @@ class LudoDie extends StatelessWidget {
     required this.tone,
     this.size = 56,
     this.animate = true,
+    this.refused = false,
   });
 
   final int? value;
@@ -81,8 +84,38 @@ class LudoDie extends StatelessWidget {
   final double size;
   final bool animate;
 
+  /// Lancer sans coup possible : le dé secoue la tête « non » (#855).
+  final bool refused;
+
   @override
   Widget build(BuildContext context) {
+    if (refused) {
+      // Le dé garde sa face, secoue la tête et affiche « Non » par-dessus (#855).
+      return _HeadShake(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            LudoDie(value: value, tone: tone, size: size, animate: false),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xEEFFF9E9),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF24364B), width: 2),
+              ),
+              child: Text(
+                t('sLudoNoShort'),
+                style: TextStyle(
+                  color: tone,
+                  fontSize: size * 0.3,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     final face = value ?? 5;
     final pips = ludoPipIndexes(face);
     final reduce = MediaQuery.disableAnimationsOf(context);
@@ -133,6 +166,29 @@ class LudoDie extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Secousse horizontale de la tête du dé pour dire « non » (#855).
+/// Sans animation si l'utilisateur a réduit les animations.
+class _HeadShake extends StatelessWidget {
+  const _HeadShake({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) return child;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 700),
+      builder: (context, progress, child) {
+        // Trois allers-retours qui s'amortissent.
+        final dx = math.sin(progress * math.pi * 6) * 9 * (1 - progress);
+        return Transform.translate(offset: Offset(dx, 0), child: child);
+      },
+      child: child,
     );
   }
 }

@@ -6,7 +6,7 @@ import 'package:kahwetne/game/ludo.dart';
 
 void main() {
   test(
-      'un tour humain sans coup possible passe au joueur suivant, puis l\'IA joue après 1100 ms',
+      'un tour humain sans coup possible passe au joueur suivant après la pause, puis l\'IA joue après 1100 ms',
       () {
     fakeAsync((async) {
       // Tirage constant 0.0 : dé = 1, aucun pion ne sort : le bleu passe.
@@ -20,7 +20,19 @@ void main() {
 
       c.roll();
       expect(c.game.turn, LudoColor.red); // rouge = IA
+      // Pendant la pause « non », le tour reste affiché au bleu (#855).
+      expect(c.shownTurn, LudoColor.blue);
+      expect(c.refusedColor, LudoColor.blue);
       final rollsBefore = c.game.rollId;
+
+      async.elapse(ludoNoMoveHold - const Duration(milliseconds: 1));
+      expect(c.shownTurn, LudoColor.blue);
+      expect(c.game.rollId, rollsBefore);
+
+      async.elapse(const Duration(milliseconds: 1));
+      expect(c.shownTurn, LudoColor.red);
+      expect(c.refusedColor, isNull);
+      expect(c.game.rollId, rollsBefore);
 
       async.elapse(const Duration(milliseconds: 1099));
       expect(c.game.rollId, rollsBefore);

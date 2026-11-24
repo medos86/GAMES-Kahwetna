@@ -18,6 +18,10 @@ const ludoHumanOrder = [
 /// Délai de l'IA quand la fin de partie est accélérée (#387).
 const ludoFastAiDelay = Duration(milliseconds: 150);
 
+/// Pause après un lancer sans coup possible (ou trois 6) : le dé secoue la tête
+/// « non » et le tour ne passe qu'ensuite, pour que le joueur comprenne (#855).
+const ludoNoMoveHold = Duration(milliseconds: 1500);
+
 /// Délai avant qu'un pion unique jouable avance seul (#388).
 const ludoAutoMoveDelay = Duration(milliseconds: 700);
 
@@ -55,6 +59,13 @@ class LudoController extends PersistentGameController {
   bool get _settling => _settleTimer != null;
 
   LudoState get game => _game;
+
+  /// Joueur dont le tour est affiché : pendant la pause « non », c'est encore celui qui a lancé.
+  LudoColor? _holdColor;
+  LudoColor get shownTurn => _holdColor ?? _game.turn;
+
+  /// Joueur qui a lancé sans coup possible, pendant la pause ; null sinon.
+  LudoColor? get refusedColor => _holdColor;
 
   List<LudoColor> get humans => ludoHumanOrder.take(playerCount).toList();
 
@@ -119,6 +130,7 @@ class LudoController extends PersistentGameController {
   void restart() {
     _settleTimer?.cancel();
     _settleTimer = null;
+    _holdColor = null;
     _choiceMade = false;
     _fastAi = false;
     _lastFaces.clear();
@@ -141,10 +153,18 @@ class LudoController extends PersistentGameController {
     final sfx = ludoMoveSfx(_game, next);
     if (sfx != null) Sounds.play(sfx);
     final settle = ludoMoveSettleMs(_game.tokens, next.tokens);
+    final refused = next.note is NoMoveNote || next.note is ThreeSixesNote;
+    final freshRoll = next.rollId != _game.rollId && next.diceOwner != null;
     _game = next;
     if (settle > 0) {
       _settleTimer?.cancel();
       _settleTimer = Timer(Duration(milliseconds: settle), _endSettle);
+    } else if (refused && freshRoll) {
+      // Lancer sans coup : le dé dit « non » et le tour reste à ce joueur un instant (#855).
+      Sounds.play(Sfx.pass);
+      _holdColor = next.diceOwner;
+      _settleTimer?.cancel();
+      _settleTimer = Timer(ludoNoMoveHold, _endSettle);
     }
     _reschedule();
     notifyListeners();
@@ -153,6 +173,7 @@ class LudoController extends PersistentGameController {
   /// Fin de l'animation du coup : le tour suivant peut enfin démarrer.
   void _endSettle() {
     _settleTimer = null;
+    _holdColor = null;
     _reschedule();
     notifyListeners();
   }
