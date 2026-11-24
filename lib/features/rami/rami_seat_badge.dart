@@ -3,16 +3,18 @@ import 'package:material_ui/material_ui.dart';
 import '../../core/theme/comic_palette.dart';
 
 import '../../core/avatars/avatar_catalog.dart';
-import '../../widgets/avatar_view.dart';
+import '../../widgets/turn_avatar.dart';
 
 /// Ordre de distribution : une carte à gauche, en haut, à droite, puis à moi en bas (#532, #589).
 /// Les indices sont ceux des sièges (0 = moi, 1 = Ali à gauche, 2 = Karim en haut, 3 = Sami à droite).
 const ramiDealSeatOrder = [1, 2, 3, 0];
 
-/// Côté du tapis où s'affiche le badge d'un adversaire (#589).
-/// Sens horaire depuis moi (en bas) : le joueur suivant est à ma gauche.
+/// Côté du tapis où s'affiche le badge d'un siège (#589, #838).
+/// Sens horaire depuis moi : le joueur suivant est à ma gauche. Mon badge est en haut à gauche.
 Alignment ramiSeatAlignment(int seat) {
   switch (seat) {
+    case 0:
+      return Alignment.topLeft;
     case 1:
       return Alignment.centerLeft;
     case 2:
@@ -20,11 +22,7 @@ Alignment ramiSeatAlignment(int seat) {
     case 3:
       return Alignment.centerRight;
     default:
-      throw ArgumentError.value(
-        seat,
-        'seat',
-        'siège adverse attendu (1 à 3)',
-      );
+      throw ArgumentError.value(seat, 'seat', 'siège attendu (0 à 3)');
   }
 }
 
@@ -36,7 +34,8 @@ int ramiSeatQuarterTurns(int seat) {
   return 0;
 }
 
-/// Badge d'un adversaire posé sur le bord du tapis : nom et nombre de cartes (#532).
+/// Badge d'un siège posé sur le tapis : médaillon d'avatar (agrandi quand c'est son tour)
+/// et pastille « nom ×cartes », comme à la Belote (#838).
 /// Passif et superposé, il ne prend aucune place dans la mise en page.
 class RamiSeatBadge extends StatelessWidget {
   const RamiSeatBadge({
@@ -46,6 +45,7 @@ class RamiSeatBadge extends StatelessWidget {
     this.avatarId,
     this.avatarState = AvatarState.neutral,
     this.quarterTurns = 0,
+    this.active = false,
   });
 
   final String name;
@@ -58,13 +58,16 @@ class RamiSeatBadge extends StatelessWidget {
   /// Quarts de tour appliqués au badge (#666) : 3 à gauche, 1 à droite, 0 en haut.
   final int quarterTurns;
 
+  /// Joueur dont c'est le tour : médaillon agrandi et pastille dorée (#838).
+  final bool active;
+
   @override
   Widget build(BuildContext context) {
     final id = avatarId;
-    final badge = Container(
+    final pill = Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF8E7),
+        color: active ? const Color(0xFFFFE16B) : const Color(0xFFFFF8E7),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: ComicPalette.ink, width: 2),
       ),
@@ -78,18 +81,21 @@ class RamiSeatBadge extends StatelessWidget {
       ),
     );
     final content = id == null
-        ? badge
-        : Row(
+        ? pill
+        : Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              AvatarView(
+              TurnAvatar(
+                tone: ComicPalette.ink,
+                active: active,
                 avatarId: id,
                 state: avatarState,
-                size: 26,
                 semanticLabel: name,
+                baseSize: 28,
+                activeSize: 40,
               ),
-              const SizedBox(width: 4),
-              badge,
+              const SizedBox(height: 2),
+              pill,
             ],
           );
     if (quarterTurns == 0) return content;

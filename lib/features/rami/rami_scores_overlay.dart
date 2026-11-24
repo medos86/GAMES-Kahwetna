@@ -89,14 +89,23 @@ class RamiScoresPanel extends StatelessWidget {
     required this.open,
     required this.onClose,
     required this.child,
+    this.feltColor,
+    this.frameColor,
   });
 
   final bool open;
   final VoidCallback onClose;
   final Widget child;
 
+  /// Couleurs du tapis (#838) : le panneau prend le vert et le cadre du tapis, pour sembler sorti de lui.
+  final Color? feltColor;
+  final Color? frameColor;
+
   @override
   Widget build(BuildContext context) {
+    final felt = feltColor;
+    final integrated = felt != null;
+    final ink = integrated ? _overlayCream : _overlayInk;
     return IgnorePointer(
       ignoring: !open,
       child: AnimatedSlide(
@@ -109,11 +118,14 @@ class RamiScoresPanel extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
             decoration: BoxDecoration(
-              color: _overlayCream,
+              color: felt ?? _overlayCream,
               borderRadius: const BorderRadius.vertical(
                 bottom: Radius.circular(14),
               ),
-              border: Border.all(color: _overlayFrame, width: 3),
+              border: Border.all(
+                color: frameColor ?? _overlayFrame,
+                width: integrated ? 6 : 3,
+              ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -121,11 +133,11 @@ class RamiScoresPanel extends StatelessWidget {
                 child,
                 TextButton.icon(
                   onPressed: onClose,
-                  icon: const Icon(Icons.keyboard_arrow_up, color: _overlayInk),
+                  icon: Icon(Icons.keyboard_arrow_up, color: ink),
                   label: Text(
                     Strings.hideScores,
-                    style: const TextStyle(
-                      color: _overlayInk,
+                    style: TextStyle(
+                      color: ink,
                       fontWeight: FontWeight.w900,
                     ),
                   ),

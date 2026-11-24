@@ -160,7 +160,10 @@ class RamiController extends PersistentGameController {
   bool get selectionIsMeld =>
       selectedCards.length >= 3 && rules.isValidMeld(selectedCards);
 
-  bool get layEligible => canPlay && opened && _selected.length == 1;
+  /// Ajout d'une carte à un paquet : après ouverture, ou avant ouverture sur un paquet posé
+  /// pendant ce tour (#838).
+  bool get layEligible =>
+      canPlay && (opened || _game.staged.isNotEmpty) && _selected.length == 1;
 
   /// Vrai si la carte prise à la défausse est encore en main et qu'aucune pose n'a été faite.
   /// Vrai si des poses de ce tour (avant ouverture) peuvent encore être annulées.
@@ -218,9 +221,12 @@ class RamiController extends PersistentGameController {
     if (_order.isEmpty) _order = [for (final card in displayed) card.id];
   }
 
-  /// Pose la sélection comme combinaison.
-  void pose() =>
-      _apply(rules.poseMeld(_game, List.of(_selected)), Strings.notAMeld);
+  /// Pose la sélection comme combinaison. L'ordre est celui de la main affichée : un joker
+  /// placé à droite prend la carte la plus haute (#838).
+  void pose() => _apply(
+        rules.poseMeld(_game, [for (final card in selectedCards) card.id]),
+        Strings.notAMeld,
+      );
 
   /// Annule les poses du tour en cours : les cartes reviennent en main.
   void cancel() => _apply(rules.cancelStaged(_game));
