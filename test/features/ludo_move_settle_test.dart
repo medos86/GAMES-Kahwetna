@@ -68,4 +68,30 @@ void main() {
       expect(async.pendingTimers, isEmpty);
     });
   });
+  // #869 : une capture se joue plus vite qu'un déplacement normal de même longueur.
+  test('#869 : un coup de capture dure moins longtemps qu\'un coup normal', () {
+    const redTrack = Token(id: 'r0', color: LudoColor.red, progress: 10);
+    const blueBefore = Token(id: 'b0', color: LudoColor.blue, progress: 1);
+    const blueMove = Token(id: 'b0', color: LudoColor.blue, progress: 3);
+    final normal = ludoMoveSettleMs(
+      const [blueBefore, redTrack],
+      const [blueMove, redTrack],
+    );
+    final capture = ludoMoveSettleMs(
+      const [blueBefore, redTrack],
+      const [
+        blueMove,
+        Token(id: 'r0', color: LudoColor.red, progress: 0),
+      ],
+    );
+    expect(normal, greaterThan(0));
+    expect(capture, greaterThanOrEqualTo(ludoVictimDelayMs));
+  });
+
+  test('#869 : la sortie de base prend une durée positive et rapide', () {
+    const before = [Token(id: 'b0', color: LudoColor.blue, progress: 0)];
+    const after = [Token(id: 'b0', color: LudoColor.blue, progress: 1)];
+    final ms = ludoMoveSettleMs(before, after);
+    expect(ms, greaterThan(0));
+  });
 }

@@ -304,7 +304,8 @@ class _HopToken extends StatefulWidget {
 }
 
 class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
-  static const _msPerCell = ludoHopMsPerCell;
+  // Vitesse du coup en cours : rapide pour une capture, une sortie de base ou une victime (#869).
+  int _msPerCell = ludoHopMsPerCell;
 
   late final AnimationController _hop =
       AnimationController(vsync: this, duration: Duration.zero);
@@ -396,6 +397,7 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
       return;
     }
     if (to == 0) {
+      _msPerCell = ludoFastHopMsPerCell;
       // Renvoyé à la base : la catapulte part une fois l'attaquant posé.
       // Le pion reste à sa place (début du trajet) pendant l'attente.
       _victim = true;
@@ -415,6 +417,7 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
     }
     _victim = false;
     _capture = widget.capturing;
+    _msPerCell = ludoHopMsPerCellFor(capture: _capture, fromBase: from == 0);
     _setPath([
       (x: before.x, y: before.y),
       ...ludoHopWaypoints(after.token.color, from, to),
@@ -480,6 +483,18 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
     );
   }
 
+  /// Galipettes (#869) : la victime tourne pendant sa catapulte, l'attaquant fait un tour
+  /// sur les deux dernières cases de sa capture.
+  double _spinAngle() {
+    final at = _locate();
+    if (at == null) return 0;
+    if (_victim) return ludoVictimSpinAngle(at.local);
+    if (_capture && _onLastCells(at.segment)) {
+      return ludoCaptureSpinAngle(at.local);
+    }
+    return 0;
+  }
+
   /// Agrandissement de l'attaquant au sommet de son saut de capture (#662).
   double _scale() {
     final at = _locate();
@@ -503,16 +518,19 @@ class _HopTokenState extends State<_HopToken> with TickerProviderStateMixin {
         final bob = reduce ? 0.0 : ludoBobAt(_bob.value) * widget.u;
         return Transform.translate(
           offset: _offset() + Offset(0, bob),
-          child: Transform.scale(
-            scale: _scale(),
-            child: PulseGlow(
-              active: widget.clickable,
-              radius: visual / 2,
-              child: _TokenButton(
-                token: placed.token,
-                clickable: widget.clickable,
-                onTap: widget.onTap,
-                visualSize: visual,
+          child: Transform.rotate(
+            angle: reduce ? 0 : _spinAngle(),
+            child: Transform.scale(
+              scale: _scale(),
+              child: PulseGlow(
+                active: widget.clickable,
+                radius: visual / 2,
+                child: _TokenButton(
+                  token: placed.token,
+                  clickable: widget.clickable,
+                  onTap: widget.onTap,
+                  visualSize: visual,
+                ),
               ),
             ),
           ),
