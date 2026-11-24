@@ -739,14 +739,16 @@ List<List<RamiCard>> _allMeldCandidates(List<RamiCard> hand) {
   for (final suit in RamiSuit.values) {
     for (var low = 1; low <= _aceHigh; low++) {
       for (var len = 3; len <= 13 && low + len - 1 <= _aceHigh; len++) {
-        final slots = <List<RamiCard?>>[
-          for (var pos = low; pos < low + len; pos++)
-            [
-              for (final c in naturals)
-                if (c.suit == suit && c.rank == (pos == _aceHigh ? 1 : pos)) c,
-              null,
-            ],
-        ];
+        final slots = <List<RamiCard?>>[];
+        for (var pos = low; pos < low + len; pos++) {
+          final rank = pos == _aceHigh ? 1 : pos;
+          final options = <RamiCard?>[];
+          for (final c in naturals) {
+            if (c.suit == suit && c.rank == rank) options.add(c);
+          }
+          options.add(null);
+          slots.add(options);
+        }
         _runProduct(slots, 0, <RamiCard>[], 0, jokers.length, (cards) {
           if (isValidMeld(cards)) out.add(cards);
         });
