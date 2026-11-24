@@ -691,7 +691,10 @@ List<List<RamiCard>>? _exactCover(List<RamiCard> hand) {
   var budget = 200000;
 
   List<List<RamiCard>>? solve() {
-    final free = [for (final card in hand) if (!used.contains(card.id)) card];
+    final free = [
+      for (final card in hand)
+        if (!used.contains(card.id)) card
+    ];
     if (free.isEmpty) return [];
     final target = free.first;
     for (final candidate in candidates) {
@@ -719,7 +722,10 @@ List<List<RamiCard>> _allMeldCandidates(List<RamiCard> hand) {
 
   // Brelans et carrés : un sous-ensemble de cartes de même rang, complété par des jokers.
   for (var rank = 1; rank <= 13; rank++) {
-    final ofRank = [for (final c in naturals) if (c.rank == rank) c];
+    final ofRank = [
+      for (final c in naturals)
+        if (c.rank == rank) c
+    ];
     for (var mask = 1; mask < (1 << ofRank.length); mask++) {
       final chosen = [
         for (var i = 0; i < ofRank.length; i++)
