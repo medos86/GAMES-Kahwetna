@@ -1038,6 +1038,7 @@ class _RamiScreenState extends State<RamiScreen>
       onTap: c.discardSelected,
       enabled: c.selected.length == 1,
       danger: true,
+      iconOnly: true,
     );
     final returnTaken = RamiActionButton(
       label: Strings.actReturnTaken,
@@ -1050,6 +1051,7 @@ class _RamiScreenState extends State<RamiScreen>
       icon: Icons.close,
       onTap: c.cancel,
       enabled: c.canCancel,
+      iconOnly: true,
     );
     if (c.canCancel) return [pose, cancel, discard];
     if (c.canReturnTaken) return [pose, returnTaken, discard];
