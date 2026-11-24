@@ -359,8 +359,8 @@ List<RamiCard>? _runOrder(List<RamiCard> cards) => _runSpan(cards)?.order;
     final lowest = math.max(1, slots.last.pos - len + 1);
     final highest = math.min(slots.first.pos, _aceHigh + 1 - len);
     if (lowest > highest) continue;
-    // Joker posé à droite de la suite (dernier de la liste) : il prend la place la plus haute (#838).
-    final low = cards.last.isJoker ? highest : lowest;
+    // Joker posé à droite de la suite : il prend la place la plus haute (#838, #844).
+    final low = _jokerOnRight(cards) ? highest : lowest;
 
     final order = <RamiCard>[];
     var joker = 0;
@@ -374,6 +374,15 @@ List<RamiCard>? _runOrder(List<RamiCard> cards) => _runSpan(cards)?.order;
     return (order: order, low: low);
   }
   return null;
+}
+
+/// Côté du joker (#844) : à droite s'il est après le milieu des cartes naturelles, dans l'ordre
+/// donné (ordre de la main). Un joker placé avant toutes les cartes reste à gauche.
+bool _jokerOnRight(List<RamiCard> cards) {
+  final at = cards.indexWhere((c) => c.isJoker);
+  if (at < 0) return false;
+  final naturals = cards.length - cards.where((c) => c.isJoker).length;
+  return at > (naturals - 1) / 2;
 }
 
 /// Brelan ou carré : même valeur, couleurs différentes.
