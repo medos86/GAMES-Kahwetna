@@ -4,7 +4,8 @@ import 'package:material_ui/material_ui.dart';
 
 /// Issue #862 : boutons Annuler / Défausser en icône seule, libellé accessible.
 void main() {
-  testWidgets('icône seule : pas de texte visible, libellé en sémantique', (tester) async {
+  testWidgets('icône seule : pas de texte visible, libellé accessible',
+      (tester) async {
     var taps = 0;
     await tester.pumpWidget(
       MaterialApp(
@@ -27,7 +28,7 @@ void main() {
     expect(taps, 1);
   });
 
-  testWidgets('icône seule désactivée : ne réagit pas au toucher', (tester) async {
+  testWidgets('icône seule désactivée : ne réagit pas', (tester) async {
     var taps = 0;
     await tester.pumpWidget(
       MaterialApp(
@@ -50,7 +51,11 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: RamiActionButton(label: 'Poser', icon: Icons.check, onTap: () {}),
+          body: RamiActionButton(
+            label: 'Poser',
+            icon: Icons.check,
+            onTap: () {},
+          ),
         ),
       ),
     );

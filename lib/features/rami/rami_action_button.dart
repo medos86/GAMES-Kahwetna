@@ -50,7 +50,10 @@ class RamiActionButton extends StatelessWidget {
                 onTap: enabled ? onTap : null,
                 child: Container(
                   alignment: Alignment.center,
-                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                  constraints: const BoxConstraints(
+                    minWidth: 40,
+                    minHeight: 40,
+                  ),
                   child: Icon(icon, size: 20, color: foreground),
                 ),
               ),
