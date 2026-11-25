@@ -180,10 +180,15 @@ class _RamiScreenState extends State<RamiScreen>
     return box is RenderBox ? box.globalToLocal(global) : global;
   }
 
-  void _onPointerDown(PointerDownEvent event, String id) {
+  void _onPointerDown(
+    PointerDownEvent event,
+    String id, {
+    String? fromMeld,
+    rules.RamiCard? card,
+  }) {
     _closeScores();
     if (_press != null) return;
-    _press = _Press(id, event.position);
+    _press = _Press(id, event.position, fromMeld: fromMeld, card: card);
   }
 
   void _onPointerMove(PointerMoveEvent event) {
@@ -198,6 +203,7 @@ class _RamiScreenState extends State<RamiScreen>
         press.id,
         _toLocal(event.position),
         _targetAt(event.position),
+        card: press.card,
       ),
     );
   }
@@ -207,9 +213,14 @@ class _RamiScreenState extends State<RamiScreen>
     _press = null;
     setState(() => _drag = null);
     if (press == null) return;
+    final from = press.fromMeld;
     if (press.active) {
-      _c.dropCard(press.id, _targetAt(event.position));
-    } else {
+      if (from != null) {
+        _c.moveFromMeld(press.id, from, _targetAt(event.position));
+      } else {
+        _c.dropCard(press.id, _targetAt(event.position));
+      }
+    } else if (from == null) {
       _c.tap(press.id);
     }
   }
@@ -1021,6 +1032,12 @@ class _RamiScreenState extends State<RamiScreen>
           arriving: landing,
           onTap: c.layEligible ? () => c.layOffSelected(meld.id) : null,
           onLongPress: c.takeBackAction(meld.id),
+          // Glisser une carte d'un paquet du tour vers la main ou un autre paquet (#898).
+          onCardPointerDown: (i, event) {
+            final card = meld.cards[i];
+            if (card.isJoker) return;
+            _onPointerDown(event, card.id, fromMeld: meld.id, card: card);
+          },
         ),
     ];
     final sizes = [
@@ -1219,7 +1236,7 @@ class _RamiScreenState extends State<RamiScreen>
     final c = _c;
     // Même taille que la carte dans la main (pas d'agrandissement pendant le glissement).
     final width = _handCardWidth > 0 ? _handCardWidth : handWidth;
-    rules.RamiCard? card;
+    rules.RamiCard? card = drag.card;
     for (final item in c.hand) {
       if (item.id == drag.id) card = item;
     }
