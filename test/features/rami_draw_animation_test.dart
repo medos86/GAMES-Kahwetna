@@ -81,8 +81,6 @@ void main() {
           : b,
     );
     final id = lowest.card.id;
-    Finder faceOf() =>
-        find.byWidgetPredicate((w) => w is RamiCardView && w.card.id == id);
     await tester.tap(find.byWidget(lowest));
     await tester.pump();
     expect(
@@ -109,7 +107,20 @@ void main() {
       find.byWidgetPredicate((w) => w is RamiCardView && w.selected),
       findsNothing,
     );
-    expect(faceOf(), findsOneWidget);
+    // Une seule copie visible : les cases masquées (opacité 0) ne comptent pas (#878).
+    final visible = find
+        .byWidgetPredicate((w) => w is RamiCardView && w.card.id == id)
+        .evaluate()
+        .where((element) {
+      var hidden = false;
+      element.visitAncestorElements((ancestor) {
+        final w = ancestor.widget;
+        if (w is Opacity && w.opacity == 0) hidden = true;
+        return !hidden;
+      });
+      return !hidden;
+    }).length;
+    expect(visible, 1);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
