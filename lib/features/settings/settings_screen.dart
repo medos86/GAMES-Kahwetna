@@ -84,7 +84,7 @@ class SettingsScreen extends StatelessWidget {
                               setLanguage(selection.first),
                         ),
                       ),
-                      // Animations de cartes (#224) : coupées par défaut.
+                      // Animations de cartes (#224) : activées par défaut (#900).
                       _SettingRow(
                         label: t('settingsCardAnimations'),
                         trailing: ValueListenableBuilder<bool>(
