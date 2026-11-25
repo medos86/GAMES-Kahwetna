@@ -41,6 +41,7 @@ import '../../widgets/game_header.dart';
 import 'rami_action_button.dart';
 import 'rami_scores_overlay.dart';
 import 'rami_seat_badge.dart';
+import 'rami_seat_info.dart';
 
 part 'rami_parts/rami_constants.dart';
 part 'rami_parts/rami_gestures.dart';
@@ -400,6 +401,7 @@ class _RamiScreenState extends State<RamiScreen>
                 avatarState: _avatarStateOf(seat, g),
                 quarterTurns: ramiSeatQuarterTurns(seat),
                 active: g.turn == seat && g.phase != rules.RamiPhase.end,
+                onTap: () => _showSeatInfo(seat),
               ),
             ),
           ),
@@ -470,6 +472,22 @@ class _RamiScreenState extends State<RamiScreen>
       game: g,
       avatarId: _avatarIds[seat],
       avatarState: _avatarStateOf(seat, g),
+      onAvatarTap: () => _showSeatInfo(seat),
+    );
+  }
+
+  /// Popup d'un siège : pseudo, score et cartes en main (#887).
+  void _showSeatInfo(int seat) {
+    final g = _c.game;
+    unawaited(
+      RamiSeatInfo.show(
+        context,
+        name: _nameOf(seat),
+        score: g.scores[seat],
+        cards: g.hands[seat].length,
+        avatarId: _avatarIds[seat],
+        avatarState: _avatarStateOf(seat, g),
+      ),
     );
   }
 
@@ -546,6 +564,7 @@ class _RamiScreenState extends State<RamiScreen>
                     avatarId: _avatarIds[0],
                     avatarState: _avatarStateOf(0, g),
                     active: _c.myTurn,
+                    onTap: () => _showSeatInfo(0),
                   ),
                 ),
                 Expanded(
@@ -568,12 +587,11 @@ class _RamiScreenState extends State<RamiScreen>
     );
   }
 
-  /// Boutons d'action affichés sur la table seulement quand ils servent :
-  /// poser/défausser/reprendre quand des cartes sont sélectionnées.
+  /// Boutons d'action de la table pendant la phase de pose : le bouton rouge de défausse
+  /// reste visible (#885), désactivé tant qu'une seule carte n'est pas sélectionnée.
   Widget _contextActions(rules.RamiState g) {
     final c = _c;
     if (!c.canPlay) return const SizedBox.shrink();
-    if (c.selected.isEmpty && !c.canCancel) return const SizedBox.shrink();
     // Zone tactile haute de 48 dp pour chaque bouton, largeur naturelle (#522).
     return Padding(
       padding: const EdgeInsets.only(left: 10, bottom: 4),
@@ -880,6 +898,16 @@ class _RamiScreenState extends State<RamiScreen>
     final shown = ramiDiscardShown(g.discard, landing);
     final covered = top != null && landing.contains(top.id);
     final discardHover = c.canPlay && _drag?.target is RamiDropDiscard;
+    final discardLit = discardHover || _discardFlash;
+    final VoidCallback? onDiscardTap;
+    if (c.canDraw && !covered) {
+      onDiscardTap = () {
+        _closeScores();
+        c.drawFromDiscard();
+      };
+    } else {
+      onDiscardTap = c.canPlay ? _onDiscardTap : null;
+    }
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -887,17 +915,6 @@ class _RamiScreenState extends State<RamiScreen>
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Bouclier du seuil d'ouverture : au-dessus de la pioche, lisible
-            // et affiché en permanence, y compris après l'ouverture (#880).
-            RamiMinOpeningShield(
-              key: _key('shield'),
-              minimum: rules.minOpening(g),
-              label: tf(
-                'ramiMinOpen',
-                {'n': '${rules.minOpening(g)}'},
-              ),
-            ),
-            const SizedBox(height: 6),
             Stack(
               clipBehavior: Clip.none,
               children: [
@@ -932,9 +949,8 @@ class _RamiScreenState extends State<RamiScreen>
               key: _key('discard'),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(width * 0.14),
-                border: discardHover
-                    ? Border.all(color: _goldColor, width: 3)
-                    : null,
+                border:
+                    discardLit ? Border.all(color: _goldColor, width: 3) : null,
               ),
               child: shown == null
                   ? Container(
@@ -946,19 +962,41 @@ class _RamiScreenState extends State<RamiScreen>
                       ),
                     )
                   : GestureDetector(
-                      onTap: c.canDraw && !covered
-                          ? () {
-                              _closeScores();
-                              c.drawFromDiscard();
-                            }
-                          : null,
-                      child: RamiCardView(card: shown, width: width),
+                      onTap: onDiscardTap,
+                      child: AnimatedScale(
+                        scale: _discardFlash ? 0.94 : 1,
+                        duration: const Duration(milliseconds: 120),
+                        child: RamiCardView(card: shown, width: width),
+                      ),
                     ),
             ),
           ],
         ),
+        // Bouclier du seuil d'ouverture : à droite de la défausse, au même niveau
+        // (le bas), lisible en permanence, y compris après l'ouverture (#880, #886).
+        const SizedBox(width: 12),
+        RamiMinOpeningShield(
+          key: _key('shield'),
+          minimum: rules.minOpening(g),
+          label: tf(
+            'ramiMinOpen',
+            {'n': '${rules.minOpening(g)}'},
+          ),
+        ),
       ],
     );
+  }
+
+  /// Retour visuel bref quand la défausse est touchée (#885).
+  bool _discardFlash = false;
+
+  void _onDiscardTap() {
+    _closeScores();
+    setState(() => _discardFlash = true);
+    Timer(const Duration(milliseconds: 180), () {
+      if (mounted) setState(() => _discardFlash = false);
+    });
+    _c.discardSelected();
   }
 
   /// Combinaison survolée par une carte glissée (surbrillance).
@@ -1065,16 +1103,18 @@ class _RamiScreenState extends State<RamiScreen>
       enabled: c.canCancel,
       iconOnly: true,
     );
-    // Toujours visible pendant le tour : aucun indice sur la faisabilité (#867).
+    // Visible pendant le tour tant qu'aucun paquet n'est sur le tapis : aucun indice sur
+    // la faisabilité (#867). Masqué dès qu'un paquet est posé (#888).
     final direct = RamiActionButton(
       label: Strings.actRamiDirect,
       icon: Icons.flash_on,
       onTap: c.ramiDirect,
-      enabled: c.canPlay,
+      enabled: c.canRamiDirect,
     );
-    if (c.canCancel) return [cancel, direct, discard];
-    if (c.canReturnTaken) return [returnTaken, direct, discard];
-    return [direct, discard];
+    final showDirect = c.canRamiDirect;
+    if (c.canCancel) return [cancel, if (showDirect) direct, discard];
+    if (c.canReturnTaken) return [returnTaken, if (showDirect) direct, discard];
+    return [if (showDirect) direct, discard];
   }
 
   /// Main du joueur (#141) : les cartes se chevauchent. La carte sélectionnée ou déplacée
@@ -1183,43 +1223,16 @@ class _RamiScreenState extends State<RamiScreen>
     for (final item in c.hand) {
       if (item.id == drag.id) card = item;
     }
-    final groupSize = c.canPlay ? c.groupFor(drag.id).length : 0;
+    // Pas de compteur du paquet pendant le glisser depuis la main (#889).
     return Positioned(
       left: drag.local.dx - width / 2,
       top: drag.local.dy - width * 1.4 * 0.75,
       child: IgnorePointer(
         child: Transform.rotate(
           angle: -0.09,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              if (card != null) RamiCardView(card: card, width: width),
-              if (groupSize > 1)
-                Positioned(
-                  right: -8,
-                  top: -8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _goldColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.black, width: 2),
-                    ),
-                    child: Text(
-                      '×$groupSize',
-                      style: const TextStyle(
-                        color: _inkColor,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
+          child: card == null
+              ? const SizedBox.shrink()
+              : RamiCardView(card: card, width: width),
         ),
       ),
     );

@@ -44,7 +44,7 @@ void main() {
           .map((r) => r.quarterTurns)
           .toList();
       expect(turns, [3]);
-      expect(find.text('×5'), findsOneWidget);
+      expect(find.text('×5'), findsNothing);
     },
   );
 }

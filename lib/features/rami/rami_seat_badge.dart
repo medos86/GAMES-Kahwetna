@@ -34,8 +34,9 @@ int ramiSeatQuarterTurns(int seat) {
   return 0;
 }
 
-/// Badge d'un siège posé sur le tapis : médaillon d'avatar (agrandi quand c'est son tour)
-/// et pastille « ×cartes ». Le pseudo n'est plus affiché, il reste lu par les lecteurs d'écran (#863).
+/// Badge d'un siège posé sur le tapis : médaillon d'avatar, agrandi quand c'est son tour (#838).
+/// Le pseudo et le nombre de cartes ne sont plus affichés à côté de l'avatar (#887) : ils
+/// sont dans le popup ouvert par [onTap], et restent lus par les lecteurs d'écran.
 /// Passif et superposé, il ne prend aucune place dans la mise en page.
 class RamiSeatBadge extends StatelessWidget {
   const RamiSeatBadge({
@@ -46,6 +47,7 @@ class RamiSeatBadge extends StatelessWidget {
     this.avatarState = AvatarState.neutral,
     this.quarterTurns = 0,
     this.active = false,
+    this.onTap,
   });
 
   final String name;
@@ -61,48 +63,51 @@ class RamiSeatBadge extends StatelessWidget {
   /// Joueur dont c'est le tour : médaillon agrandi et pastille dorée (#838).
   final bool active;
 
+  /// Touche sur l'avatar : ouvre le popup du siège (#887).
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
     final id = avatarId;
-    final pill = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: active ? const Color(0xFFFFE16B) : const Color(0xFFFFF8E7),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: ComicPalette.ink, width: 2),
-      ),
-      child: Text(
-        '×$cards',
-        style: const TextStyle(
-          color: Color(0xFF20284B),
-          fontSize: 11,
-          fontWeight: FontWeight.w900,
-        ),
-      ),
-    );
     final content = id == null
-        ? pill
-        : Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TurnAvatar(
-                tone: ComicPalette.ink,
-                active: active,
-                avatarId: id,
-                state: avatarState,
-                semanticLabel: name,
-                baseSize: 28,
-                activeSize: 40,
+        ? Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: active ? const Color(0xFFFFE16B) : const Color(0xFFFFF8E7),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: ComicPalette.ink, width: 2),
+            ),
+            child: Text(
+              name,
+              style: const TextStyle(
+                color: Color(0xFF20284B),
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
               ),
-              const SizedBox(height: 2),
-              pill,
-            ],
+            ),
+          )
+        : TurnAvatar(
+            tone: ComicPalette.ink,
+            active: active,
+            avatarId: id,
+            state: avatarState,
+            semanticLabel: name,
+            baseSize: 28,
+            activeSize: 40,
           );
     final labelled = Semantics(
       label: '$name, $cards cartes',
+      button: onTap != null,
       child: ExcludeSemantics(child: content),
     );
-    if (quarterTurns == 0) return labelled;
-    return RotatedBox(quarterTurns: quarterTurns, child: labelled);
+    final tappable = onTap == null
+        ? labelled
+        : GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: labelled,
+          );
+    if (quarterTurns == 0) return tappable;
+    return RotatedBox(quarterTurns: quarterTurns, child: tappable);
   }
 }

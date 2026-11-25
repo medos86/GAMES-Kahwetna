@@ -187,6 +187,10 @@ class RamiController extends PersistentGameController {
   /// Vrai si des poses de ce tour (avant ouverture) peuvent encore être annulées.
   bool get canCancel => canPlay && _game.staged.isNotEmpty;
 
+  /// Rami directe proposé seulement si le joueur n'a encore aucun paquet sur le tapis (#888).
+  bool get canRamiDirect =>
+      canPlay && !_game.table.any((meld) => meld.owner == 0);
+
   bool get canReturnTaken {
     final taken = _game.takenId;
     return canPlay && taken != null && hand.any((card) => card.id == taken);
@@ -248,7 +252,7 @@ class RamiController extends PersistentGameController {
 
   /// Rami directe (#867) : pose toute la main et gagne. Hors de portée, la tentative est annulée.
   void ramiDirect() {
-    if (!canPlay) return;
+    if (!canRamiDirect) return;
     _apply(rules.ramiDirect(_game), Strings.ramiDirectImpossible);
   }
 
