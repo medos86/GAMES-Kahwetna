@@ -12,6 +12,7 @@ import '../../game/rami.dart' as rules;
 import '../menu/menu_models.dart';
 import 'rami_card_view.dart';
 import 'rami_discard_shown.dart';
+import 'rami_meld_owner_tag.dart';
 import 'rami_min_opening_shield.dart';
 import 'rami_hand_layout.dart';
 import 'rami_round_summary.dart';
@@ -1041,6 +1042,13 @@ class _RamiScreenState extends State<RamiScreen>
     _c.discardSelected();
   }
 
+  /// Avatar du propriétaire d'un paquet, ou null hors siège (#942).
+  String? _ownerAvatar(int owner) =>
+      owner >= 0 && owner < _avatarIds.length ? _avatarIds[owner] : null;
+
+  AvatarState _ownerAvatarState(int owner, rules.RamiState g) =>
+      owner >= 0 && owner < 4 ? _avatarStateOf(owner, g) : AvatarState.neutral;
+
   /// Combinaison survolée par une carte glissée (surbrillance).
   bool _isHotMeld(Object? target, String id) =>
       _c.canPlay && target is RamiDropMeld && target.id == id;
@@ -1063,6 +1071,8 @@ class _RamiScreenState extends State<RamiScreen>
           cards: meld.cards,
           cardWidth: meldWidth,
           owner: meld.owner,
+          avatarId: _ownerAvatar(meld.owner),
+          avatarState: _ownerAvatarState(meld.owner, g),
           hot: _isHotMeld(target, meld.id),
           eligible: c.layEligible,
           arriving: landing,
@@ -1122,6 +1132,7 @@ class _RamiScreenState extends State<RamiScreen>
                 cards: c.draftCards,
                 cardWidth: meldWidth,
                 owner: 0,
+                avatarId: _ownerAvatar(0),
                 onTap: () => c.removeFromDraft(c.draftIds.last),
               ),
           ],
