@@ -386,6 +386,25 @@ class RamiController extends PersistentGameController {
     _addToDraft(id);
   }
 
+  /// Carte glissée depuis un paquet posé pendant le tour : vers la main ou un autre paquet (#898).
+  void moveFromMeld(String cardId, String fromMeldId, RamiDropTarget? target) {
+    if (!canPlay || target == null) return;
+    final t = target;
+    if (t is RamiDropHand) {
+      _apply(
+        rules.takeBackFromMeld(_game, cardId, fromMeldId),
+        Strings.ramiCannotLayOff,
+      );
+      return;
+    }
+    if (t is RamiDropMeld) {
+      _apply(
+        rules.moveBetweenMelds(_game, cardId, fromMeldId, t.id),
+        Strings.ramiCannotLayOff,
+      );
+    }
+  }
+
   void nextRound() {
     _game = rules.nextRound(_game, _random);
     _selected.clear();

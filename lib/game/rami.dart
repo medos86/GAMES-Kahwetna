@@ -956,6 +956,21 @@ RamiState takeBackFromMeld(RamiState state, String cardId, String meldId) {
   return next;
 }
 
+/// Déplace une carte d'un paquet posé pendant le tour vers un autre paquet (#898).
+/// Reprise puis pose : mêmes règles que [takeBackFromMeld] et [layOff]. Sans effet si refusé.
+RamiState moveBetweenMelds(
+  RamiState state,
+  String cardId,
+  String fromMeldId,
+  String toMeldId,
+) {
+  if (fromMeldId == toMeldId) return state;
+  final taken = takeBackFromMeld(state, cardId, fromMeldId);
+  if (identical(taken, state)) return state;
+  final placed = layOff(taken, cardId, toMeldId);
+  return identical(placed, taken) ? state : placed;
+}
+
 /// Reprend un paquet entier posé pendant le tour, avec toutes ses cartes (#661).
 RamiState takeBackMeld(RamiState state, String meldId) {
   final seat = state.turn;

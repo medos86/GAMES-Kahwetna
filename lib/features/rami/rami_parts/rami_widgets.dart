@@ -124,6 +124,7 @@ class _MeldView extends StatelessWidget {
     this.arriving = const {},
     this.onTap,
     this.onLongPress,
+    this.onCardPointerDown,
   });
 
   final List<rules.RamiCard> cards;
@@ -138,6 +139,9 @@ class _MeldView extends StatelessWidget {
 
   /// Appui long : reprend le paquet posé pendant le tour (#661).
   final VoidCallback? onLongPress;
+
+  /// Appui sur la carte d'indice [index] du paquet (#898).
+  final void Function(int index, PointerDownEvent event)? onCardPointerDown;
 
   @override
   Widget build(BuildContext context) {
@@ -175,7 +179,12 @@ class _MeldView extends StatelessWidget {
                       top: 0,
                       child: Opacity(
                         opacity: arriving.contains(cards[i].id) ? 0 : 1,
-                        child: RamiCardView(card: cards[i], width: cardWidth),
+                        child: Listener(
+                          onPointerDown: onCardPointerDown == null
+                              ? null
+                              : (event) => onCardPointerDown!(i, event),
+                          child: RamiCardView(card: cards[i], width: cardWidth),
+                        ),
                       ),
                     ),
                 ],
