@@ -29,7 +29,7 @@ void main() {
 
 // Sans binding ni plateforme (tests unitaires), le retour ne doit jamais lever d'erreur.
 void testFailingHaptics() {
-  test('haptique indisponible : pas d\'erreur propagée', () async {
+  test("haptique indisponible : pas d'erreur propagée", () async {
     CaptureFeedback.vibrate = () async => throw StateError('no binding');
     CaptureFeedback.pulse = () async => throw StateError('no binding');
     await CaptureFeedback.onCapture(special: true);
