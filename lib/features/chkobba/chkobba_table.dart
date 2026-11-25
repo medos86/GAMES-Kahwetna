@@ -1,11 +1,15 @@
+import 'dart:ui' show Offset;
+
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/theme/game_style.dart';
 import '../../core/theme/scoba_palette.dart';
 import '../../widgets/comic/action_burst.dart';
+import 'chkobba_table_layout.dart';
 
-/// Tapis de Chkobba (#745) : feutre vert sans cadre intérieur (#766 retiré), cartes en grille.
+/// Tapis de Chkobba (#745) : feutre vert sans cadre intérieur (#766 retiré).
 /// `cards` contient un élément par emplacement ; null = emplacement vide.
+/// Les cartes sont posées au centre du tapis et ne bougent pas quand une autre part (voir [chkobbaCellOffset]).
 class ChkobbaTable extends StatelessWidget {
   const ChkobbaTable({
     super.key,
@@ -23,9 +27,8 @@ class ChkobbaTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tableEmpty = cards.whereType<Widget>().isEmpty;
+    const cardHeight = kChkobbaTableCardWidth * 7 / 5;
 
-    // Feutre plein, sans trame de points (comme Rami) : seul le vert reste.
-    // Les cartes se rangent depuis le haut à gauche, sans cases vides (style Rami).
     return ClipRRect(
       child: Stack(
         fit: StackFit.expand,
@@ -33,19 +36,27 @@ class ChkobbaTable extends StatelessWidget {
           DecoratedBox(
             decoration: BoxDecoration(color: ScobaPalette.tapisVert),
           ),
-          Padding(
-            padding: const EdgeInsets.all(6),
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Wrap(
-                spacing: 6,
-                runSpacing: 6,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final centre = Offset(
+                constraints.maxWidth / 2,
+                constraints.maxHeight / 2,
+              );
+              return Stack(
+                fit: StackFit.expand,
+                clipBehavior: Clip.none,
                 children: [
-                  for (final card in cards)
-                    if (card != null) _CardInCell(child: card),
+                  for (var i = 0; i < cards.length; i++)
+                    if (cards[i] != null)
+                      _placed(
+                        centre: centre,
+                        offset: chkobbaCellOffset(i, columns),
+                        height: cardHeight,
+                        child: cards[i]!,
+                      ),
                 ],
-              ),
-            ),
+              );
+            },
           ),
           if (tableEmpty && emptyLabel != null)
             Center(
@@ -57,6 +68,22 @@ class ChkobbaTable extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+
+  static Widget _placed({
+    required Offset centre,
+    required Offset offset,
+    required double height,
+    required Widget child,
+  }) {
+    const w = kChkobbaTableCardWidth;
+    return Positioned(
+      left: centre.dx + offset.dx * (w + kChkobbaTableGap) - w / 2,
+      top: centre.dy + offset.dy * (height + kChkobbaTableGap) - height / 2,
+      width: w,
+      height: height,
+      child: _CardInCell(child: child),
     );
   }
 }
