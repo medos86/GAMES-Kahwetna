@@ -418,7 +418,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     final over = summary != null;
     final revealed = _controller.revealedCardId;
     final hayaBy = _controller.hayaBy;
-    final thinking = _controller.isOpponentThinking;
     final canPlay = !over && game.winner == null && game.turn == Player.player;
     final cardWidth = cardHeight * 0.7;
     final style = GameStyle.current;
@@ -550,16 +549,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                                     colors: style.ayaGradient,
                                     angle: 0.09,
                                     burstSize: 110,
-                                  ),
-                                ),
-                              // Bannière de tour : seulement quand l'adversaire réfléchit, sans place réservée (#535).
-                              if (thinking)
-                                const Positioned(
-                                  bottom: 6,
-                                  left: 0,
-                                  right: 0,
-                                  child: IgnorePointer(
-                                    child: Center(child: _ThinkingBadge()),
                                   ),
                                 ),
                             ],
