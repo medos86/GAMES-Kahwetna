@@ -24,12 +24,18 @@ void main() {
     });
 
     test('main très longue : pas plancher, sans réduire la carte', () {
-      expect(ramiHandStep(20, 100, 500), closeTo(100 * ramiHandMinStepRatio, 1e-9));
+      expect(
+        ramiHandStep(20, 100, 500),
+        closeTo(100 * ramiHandMinStepRatio, 1e-9),
+      );
     });
 
     test('le pas est proportionnel à la largeur de carte demandée', () {
       // Au pas naturel (60 %), doubler la carte double le pas : aucune réduction cachée.
-      expect(ramiHandStep(3, 100, 900), closeTo(ramiHandStep(3, 50, 900) * 2, 1e-9));
+      expect(
+        ramiHandStep(3, 100, 900),
+        closeTo(ramiHandStep(3, 50, 900) * 2, 1e-9),
+      );
     });
   });
 }
