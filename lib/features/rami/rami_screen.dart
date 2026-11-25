@@ -219,15 +219,24 @@ class _RamiScreenState extends State<RamiScreen>
     if (press == null) return;
     final from = press.fromMeld;
     if (press.active) {
-      if (from != null) {
-        _c.moveFromMeld(press.id, from, _targetAt(event.position));
-      } else {
-        _c.dropCard(press.id, _targetAt(event.position));
+      // Glisser-déposer : pas d'animation de vol (#944).
+      _silentDrop = true;
+      try {
+        if (from != null) {
+          _c.moveFromMeld(press.id, from, _targetAt(event.position));
+        } else {
+          _c.dropCard(press.id, _targetAt(event.position));
+        }
+      } finally {
+        _silentDrop = false;
       }
     } else if (from == null) {
       _c.tap(press.id);
     }
   }
+
+  /// Vrai pendant un glisser-déposer : le départ de la carte n'est pas animé (#944).
+  bool _silentDrop = false;
 
   void _onPointerCancel() {
     _press = null;
@@ -662,7 +671,12 @@ class _RamiScreenState extends State<RamiScreen>
       for (final card in prevHand)
         if (!still.contains(card.id)) card,
     ];
-    if (leaving.isNotEmpty) _flyLeaving(leaving);
+    if (ramiShouldFlyLeaving(
+      silentDrop: _silentDrop,
+      hasLeaving: leaving.isNotEmpty,
+    )) {
+      _flyLeaving(leaving);
+    }
     if (_dealPending) {
       _distribute();
     } else if (prevGame != null) {
