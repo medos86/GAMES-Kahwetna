@@ -1046,7 +1046,12 @@ class _RamiScreenState extends State<RamiScreen>
     final c = _c;
     final target = _drag?.target;
     final hover = c.canPlay && target is RamiDropTable;
-    final dropping = c.canPlay && _drag != null;
+    // Tapis armé dès la sélection (tap), pas seulement pendant un glisser.
+    final dropping = ramiTableArmed(
+      canPlay: c.canPlay,
+      dragging: _drag != null,
+      selectedCount: c.selected.length,
+    );
     // Paquets posés puis en cours de pose ; rangés pour remplir les trous du haut.
     final melds = [
       for (final meld in g.table)
