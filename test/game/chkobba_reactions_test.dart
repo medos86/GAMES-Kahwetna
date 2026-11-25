@@ -9,33 +9,47 @@ void main() {
       expect(chkobbaReactions(), isEmpty);
     });
 
-    test('Chkobba du joueur : rire pour lui, choc pour l\'autre', () {
-      final moods = chkobbaReactions(chkobba: Player.player);
-      expect(moods, {
-        Player.player: ReactionMood.laugh,
-        Player.opponent: ReactionMood.shock,
-      });
+    test('Chkobba : aucun sticker, l\'éclat BD suffit', () {
+      expect(chkobbaReactions(chkobba: Player.player), isEmpty);
+      expect(chkobbaReactions(chkobba: Player.opponent), isEmpty);
     });
 
-    test('Chkobba de l\'adversaire inversée', () {
-      final moods = chkobbaReactions(chkobba: Player.opponent);
-      expect(moods, {
+    test('7AYA : aucun sticker, l\'éclat BD suffit', () {
+      expect(chkobbaReactions(haya: Player.opponent), isEmpty);
+    });
+
+    test('prise simple : seul le capteur rit', () {
+      expect(chkobbaReactions(capturer: Player.opponent), {
         Player.opponent: ReactionMood.laugh,
-        Player.player: ReactionMood.shock,
       });
     });
 
-    test('Haya seule : surprise pour qui la ramasse', () {
-      final moods = chkobbaReactions(haya: Player.opponent);
-      expect(moods, {Player.opponent: ReactionMood.surprise});
+    test('Chkobba et prise : aucun sticker, un seul élément BD', () {
+      expect(
+        chkobbaReactions(chkobba: Player.player, capturer: Player.player),
+        isEmpty,
+      );
+    });
+  });
+
+  group('chkobbaBurstText', () {
+    test('sans action, aucun éclat', () {
+      expect(chkobbaBurstText(), isNull);
     });
 
-    test('Chkobba et Haya du même joueur : la Chkobba l\'emporte', () {
-      final moods = chkobbaReactions(
-        chkobba: Player.player,
-        haya: Player.player,
+    test('Chkobba seule : « Chkobba ! »', () {
+      expect(chkobbaBurstText(chkobba: Player.opponent), 'Chkobba !');
+    });
+
+    test('7AYA seule : « ♦ 7AYA ! »', () {
+      expect(chkobbaBurstText(haya: Player.player), '♦ 7AYA !');
+    });
+
+    test('Chkobba et 7AYA en même temps : la Chkobba l\'emporte', () {
+      expect(
+        chkobbaBurstText(chkobba: Player.player, haya: Player.player),
+        'Chkobba !',
       );
-      expect(moods[Player.player], ReactionMood.laugh);
     });
   });
 

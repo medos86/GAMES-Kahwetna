@@ -19,6 +19,7 @@ import '../../core/theme/game_style.dart';
 import '../../core/theme/scoba_palette.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../game/chkobba.dart';
+import '../../game/chkobba_reactions.dart';
 import '../../game/common.dart';
 import '../menu/menu_models.dart';
 import 'chkobba_card_face.dart';
@@ -433,6 +434,10 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     final over = summary != null;
     final revealed = _controller.revealedCardId;
     final hayaBy = _controller.hayaBy;
+    final burstText = chkobbaBurstText(
+      chkobba: _controller.chkobbaBy,
+      haya: hayaBy,
+    );
     final canPlay = !over && game.winner == null && game.turn == Player.player;
     final cardWidth = cardHeight * 0.7;
     // Main du joueur agrandie (#chkobba-hand) : lisible sans toucher au tapis.
@@ -553,24 +558,23 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                                 ),
                                 child: Center(child: centre),
                               ),
-                              if (_controller.chkobbaBy != null)
+                              // Un seul éclat BD par coup, au centre du tapis : mis à l'échelle, jamais tronqué.
+                              if (burstText != null)
                                 Positioned.fill(
                                   child: Center(
-                                    child: ChkobbaBanner(
-                                      text: 'Chkobba !',
-                                      colors: style.chkobbaGradient,
-                                      angle: -0.1,
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: ChkobbaBanner(
+                                        text: burstText,
+                                        colors: _controller.chkobbaBy != null
+                                            ? style.chkobbaGradient
+                                            : style.ayaGradient,
+                                        angle: _controller.chkobbaBy != null
+                                            ? -0.1
+                                            : 0.09,
+                                        burstSize: 130,
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              if (hayaBy != null)
-                                Positioned(
-                                  top: 6,
-                                  child: ChkobbaBanner(
-                                    text: '♦ 7AYA !',
-                                    colors: style.ayaGradient,
-                                    angle: 0.09,
-                                    burstSize: 110,
                                   ),
                                 ),
                             ],
