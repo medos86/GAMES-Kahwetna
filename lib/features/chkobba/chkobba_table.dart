@@ -61,8 +61,8 @@ class ChkobbaTable extends StatelessWidget {
   }
 }
 
-/// Largeur maximale d'une carte posée sur le tapis : plus petites pour alléger le tapis.
-const double kChkobbaTableCardWidth = 52;
+/// Largeur d'une carte posée sur le tapis : assez grande pour rester lisible (#908).
+const double kChkobbaTableCardWidth = 68;
 
 /// Carte posée sur le tapis : proportions 5/7 conservées, largeur plafonnée.
 class _CardInCell extends StatelessWidget {
