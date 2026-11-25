@@ -22,12 +22,17 @@ class CaptureFeedback {
 
   /// Joue le retour d'une capture. [special] vaut vrai pour Chkobba ou 7AYA.
   static Future<void> onCapture({required bool special}) async {
-    if (!special) {
+    // Le retour haptique n'est pas disponible partout (ex. tests sans binding) : jamais bloquant.
+    try {
+      if (!special) {
+        await vibrate();
+        return;
+      }
       await vibrate();
-      return;
+      await pulse();
+      await playSound(Sfx.capture);
+    } catch (e) {
+      debugPrint('Retour de capture indisponible : $e');
     }
-    await vibrate();
-    await pulse();
-    await playSound(Sfx.capture);
   }
 }
