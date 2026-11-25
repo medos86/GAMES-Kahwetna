@@ -70,12 +70,16 @@ class DominoRoundOverlay extends StatelessWidget {
     required this.onRestart,
     required this.onMenu,
     this.avatarIds = const [],
+    this.revealed,
   });
 
   final DominoState game;
   final VoidCallback onNext;
   final VoidCallback onRestart;
   final VoidCallback onMenu;
+
+  /// Issue #932 : animation de fin montée après la pub (voir RoundResultPanel).
+  final ValueListenable<bool>? revealed;
 
   /// Avatars [joueur, adversaire] (#628) : dans les pastilles, à la place des initiales.
   final List<String> avatarIds;
@@ -100,6 +104,7 @@ class DominoRoundOverlay extends StatelessWidget {
                 ? Strings.dominoMatchOver.toUpperCase()
                 : 'MANCHE ${game.round} TERMINÉE',
             won: matchOver ? game.matchWinner == Player.player : null,
+            revealed: revealed,
             rows: [
               RoundResultRow(
                 name: t('you'),

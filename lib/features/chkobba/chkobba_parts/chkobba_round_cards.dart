@@ -51,10 +51,14 @@ class ChkobbaRoundCard extends StatelessWidget {
     required this.summary,
     required this.onContinue,
     this.avatarIds = const [],
+    this.revealed,
   });
 
   final ChkobbaRoundScore summary;
   final VoidCallback onContinue;
+
+  /// Issue #932 : animation de fin montée après la pub.
+  final ValueListenable<bool>? revealed;
 
   /// Avatars [joueur, adversaire] (#628) : dans les pastilles, à la place des initiales.
   final List<String> avatarIds;
@@ -99,6 +103,7 @@ class ChkobbaRoundCard extends StatelessWidget {
       title: 'Manche ${state.round}',
       badge: 'OBJECTIF ${state.targetScore} POINTS',
       won: hasWinner ? state.winner == Player.player : null,
+      revealed: revealed,
       rows: [
         RoundResultRow(
           name: t('you'),

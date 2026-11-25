@@ -22,6 +22,7 @@ import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/game_end_watcher.dart';
 import '../../core/services/interstitial_service.dart';
+import '../../core/services/game_end_sequence.dart';
 import '../../widgets/avatar_view.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/game_rays_background.dart';
@@ -84,9 +85,10 @@ class _RamiScreenState extends State<RamiScreen>
   // Avatars des 4 sièges, siège 0 = joueur (issue #552).
   List<String> _avatarIds = [defaultAvatar.id, 'lion', 'tiger', 'panda'];
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
+  final GameEndSequence _endSeq = GameEndSequence();
   late final GameEndWatcher _endWatcher = GameEndWatcher(
     isEnded: () => _c.game.matchWinner != null,
-    onEnded: () => unawaited(InterstitialService.instance.onGameFinished()),
+    onEnded: () => _endSeq.start(InterstitialService.instance.onGameFinished),
   );
 
   @override
@@ -115,6 +117,7 @@ class _RamiScreenState extends State<RamiScreen>
 
   @override
   void dispose() {
+    _endSeq.dispose();
     _adFree.removeListener(_onAdFreeChanged);
     _c.removeListener(_endWatcher.check);
     _c.removeListener(_onRamiChanged);
@@ -1306,6 +1309,7 @@ class _RamiScreenState extends State<RamiScreen>
             title: title,
             badge: badge,
             won: isOver ? matchWinner == 0 : null,
+            revealed: isOver ? _endSeq.revealed : null,
             rows: [
               for (var seat = 0; seat < 4; seat++)
                 RoundResultRow(

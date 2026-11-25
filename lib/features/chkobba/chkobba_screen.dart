@@ -9,6 +9,7 @@ import '../../core/avatars/game_avatars.dart';
 import '../../core/reactions/reaction_mood.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/interstitial_service.dart';
+import '../../core/services/game_end_sequence.dart';
 import '../../widgets/reaction_sticker.dart';
 import '../../widgets/turn_avatar.dart';
 import '../../widgets/game_rays_background.dart';
@@ -114,6 +115,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
 
   @override
   void dispose() {
+    _endSeq.dispose();
     _controller.removeListener(_onChanged);
     _controller.dispose();
     super.dispose();
@@ -208,6 +210,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
   /// Une capture se lit en deux temps : la carte se pose sur le tapis,
   /// puis la carte et les cartes prises rejoignent le tas du gagnant.
   bool _endNotified = false;
+  final GameEndSequence _endSeq = GameEndSequence();
 
   void _onChanged() {
     final game = _controller.game;
@@ -221,7 +224,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       _endNotified = false;
     } else if (!_endNotified) {
       _endNotified = true;
-      unawaited(InterstitialService.instance.onGameFinished());
+      _endSeq.start(InterstitialService.instance.onGameFinished);
     }
     final beforeTable = _lastTable;
     final beforeWon = _lastWon;
@@ -611,6 +614,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
                   child: ChkobbaRoundCard(
+                    revealed: _endSeq.revealed,
                     summary: summary,
                     avatarIds: _avatarIds,
                     onContinue: () => _deal(_controller.continueAfterRound),

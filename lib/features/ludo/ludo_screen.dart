@@ -16,6 +16,7 @@ import '../../core/i18n/app_language.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/game_end_watcher.dart';
 import '../../core/services/interstitial_service.dart';
+import '../../core/services/game_end_sequence.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/game_rays_background.dart';
 import '../../widgets/game_scaffold.dart';
@@ -130,9 +131,10 @@ class _LudoScreenState extends State<LudoScreen> {
     difficulty: _aiLevel(widget.difficulty),
   );
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
+  final GameEndSequence _endSeq = GameEndSequence();
   late final GameEndWatcher _endWatcher = GameEndWatcher(
     isEnded: () => _controller.roundOver,
-    onEnded: () => unawaited(InterstitialService.instance.onGameFinished()),
+    onEnded: () => _endSeq.start(InterstitialService.instance.onGameFinished),
   );
 
   static LudoAiLevel _aiLevel(Difficulty d) =>
@@ -154,6 +156,7 @@ class _LudoScreenState extends State<LudoScreen> {
 
   @override
   void dispose() {
+    _endSeq.dispose();
     _adFree.removeListener(_onAdFreeChanged);
     _controller.removeListener(_endWatcher.check);
     _controller.dispose();
@@ -183,6 +186,7 @@ class _LudoScreenState extends State<LudoScreen> {
               if (c.roundOver)
                 Positioned.fill(
                   child: _EndDialog(
+                    revealed: _endSeq.revealed,
                     controller: c,
                     onMenu: () => Navigator.of(context).maybePop(),
                   ),
