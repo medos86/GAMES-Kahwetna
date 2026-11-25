@@ -11,17 +11,17 @@ void main() {
     cardAnimations.value = true;
   });
 
-  test('valeur par défaut du notifier : activé', () {
+  test('défaut : activé', () {
     expect(cardAnimations.value, isTrue);
   });
 
-  test('sans préférence sauvegardée, loadCardAnimations active le réglage', () async {
+  test('sans préférence : activé', () async {
     cardAnimations.value = false;
     await loadCardAnimations();
     expect(cardAnimations.value, isTrue);
   });
 
-  test('un choix utilisateur désactivé est respecté', () async {
+  test('choix utilisateur désactivé respecté', () async {
     SharedPreferences.setMockInitialValues({cardAnimationsPrefsKey: false});
     await loadCardAnimations();
     expect(cardAnimations.value, isFalse);
