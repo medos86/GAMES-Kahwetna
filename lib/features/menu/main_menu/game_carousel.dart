@@ -378,7 +378,21 @@ class _ShinePhotoState extends State<_ShinePhoto>
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 3200),
-  )..repeat();
+  );
+
+  bool _reduce = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Réduire les animations (accessibilité) : pas de reflet, pas de boucle.
+    _reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    if (_reduce) {
+      _controller.stop();
+    } else if (!_controller.isAnimating) {
+      _controller.repeat();
+    }
+  }
 
   @override
   void dispose() {
@@ -397,6 +411,8 @@ class _ShinePhotoState extends State<_ShinePhoto>
         errorBuilder: (_, __, ___) => const SizedBox.shrink(),
       ),
       builder: (context, child) {
+        // Pendant la pause (et en mode réduit) : pas de reflet du tout.
+        if (_reduce || _controller.value > _sweepShare) return child!;
         final double p =
             (_controller.value / _sweepShare).clamp(0.0, 1.0).toDouble();
         final dx = -1.5 + 3.0 * p;

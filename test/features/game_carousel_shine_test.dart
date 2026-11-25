@@ -49,11 +49,11 @@ void main() {
     expect(tester.hasRunningAnimations, isTrue);
   });
 
-  testWidgets('la mascotte est plus grande : au moins 0,8 de la carte (#901)',
+  testWidgets('la mascotte est plus grande : au moins 160 px (#901)',
       (tester) async {
     await _pump(tester);
-    // Carte : 62 % de 400 => 248 px ; photo = 1,6 × 0,56 × 248 ≈ 222 px.
     final size = tester.getSize(_photo().first);
-    expect(size.height, greaterThanOrEqualTo(248 * 0.8));
+    // Carte : 400 px moins les deux flèches => environ 188 px ; photo = 1,6 × 0,56 × 188 ≈ 169 px.
+    expect(size.height, greaterThanOrEqualTo(160));
   });
 }

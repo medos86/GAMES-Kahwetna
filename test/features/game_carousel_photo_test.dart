@@ -24,6 +24,10 @@ Future<void> _pump(WidgetTester tester) async {
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     MaterialApp(
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(disableAnimations: true),
+        child: child!,
+      ),
       home: Scaffold(
         body: SizedBox(
           width: 400,
@@ -33,7 +37,7 @@ Future<void> _pump(WidgetTester tester) async {
       ),
     ),
   );
-  await tester.pump(const Duration(seconds: 1));
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -75,7 +79,7 @@ void main() {
     await _pump(tester);
     // Rami est à l'index 4 : on remonte d'un cran depuis Chkobba (index 0).
     await tester.tap(find.bySemanticsLabel('Jeu précédent'));
-    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
 
     final photo = find.byWidgetPredicate((w) => _isPhoto(w, _ramiPath));
     expect(find.text('Rami'), findsWidgets);
