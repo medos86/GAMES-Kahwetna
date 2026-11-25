@@ -1,7 +1,8 @@
-// Mascotte du carrousel : plus grande, avec un reflet qui balaie l'image (#901, #902).
+// Mascotte du carrousel : plus grande, avec une pointe de lumière sur son contour (#901, #902, #904).
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/menu/main_menu/game_carousel.dart';
+import 'package:kahwetne/features/menu/main_menu/mascot_outline.dart';
 import 'package:material_ui/material_ui.dart';
 
 const _chkobbaPath = 'assets/images/mascots/chkobba.png';
@@ -32,14 +33,12 @@ Finder _photo() => find.byWidgetPredicate(
     );
 
 void main() {
-  testWidgets('la mascotte est recouverte d\'un reflet animé (#902)',
-      (tester) async {
+  testWidgets('pointe de lumière sur le contour (#904)', (tester) async {
     await _pump(tester);
-    final shine = find.ancestor(
-      of: _photo().first,
-      matching: find.byType(ShaderMask),
+    final spark = find.byWidgetPredicate(
+      (w) => w is CustomPaint && w.painter is MascotSparkPainter,
     );
-    expect(shine, findsWidgets);
+    expect(spark, findsWidgets);
   });
 
   testWidgets('le reflet est animé en continu (#902)', (tester) async {

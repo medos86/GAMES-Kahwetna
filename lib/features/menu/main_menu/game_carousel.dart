@@ -7,6 +7,7 @@ import '../../../core/audio/sounds.dart';
 import '../../../widgets/pressable.dart';
 import '../game_icons.dart';
 import '../menu_models.dart';
+import 'mascot_outline.dart';
 
 const _carouselInk = Color(0xFF17203F);
 
@@ -358,8 +359,7 @@ class _MascotPhoto extends StatelessWidget {
   }
 }
 
-/// Mascotte avec un reflet lumineux qui balaie la silhouette en boucle.
-/// Le reflet est limité aux pixels visibles de l'image (srcATop), donc le fond reste intact.
+/// Mascotte avec une pointe de lumière qui parcourt son contour, en boucle continue (#904).
 class _ShinePhoto extends StatefulWidget {
   const _ShinePhoto({required this.asset, required this.height});
 
@@ -372,12 +372,9 @@ class _ShinePhoto extends StatefulWidget {
 
 class _ShinePhotoState extends State<_ShinePhoto>
     with SingleTickerProviderStateMixin {
-  // Balayage sur la première moitié du cycle, pause ensuite.
-  static const _sweepShare = 0.55;
-
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 3200),
+    duration: mascotSparkPeriod,
   );
 
   bool _reduce = false;
@@ -385,7 +382,7 @@ class _ShinePhotoState extends State<_ShinePhoto>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Réduire les animations (accessibilité) : pas de reflet, pas de boucle.
+    // Réduire les animations (accessibilité) : pas de pointe, pas de boucle.
     _reduce = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     if (_reduce) {
       _controller.stop();
@@ -402,35 +399,34 @@ class _ShinePhotoState extends State<_ShinePhoto>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      child: Image.asset(
-        widget.asset,
-        height: widget.height,
-        fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+    final outline = mascotOutlineFor(widget.asset);
+    final image = Image.asset(
+      widget.asset,
+      height: widget.height,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+    );
+    if (_reduce || outline == null) return image;
+    final width = widget.height * outline.width / outline.height;
+    return SizedBox(
+      width: width,
+      height: widget.height,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            widget.asset,
+            fit: BoxFit.fill,
+            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          ),
+          CustomPaint(
+            painter: MascotSparkPainter(
+              outline: outline,
+              animation: _controller,
+            ),
+          ),
+        ],
       ),
-      builder: (context, child) {
-        // Pendant la pause (et en mode réduit) : pas de reflet du tout.
-        if (_reduce || _controller.value > _sweepShare) return child!;
-        final double p =
-            (_controller.value / _sweepShare).clamp(0.0, 1.0).toDouble();
-        final dx = -1.5 + 3.0 * p;
-        return ShaderMask(
-          blendMode: BlendMode.srcATop,
-          shaderCallback: (rect) => LinearGradient(
-            begin: Alignment(dx - 0.5, -1),
-            end: Alignment(dx + 0.5, 1),
-            colors: [
-              Colors.white.withValues(alpha: 0),
-              Colors.white.withValues(alpha: 0.75),
-              Colors.white.withValues(alpha: 0),
-            ],
-            stops: const [0.3, 0.5, 0.7],
-          ).createShader(rect),
-          child: child,
-        );
-      },
     );
   }
 }
