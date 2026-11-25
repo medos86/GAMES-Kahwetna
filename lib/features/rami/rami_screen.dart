@@ -973,6 +973,7 @@ class _RamiScreenState extends State<RamiScreen>
                       ),
                     )
                   : GestureDetector(
+                      key: const ValueKey('discard_tap'),
                       onTap: onDiscardTap,
                       child: Stack(
                         alignment: Alignment.center,

@@ -107,9 +107,8 @@ void main() {
     );
     // #906 : plus de bouton rouge ; la défausse elle-même reçoit la carte sélectionnée.
     expect(find.byTooltip(Strings.actDiscard), findsNothing);
-    final pile = find.byKey(const ValueKey('discard'));
     final pileTap = tester.widget<GestureDetector>(
-      find.descendant(of: pile, matching: find.byType(GestureDetector)).first,
+      find.byKey(const ValueKey('discard_tap')),
     );
     expect(pileTap.onTap, isNotNull);
     pileTap.onTap!();
