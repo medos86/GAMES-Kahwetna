@@ -8,6 +8,7 @@ class _SeatRow extends StatelessWidget {
     required this.left,
     required this.hand,
     required this.right,
+    required this.height,
   });
 
   /// Largeur de chaque coin latéral.
@@ -16,18 +17,34 @@ class _SeatRow extends StatelessWidget {
   final Widget hand;
   final Widget right;
 
+  /// Hauteur fixe de la rangée (#909) : le tapis garde sa place quand le contenu change.
+  final double height;
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        SizedBox(width: corner, child: left),
-        Expanded(
-          child: Center(
-            child: FittedBox(fit: BoxFit.scaleDown, child: hand),
+    return SizedBox(
+      height: height,
+      child: ClipRect(
+        child: OverflowBox(
+          alignment: Alignment.center,
+          minHeight: 0,
+          maxHeight: double.infinity,
+          child: SizedBox(
+            height: height,
+            child: Row(
+              children: [
+                SizedBox(width: corner, child: left),
+                Expanded(
+                  child: Center(
+                    child: FittedBox(fit: BoxFit.scaleDown, child: hand),
+                  ),
+                ),
+                SizedBox(width: corner, child: right),
+              ],
+            ),
           ),
         ),
-        SizedBox(width: corner, child: right),
-      ],
+      ),
     );
   }
 }

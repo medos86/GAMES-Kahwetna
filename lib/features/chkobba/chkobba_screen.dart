@@ -421,6 +421,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     final thinking = _controller.isOpponentThinking;
     final canPlay = !over && game.winner == null && game.turn == Player.player;
     final cardWidth = cardHeight * 0.7;
+    // Rangées fixes : le tapis ne bouge plus quand l'adversaire joue (#909).
+    final seatHeight = cardHeight + 8;
     final style = GameStyle.current;
 
     // Emplacements du tapis : au moins 12, multiple du nombre de colonnes (comme TABLE_MIN_SLOTS).
@@ -497,6 +499,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                         // Rangée de l'adversaire : pile et pioche à gauche, main, avatar à droite (#800).
                         _SeatRow(
                           corner: corner,
+                          height: seatHeight,
                           left: _pileLane(
                             game: game,
                             owner: Player.opponent,
@@ -568,6 +571,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                         // Rangée du joueur : avatar à gauche, main, pile et pioche à droite (#800).
                         _SeatRow(
                           corner: corner,
+                          height: seatHeight,
                           left: _avatarLane(
                             game: game,
                             player: Player.player,
