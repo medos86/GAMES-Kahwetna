@@ -26,11 +26,15 @@ class DominoController extends PersistentGameController {
 
   DominoState _game;
   String? _selectedTileId;
+  // Première pierre posée : la chaîne se déploie autour d'elle (#930).
+  String? _openingId;
   Timer? _aiTimer;
 
   DominoState get game => _game;
 
   String? get selectedTileId => _selectedTileId;
+
+  String? get openingId => _openingId;
 
   List<DominoTile> get playable => playableTiles(_game, Player.player);
 
@@ -155,6 +159,11 @@ class DominoController extends PersistentGameController {
 
   void _update(DominoState next) {
     _playSoundFor(_game, next);
+    if (next.chain.isEmpty) {
+      _openingId = null;
+    } else if (_game.chain.isEmpty) {
+      _openingId = next.chain.first.id;
+    }
     _game = next;
     if (next.roundWinner != null) _selectedTileId = null;
     notifyListeners();
@@ -207,8 +216,10 @@ class DominoController extends PersistentGameController {
       _game.matchWinner != null ? null : _game.toJson();
 
   @override
-  void applySnapshot(Map<String, dynamic> json) =>
-      _game = DominoState.fromJson(json);
+  void applySnapshot(Map<String, dynamic> json) {
+    _game = DominoState.fromJson(json);
+    _openingId = null;
+  }
 
   @override
   void startFresh() => _scheduleAi();

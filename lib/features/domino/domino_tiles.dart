@@ -8,6 +8,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
 import '../../game/domino.dart';
+import 'domino_chain_layout.dart';
 
 const _pipColor = Color(0xFF17304B);
 // Issue #686 : face teintée du bleu du tapis (au lieu d'un crème blanc isolé),
@@ -236,13 +237,8 @@ class ChainTile extends StatelessWidget {
   }
 }
 
-/// Chaîne en serpentin, mise à l'échelle pour rester entièrement visible.
-///
-/// Changements par rapport au source :
-/// - une rangée avec virage ne réserve que 2 épaisseurs (au lieu de 3), donc moins de vide entre les lignes ;
-/// - la dernière rangée ne réserve qu'une épaisseur, sans marge inférieure ;
-/// - la chaîne entière est réduite uniformément (FittedBox) quand elle dépasse la zone,
-///   au lieu d'être coupée ou de défiler.
+/// Chaîne posée autour de la première pierre (#930) : elle grandit vers la gauche et la droite,
+/// le bras droit descend et le bras gauche monte, pour que le tapis reste centré et visible.
 class DominoChain extends StatelessWidget {
   const DominoChain({
     super.key,
@@ -250,6 +246,7 @@ class DominoChain extends StatelessWidget {
     required this.leftOpen,
     required this.rightOpen,
     required this.onEndTap,
+    this.openingId,
   });
 
   final List<PlacedTile> chain;
@@ -257,119 +254,98 @@ class DominoChain extends StatelessWidget {
   final bool rightOpen;
   final void Function(DominoSide side) onEndTap;
 
+  /// Id de la première pierre posée. Sans lui (partie rechargée), la pierre du milieu sert de centre.
+  final String? openingId;
+
+  int _openingIndex() {
+    final index = openingId == null
+        ? -1
+        : chain.indexWhere((tile) => tile.id == openingId);
+    return index >= 0 ? index : chain.length ~/ 2;
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
-        final columns = math.max(
-          3,
-          (availableWidth / (availableWidth < 420 ? 56 : 68)).floor(),
+        // Demi-largeur du tapis en unités de demi-pierre (pair).
+        final halfWidth = availableWidth >= 480 ? 8 : 6;
+        final unit = math.min(36.0, availableWidth / (2 * halfWidth));
+        final length = unit * 2;
+        final slots = layoutChainAroundCenter(
+          count: chain.length,
+          openIndex: _openingIndex(),
+          halfWidth: halfWidth,
         );
-        final perRow = columns - 1;
-        // Largeur utile = perRow tuiles horizontales + une épaisseur pour le domino vertical de fin de ligne.
-        final length = math.min(
-          72.0,
-          ((availableWidth / (perRow + 0.5) / 2).floor() * 2).toDouble(),
-        );
-        final thickness = length / 2;
-        final totalWidth = perRow * length + thickness;
-
-        // Chaque rangée : perRow horizontales, puis un vertical en bout de rangée (sauf la dernière).
-        final groups = <List<PlacedTile>>[];
-        var start = 0;
-        while (chain.length - start > perRow) {
-          final end = math.min(chain.length, start + perRow + 1);
-          groups.add(chain.sublist(start, end));
-          start = end;
+        var minX = 0;
+        var minY = 0;
+        var maxX = 0;
+        var maxY = 0;
+        for (final slot in slots) {
+          minX = math.min(minX, slot.x);
+          minY = math.min(minY, slot.y);
+          maxX = math.max(maxX, slot.x + slot.width);
+          maxY = math.max(maxY, slot.y + slot.height);
         }
-        if (start < chain.length) groups.add(chain.sublist(start));
+
         final last = chain.length - 1;
-
-        // Toutes les pierres sont dans une seule pile, positionnées en absolu et animées :
-        // quand la chaîne change, chaque pierre glisse vers sa nouvelle place au lieu de sauter.
         final tiles = <Widget>[];
-        var top = 0.0;
-        for (var rowIndex = 0; rowIndex < groups.length; rowIndex++) {
-          final group = groups[rowIndex];
-          final reverse = rowIndex.isOdd;
-          // Une rangée a un virage seulement si elle contient perRow + 1 tuiles.
-          final hasTurn = group.length == perRow + 1;
-          for (var index = 0; index < group.length; index++) {
-            final globalIndex = rowIndex * (perRow + 1) + index;
-            final isTurn = hasTurn && index == perRow;
-            final sides = <DominoSide>[
-              if (globalIndex == 0 && leftOpen) DominoSide.left,
-              if (globalIndex == last && rightOpen) DominoSide.right,
-            ];
-            void Function(TapUpDetails)? onTap;
-            if (sides.isNotEmpty) {
-              onTap = (details) {
-                if (sides.length == 1) {
-                  onEndTap(sides.first);
-                } else {
-                  final tileWidth = isTurn ? length / 2 : length;
-                  onEndTap(
-                    details.localPosition.dx < tileWidth / 2
-                        ? DominoSide.left
-                        : DominoSide.right,
-                  );
-                }
-              };
-            }
-            final tile = ChainTile(
-              tile: group[index],
-              length: length,
-              turn: isTurn,
-              reverse: reverse,
-              highlight: onTap != null,
-              onTap: onTap,
-            );
-            final double left;
-            final double tileWidth;
-            final double tileHeight;
-            if (isTurn) {
-              // Vertical en bout de rangée, collé au bord de la dernière tuile de la rangée.
-              left = reverse ? 0.0 : perRow * length;
-              tileWidth = thickness;
-              tileHeight = length;
-            } else {
-              // Horizontal : sens inverse sur les rangées impaires, en partant du bord du vertical.
-              left =
-                  reverse ? totalWidth - (index + 1) * length : index * length;
-              tileWidth = length;
-              tileHeight = thickness;
-            }
-            tiles.add(
-              AnimatedPositioned(
-                key: ValueKey(group[index].id),
-                duration: const Duration(milliseconds: 350),
-                curve: Curves.easeOutCubic,
-                left: left,
-                top: top,
-                width: tileWidth,
-                height: tileHeight,
-                child: sides.isNotEmpty
-                    ? Semantics(
-                        button: true,
-                        label: Strings.dominoPlaceHere,
-                        child: tile,
-                      )
-                    : tile,
-              ),
-            );
+        for (var i = 0; i < chain.length; i++) {
+          final slot = slots[i];
+          final sides = <DominoSide>[
+            if (i == 0 && leftOpen) DominoSide.left,
+            if (i == last && rightOpen) DominoSide.right,
+          ];
+          void Function(TapUpDetails)? onTap;
+          if (sides.isNotEmpty) {
+            onTap = (details) {
+              if (sides.length == 1) {
+                onEndTap(sides.first);
+              } else {
+                final tileWidth = slot.vertical ? unit : length;
+                onEndTap(
+                  details.localPosition.dx < tileWidth / 2
+                      ? DominoSide.left
+                      : DominoSide.right,
+                );
+              }
+            };
           }
-          // Pas entre rangées = longueur du vertical (le domino horizontal suivant se pose dessous).
-          top += hasTurn ? length : thickness;
+          final tile = ChainTile(
+            tile: chain[i],
+            length: length,
+            turn: slot.vertical,
+            reverse: slot.reverse,
+            highlight: onTap != null,
+            onTap: onTap,
+          );
+          tiles.add(
+            AnimatedPositioned(
+              key: ValueKey(chain[i].id),
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeOutCubic,
+              left: (slot.x - minX) * unit,
+              top: (slot.y - minY) * unit,
+              width: slot.width * unit,
+              height: slot.height * unit,
+              child: sides.isNotEmpty
+                  ? Semantics(
+                      button: true,
+                      label: Strings.dominoPlaceHere,
+                      child: tile,
+                    )
+                  : tile,
+            ),
+          );
         }
-        final naturalHeight = top;
 
         return Center(
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: SizedBox(
-              width: totalWidth,
-              height: naturalHeight,
+              width: (maxX - minX) * unit,
+              height: (maxY - minY) * unit,
               child: Stack(clipBehavior: Clip.none, children: tiles),
             ),
           ),

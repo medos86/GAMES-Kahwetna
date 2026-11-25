@@ -1,0 +1,78 @@
+// Placement de la chaîne autour de la première pierre (#930).
+import 'package:flutter_test/flutter_test.dart';
+import 'package:kahwetne/features/domino/domino_chain_layout.dart';
+
+bool _overlap(ChainSlot a, ChainSlot b) =>
+    a.x < b.x + b.width &&
+    b.x < a.x + a.width &&
+    a.y < b.y + b.height &&
+    b.y < a.y + a.height;
+
+bool _touch(ChainSlot a, ChainSlot b) {
+  final shareX = a.x < b.x + b.width && b.x < a.x + a.width;
+  final shareY = a.y < b.y + b.height && b.y < a.y + a.height;
+  final side = (a.x + a.width == b.x || b.x + b.width == a.x) &&
+      a.y < b.y + b.height &&
+      b.y < a.y + a.height;
+  final stacked = (a.y + a.height == b.y || b.y + b.height == a.y) && shareX;
+  return (side || stacked) && !(shareX && shareY);
+}
+
+void main() {
+  test('#930 : pas de chevauchement, chaque pierre touche la précédente', () {
+    for (final halfWidth in [6, 8]) {
+      for (var count = 1; count <= 40; count++) {
+        for (var open = 0; open < count; open++) {
+          final slots = layoutChainAroundCenter(
+            count: count,
+            openIndex: open,
+            halfWidth: halfWidth,
+          );
+          expect(slots.length, count);
+          for (var i = 0; i < count; i++) {
+            for (var j = i + 1; j < count; j++) {
+              expect(
+                _overlap(slots[i], slots[j]),
+                isFalse,
+                reason: 'chevauchement $i/$j (n=$count, open=$open)',
+              );
+            }
+            if (i + 1 < count) {
+              expect(
+                _touch(slots[i], slots[i + 1]),
+                isTrue,
+                reason: 'pierres $i et ${i + 1} non reliées',
+              );
+            }
+          }
+        }
+      }
+    }
+  });
+
+  test('#930 : la première pierre est au centre, horizontale', () {
+    final slots = layoutChainAroundCenter(count: 5, openIndex: 2, halfWidth: 6);
+    expect(slots[2].x, -1);
+    expect(slots[2].y, 0);
+    expect(slots[2].vertical, isFalse);
+  });
+
+  test('#930 : tout reste dans le tapis, symétrique en largeur', () {
+    for (final halfWidth in [6, 8]) {
+      final slots = layoutChainAroundCenter(
+        count: 60,
+        openIndex: 30,
+        halfWidth: halfWidth,
+      );
+      for (final s in slots) {
+        expect(s.x >= -halfWidth && s.x + s.width <= halfWidth, isTrue);
+      }
+    }
+  });
+
+  test('#930 : le bras droit descend, le bras gauche monte', () {
+    final slots = layoutChainAroundCenter(count: 25, openIndex: 12, halfWidth: 6);
+    expect(slots.last.y > 0, isTrue);
+    expect(slots.first.y < 0, isTrue);
+  });
+}
