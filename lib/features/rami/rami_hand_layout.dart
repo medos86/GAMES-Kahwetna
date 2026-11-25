@@ -33,6 +33,21 @@ const double _minTableCardWidth = 36;
 double ramiGapOffset(int index, int gapAt, double step) =>
     gapAt >= 0 && index >= gapAt ? step * 0.9 : 0;
 
+/// Pas minimal entre deux cartes de la main, en fraction de la largeur d'une carte (#896).
+const double ramiHandMinStepRatio = 0.3;
+
+/// Pas entre deux cartes de la main (#896) : 60 % de la largeur de carte, resserré pour
+/// tenir sur [maxW] sans descendre sous [ramiHandMinStepRatio]. La largeur de carte, elle,
+/// ne change jamais : seul le chevauchement varie avec le nombre de cartes.
+double ramiHandStep(int n, double cardWidth, double maxW) {
+  if (n <= 1) return 0;
+  final room = (maxW - cardWidth) / (n - 1);
+  final natural = 0.6 * cardWidth;
+  final floor = ramiHandMinStepRatio * cardWidth;
+  final step = room < natural ? room : natural;
+  return step < floor ? floor : step;
+}
+
 /// Ordre de dessin de la main : de gauche à droite (chaque carte recouvre seulement la
 /// précédente, donc les coins d'index restent visibles), la carte déplacée en dernier.
 List<int> ramiDrawOrder(int count, int? dragged) {
