@@ -259,6 +259,16 @@ class ChkobbaController extends PersistentGameController {
     _schedule();
   }
 
+  /// Vrai depuis une redonne en cours de manche (son joué) jusqu'à sa lecture par l'écran.
+  bool _dealt = false;
+
+  /// Lit et réinitialise le drapeau de redonne : l'écran anime alors la distribution (#redonne).
+  bool takeDeal() {
+    final dealt = _dealt;
+    _dealt = false;
+    return dealt;
+  }
+
   void _schedule() {
     _timer?.cancel();
     _timer = null;
@@ -272,6 +282,7 @@ class ChkobbaController extends PersistentGameController {
         _timer = Timer(const Duration(milliseconds: 1000), () {
           _game = dealHands(_game);
           Sounds.play(Sfx.cardDeal);
+          _dealt = true;
           _update();
         });
       } else {

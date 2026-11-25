@@ -323,7 +323,9 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       flyAfterRender(flights);
     }
 
-    if (_dealPending) _distribute();
+    // Nouvelle donne (bouton ou redonne automatique en cours de manche) : la distribution est animée.
+    final dealt = _controller.takeDeal();
+    if (_dealPending || dealt) _distribute();
   }
 
   /// Destination exacte d'une carte : sa case du tapis, ou le tas de celui qui l'a prise.
