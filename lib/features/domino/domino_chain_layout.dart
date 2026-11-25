@@ -39,7 +39,8 @@ List<ChainSlot> layoutChainAroundCenter({
   final right = _arm(count - 1 - openIndex, halfWidth);
   final left = _arm(openIndex, halfWidth).map(_mirror).toList();
   final slots = List<ChainSlot?>.filled(count, null);
-  slots[openIndex] = const ChainSlot(x: -1, y: 0, vertical: false, reverse: false);
+  slots[openIndex] =
+      const ChainSlot(x: -1, y: 0, vertical: false, reverse: false);
   for (var j = 0; j < right.length; j++) {
     slots[openIndex + 1 + j] = right[j];
   }
@@ -61,7 +62,9 @@ List<ChainSlot> _arm(int count, int halfWidth) {
         out.add(ChainSlot(x: cx, y: y, vertical: false, reverse: false));
         cx += 2;
       } else {
-        out.add(ChainSlot(x: halfWidth - 1, y: y, vertical: true, reverse: false));
+        out.add(
+          ChainSlot(x: halfWidth - 1, y: y, vertical: true, reverse: false),
+        );
         y += 2;
         rightward = false;
         cx = halfWidth - 2;

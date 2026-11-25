@@ -71,7 +71,11 @@ void main() {
   });
 
   test('#930 : le bras droit descend, le bras gauche monte', () {
-    final slots = layoutChainAroundCenter(count: 25, openIndex: 12, halfWidth: 6);
+    final slots = layoutChainAroundCenter(
+      count: 25,
+      openIndex: 12,
+      halfWidth: 6,
+    );
     expect(slots.last.y > 0, isTrue);
     expect(slots.first.y < 0, isTrue);
   });
