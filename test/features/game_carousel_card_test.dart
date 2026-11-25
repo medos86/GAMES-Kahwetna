@@ -19,7 +19,7 @@ Future<void> _pump(WidgetTester tester) async {
       ),
     ),
   );
-  await tester.pumpAndSettle();
+  await tester.pump(const Duration(seconds: 1));
 }
 
 void main() {

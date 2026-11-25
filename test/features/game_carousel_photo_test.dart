@@ -33,7 +33,7 @@ Future<void> _pump(WidgetTester tester) async {
       ),
     ),
   );
-  await tester.pumpAndSettle();
+  await tester.pump(const Duration(seconds: 1));
 }
 
 void main() {
@@ -75,7 +75,7 @@ void main() {
     await _pump(tester);
     // Rami est à l'index 4 : on remonte d'un cran depuis Chkobba (index 0).
     await tester.tap(find.bySemanticsLabel('Jeu précédent'));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
 
     final photo = find.byWidgetPredicate((w) => _isPhoto(w, _ramiPath));
     expect(find.text('Rami'), findsWidgets);

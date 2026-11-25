@@ -347,15 +347,74 @@ class _MascotPhoto extends StatelessWidget {
                       child: SvgPicture.string(gameIconSvg[game.name]!),
                     ),
                   )
-                : Image.asset(
-                    photo,
-                    height: size * 1.4,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                : _ShinePhoto(
+                    asset: photo,
+                    height: size * 1.6,
                   ),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Mascotte avec un reflet lumineux qui balaie la silhouette en boucle.
+/// Le reflet est limité aux pixels visibles de l'image (srcATop), donc le fond reste intact.
+class _ShinePhoto extends StatefulWidget {
+  const _ShinePhoto({required this.asset, required this.height});
+
+  final String asset;
+  final double height;
+
+  @override
+  State<_ShinePhoto> createState() => _ShinePhotoState();
+}
+
+class _ShinePhotoState extends State<_ShinePhoto>
+    with SingleTickerProviderStateMixin {
+  // Balayage sur la première moitié du cycle, pause ensuite.
+  static const _sweepShare = 0.55;
+
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 3200),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      child: Image.asset(
+        widget.asset,
+        height: widget.height,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+      ),
+      builder: (context, child) {
+        final double p =
+            (_controller.value / _sweepShare).clamp(0.0, 1.0).toDouble();
+        final dx = -1.5 + 3.0 * p;
+        return ShaderMask(
+          blendMode: BlendMode.srcATop,
+          shaderCallback: (rect) => LinearGradient(
+            begin: Alignment(dx - 0.5, -1),
+            end: Alignment(dx + 0.5, 1),
+            colors: [
+              Colors.white.withValues(alpha: 0),
+              Colors.white.withValues(alpha: 0.75),
+              Colors.white.withValues(alpha: 0),
+            ],
+            stops: const [0.3, 0.5, 0.7],
+          ).createShader(rect),
+          child: child,
+        );
+      },
     );
   }
 }

@@ -23,7 +23,7 @@ Future<void> _pump(
       ),
     ),
   );
-  await tester.pumpAndSettle();
+  await tester.pump(const Duration(seconds: 1));
 }
 
 void main() {
@@ -44,7 +44,7 @@ void main() {
     );
 
     await tester.tap(find.bySemanticsLabel('Jeu suivant'));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
 
     expect(changed, [gameEntries[1].name]);
     expect(find.text(gameEntries[1].name), findsOneWidget);
@@ -59,7 +59,7 @@ void main() {
     );
 
     await tester.tap(find.bySemanticsLabel('Jeu précédent'));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
 
     expect(changed, [gameEntries.last.name]);
   });
@@ -73,7 +73,7 @@ void main() {
     );
 
     await tester.drag(find.byType(PageView), const Offset(-200, 0));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
 
     expect(changed, [gameEntries[1].name]);
   });
@@ -87,7 +87,7 @@ void main() {
     );
 
     await tester.tap(find.text(gameEntries.first.name));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
 
     expect(selected?.name, gameEntries.first.name);
   });
