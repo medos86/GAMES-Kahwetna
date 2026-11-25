@@ -424,7 +424,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     final style = GameStyle.current;
 
     // Emplacements du tapis : au moins 12, multiple du nombre de colonnes (comme TABLE_MIN_SLOTS).
-    // Chaque carte garde son emplacement : les autres ne glissent pas après un jeu.
+    // Cartes rangées depuis le haut à gauche, sans case vide (style Rami) : la cible du vol est la carte.
     final assigned = _controller.tableSlots();
     final used = assigned.values.fold<int>(
       0,

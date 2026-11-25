@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/theme/game_style.dart';
@@ -24,11 +22,10 @@ class ChkobbaTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rows = math.max(1, (cards.length / columns).ceil());
     final tableEmpty = cards.whereType<Widget>().isEmpty;
 
-    // Tapis pleine largeur (#801) : il remplit la place qu'on lui donne, sans ratio imposé.
-    // Pas de cadre intérieur : seul le feutre vert reste.
+    // Feutre plein, sans trame de points (comme Rami) : seul le vert reste.
+    // Les cartes se rangent depuis le haut à gauche, sans cases vides (style Rami).
     return ClipRRect(
       child: Stack(
         fit: StackFit.expand,
@@ -36,27 +33,18 @@ class ChkobbaTable extends StatelessWidget {
           DecoratedBox(
             decoration: BoxDecoration(color: ScobaPalette.tapisVert),
           ),
-          CustomPaint(painter: _DotsPainter()),
           Padding(
-            padding: const EdgeInsets.all(2),
-            child: LayoutBuilder(
-              builder: (context, c) {
-                final cellW = c.maxWidth / columns;
-                final cellH = c.maxHeight / rows;
-                return Stack(
-                  children: [
-                    for (var i = 0; i < cards.length; i++)
-                      if (cards[i] != null)
-                        Positioned(
-                          left: (i % columns) * cellW + 1,
-                          top: (i ~/ columns) * cellH + 1,
-                          width: cellW - 2,
-                          height: cellH - 2,
-                          child: _CardInCell(child: cards[i]!),
-                        ),
-                  ],
-                );
-              },
+            padding: const EdgeInsets.all(6),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final card in cards)
+                    if (card != null) _CardInCell(child: card),
+                ],
+              ),
             ),
           ),
           if (tableEmpty && emptyLabel != null)
@@ -73,8 +61,10 @@ class ChkobbaTable extends StatelessWidget {
   }
 }
 
-/// Carte posée dans sa case : proportions 5/7 conservées, centrée (#801).
-/// Le `Center` desserre les contraintes serrées de la case, sinon la carte serait déformée.
+/// Largeur maximale d'une carte posée sur le tapis : plus petites pour alléger le tapis.
+const double kChkobbaTableCardWidth = 52;
+
+/// Carte posée sur le tapis : proportions 5/7 conservées, largeur plafonnée.
 class _CardInCell extends StatelessWidget {
   const _CardInCell({required this.child});
 
@@ -82,7 +72,10 @@ class _CardInCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: AspectRatio(aspectRatio: 5 / 7, child: child));
+    return SizedBox(
+      width: kChkobbaTableCardWidth,
+      child: AspectRatio(aspectRatio: 5 / 7, child: child),
+    );
   }
 }
 
@@ -147,20 +140,4 @@ class ChkobbaBanner extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Trame de points très légère sur le feutre (halftone du source React).
-class _DotsPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = const Color(0x1A000000);
-    for (double y = 4; y < size.height; y += 8) {
-      for (double x = 4; x < size.width; x += 8) {
-        canvas.drawCircle(Offset(x, y), 1, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

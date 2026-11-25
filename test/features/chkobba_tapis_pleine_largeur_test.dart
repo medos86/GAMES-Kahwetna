@@ -1,4 +1,5 @@
-// Issue #801 : le tapis prend toute la largeur du feutre, cartes agrandies aux proportions 5/7.
+// Issue #801 : le tapis prend toute la largeur du feutre, cartes aux proportions 5/7.
+// Mise à jour : cartes du tapis plafonnées (plus petites), tapis allégé comme Rami.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/card_animations.dart';
@@ -81,7 +82,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('#801 : cartes du tapis agrandies (plus de 70 dp de large)', (
+  testWidgets('cartes du tapis plafonnées à la taille compacte', (
     tester,
   ) async {
     await _pump(tester);
@@ -89,7 +90,11 @@ void main() {
       of: find.byType(ChkobbaTable),
       matching: find.byType(ChkobbaCardFace),
     );
-    expect(tester.getSize(faces.first).width, greaterThan(70));
+    // Tapis allégé : les cartes posées ne dépassent pas la largeur compacte.
+    expect(
+      tester.getSize(faces.first).width,
+      closeTo(kChkobbaTableCardWidth, 0.5),
+    );
     expect(tester.takeException(), isNull);
   });
 }
