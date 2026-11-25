@@ -932,9 +932,8 @@ class _RamiScreenState extends State<RamiScreen>
               key: _key('discard'),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(width * 0.14),
-                border: discardLit
-                    ? Border.all(color: _goldColor, width: 3)
-                    : null,
+                border:
+                    discardLit ? Border.all(color: _goldColor, width: 3) : null,
               ),
               child: shown == null
                   ? Container(
