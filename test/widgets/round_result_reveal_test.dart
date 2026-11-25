@@ -38,7 +38,7 @@ void main() {
     final seq = GameEndSequence();
     await tester.pumpWidget(_host(_panel(won: true, revealed: seq.revealed)));
     seq.start(() async => null);
-    await tester.pumpAndSettle(const Duration(milliseconds: 100));
+    await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.byKey(const Key('win-celebration-confetti')), findsOneWidget);
   });
