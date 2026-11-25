@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../core/avatars/avatar_catalog.dart';
+import '../core/avatars/avatar_config.dart';
 import '../core/services/card_animations.dart';
 import '../core/theme/comic_palette.dart';
 
@@ -32,18 +33,20 @@ class AvatarView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final avatar = avatarById(avatarId);
+    final displaySize = effectiveAvatarSize(size);
     final duration = cardAnimations.value
         ? const Duration(milliseconds: 200)
         : Duration.zero;
     final image = SizedBox(
-      width: size,
-      height: size,
+      width: displaySize,
+      height: displaySize,
       child: Image.asset(
         avatar.assetFor(state),
         fit: BoxFit.cover,
+        filterQuality: AvatarConfig.filterQuality,
         errorBuilder: (_, __, ___) => _InitialFallback(
           label: semanticLabel,
-          size: size,
+          size: displaySize,
         ),
       ),
     );

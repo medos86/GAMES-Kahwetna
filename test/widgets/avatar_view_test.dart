@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/avatars/avatar_catalog.dart';
+import 'package:kahwetne/core/avatars/avatar_config.dart';
 import 'package:kahwetne/widgets/avatar_view.dart';
 
 /// Issue #545 : rendu des trois états, taille et label sémantique.
@@ -55,6 +56,19 @@ void main() {
     expect(
       tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity,
       0.55,
+    );
+  });
+
+  testWidgets('taille plafonnée, qualité configurée (#935)', (
+    tester,
+  ) async {
+    await pump(tester, const AvatarView(avatarId: 'cat', size: 300));
+    final box = tester.getSize(find.byType(Image));
+    expect(box.width, AvatarConfig.maxDisplaySize);
+    expect(box.height, AvatarConfig.maxDisplaySize);
+    expect(
+      tester.widget<Image>(find.byType(Image)).filterQuality,
+      AvatarConfig.filterQuality,
     );
   });
 }
