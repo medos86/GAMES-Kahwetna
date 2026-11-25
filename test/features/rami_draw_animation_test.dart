@@ -105,16 +105,16 @@ void main() {
       find.byWidgetPredicate((w) => w is RamiCardView && w.selected),
       findsOneWidget,
     );
-    expect(find.byTooltip(Strings.actDiscard), findsOneWidget);
-    // Déclenche le bouton directement : le tap est masqué par la main (layout).
-    final discardButton = tester.widget<InkWell>(
+    // #906 : plus de bouton rouge ; la défausse elle-même reçoit la carte sélectionnée.
+    expect(find.byTooltip(Strings.actDiscard), findsNothing);
+    final pileTap = tester.widget<GestureDetector>(
       find.descendant(
-        of: find.byTooltip(Strings.actDiscard),
-        matching: find.byType(InkWell),
-      ),
+        of: find.byKey(const ValueKey('discard')),
+        matching: find.byType(GestureDetector),
+      ).first,
     );
-    expect(discardButton.onTap, isNotNull);
-    discardButton.onTap!();
+    expect(pileTap.onTap, isNotNull);
+    pileTap.onTap!();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
