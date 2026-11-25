@@ -3,6 +3,7 @@ import '../../core/services/persistent_game_controller.dart';
 import 'dart:async';
 
 import '../../core/audio/sounds.dart';
+import '../../core/feedback/capture_feedback.dart';
 import '../../core/reactions/reaction_mood.dart';
 import '../../core/services/reaction_stickers.dart';
 import '../../game/chkobba.dart';
@@ -235,6 +236,10 @@ class ChkobbaController extends PersistentGameController {
       chkobbaReactions(chkobba: chkobba, haya: haya, capturer: capturer),
     );
     if (sfx != null) Sounds.play(sfx);
+    if (capturer != null) {
+      // Retour tactile : double vibration pour Chkobba / 7AYA (#913).
+      CaptureFeedback.onCapture(special: chkobba != null || haya != null);
+    }
     _update();
   }
 
