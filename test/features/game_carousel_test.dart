@@ -8,6 +8,7 @@ Future<void> _pump(
   WidgetTester tester, {
   required void Function(GameEntry) onSelect,
   required void Function(GameEntry) onChanged,
+  GameEntry? initialGame,
 }) async {
   tester.view.physicalSize = const Size(800, 1200);
   tester.view.devicePixelRatio = 1;
@@ -22,7 +23,11 @@ Future<void> _pump(
         body: SizedBox(
           width: 400,
           height: 600,
-          child: GameCarousel(onSelect: onSelect, onChanged: onChanged),
+          child: GameCarousel(
+            onSelect: onSelect,
+            onChanged: onChanged,
+            initialGame: initialGame,
+          ),
         ),
       ),
     ),
@@ -107,5 +112,17 @@ void main() {
       ),
     );
     expect(find.byType(MoodTint), findsOneWidget);
+  });
+
+  testWidgets('le carrousel reprend le dernier jeu ouvert (#946)', (tester) async {
+    final last = gameEntries[2];
+    await _pump(
+      tester,
+      onSelect: (_) {},
+      onChanged: (_) {},
+      initialGame: last,
+    );
+
+    expect(find.text(last.name), findsOneWidget);
   });
 }

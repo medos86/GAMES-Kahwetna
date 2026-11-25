@@ -379,6 +379,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         SizedBox(height: sm ? 16 : 12),
         Expanded(
           child: GameCarousel(
+            // Au retour d'un jeu, le carrousel reprend le dernier jeu ouvert (#946).
+            initialGame: _focused,
             onSelect: _selectGame,
             onChanged: (game) => setState(() => _focused = game),
           ),
