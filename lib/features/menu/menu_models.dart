@@ -151,6 +151,7 @@ const gameEntries = <GameEntry>[
     route: '/ludo',
     targets: [],
     defaultTarget: 11,
+    photoAsset: 'assets/images/mascots/ludo.png',
     backgroundAsset: 'assets/images/game_bg/rays_ludo.webp',
   ),
   GameEntry(

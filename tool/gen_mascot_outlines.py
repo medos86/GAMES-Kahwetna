@@ -160,7 +160,7 @@ const mascotOutlines = <String, MascotOutlineData>{
 
 
 def main():
-    names = ['belote', 'chkobba', 'domino', 'rami']
+    names = ['belote', 'chkobba', 'domino', 'rami', 'ludo']
     blocks = []
     for name in names:
         path = os.path.join(MASCOT_DIR, f'{name}.png')
