@@ -38,10 +38,13 @@ class _GameCarouselState extends State<GameCarousel> {
   // Page de départ multiple du nombre de jeux : le carrousel boucle sans bord.
   final int _start = gameEntries.length * 1000;
 
-  late final int _initialPage = _start +
-      (widget.initialGame == null
-          ? 0
-          : gameEntries.indexOf(widget.initialGame!).clamp(0, gameEntries.length - 1));
+  late final int _initialPage = _start + _indexOfGame(widget.initialGame);
+
+  static int _indexOfGame(GameEntry? game) {
+    if (game == null) return 0;
+    final index = gameEntries.indexOf(game);
+    return index < 0 ? 0 : index;
+  }
 
   late final PageController _controller = PageController(
     initialPage: _initialPage,

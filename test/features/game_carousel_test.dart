@@ -114,15 +114,18 @@ void main() {
     expect(find.byType(MoodTint), findsOneWidget);
   });
 
-  testWidgets('le carrousel reprend le dernier jeu ouvert (#946)', (tester) async {
-    final last = gameEntries[2];
-    await _pump(
-      tester,
-      onSelect: (_) {},
-      onChanged: (_) {},
-      initialGame: last,
-    );
+  testWidgets(
+    'le carrousel reprend le dernier jeu ouvert (#946)',
+    (tester) async {
+      final last = gameEntries[2];
+      await _pump(
+        tester,
+        onSelect: (_) {},
+        onChanged: (_) {},
+        initialGame: last,
+      );
 
-    expect(find.text(last.name), findsOneWidget);
-  });
+      expect(find.text(last.name), findsOneWidget);
+    },
+  );
 }
