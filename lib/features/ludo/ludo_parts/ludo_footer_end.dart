@@ -193,10 +193,17 @@ Color ludoRankDigitColor(Color fill) {
 String _placeLabel(int index) => index == 0 ? '1er' : '${index + 1}e';
 
 class _EndDialog extends StatelessWidget {
-  const _EndDialog({required this.controller, required this.onMenu});
+  const _EndDialog({
+    required this.controller,
+    required this.onMenu,
+    this.revealed,
+  });
 
   final LudoController controller;
   final VoidCallback onMenu;
+
+  /// Issue #932 : animation de fin montée après la pub.
+  final ValueListenable<bool>? revealed;
 
   @override
   Widget build(BuildContext context) {
@@ -216,6 +223,7 @@ class _EndDialog extends StatelessWidget {
             title: title,
             badge: 'PARTIE TERMINÉE',
             won: solo ? first == LudoColor.blue : null,
+            revealed: revealed,
             rows: [
               for (var i = 0; i < game.rankings.length; i++)
                 RoundResultRow(

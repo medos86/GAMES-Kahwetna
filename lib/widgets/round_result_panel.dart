@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../core/avatars/avatar_catalog.dart';
@@ -39,6 +40,7 @@ class RoundResultPanel extends StatelessWidget {
     this.subtitle,
     this.accent = ComicPalette.yellow,
     this.won,
+    this.revealed,
   });
 
   final String title;
@@ -52,17 +54,32 @@ class RoundResultPanel extends StatelessWidget {
   /// `false` un effet sobre de défaite. `null` (fin de manche) : rien.
   final bool? won;
 
+  /// Issue #932 : la pub de fin passe d'abord. Tant que `false`, l'animation
+  /// gain/perte n'est pas montée ; elle démarre quand la pub est fermée.
+  /// `null` : pas de pub à attendre, l'animation démarre tout de suite.
+  final ValueListenable<bool>? revealed;
+
   @override
   Widget build(BuildContext context) {
     final dialog = _buildDialog();
     final outcome = won;
     if (outcome == null) return dialog;
+    final gate = revealed;
     return Stack(
       clipBehavior: Clip.none,
       alignment: Alignment.center,
       children: [
         dialog,
-        Positioned.fill(child: WinCelebration(won: outcome)),
+        Positioned.fill(
+          child: gate == null
+              ? WinCelebration(won: outcome)
+              : ValueListenableBuilder<bool>(
+                  valueListenable: gate,
+                  builder: (context, shown, _) => shown
+                      ? WinCelebration(won: outcome)
+                      : const SizedBox.shrink(),
+                ),
+        ),
       ],
     );
   }

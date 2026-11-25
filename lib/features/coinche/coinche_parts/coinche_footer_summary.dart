@@ -166,7 +166,11 @@ class _SummaryDialog extends StatelessWidget {
     required this.controller,
     required this.onMenu,
     this.avatarIds = const [],
+    this.revealed,
   });
+
+  /// Issue #932 : animation de fin montée après la pub.
+  final ValueListenable<bool>? revealed;
 
   final CoincheController controller;
   final VoidCallback onMenu;
@@ -213,6 +217,7 @@ class _SummaryDialog extends StatelessWidget {
             badge: ended ? 'PARTIE TERMINÉE' : 'MANCHE ${match.round - 1}',
             subtitle: subtitle,
             won: ended ? roundWinner == teamOf(Seat.south) : null,
+            revealed: revealed,
             rows: [
               for (final team in Team.values)
                 RoundResultRow(

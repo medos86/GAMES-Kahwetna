@@ -24,6 +24,7 @@ import 'domino_tiles.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/game_end_watcher.dart';
 import '../../core/services/interstitial_service.dart';
+import '../../core/services/game_end_sequence.dart';
 import '../../widgets/exit_guard.dart';
 import '../../core/services/saved_game_store.dart';
 import '../../widgets/resume_game.dart';
@@ -68,9 +69,12 @@ class _DominoScreenState extends State<DominoScreen> {
     difficulty: widget.difficulty,
   );
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
+  final GameEndSequence _endSeq = GameEndSequence();
   late final GameEndWatcher _endWatcher = GameEndWatcher(
     isEnded: () => _controller.game.matchWinner != null,
-    onEnded: () => unawaited(InterstitialService.instance.onGameFinished()),
+    onEnded: () => unawaited(
+          _endSeq.start(InterstitialService.instance.onGameFinished),
+        ),
   );
 
   @override
@@ -90,6 +94,7 @@ class _DominoScreenState extends State<DominoScreen> {
 
   @override
   void dispose() {
+    _endSeq.dispose();
     _adFree.removeListener(_onAdFreeChanged);
     _controller.removeListener(_endWatcher.check);
     _controller.dispose();
@@ -189,6 +194,7 @@ class _DominoScreenState extends State<DominoScreen> {
               if (game.roundWinner != null || game.matchWinner != null)
                 Positioned.fill(
                   child: DominoRoundOverlay(
+                    revealed: _endSeq.revealed,
                     game: game,
                     avatarIds: _avatarIds,
                     onNext: _controller.startNextRound,

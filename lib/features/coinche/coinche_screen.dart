@@ -20,6 +20,7 @@ import '../../core/services/ad_free_service.dart';
 import '../../core/services/profile_store.dart';
 import '../../core/services/game_end_watcher.dart';
 import '../../core/services/interstitial_service.dart';
+import '../../core/services/game_end_sequence.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../widgets/turn_avatar.dart';
 import 'coinche_avatars.dart';
@@ -84,9 +85,12 @@ class _CoincheScreenState extends State<CoincheScreen>
     difficulty: widget.difficulty,
   );
   final ValueListenable<bool> _adFree = AdFreeService.instance.active;
+  final GameEndSequence _endSeq = GameEndSequence();
   late final GameEndWatcher _endWatcher = GameEndWatcher(
     isEnded: () => _controller.match.winner != null,
-    onEnded: () => unawaited(InterstitialService.instance.onGameFinished()),
+    onEnded: () => unawaited(
+          _endSeq.start(InterstitialService.instance.onGameFinished),
+        ),
   );
 
   // Mouvements animés (#266) : donne, jeu, pli ramassé, pour toutes les places.
@@ -134,6 +138,7 @@ class _CoincheScreenState extends State<CoincheScreen>
 
   @override
   void dispose() {
+    _endSeq.dispose();
     _adFree.removeListener(_onAdFreeChanged);
     _controller.removeListener(_endWatcher.check);
     _controller.removeListener(_onChanged);
@@ -285,6 +290,7 @@ class _CoincheScreenState extends State<CoincheScreen>
               if (c.summary != null)
                 Positioned.fill(
                   child: _SummaryDialog(
+                    revealed: _endSeq.revealed,
                     controller: c,
                     avatarIds: _avatarIds,
                     onMenu: () => Navigator.of(context).maybePop(),
