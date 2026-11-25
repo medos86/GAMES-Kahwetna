@@ -187,6 +187,9 @@ class RamiController extends PersistentGameController {
   bool get selectionIsMeld =>
       selectedCards.length >= 3 && rules.isValidMeld(selectedCards);
 
+  /// Aperçu sur le tapis : une sélection valide peut être posée d'un tap ou d'un glisser (#940).
+  bool get canPoseSelection => canPlay && selectionIsMeld;
+
   /// Ajout d'une carte à un paquet : après ouverture, ou avant ouverture sur un paquet posé
   /// pendant ce tour (#838).
   bool get layEligible =>
@@ -389,6 +392,11 @@ class RamiController extends PersistentGameController {
     }
     if (t is RamiDropMeld) {
       layOffCard(id, t.id);
+      return;
+    }
+    // Carte sélectionnée glissée sur le tapis : la sélection valide est posée d'un coup (#940).
+    if (_selected.contains(id) && canPoseSelection) {
+      pose();
       return;
     }
     // Relâché sur la table : la carte rejoint le paquet en cours, carte par carte (#874).

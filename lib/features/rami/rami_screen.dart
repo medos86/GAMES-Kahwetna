@@ -1116,6 +1116,16 @@ class _RamiScreenState extends State<RamiScreen>
                 ),
               ),
             ...ordered,
+            // Aperçu : la sélection valide apparaît sur le tapis, un tap la pose (#940).
+            if (c.canPoseSelection)
+              _MeldView(
+                key: _key('preview'),
+                cards: c.selectedCards,
+                cardWidth: meldWidth,
+                owner: 0,
+                eligible: true,
+                onTap: c.pose,
+              ),
             // Paquet en cours : cartes glissées sur le tapis, pas encore valides (#874).
             if (c.draftCards.isNotEmpty)
               _MeldView(
