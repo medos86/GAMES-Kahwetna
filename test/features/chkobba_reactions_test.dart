@@ -62,7 +62,7 @@ void main() {
       ctrl.dispose();
     });
 
-    test('Chkobba : rire puis retour au calme', () {
+    test('Chkobba : éclat BD, aucun sticker sur les avatars', () {
       fakeAsync((async) {
         final ctrl = ChkobbaController(
           targetScore: 11,
@@ -71,8 +71,9 @@ void main() {
         );
 
         ctrl.tapPlayerCard('batons-9');
-        expect(ctrl.reactionOf(Player.player), ReactionMood.laugh);
-        expect(ctrl.reactionOf(Player.opponent), ReactionMood.shock);
+        // Un seul élément BD : l'éclat « Chkobba ! », sans sticker sur les avatars.
+        expect(ctrl.reactionOf(Player.player), isNull);
+        expect(ctrl.reactionOf(Player.opponent), isNull);
 
         async.elapse(ChkobbaController.reactionDuration);
         expect(ctrl.reactionOf(Player.player), isNull);
@@ -82,7 +83,7 @@ void main() {
       });
     });
 
-    test('prise simple : capteur rit, adversaire réfléchit (#788)', () {
+    test('prise simple : seul le capteur rit (#788)', () {
       fakeAsync((async) {
         final ctrl = ChkobbaController(
           targetScore: 11,
@@ -111,7 +112,7 @@ void main() {
 
         ctrl.tapPlayerCard('batons-9');
         expect(ctrl.reactionOf(Player.player), ReactionMood.laugh);
-        expect(ctrl.reactionOf(Player.opponent), ReactionMood.thinking);
+        expect(ctrl.reactionOf(Player.opponent), isNull);
 
         ctrl.dispose();
       });

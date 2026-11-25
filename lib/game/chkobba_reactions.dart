@@ -1,28 +1,27 @@
-// Réactions d'avatar du Chkobba (#759, #788). Dart pur : aucun import Flutter.
+// Réactions BD du Chkobba (#759, #788, #chkobba-bd). Dart pur : aucun import Flutter.
 
 import '../core/reactions/reaction_mood.dart';
 import 'common.dart';
 
-/// Humeur de l'avatar de chaque joueur après un coup.
+/// Un seul élément BD par coup : Chkobba, puis 7AYA, puis sticker de prise simple.
 ///
-/// [chkobba] : joueur qui fait une Chkobba (il rit, l'autre est choqué).
-/// [haya] : joueur qui ramasse le 7 de deniers (surprise).
-/// [capturer] : joueur qui fait une prise simple (il rit, l'autre réfléchit).
-/// Priorité : Chkobba, puis Haya, puis prise simple.
+/// Une Chkobba ou une 7AYA affiche l'éclat au centre du tapis ([chkobbaBurstText])
+/// et aucun sticker : moins d'animations en même temps, rien ne se superpose.
+///
+/// [capturer] : joueur qui fait une prise simple : seul son avatar rit.
 Map<Player, ReactionMood> chkobbaReactions({
   Player? chkobba,
   Player? haya,
   Player? capturer,
 }) {
-  final moods = <Player, ReactionMood>{};
-  if (capturer != null) {
-    moods[capturer] = ReactionMood.laugh;
-    moods[other(capturer)] = ReactionMood.thinking;
-  }
-  if (haya != null) moods[haya] = ReactionMood.surprise;
-  if (chkobba != null) {
-    moods[chkobba] = ReactionMood.laugh;
-    moods[other(chkobba)] = ReactionMood.shock;
-  }
-  return moods;
+  if (chkobba != null || haya != null) return const {};
+  if (capturer == null) return const {};
+  return {capturer: ReactionMood.laugh};
+}
+
+/// Texte de l'unique éclat BD du tapis, ou null. La Chkobba l'emporte sur la 7AYA.
+String? chkobbaBurstText({Player? chkobba, Player? haya}) {
+  if (chkobba != null) return 'Chkobba !';
+  if (haya != null) return '♦ 7AYA !';
+  return null;
 }
