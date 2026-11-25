@@ -21,10 +21,14 @@ class GameCarousel extends StatefulWidget {
     super.key,
     required this.onSelect,
     required this.onChanged,
+    this.initialGame,
   });
 
   final void Function(GameEntry) onSelect;
   final void Function(GameEntry) onChanged;
+
+  /// Jeu affiché au départ (le dernier jeu ouvert, #946). Premier jeu si absent.
+  final GameEntry? initialGame;
 
   @override
   State<GameCarousel> createState() => _GameCarouselState();
@@ -34,11 +38,19 @@ class _GameCarouselState extends State<GameCarousel> {
   // Page de départ multiple du nombre de jeux : le carrousel boucle sans bord.
   final int _start = gameEntries.length * 1000;
 
+  late final int _initialPage = _start + _indexOfGame(widget.initialGame);
+
+  static int _indexOfGame(GameEntry? game) {
+    if (game == null) return 0;
+    final index = gameEntries.indexOf(game);
+    return index < 0 ? 0 : index;
+  }
+
   late final PageController _controller = PageController(
-    initialPage: _start,
+    initialPage: _initialPage,
     viewportFraction: 0.66,
   );
-  late int _page = _start;
+  late int _page = _initialPage;
 
   @override
   void dispose() {
@@ -83,8 +95,8 @@ class _GameCarouselState extends State<GameCarousel> {
                           animation: _controller,
                           builder: (context, _) {
                             final current = _controller.hasClients
-                                ? (_controller.page ?? _start.toDouble())
-                                : _start.toDouble();
+                                ? (_controller.page ?? _initialPage.toDouble())
+                                : _initialPage.toDouble();
                             return _CarouselItem(
                               game: gameEntries[carouselIndexOf(page)],
                               offset: page - current,
