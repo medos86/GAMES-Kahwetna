@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 /// Séquence de fin de partie : la pub passe d'abord, l'animation gain/perte ensuite.
@@ -12,9 +14,13 @@ class GameEndSequence {
   /// `true` quand l'écran de fin (et son animation) peut être affiché.
   ValueListenable<bool> get revealed => _revealed;
 
-  /// Lance la pub puis révèle la fin.
-  Future<void> start(Future<Object?> Function() showAd) async {
+  /// Lance la pub puis révèle la fin. Ne se termine pas toujours tout de suite.
+  void start(Future<Object?> Function() showAd) {
     _revealed.value = false;
+    unawaited(_run(showAd));
+  }
+
+  Future<void> _run(Future<Object?> Function() showAd) async {
     try {
       await showAd();
     } catch (_) {

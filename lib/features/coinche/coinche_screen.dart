@@ -88,9 +88,7 @@ class _CoincheScreenState extends State<CoincheScreen>
   final GameEndSequence _endSeq = GameEndSequence();
   late final GameEndWatcher _endWatcher = GameEndWatcher(
     isEnded: () => _controller.match.winner != null,
-    onEnded: () => unawaited(
-          _endSeq.start(InterstitialService.instance.onGameFinished),
-        ),
+    onEnded: () => _endSeq.start(InterstitialService.instance.onGameFinished),
   );
 
   // Mouvements animés (#266) : donne, jeu, pli ramassé, pour toutes les places.

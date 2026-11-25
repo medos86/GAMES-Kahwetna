@@ -134,9 +134,7 @@ class _LudoScreenState extends State<LudoScreen> {
   final GameEndSequence _endSeq = GameEndSequence();
   late final GameEndWatcher _endWatcher = GameEndWatcher(
     isEnded: () => _controller.roundOver,
-    onEnded: () => unawaited(
-          _endSeq.start(InterstitialService.instance.onGameFinished),
-        ),
+    onEnded: () => _endSeq.start(InterstitialService.instance.onGameFinished),
   );
 
   static LudoAiLevel _aiLevel(Difficulty d) =>

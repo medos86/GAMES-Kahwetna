@@ -3,46 +3,53 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/game_end_sequence.dart';
 
+/// Laisse passer les microtâches en attente de la pub simulée.
+Future<void> flush() => Future<void>.delayed(Duration.zero);
+
 void main() {
-  test('fin non révélée tant que la pub tourne, révélée après', () async {
+  test('fin non révélée pendant la pub, révélée après', () async {
     final seq = GameEndSequence();
     final ad = Completer<Object?>();
-    final future = seq.start(() => ad.future);
+    seq.start(() => ad.future);
 
     expect(seq.revealed.value, isFalse);
     ad.complete(true);
-    await future;
+    await flush();
     expect(seq.revealed.value, isTrue);
   });
 
   test('sans pub (showAd immédiat), révélée tout de suite', () async {
     final seq = GameEndSequence();
-    await seq.start(() async => false);
+    seq.start(() async => false);
+    await flush();
     expect(seq.revealed.value, isTrue);
   });
 
   test('une erreur de pub ne bloque pas la révélation', () async {
     final seq = GameEndSequence();
-    await seq.start(() async => throw StateError('pub en échec'));
+    seq.start(() async => throw StateError('pub en échec'));
+    await flush();
     expect(seq.revealed.value, isTrue);
   });
 
   test('une nouvelle fin repart de non révélée', () async {
     final seq = GameEndSequence();
-    await seq.start(() async => null);
+    seq.start(() async => null);
+    await flush();
     expect(seq.revealed.value, isTrue);
 
     final ad = Completer<Object?>();
-    final future = seq.start(() => ad.future);
+    seq.start(() => ad.future);
     expect(seq.revealed.value, isFalse);
     ad.complete(null);
-    await future;
+    await flush();
     expect(seq.revealed.value, isTrue);
   });
 
   test('reset remet la séquence à non révélée', () async {
     final seq = GameEndSequence();
-    await seq.start(() async => null);
+    seq.start(() async => null);
+    await flush();
     seq.reset();
     expect(seq.revealed.value, isFalse);
   });
@@ -51,7 +58,8 @@ void main() {
     final seq = GameEndSequence();
     final seen = <bool>[];
     seq.revealed.addListener(() => seen.add(seq.revealed.value));
-    await seq.start(() async => null);
-    expect(seen, [false, true]);
+    seq.start(() async => null);
+    await flush();
+    expect(seen, [true]);
   });
 }

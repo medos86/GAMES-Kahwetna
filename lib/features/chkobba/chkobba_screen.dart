@@ -224,7 +224,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       _endNotified = false;
     } else if (!_endNotified) {
       _endNotified = true;
-      unawaited(_endSeq.start(InterstitialService.instance.onGameFinished));
+      _endSeq.start(InterstitialService.instance.onGameFinished);
     }
     final beforeTable = _lastTable;
     final beforeWon = _lastWon;

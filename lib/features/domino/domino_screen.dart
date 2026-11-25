@@ -72,9 +72,7 @@ class _DominoScreenState extends State<DominoScreen> {
   final GameEndSequence _endSeq = GameEndSequence();
   late final GameEndWatcher _endWatcher = GameEndWatcher(
     isEnded: () => _controller.game.matchWinner != null,
-    onEnded: () => unawaited(
-          _endSeq.start(InterstitialService.instance.onGameFinished),
-        ),
+    onEnded: () => _endSeq.start(InterstitialService.instance.onGameFinished),
   );
 
   @override
