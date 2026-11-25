@@ -25,6 +25,24 @@ double ramiMeldSlotLeft(double left, double cardWidth, int index) =>
 /// Délai de la carte n°[index] posée : les cartes d'un paquet volent une à une (#592).
 Duration ramiPoseDelay(int index) => ramiPoseStagger * index;
 
+/// Pause entre deux paquets posés : le suivant part quand le précédent est presque posé (#943).
+const Duration ramiPackGap = Duration(milliseconds: 400);
+
+/// Délai de chaque carte de paquets posés (#943) : un paquet part après le précédent,
+/// et ses cartes volent une à une à [ramiPoseStagger] d'écart. Les paquets vides sont ignorés.
+List<Duration> ramiPackDelays(List<int> packSizes) {
+  final delays = <Duration>[];
+  var start = Duration.zero;
+  for (final size in packSizes) {
+    if (size <= 0) continue;
+    for (var i = 0; i < size; i++) {
+      delays.add(start + ramiPoseStagger * i);
+    }
+    start += ramiPoseStagger * (size - 1) + ramiPackGap;
+  }
+  return delays;
+}
+
 /// Marge réelle d'un paquet sur le tapis : 4 px de padding + bordure de 2 px, de chaque côté (#453).
 const double _meldPadding = 12;
 const double _meldGap = 3;
@@ -169,9 +187,26 @@ Duration ramiRecycleTotal(int flightCount) => flightCount == 0
     ? Duration.zero
     : ramiRecycleStagger * (flightCount - 1) + ramiRecycleFlight;
 
-/// Cartes posées sur le tapis par l'adversaire qui vient de jouer (#878) : celles
-/// absentes du tapis précédent, dans l'ordre des paquets. Vide pendant son propre tour.
-List<rules.RamiCard> ramiNewTableCards(
+/// Cartes de [ids] présentes sur le tapis de [state], groupées par paquet (#943).
+/// Un paquet sans carte retenue n'apparaît pas.
+List<List<rules.RamiCard>> ramiPacksAmong(
+  rules.RamiState state,
+  Set<String> ids,
+) {
+  final packs = <List<rules.RamiCard>>[];
+  for (final meld in state.table) {
+    final picked = [
+      for (final card in meld.cards)
+        if (ids.contains(card.id)) card,
+    ];
+    if (picked.isNotEmpty) packs.add(picked);
+  }
+  return packs;
+}
+
+/// Cartes posées sur le tapis par l'adversaire qui vient de jouer (#878), groupées par
+/// paquet dans l'ordre du tapis (#943). Vide pendant son propre tour.
+List<List<rules.RamiCard>> ramiNewTablePacks(
   rules.RamiState prev,
   rules.RamiState next,
 ) {
@@ -180,11 +215,21 @@ List<rules.RamiCard> ramiNewTableCards(
     for (final meld in prev.table)
       for (final card in meld.cards) card.id,
   };
-  return [
+  final fresh = {
     for (final meld in next.table)
       for (final card in meld.cards)
-        if (!before.contains(card.id)) card,
-  ];
+        if (!before.contains(card.id)) card.id,
+  };
+  return ramiPacksAmong(next, fresh);
+}
+
+/// Cartes posées sur le tapis par l'adversaire qui vient de jouer (#878) : celles
+/// absentes du tapis précédent, dans l'ordre des paquets. Vide pendant son propre tour.
+List<rules.RamiCard> ramiNewTableCards(
+  rules.RamiState prev,
+  rules.RamiState next,
+) {
+  return [for (final pack in ramiNewTablePacks(prev, next)) ...pack];
 }
 
 /// Coups joués par l'adversaire qui vient de jouer (`prev.turn`), pour animer sa pioche

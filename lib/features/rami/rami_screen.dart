@@ -727,43 +727,56 @@ class _RamiScreenState extends State<RamiScreen>
           ));
       }
     }
-    // Paquets posés par l'adversaire (#878) : carte par carte, depuis son siège.
+    // Paquets posés par l'adversaire (#878) : un paquet après l'autre (#943), carte par carte.
+    final packs = ramiNewTablePacks(prev, next);
+    final delays = ramiPackDelays([for (final pack in packs) pack.length]);
     var posed = 0;
-    for (final card in ramiNewTableCards(prev, next)) {
-      final from = Rect.fromCenter(
-        center: chip.center,
-        width: pile.width,
-        height: pile.height,
-      );
-      flights.add(CardFlight(
-        from: from,
-        to: () => _targetFor(card.id, from),
-        child: RamiCardView(card: card, width: pile.width),
-        delay: ramiPoseDelay(posed++),
-        duration: ramiAiFlightDuration,
-        landingId: card.id,
-      ));
+    for (final pack in packs) {
+      for (final card in pack) {
+        final from = Rect.fromCenter(
+          center: chip.center,
+          width: pile.width,
+          height: pile.height,
+        );
+        flights.add(CardFlight(
+          from: from,
+          to: () => _targetFor(card.id, from),
+          child: RamiCardView(card: card, width: pile.width),
+          delay: delays[posed++],
+          duration: ramiAiFlightDuration,
+          landingId: card.id,
+        ));
+      }
     }
     if (flights.isNotEmpty) flyAfterRender(flights);
   }
 
   /// Vol des cartes qui quittent la main vers leur destination (défausse, combinaison, tapis).
+  /// Un paquet posé part après le précédent, carte par carte (#592, #943).
   void _flyLeaving(List<rules.RamiCard> leaving) {
     final flights = <CardFlight>[];
+    final packs = ramiPacksAmong(
+      _c.game,
+      {for (final card in leaving) card.id},
+    );
+    final delays = ramiPackDelays([for (final pack in packs) pack.length]);
+    final delayOf = <String, Duration>{};
     var posed = 0;
+    for (final pack in packs) {
+      for (final card in pack) {
+        delayOf[card.id] = delays[posed++];
+      }
+    }
     for (final card in leaving) {
       final from = _rectOf(_key('hand:${card.id}'));
       if (from == null) continue;
-      // Cartes posées en combinaison : une à une, dans l'ordre du paquet (#592).
-      final isPosed = _isInMeld(card.id);
+      final posedDelay = delayOf[card.id];
       flights.add(
         CardFlight(
           from: from,
           to: () => _targetFor(card.id, from),
           child: RamiCardView(card: card, width: from.width),
-          delay: isPosed
-              ? ramiPoseDelay(posed++)
-              : _flightStagger * flights.length,
+          delay: posedDelay ?? _flightStagger * flights.length,
           landingId: card.id,
         ),
       );
@@ -791,10 +804,6 @@ class _RamiScreenState extends State<RamiScreen>
     }
     return null;
   }
-
-  bool _isInMeld(String id) => _c.game.table.any(
-        (meld) => meld.cards.any((card) => card.id == id),
-      );
 
   /// Place d'un adversaire pour un dos de carte (centre de son bloc, taille de la carte).
   Rect? _seatTarget(int seat, Rect from) {
