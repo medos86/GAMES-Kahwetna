@@ -353,6 +353,20 @@ List<List<ChkobbaCard>> getCaptureOptions(
   return card == null ? [] : _captureOptions(state.table, card.rank);
 }
 
+/// Cartes du tapis que la carte [cardId] de [who] peut prendre (#923) : elles s'allument
+/// dès que le joueur tient la carte. Vide si [cardId] est null ou pas en main.
+Set<String> chkobbaCaptureTargetIds(
+  ChkobbaState state,
+  Player who,
+  String? cardId,
+) {
+  if (cardId == null) return const {};
+  return {
+    for (final option in getCaptureOptions(state, who, cardId))
+      for (final card in option) card.id,
+  };
+}
+
 /// Joue une carte. `chosenIds` choisit une des prises légales ; sinon la meilleure est prise.
 ChkobbaMoveResult playCard(
   ChkobbaState state,

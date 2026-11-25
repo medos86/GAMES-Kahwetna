@@ -124,6 +124,15 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
   // -------------------------------------------------------------------------
 
   final Map<String, GlobalKey> _keys = {};
+
+  /// Carte de la main tenue par le doigt : ses prises s'allument sur le tapis (#923).
+  String? _previewId;
+
+  void _setPreview(String? cardId) {
+    if (_previewId == cardId) return;
+    setState(() => _previewId = cardId);
+  }
+
   GlobalKey _key(String name) => _keys.putIfAbsent(name, () => GlobalKey());
 
   static const _stagger = Duration(milliseconds: 60);
@@ -436,12 +445,15 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     );
     final slotCount = _roundUp(math.max(12, used), columns);
     final slots = List<Widget?>.filled(slotCount, null);
+    // Cartes du tapis que la carte tenue peut prendre : elles s'allument (#923).
+    final targets = chkobbaCaptureTargetIds(game, Player.player, _previewId);
     for (final card in game.table) {
       final index = assigned[card.id]!;
+      final lit = targets.contains(card.id);
       slots[index] = MaskedSlot(
         key: _key('tbl:${card.id}'),
         hidden: landing.contains(card.id),
-        child: ChkobbaCardFace(card: card),
+        child: ChkobbaCardFace(card: card, highlight: lit),
       );
     }
 
@@ -572,12 +584,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                             cards: game.hands[Player.player]!,
                             width: playerHandHeight * 0.7,
                             height: playerHandHeight,
-                            builder: (card) => ChkobbaCardFace(
-                              key: _key('hand:${card.id}'),
-                              card: card,
-                              onTap:
-                                  canPlay ? () => _onPlayerCard(card.id) : null,
-                            ),
+                            builder: (card) => _playerHandCard(card, canPlay),
                           ),
                           right: _pileLane(
                             game: game,
@@ -619,6 +626,21 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
   /// Largeur d'un coin latéral (#766) : entre 88 et 100 dp selon l'écran.
   static double _cornerWidth(double screenWidth) =>
       math.min(math.max(screenWidth * 0.24, 88.0), 100.0);
+
+  /// Carte de la main du joueur. Appui maintenu : le tapis s'allume sur ses prises (#923).
+  /// Tap : la carte est jouée (ou choisie parmi les prises).
+  Widget _playerHandCard(ChkobbaCard card, bool canPlay) {
+    return Listener(
+      onPointerDown: (_) => _setPreview(canPlay ? card.id : null),
+      onPointerUp: (_) => _setPreview(null),
+      onPointerCancel: (_) => _setPreview(null),
+      child: ChkobbaCardFace(
+        key: _key('hand:${card.id}'),
+        card: card,
+        onTap: canPlay ? () => _onPlayerCard(card.id) : null,
+      ),
+    );
+  }
 
   /// Carte de l'adversaire : dos, sauf celle qu'il montre (#766).
   Widget _opponentCard(ChkobbaCard card, String? revealedId) {
