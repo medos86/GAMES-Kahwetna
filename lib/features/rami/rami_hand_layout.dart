@@ -253,3 +253,11 @@ List<RamiAiMove> ramiAiMoves(rules.RamiState prev, rules.RamiState next) {
   }
   return moves;
 }
+
+/// Vol des cartes qui quittent la main ? Non quand le geste est un glisser-déposer :
+/// seule la pose par bouton (ou tap) anime le départ (#944).
+bool ramiShouldFlyLeaving({
+  required bool silentDrop,
+  required bool hasLeaving,
+}) =>
+    !silentDrop && hasLeaving;
