@@ -24,26 +24,16 @@ class _SeatRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: height,
-      child: ClipRect(
-        child: OverflowBox(
-          alignment: Alignment.center,
-          minHeight: 0,
-          maxHeight: double.infinity,
-          child: SizedBox(
-            height: height,
-            child: Row(
-              children: [
-                SizedBox(width: corner, child: left),
-                Expanded(
-                  child: Center(
-                    child: FittedBox(fit: BoxFit.scaleDown, child: hand),
-                  ),
-                ),
-                SizedBox(width: corner, child: right),
-              ],
+      child: Row(
+        children: [
+          SizedBox(width: corner, child: left),
+          Expanded(
+            child: Center(
+              child: FittedBox(fit: BoxFit.scaleDown, child: hand),
             ),
           ),
-        ),
+          SizedBox(width: corner, child: right),
+        ],
       ),
     );
   }
