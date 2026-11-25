@@ -70,12 +70,12 @@ void main() {
     await tester.pump();
   });
 
-  testWidgets("tour de l'adversaire : bannière affichée, pas de halo", (
+  testWidgets("tour de l'adversaire : pas de bannière, pas de halo (#907)", (
     tester,
   ) async {
     await _pumpScreen(tester, Player.opponent);
 
-    expect(find.textContaining("Tour de l'adversaire"), findsOneWidget);
+    expect(find.textContaining("Tour de l'adversaire"), findsNothing);
     expect(find.byType(PulseGlow), findsNothing);
 
     await tester.pumpWidget(const SizedBox());

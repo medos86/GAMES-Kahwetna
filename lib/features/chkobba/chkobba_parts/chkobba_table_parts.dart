@@ -132,34 +132,3 @@ class _EmptySlot extends StatelessWidget {
     );
   }
 }
-
-/// « Tour de l'adversaire... », affiché pendant que l'IA réfléchit.
-class _ThinkingBadge extends StatelessWidget {
-  const _ThinkingBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFF97316), Color(0xFFDC2626)],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black, width: 3),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 5))],
-      ),
-      child: Semantics(
-        liveRegion: true,
-        child: const Text(
-          "⏳ Tour de l'adversaire...",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 15,
-          ),
-        ),
-      ),
-    );
-  }
-}
