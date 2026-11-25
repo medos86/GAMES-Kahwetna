@@ -992,7 +992,10 @@ class _RamiScreenState extends State<RamiScreen>
                                 decoration: BoxDecoration(
                                   color: _goldColor,
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: _frameColor, width: 2),
+                                  border: Border.all(
+                                    color: _frameColor,
+                                    width: 2,
+                                  ),
                                 ),
                                 child: Icon(
                                   Icons.south,

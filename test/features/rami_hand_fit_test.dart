@@ -9,7 +9,7 @@ void main() {
     expect(ramiHandCardScale, greaterThan(1.35));
   });
 
-  test('la remontée de la carte sélectionnée est positive et modeste (#906)', () {
+  test('remontée de la carte sélectionnée modeste (#906)', () {
     expect(ramiSelectLift, greaterThan(0));
     expect(ramiSelectLift, lessThanOrEqualTo(0.3));
   });
