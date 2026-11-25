@@ -52,21 +52,27 @@ class _SidePanel extends StatelessWidget {
       activeSize: _sideAvatarActiveSize,
     );
     // Sticker de réaction posé à côté de l'avatar, sans décaler la mise en page (#761).
-    final avatarSlot = Stack(
-      clipBehavior: Clip.none,
-      children: [
-        avatar,
-        Positioned(
-          left: opponentSide ? -44 : null,
-          right: opponentSide ? null : -44,
-          top: -30,
-          child: ReactionSticker(
-            mood: reaction,
-            size: 58,
-            semanticLabel: name,
+    // Emplacement de taille fixe (#954) : l'avatar actif grossit sans faire bouger le tapis.
+    final avatarSlot = SizedBox(
+      width: _sideAvatarActiveSize,
+      height: _sideAvatarActiveSize,
+      child: Stack(
+        alignment: Alignment.center,
+        clipBehavior: Clip.none,
+        children: [
+          Align(child: avatar),
+          Positioned(
+            left: opponentSide ? -44 : null,
+            right: opponentSide ? null : -44,
+            top: -30,
+            child: ReactionSticker(
+              mood: reaction,
+              size: 58,
+              semanticLabel: name,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
     return Semantics(
       container: true,
