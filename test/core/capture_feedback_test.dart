@@ -10,7 +10,6 @@ void main() {
     calls = [];
     CaptureFeedback.vibrate = () async => calls.add('vibrate');
     CaptureFeedback.pulse = () async => calls.add('pulse');
-    CaptureFeedback.wait = (_) async => calls.add('wait');
     CaptureFeedback.playSound = (sfx) async => calls.add('sound:${sfx.name}');
   });
 
@@ -20,9 +19,9 @@ void main() {
     expect(calls, ['vibrate']);
   });
 
-  test('Chkobba ou 7AYA : double vibration puis petit son', () async {
+  test('Chkobba ou 7AYA : double vibration puis petit son (sans minuteur)', () async {
     await CaptureFeedback.onCapture(special: true);
 
-    expect(calls, ['pulse', 'wait', 'pulse', 'sound:${Sfx.capture.name}']);
+    expect(calls, ['vibrate', 'pulse', 'sound:${Sfx.capture.name}']);
   });
 }

@@ -10,18 +10,12 @@ import '../audio/sounds.dart';
 class CaptureFeedback {
   CaptureFeedback._();
 
-  /// Pause entre les deux impulsions de la double vibration.
-  static const Duration doublePulseGap = Duration(milliseconds: 120);
-
   @visibleForTesting
   static Future<void> Function() vibrate = HapticFeedback.lightImpact;
 
+  /// Deuxième impulsion de la double vibration (sans minuteur : pas de timer en attente).
   @visibleForTesting
-  static Future<void> Function() pulse = HapticFeedback.lightImpact;
-
-  @visibleForTesting
-  static Future<void> Function(Duration) wait =
-      (duration) => Future<void>.delayed(duration);
+  static Future<void> Function() pulse = HapticFeedback.mediumImpact;
 
   @visibleForTesting
   static Future<void> Function(Sfx) playSound = Sounds.play;
@@ -32,8 +26,7 @@ class CaptureFeedback {
       await vibrate();
       return;
     }
-    await pulse();
-    await wait(doublePulseGap);
+    await vibrate();
     await pulse();
     await playSound(Sfx.capture);
   }
