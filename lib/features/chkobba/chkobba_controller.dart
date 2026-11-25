@@ -176,7 +176,7 @@ class ChkobbaController extends PersistentGameController {
     _roundSummary = null;
     _chkobbaCards.clear();
     if (state.winner == null) {
-      Sounds.play(Sfx.cardDeal);
+      Sounds.playDeal(6);
       _game = dealRound(
         scores: state.scores,
         starter: other(state.starter),
@@ -281,7 +281,7 @@ class ChkobbaController extends PersistentGameController {
       if (state.deck.isNotEmpty) {
         _timer = Timer(const Duration(milliseconds: 1000), () {
           _game = dealHands(_game);
-          Sounds.play(Sfx.cardDeal);
+          Sounds.playDeal(6);
           _dealt = true;
           _update();
         });

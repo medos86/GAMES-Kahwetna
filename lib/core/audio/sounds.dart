@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 
@@ -53,6 +55,18 @@ const gameSfx = <String, List<Sfx>>{
   'domino': [Sfx.place, Sfx.draw, Sfx.pass, Sfx.win, Sfx.lose],
 };
 
+/// Écart entre deux sons de carte distribuée (issue #938).
+const dealGap = Duration(milliseconds: 90);
+
+/// Nombre maximal de sons joués pour une distribution, pour rester court même avec beaucoup de cartes.
+const maxDealSounds = 8;
+
+/// Instants (depuis le début de la distribution) où jouer le son d'une carte : un son par carte, plafonné.
+List<Duration> dealSoundDelays(int cards, {Duration gap = dealGap}) {
+  final count = cards < 0 ? 0 : (cards > maxDealSounds ? maxDealSounds : cards);
+  return [for (var i = 0; i < count; i++) gap * i];
+}
+
 /// Lecture avec flutter_soloud : le moteur audio tourne en natif, sur son propre fil, donc peu de latence.
 /// Les sons sont chargés une fois au démarrage. Si un fichier manque ou que l'audio est indisponible,
 /// le jeu reste silencieux et l'erreur s'affiche dans la console.
@@ -79,6 +93,13 @@ class Sounds {
       }
     } catch (e) {
       debugPrint('Audio indisponible : $e');
+    }
+  }
+
+  /// Distribution de [cards] cartes : un son de carte par carte, espacés de [dealGap].
+  static void playDeal(int cards) {
+    for (final delay in dealSoundDelays(cards)) {
+      Timer(delay, () => play(Sfx.cardDeal));
     }
   }
 

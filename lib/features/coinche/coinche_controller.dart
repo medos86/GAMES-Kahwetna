@@ -116,7 +116,7 @@ class CoincheController extends PersistentGameController {
   /// Ferme le récapitulatif et donne la manche suivante.
   void nextRound() {
     _summary = null;
-    Sounds.play(Sfx.cardDeal);
+    Sounds.playDeal(32);
     _setRound(dealRound(nextSeat(_round.dealer), _random));
   }
 
@@ -126,7 +126,7 @@ class CoincheController extends PersistentGameController {
     _summary = null;
     _choiceMode = null;
     _choiceValue = null;
-    Sounds.play(Sfx.cardDeal);
+    Sounds.playDeal(32);
     _setRound(dealRound(firstDealer, _random));
   }
 
@@ -184,7 +184,7 @@ class CoincheController extends PersistentGameController {
         break;
       case CoinchePhase.redeal:
         _timer = Timer(const Duration(milliseconds: 1200), () {
-          Sounds.play(Sfx.cardDeal);
+          Sounds.playDeal(32);
           _setRound(dealRound(nextSeat(_round.dealer), _random));
         });
         break;
