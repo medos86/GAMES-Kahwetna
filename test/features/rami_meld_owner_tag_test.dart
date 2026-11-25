@@ -21,10 +21,10 @@ void main() {
     expect(view.avatarId, 'lion');
     expect(view.size, RamiMeldOwnerTag.size);
     expect(view.state, AvatarState.neutral);
-    expect(find.text('Ali'), findsNothing);
+    expect(find.byType(Text), findsNothing);
   });
 
-  testWidgets('la taille du médaillon reste très petite', (tester) async {
+  test('la taille du médaillon reste très petite', () {
     expect(RamiMeldOwnerTag.size, lessThanOrEqualTo(16));
   });
 
