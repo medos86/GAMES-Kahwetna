@@ -63,7 +63,11 @@ void main() {
     tester,
   ) async {
     await pump(tester, const AvatarView(avatarId: 'cat', size: 300));
-    final box = tester.getSize(find.byType(Image));
+    final box = tester.widget<SizedBox>(
+      find
+          .ancestor(of: find.byType(Image), matching: find.byType(SizedBox))
+          .first,
+    );
     expect(box.width, AvatarConfig.maxDisplaySize);
     expect(box.height, AvatarConfig.maxDisplaySize);
     expect(
