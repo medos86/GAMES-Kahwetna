@@ -63,7 +63,7 @@ const maxDealSounds = 8;
 
 /// Instants (depuis le début de la distribution) où jouer le son d'une carte : un son par carte, plafonné.
 List<Duration> dealSoundDelays(int cards, {Duration gap = dealGap}) {
-  final count = cards < 0 ? 0 : (cards > maxDealSounds ? maxDealSounds : cards);
+  final count = cards.clamp(0, maxDealSounds);
   return [for (var i = 0; i < count; i++) gap * i];
 }
 
