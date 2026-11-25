@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'mascot_outline_data.dart';
 
 /// Durée d'un tour complet de la pointe.
-const mascotSparkPeriod = Duration(milliseconds: 5000);
+const mascotSparkPeriod = Duration(milliseconds: 7500);
 
 /// Longueur de la traînée, en fraction du contour.
 const mascotSparkTail = 0.16;

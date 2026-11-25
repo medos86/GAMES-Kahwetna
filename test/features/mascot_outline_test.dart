@@ -138,5 +138,9 @@ void main() {
       final metrics = ui.Path().computeMetrics().toList();
       expect(metrics, isEmpty);
     });
+
+    test('la pointe fait un tour en 7,5 s, plus lentement qu\'avant', () {
+      expect(mascotSparkPeriod, const Duration(milliseconds: 7500));
+    });
   });
 }
