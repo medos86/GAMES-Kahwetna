@@ -119,6 +119,8 @@ class _MeldView extends StatelessWidget {
     required this.cards,
     required this.cardWidth,
     this.owner = -1,
+    this.avatarId,
+    this.avatarState = AvatarState.neutral,
     this.hot = false,
     this.eligible = false,
     this.arriving = const {},
@@ -130,6 +132,10 @@ class _MeldView extends StatelessWidget {
   final List<rules.RamiCard> cards;
   final double cardWidth;
   final int owner;
+
+  /// Avatar du propriétaire, affiché en miniature sur le bord (#942) ; absent, pas d'étiquette.
+  final String? avatarId;
+  final AvatarState avatarState;
 
   /// Cartes en route vers ce paquet (#878) : leur case reste vide jusqu'à leur arrivée.
   final Set<String> arriving;
@@ -150,7 +156,6 @@ class _MeldView extends StatelessWidget {
     final height = cardWidth * 1.4;
     final ownerName = ramiOwnerName(owner);
     final ownerColor = ownerName == null ? Colors.white24 : _seatColors[owner];
-    const tagPadding = EdgeInsets.symmetric(horizontal: 4, vertical: 1);
     final Color border = hot || eligible ? _goldColor : ownerColor;
 
     return GestureDetector(
@@ -191,27 +196,15 @@ class _MeldView extends StatelessWidget {
               ),
             ),
           ),
-          // Étiquette posée sur le bord : ne prend aucune place dans le tapis.
-          if (ownerName != null)
+          // Avatar miniature posé sur le bord : ne prend aucune place dans le tapis (#942).
+          if (avatarId != null)
             Positioned(
               top: -7,
               left: 6,
-              child: Container(
-                padding: tagPadding,
-                decoration: BoxDecoration(
-                  color: ownerColor,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: _frameColor, width: 1),
-                ),
-                child: Text(
-                  ownerName,
-                  style: const TextStyle(
-                    color: _inkColor,
-                    fontSize: 9,
-                    fontWeight: FontWeight.w900,
-                    height: 1.2,
-                  ),
-                ),
+              child: RamiMeldOwnerTag(
+                avatarId: avatarId!,
+                color: ownerColor,
+                state: avatarState,
               ),
             ),
         ],
