@@ -49,12 +49,14 @@ Future<Rect> _feltRect(WidgetTester tester, Player turn) async {
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  testWidgets('#954 : le tapis ne bouge pas quand le tour passe à l\'adversaire',
-      (tester) async {
-    final quandJoueur = await _feltRect(tester, Player.player);
-    final quandAdversaire = await _feltRect(tester, Player.opponent);
-    expect(quandAdversaire.top, quandJoueur.top);
-    expect(quandAdversaire.height, quandJoueur.height);
-    expect(quandAdversaire.bottom, quandJoueur.bottom);
-  });
+  testWidgets(
+    "#954 : le tapis ne bouge pas quand le tour passe à l'adversaire",
+    (tester) async {
+      final quandJoueur = await _feltRect(tester, Player.player);
+      final quandAdversaire = await _feltRect(tester, Player.opponent);
+      expect(quandAdversaire.top, quandJoueur.top);
+      expect(quandAdversaire.height, quandJoueur.height);
+      expect(quandAdversaire.bottom, quandJoueur.bottom);
+    },
+  );
 }
