@@ -973,11 +973,39 @@ class _RamiScreenState extends State<RamiScreen>
                       ),
                     )
                   : GestureDetector(
+                      key: const ValueKey('discard_tap'),
                       onTap: onDiscardTap,
-                      child: AnimatedScale(
-                        scale: _discardFlash ? 0.94 : 1,
-                        duration: const Duration(milliseconds: 120),
-                        child: RamiCardView(card: shown, width: width),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          AnimatedScale(
+                            scale: _discardFlash ? 0.94 : 1,
+                            duration: const Duration(milliseconds: 120),
+                            child: RamiCardView(card: shown, width: width),
+                          ),
+                          // Icône : la défausse est la cible de la carte sélectionnée (#906).
+                          if (c.canPlay && c.selected.length == 1)
+                            IgnorePointer(
+                              child: Container(
+                                key: _key('discard_hint'),
+                                width: width * 0.42,
+                                height: width * 0.42,
+                                decoration: BoxDecoration(
+                                  color: _goldColor,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: _frameColor,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.south,
+                                  color: _frameColor,
+                                  size: width * 0.3,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
             ),
@@ -1099,14 +1127,6 @@ class _RamiScreenState extends State<RamiScreen>
   List<Widget> _actions() {
     final c = _c;
     // Pas de bouton « Poser » : un paquet se forme en glissant les cartes sur le tapis (#874).
-    final discard = RamiActionButton(
-      label: Strings.actDiscard,
-      icon: Icons.south,
-      onTap: c.discardSelected,
-      enabled: c.selected.length == 1,
-      danger: true,
-      iconOnly: true,
-    );
     final returnTaken = RamiActionButton(
       label: Strings.actReturnTaken,
       icon: Icons.undo,
@@ -1129,9 +1149,9 @@ class _RamiScreenState extends State<RamiScreen>
       enabled: c.canRamiDirect,
     );
     final showDirect = c.canRamiDirect;
-    if (c.canCancel) return [cancel, if (showDirect) direct, discard];
-    if (c.canReturnTaken) return [returnTaken, if (showDirect) direct, discard];
-    return [if (showDirect) direct, discard];
+    if (c.canCancel) return [cancel, if (showDirect) direct];
+    if (c.canReturnTaken) return [returnTaken, if (showDirect) direct];
+    return [if (showDirect) direct];
   }
 
   /// Main du joueur (#141) : les cartes se chevauchent. La carte sélectionnée ou déplacée
@@ -1149,7 +1169,9 @@ class _RamiScreenState extends State<RamiScreen>
         _handCardWidth = width;
         final step = ramiHandStep(n, width, maxW);
         final total = n == 0 ? 0.0 : width + step * (n - 1);
-        final height = width * 1.4 + 8;
+        // Place réservée au-dessus de la main pour la carte sélectionnée qui monte (#906).
+        final lift = width * ramiSelectLift;
+        final height = width * 1.4 + 8 + lift;
         // Main centrée si elle tient ; sinon elle défile horizontalement.
         final contentW = total > maxW ? total : maxW;
         final pad = (contentW - total) / 2;
@@ -1194,7 +1216,7 @@ class _RamiScreenState extends State<RamiScreen>
                     duration: const Duration(milliseconds: 180),
                     curve: Curves.easeOut,
                     left: pad + j * step + ramiGapOffset(j, gapAt, step),
-                    top: 0,
+                    top: lift,
                     child: _handCard(
                       shown[j],
                       width,

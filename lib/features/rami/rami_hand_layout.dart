@@ -1,7 +1,10 @@
 import '../../game/rami.dart' as rules;
 
 /// Facteur d'agrandissement des cartes de la main (#314 : plus grandes, lisibles).
-const double ramiHandCardScale = 1.85;
+const double ramiHandCardScale = 1.55;
+
+/// Remontée d'une carte sélectionnée, en fraction de sa largeur (#906).
+const double ramiSelectLift = 0.25;
 
 /// Pioche et défausse, en fraction de la largeur d'une carte de la main (plus grandes qu'avant).
 const double ramiPileScale = 0.6;
