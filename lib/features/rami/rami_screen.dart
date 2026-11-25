@@ -882,6 +882,15 @@ class _RamiScreenState extends State<RamiScreen>
     final covered = top != null && landing.contains(top.id);
     final discardHover = c.canPlay && _drag?.target is RamiDropDiscard;
     final discardLit = discardHover || _discardFlash;
+    final VoidCallback? onDiscardTap;
+    if (c.canDraw && !covered) {
+      onDiscardTap = () {
+        _closeScores();
+        c.drawFromDiscard();
+      };
+    } else {
+      onDiscardTap = c.canPlay ? _onDiscardTap : null;
+    }
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -937,14 +946,7 @@ class _RamiScreenState extends State<RamiScreen>
                       ),
                     )
                   : GestureDetector(
-                      onTap: c.canDraw && !covered
-                          ? () {
-                              _closeScores();
-                              c.drawFromDiscard();
-                            }
-                          : c.canPlay
-                              ? _onDiscardTap
-                              : null,
+                      onTap: onDiscardTap,
                       child: AnimatedScale(
                         scale: _discardFlash ? 0.94 : 1,
                         duration: const Duration(milliseconds: 120),
