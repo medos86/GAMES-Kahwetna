@@ -1072,17 +1072,15 @@ class _RamiScreenState extends State<RamiScreen>
         final selected = c.selected;
         final n = hand.length;
         final maxW = constraints.maxWidth;
-        // Largeur de carte : réduite seulement si même le chevauchement minimal ne tient pas.
-        final minStep = 0.3;
-        final fitWidth = n <= 1 ? cardWidth : maxW / (1 + minStep * (n - 1));
-        final width = fitWidth < cardWidth ? fitWidth : cardWidth;
+        // Taille de carte fixe (#896) : seul le chevauchement se resserre.
+        final width = cardWidth;
         _handCardWidth = width;
-        // Pas entre deux cartes : 60 % de la largeur, resserré pour tenir sur la largeur.
-        final room = n <= 1 ? 0.0 : (maxW - width) / (n - 1);
-        final natural = 0.6 * width;
-        final step = n <= 1 ? 0.0 : (room < natural ? room : natural);
+        final step = ramiHandStep(n, width, maxW);
         final total = n == 0 ? 0.0 : width + step * (n - 1);
         final height = width * 1.4 + 8;
+        // Main centrée si elle tient ; sinon elle défile horizontalement.
+        final contentW = total > maxW ? total : maxW;
+        final pad = (contentW - total) / 2;
 
         // Glisser au-dessus de la main : la carte quitte sa place, les autres s'écartent
         // à l'endroit où elle va atterrir.
@@ -1106,10 +1104,14 @@ class _RamiScreenState extends State<RamiScreen>
         final dragAt = shown.indexWhere((card) => card.id == dragId);
         final order = ramiDrawOrder(m, dragAt >= 0 ? dragAt : null);
 
-        return Center(
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: total > maxW
+              ? const ClampingScrollPhysics()
+              : const NeverScrollableScrollPhysics(),
           child: SizedBox(
             key: _key('handrow'),
-            width: total,
+            width: contentW,
             height: height,
             child: Stack(
               clipBehavior: Clip.none,
@@ -1119,7 +1121,7 @@ class _RamiScreenState extends State<RamiScreen>
                     key: ValueKey('pos:${shown[j].id}'),
                     duration: const Duration(milliseconds: 180),
                     curve: Curves.easeOut,
-                    left: j * step + ramiGapOffset(j, gapAt, step),
+                    left: pad + j * step + ramiGapOffset(j, gapAt, step),
                     top: 0,
                     child: _handCard(
                       shown[j],
