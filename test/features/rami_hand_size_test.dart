@@ -23,11 +23,9 @@ void main() {
       expect(ramiHandStep(5, 100, 300), closeTo(50, 1e-9));
     });
 
-    test('main très longue : pas plancher, sans réduire la carte', () {
-      expect(
-        ramiHandStep(20, 100, 500),
-        closeTo(100 * ramiHandMinStepRatio, 1e-9),
-      );
+    test('main très longue : pas resserré pour tenir (#922)', () {
+      // (500 - 100) / 19 : la main tient exactement sur la largeur.
+      expect(ramiHandStep(20, 100, 500), closeTo(400 / 19, 1e-9));
     });
 
     test('le pas est proportionnel à la largeur de carte demandée', () {

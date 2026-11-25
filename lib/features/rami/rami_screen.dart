@@ -1177,9 +1177,8 @@ class _RamiScreenState extends State<RamiScreen>
         // Place réservée au-dessus de la main pour la carte sélectionnée qui monte (#906).
         final lift = width * ramiSelectLift;
         final height = width * 1.4 + 8 + lift;
-        // Main centrée si elle tient ; sinon elle défile horizontalement.
-        final contentW = total > maxW ? total : maxW;
-        final pad = (contentW - total) / 2;
+        // Main toujours centrée dans la largeur disponible (#922).
+        final pad = (maxW - total) / 2;
 
         // Glisser au-dessus de la main : la carte quitte sa place, les autres s'écartent
         // à l'endroit où elle va atterrir.
@@ -1203,33 +1202,28 @@ class _RamiScreenState extends State<RamiScreen>
         final dragAt = shown.indexWhere((card) => card.id == dragId);
         final order = ramiDrawOrder(m, dragAt >= 0 ? dragAt : null);
 
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: total > maxW
-              ? const ClampingScrollPhysics()
-              : const NeverScrollableScrollPhysics(),
-          child: SizedBox(
-            key: _key('handrow'),
-            width: contentW,
-            height: height,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                for (final j in order)
-                  AnimatedPositioned(
-                    key: ValueKey('pos:${shown[j].id}'),
-                    duration: const Duration(milliseconds: 180),
-                    curve: Curves.easeOut,
-                    left: pad + j * step + ramiGapOffset(j, gapAt, step),
-                    top: lift,
-                    child: _handCard(
-                      shown[j],
-                      width,
-                      selected: selected.contains(shown[j].id),
-                    ),
+        // Jamais de défilement : la main tient toujours sur la largeur (#922).
+        return SizedBox(
+          key: _key('handrow'),
+          width: maxW,
+          height: height,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              for (final j in order)
+                AnimatedPositioned(
+                  key: ValueKey('pos:${shown[j].id}'),
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOut,
+                  left: pad + j * step + ramiGapOffset(j, gapAt, step),
+                  top: lift,
+                  child: _handCard(
+                    shown[j],
+                    width,
+                    selected: selected.contains(shown[j].id),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         );
       },
