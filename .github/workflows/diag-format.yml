@@ -1,0 +1,21 @@
+name: diag-format
+on:
+  push:
+    branches: [tmp/diag-format-891]
+permissions:
+  contents: read
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: show formatter diff
+        run: |
+          dart format --output=show lib/features/rami/rami_screen.dart > /tmp/formatted.dart
+          diff -u lib/features/rami/rami_screen.dart /tmp/formatted.dart || true
