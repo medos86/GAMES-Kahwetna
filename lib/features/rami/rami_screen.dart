@@ -538,8 +538,10 @@ class _RamiScreenState extends State<RamiScreen>
       decoration: BoxDecoration(
         color: _feltColor,
         borderRadius: BorderRadius.circular(22),
+        // Pas de contour doré sur le tapis quand c'est mon tour (#952) :
+        // l'indication du tour reste sur l'avatar de mon siège.
         border: Border.all(
-          color: _c.myTurn ? _goldColor : _frameColor,
+          color: _frameColor,
           width: 6,
         ),
         boxShadow: const [
