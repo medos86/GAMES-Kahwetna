@@ -1,5 +1,5 @@
 // Tapis Chkobba allégé, comme Rami : feutre plein sans trame de points,
-// cartes rangées depuis le haut à gauche, sans cases vides.
+// cartes posées au centre du tapis, sans bouger les autres.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/theme/scoba_palette.dart';
@@ -42,23 +42,22 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('cartes rangées depuis le haut à gauche, sans case vide', (
+  testWidgets('cartes posées au centre du tapis, la première au milieu', (
     tester,
   ) async {
     final a = _card(ChkobbaSuit.coupes, 5);
     final b = _card(ChkobbaSuit.epees, 7);
-    // Deux cartes seulement, avec des emplacements vides entre elles.
     await _pumpTable(tester, [
       ChkobbaCardFace(card: a),
-      null,
-      null,
       ChkobbaCardFace(card: b),
     ]);
-    final first = tester.getTopLeft(find.byType(ChkobbaCardFace).at(0));
-    final second = tester.getTopLeft(find.byType(ChkobbaCardFace).at(1));
-    // La deuxième carte suit la première sur la même ligne (pas de trou).
-    expect(second.dy, closeTo(first.dy, 0.5));
-    expect(second.dx, greaterThan(first.dx));
+    final table = tester.getRect(find.byType(ChkobbaTable));
+    final first = tester.getRect(find.byType(ChkobbaCardFace).at(0));
+    final second = tester.getRect(find.byType(ChkobbaCardFace).at(1));
+    // Deux cartes sur la même ligne, centrées de part et d'autre du milieu.
+    expect(second.top, closeTo(first.top, 0.5));
+    expect(first.center.dx, lessThan(table.center.dx));
+    expect(second.center.dx, greaterThan(table.center.dx));
     expect(tester.takeException(), isNull);
   });
 

@@ -24,6 +24,7 @@ import 'chkobba_card_face.dart';
 import 'chkobba_controller.dart';
 import 'chkobba_opponent_name.dart';
 import 'chkobba_table.dart';
+import 'chkobba_table_layout.dart';
 import '../../widgets/exit_guard.dart';
 import '../../widgets/round_result_panel.dart';
 import '../../widgets/game_scaffold.dart';
@@ -420,10 +421,14 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     final hayaBy = _controller.hayaBy;
     final canPlay = !over && game.winner == null && game.turn == Player.player;
     final cardWidth = cardHeight * 0.7;
+    // Main du joueur agrandie (#chkobba-hand) : lisible sans toucher au tapis.
+    final playerHandHeight = chkobbaHandCardHeight(
+      MediaQuery.sizeOf(context).height,
+    );
     final style = GameStyle.current;
 
     // Emplacements du tapis : au moins 12, multiple du nombre de colonnes (comme TABLE_MIN_SLOTS).
-    // Cartes rangées depuis le haut à gauche, sans case vide (style Rami) : la cible du vol est la carte.
+    // Cartes posées au centre du tapis : chaque carte garde sa place tant qu'elle est sur la table.
     final assigned = _controller.tableSlots();
     final used = assigned.values.fold<int>(
       0,
@@ -565,8 +570,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                           ),
                           hand: _Hand(
                             cards: game.hands[Player.player]!,
-                            width: cardWidth,
-                            height: cardHeight,
+                            width: playerHandHeight * 0.7,
+                            height: playerHandHeight,
                             builder: (card) => ChkobbaCardFace(
                               key: _key('hand:${card.id}'),
                               card: card,
