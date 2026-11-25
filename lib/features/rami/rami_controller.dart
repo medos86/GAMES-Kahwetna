@@ -70,6 +70,15 @@ List<rules.RamiCard> sortRamiHand(
   return [for (final entry in indexed) entry.card];
 }
 
+/// Tapis armé : une carte ou un groupe est sélectionné (tap) ou en cours de glisser.
+/// Le tapis accepte alors la pose à gauche, à droite, ou en nouveau paquet (jokers compris).
+bool ramiTableArmed({
+  required bool canPlay,
+  required bool dragging,
+  required int selectedCount,
+}) =>
+    canPlay && (dragging || selectedCount > 0);
+
 /// État et actions d'une partie de Rami (logique de RamiGameScreen.tsx).
 /// Les règles restent dans lib/game/rami.dart ; ce contrôleur gère la sélection,
 /// l'ordre de la main et le tour de l'IA, comme les useState et useEffect du source.
