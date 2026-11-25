@@ -9,6 +9,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Pioche de Rami avec animation : la carte vole pendant l'action puis
 // disparaît à l'arrivée sur la vraie carte de la main (#224, #238).
+/// Copies visibles d'une carte : celles sous un [Opacity] à 0 (case en attente d'arrivée) sont exclues.
+int visibleCopies(String id) {
+  final copies = find
+      .byWidgetPredicate((w) => w is RamiCardView && w.card.id == id)
+      .evaluate();
+  var count = 0;
+  for (final element in copies) {
+    var hidden = false;
+    element.visitAncestorElements((ancestor) {
+      final w = ancestor.widget;
+      if (w is Opacity && w.opacity == 0) hidden = true;
+      return !hidden;
+    });
+    if (!hidden) count++;
+  }
+  return count;
+}
+
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -108,19 +126,7 @@ void main() {
       findsNothing,
     );
     // Une seule copie visible : les cases masquées (opacité 0) ne comptent pas (#878).
-    final visible = find
-        .byWidgetPredicate((w) => w is RamiCardView && w.card.id == id)
-        .evaluate()
-        .where((element) {
-      var hidden = false;
-      element.visitAncestorElements((ancestor) {
-        final w = ancestor.widget;
-        if (w is Opacity && w.opacity == 0) hidden = true;
-        return !hidden;
-      });
-      return !hidden;
-    }).length;
-    expect(visible, 1);
+    expect(visibleCopies(id), 1);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
