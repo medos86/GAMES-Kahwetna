@@ -139,7 +139,8 @@ class RamiController extends PersistentGameController {
       for (final id in _order)
         if (byId[id] != null) byId[id]!,
     ];
-    if (known.isEmpty) return sortRamiHand(visible, RamiSortMode.suit);
+    // Pas de tri automatique (#877) : la main garde l'ordre de distribution.
+    if (known.isEmpty) return visible;
     final seen = {for (final card in known) card.id};
     return [
       ...known,
