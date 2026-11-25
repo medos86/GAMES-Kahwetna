@@ -170,6 +170,24 @@ Duration ramiRecycleTotal(int flightCount) => flightCount == 0
     ? Duration.zero
     : ramiRecycleStagger * (flightCount - 1) + ramiRecycleFlight;
 
+/// Cartes posées sur le tapis par l'adversaire qui vient de jouer (#878) : celles
+/// absentes du tapis précédent, dans l'ordre des paquets. Vide pendant son propre tour.
+List<rules.RamiCard> ramiNewTableCards(
+  rules.RamiState prev,
+  rules.RamiState next,
+) {
+  if (prev.turn == 0) return const [];
+  final before = {
+    for (final meld in prev.table)
+      for (final card in meld.cards) card.id,
+  };
+  return [
+    for (final meld in next.table)
+      for (final card in meld.cards)
+        if (!before.contains(card.id)) card,
+  ];
+}
+
 /// Coups joués par l'adversaire qui vient de jouer (`prev.turn`), pour animer sa pioche
 /// et sa défausse. Vide si c'était le tour du joueur ou si rien n'a bougé dans la pioche/défausse.
 List<RamiAiMove> ramiAiMoves(rules.RamiState prev, rules.RamiState next) {

@@ -107,11 +107,13 @@ class _PlayerChip extends StatelessWidget {
 /// Bordure et étiquette à la couleur du joueur qui a posé le paquet (#537).
 class _MeldView extends StatelessWidget {
   const _MeldView({
+    super.key,
     required this.cards,
     required this.cardWidth,
     this.owner = -1,
     this.hot = false,
     this.eligible = false,
+    this.arriving = const {},
     this.onTap,
     this.onLongPress,
   });
@@ -119,6 +121,9 @@ class _MeldView extends StatelessWidget {
   final List<rules.RamiCard> cards;
   final double cardWidth;
   final int owner;
+
+  /// Cartes en route vers ce paquet (#878) : leur case reste vide jusqu'à leur arrivée.
+  final Set<String> arriving;
   final bool hot;
   final bool eligible;
   final VoidCallback? onTap;
@@ -160,7 +165,10 @@ class _MeldView extends StatelessWidget {
                     Positioned(
                       left: step * i,
                       top: 0,
-                      child: RamiCardView(card: cards[i], width: cardWidth),
+                      child: Opacity(
+                        opacity: arriving.contains(cards[i].id) ? 0 : 1,
+                        child: RamiCardView(card: cards[i], width: cardWidth),
+                      ),
                     ),
                 ],
               ),

@@ -694,6 +694,23 @@ class _RamiScreenState extends State<RamiScreen>
           ));
       }
     }
+    // Paquets posés par l'adversaire (#878) : carte par carte, depuis son siège.
+    var posed = 0;
+    for (final card in ramiNewTableCards(prev, next)) {
+      final from = Rect.fromCenter(
+        center: chip.center,
+        width: pile.width,
+        height: pile.height,
+      );
+      flights.add(CardFlight(
+        from: from,
+        to: () => _targetFor(card.id, from),
+        child: RamiCardView(card: card, width: pile.width),
+        delay: ramiPoseDelay(posed++),
+        duration: ramiAiFlightDuration,
+        landingId: card.id,
+      ));
+    }
     if (flights.isNotEmpty) flyAfterRender(flights);
   }
 
@@ -956,18 +973,16 @@ class _RamiScreenState extends State<RamiScreen>
     // Paquets posés puis en cours de pose ; rangés pour remplir les trous du haut.
     final melds = [
       for (final meld in g.table)
-        MaskedSlot(
+        _MeldView(
           key: _key('meld:${meld.id}'),
-          hidden: meld.cards.any((card) => landing.contains(card.id)),
-          child: _MeldView(
-            cards: meld.cards,
-            cardWidth: meldWidth,
-            owner: meld.owner,
-            hot: _isHotMeld(target, meld.id),
-            eligible: c.layEligible,
-            onTap: c.layEligible ? () => c.layOffSelected(meld.id) : null,
-            onLongPress: c.takeBackAction(meld.id),
-          ),
+          cards: meld.cards,
+          cardWidth: meldWidth,
+          owner: meld.owner,
+          hot: _isHotMeld(target, meld.id),
+          eligible: c.layEligible,
+          arriving: landing,
+          onTap: c.layEligible ? () => c.layOffSelected(meld.id) : null,
+          onLongPress: c.takeBackAction(meld.id),
         ),
     ];
     final sizes = [
