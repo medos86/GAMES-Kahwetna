@@ -46,7 +46,7 @@ void main() {
   group('moveBetweenMelds (#898)', () {
     test('déplace une carte du tour vers un paquet existant valide', () {
       final state = scene(
-        handSeat0: [c(RamiSuit.coeurs, 9), c(RamiSuit.carreaux, 12)],
+        handSeat0: [c(RamiSuit.coupes, 9), c(RamiSuit.deniers, 12)],
         meldA: meldA,
       );
       final next = moveBetweenMelds(state, 'epees-7', 'A', 'B');
@@ -61,7 +61,7 @@ void main() {
 
     test('refuse si le paquet d\'origine deviendrait invalide', () {
       final state = scene(
-        handSeat0: [c(RamiSuit.coeurs, 9), c(RamiSuit.carreaux, 12)],
+        handSeat0: [c(RamiSuit.coupes, 9), c(RamiSuit.deniers, 12)],
         meldA: meldA,
       );
       // Retirer le 8 laisse 7-9-10 : invalide.
@@ -71,7 +71,7 @@ void main() {
 
     test('refuse si la carte ne s\'accroche pas au paquet cible', () {
       final state = scene(
-        handSeat0: [c(RamiSuit.coeurs, 9), c(RamiSuit.carreaux, 12)],
+        handSeat0: [c(RamiSuit.coupes, 9), c(RamiSuit.deniers, 12)],
         meldA: meldA,
       );
       expect(identical(moveBetweenMelds(state, 'epees-10', 'A', 'B'), state),
@@ -80,7 +80,7 @@ void main() {
 
     test('même paquet : sans effet', () {
       final state = scene(
-        handSeat0: [c(RamiSuit.coeurs, 9), c(RamiSuit.carreaux, 12)],
+        handSeat0: [c(RamiSuit.coupes, 9), c(RamiSuit.deniers, 12)],
         meldA: meldA,
       );
       expect(identical(moveBetweenMelds(state, 'epees-7', 'A', 'A'), state),
@@ -89,7 +89,7 @@ void main() {
 
     test('avant ouverture : pas de dépôt sur un paquet non posé ce tour', () {
       final state = scene(
-        handSeat0: [c(RamiSuit.coeurs, 9), c(RamiSuit.carreaux, 12)],
+        handSeat0: [c(RamiSuit.coupes, 9), c(RamiSuit.deniers, 12)],
         meldA: meldA,
         opened: false,
       );
