@@ -250,6 +250,7 @@ class _Table extends StatelessWidget {
                           leftOpen: ends?.left ?? false,
                           rightOpen: ends?.right ?? false,
                           onEndTap: controller.playSelected,
+                          openingId: controller.openingId,
                         ),
                 ),
               ],
