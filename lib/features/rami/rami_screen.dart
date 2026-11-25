@@ -1178,18 +1178,9 @@ class _RamiScreenState extends State<RamiScreen>
       enabled: c.canCancel,
       iconOnly: true,
     );
-    // Visible pendant le tour tant qu'aucun paquet n'est sur le tapis : aucun indice sur
-    // la faisabilité (#867). Masqué dès qu'un paquet est posé (#888).
-    final direct = RamiActionButton(
-      label: Strings.actRamiDirect,
-      icon: Icons.flash_on,
-      onTap: c.ramiDirect,
-      enabled: c.canRamiDirect,
-    );
-    final showDirect = c.canRamiDirect;
-    if (c.canCancel) return [cancel, if (showDirect) direct];
-    if (c.canReturnTaken) return [returnTaken, if (showDirect) direct];
-    return [if (showDirect) direct];
+    if (c.canCancel) return [cancel];
+    if (c.canReturnTaken) return [returnTaken];
+    return const [];
   }
 
   /// Main du joueur (#141) : les cartes se chevauchent. La carte sélectionnée ou déplacée
