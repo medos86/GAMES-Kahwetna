@@ -27,3 +27,11 @@ String coincheCornerTitle(Contract? contract) => contract == null
 
 /// Taille des avatars des coins : un peu plus grands qu'avant, le joueur actif encore plus (#1006).
 double coincheAvatarSize({required bool active}) => active ? 44 : 32;
+
+/// Couleur d'anneau de chaque joueur : rouge, vert, bleu, jaune (#1007).
+Color coincheSeatRingColor(Seat seat) => switch (seat) {
+      Seat.south => const Color(0xFFDC2626),
+      Seat.west => const Color(0xFF16A34A),
+      Seat.north => const Color(0xFF2563EB),
+      Seat.east => const Color(0xFFEAB308),
+    };

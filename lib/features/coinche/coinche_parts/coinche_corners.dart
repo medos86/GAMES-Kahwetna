@@ -34,7 +34,6 @@ class _TeamCorner extends StatelessWidget {
                 child: _CornerAvatar(
                   seat: seat,
                   round: round,
-                  tone: color,
                   avatarId: avatarIds[seat.index],
                   name: coincheSeatName(seatNames, seat, me),
                 ),
@@ -68,14 +67,12 @@ class _CornerAvatar extends StatelessWidget {
   const _CornerAvatar({
     required this.seat,
     required this.round,
-    required this.tone,
     required this.avatarId,
     required this.name,
   });
 
   final Seat seat;
   final RoundState round;
-  final Color tone;
   final String avatarId;
   final String name;
 
@@ -85,7 +82,7 @@ class _CornerAvatar extends StatelessWidget {
         (round.phase == CoinchePhase.bidding ||
             round.phase == CoinchePhase.playing);
     return TurnAvatar(
-      tone: tone,
+      tone: coincheSeatRingColor(seat),
       active: active,
       avatarId: avatarId,
       state: gameAvatarState(
@@ -146,7 +143,6 @@ class _ContractCorner extends StatelessWidget {
           _CornerAvatar(
             seat: contract.seat,
             round: round,
-            tone: _teamTone(teamOf(contract.seat)),
             avatarId: avatarIds[contract.seat.index],
             name: coincheSeatName(seatNames, contract.seat, me),
           ),

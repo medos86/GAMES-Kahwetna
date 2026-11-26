@@ -49,4 +49,9 @@ void main() {
       );
     },
   );
+
+  test('chaque joueur a sa couleur d\'anneau, toutes différentes (#1007)', () {
+    final colors = Seat.values.map(coincheSeatRingColor).toSet();
+    expect(colors, hasLength(4));
+  });
 }
