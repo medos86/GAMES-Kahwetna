@@ -33,6 +33,7 @@ import '../../widgets/trophy_badge.dart';
 
 part 'ludo_parts/ludo_header_players.dart';
 part 'ludo_parts/ludo_die.dart';
+part 'ludo_parts/ludo_die_3d.dart';
 part 'ludo_parts/ludo_board.dart';
 part 'ludo_parts/ludo_footer_end.dart';
 
