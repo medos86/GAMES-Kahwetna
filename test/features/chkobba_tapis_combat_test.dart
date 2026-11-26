@@ -141,19 +141,21 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('contour marron BD, seul le tapis est vert', (tester) async {
+  testWidgets('contour marron BD, tapis bleu premium', (tester) async {
     await _pump(tester, _state());
     final felt = tester.widget<Container>(
       find.byKey(const ValueKey('chkobba-felt')),
     );
     final decoration = felt.decoration! as BoxDecoration;
     expect(decoration.color, ComicPalette.tableWood);
-    expect(decoration.color, isNot(ScobaPalette.tapisVert));
+    expect(decoration.color, isNot(ScobaPalette.tapisBleuMilieu));
     expect(
       find.byWidgetPredicate(
-        (w) => w is ColoredBox && w.color == ScobaPalette.tapisVert,
+        (w) =>
+            w is DecoratedBox &&
+            w.decoration == ScobaPalette.tapisPremiumDecoration,
       ),
-      findsOneWidget,
+      findsWidgets,
     );
     expect(tester.takeException(), isNull);
   });

@@ -54,9 +54,9 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   test('#745 : le feutre du tapis est vert', () {
-    expect(ScobaPalette.tapisVert, isNot(ScobaPalette.tapisBleu));
-    expect(ScobaPalette.tapisVert.g, greaterThan(ScobaPalette.tapisVert.r));
-    expect(ScobaPalette.tapisVert.g, greaterThan(ScobaPalette.tapisVert.b));
+    const m = ScobaPalette.tapisBleuMilieu;
+    expect(m.b, greaterThan(m.r));
+    expect(m.b, greaterThan(m.g));
   });
 
   testWidgets('#745 : le tapis de cartes est peint en vert', (tester) async {
@@ -78,7 +78,10 @@ void main() {
         .widgetList<DecoratedBox>(boxes)
         .map((b) => b.decoration)
         .whereType<BoxDecoration>();
-    expect(decorations.any((d) => d.color == ScobaPalette.tapisVert), isTrue);
+    expect(
+      decorations.any((d) => d == ScobaPalette.tapisPremiumDecoration),
+      isTrue,
+    );
     expect(tester.takeException(), isNull);
   });
 
