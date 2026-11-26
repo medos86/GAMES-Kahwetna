@@ -191,7 +191,7 @@ class _WonPile extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            const ChkobbaCardBack(),
+            const ChkobbaCardBack(fullImage: true),
           ],
         ),
       ),

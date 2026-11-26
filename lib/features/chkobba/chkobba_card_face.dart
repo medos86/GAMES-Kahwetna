@@ -102,8 +102,11 @@ class ChkobbaCardFace extends StatelessWidget {
 }
 
 /// Dos d'une carte (main de l'adversaire).
+/// [fullImage] : image entière, sans zoom ni recadrage (tas des gains, #987).
 class ChkobbaCardBack extends StatelessWidget {
-  const ChkobbaCardBack({super.key});
+  const ChkobbaCardBack({super.key, this.fullImage = false});
+
+  final bool fullImage;
 
   @override
   Widget build(BuildContext context) {
@@ -118,17 +121,18 @@ class ChkobbaCardBack extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(chkobbaCardRadius),
-          // Seule une partie centrale du dos est affichée (zoom) : le motif n'est plus écrasé.
-          child: Transform.scale(
-            scale: 2,
-            child: Image.asset(
-              cardBackAsset,
-              fit: BoxFit.cover,
-              gaplessPlayback: true,
-            ),
-          ),
+          child: fullImage
+              ? _backImage(BoxFit.contain)
+              // Seule une partie centrale du dos est affichée (zoom) : le motif n'est plus écrasé.
+              : Transform.scale(scale: 2, child: _backImage(BoxFit.cover)),
         ),
       ),
     );
   }
+
+  Widget _backImage(BoxFit fit) => Image.asset(
+        cardBackAsset,
+        fit: fit,
+        gaplessPlayback: true,
+      );
 }
