@@ -2,8 +2,8 @@ part of '../chkobba_screen.dart';
 
 /// Taille de l'avatar inactif et de l'avatar du joueur dont c'est le tour, en dp.
 /// Mêmes tailles que les médaillons de la Belote (`_SeatInfo`).
-const double _sideAvatarSize = 28;
-const double _sideAvatarActiveSize = 40;
+const double _sideAvatarSize = 34;
+const double _sideAvatarActiveSize = 48;
 
 /// Coin d'un joueur, mis en page comme à la Belote (`_SeatInfo`) : avatar, pastille du pseudo,
 /// puis pastille du score (même style que le score de la Belote). La pile gagnée et la pioche
@@ -17,6 +17,7 @@ class _SidePanel extends StatelessWidget {
     required this.color,
     required this.avatarId,
     this.spinTick = 0,
+    required this.pile,
   });
 
   final ChkobbaState game;
@@ -27,6 +28,9 @@ class _SidePanel extends StatelessWidget {
 
   /// Compteur de prises : chaque hausse fait tourner l'avatar une fois (#988).
   final int spinTick;
+
+  /// Gains (cartes et Chkobba) posés sous l'avatar, tournant avec lui.
+  final Widget pile;
 
   @override
   Widget build(BuildContext context) {
@@ -48,25 +52,54 @@ class _SidePanel extends StatelessWidget {
       baseSize: _sideAvatarSize,
       activeSize: _sideAvatarActiveSize,
     );
-    // Emplacement de taille fixe (#954) : l'avatar actif grossit sans faire bouger le tapis.
-    // Les réactions BD ne sont plus près de l'avatar : elles s'affichent sur le tapis (#965).
-    // Appui sur l'avatar : popup avec les cartes gagnées et les Chkobbas (#984).
-    final avatarSlot = SizedBox(
-      width: _sideAvatarActiveSize,
-      height: _sideAvatarActiveSize,
-      child: Align(
-        child: GestureDetector(
-          key: ValueKey('seat-avatar:${player.name}'),
-          behavior: HitTestBehavior.opaque,
-          onTap: () => ChkobbaSeatInfo.show(
-            context,
-            name: name,
-            wonCards: game.won[player]?.length ?? 0,
-            chkobbas: game.chkobbas[player] ?? 0,
-            avatarId: avatarId,
-            avatarState: avatarState,
+    // Anneau 3D couleur du joueur (bleu, rouge pour l'adversaire).
+    final ring = Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [
+            Color.lerp(color, Colors.white, 0.45)!,
+            color,
+            Color.lerp(color, Colors.black, 0.35)!,
+          ],
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black54,
+            offset: Offset(0, 3),
+            blurRadius: 2,
           ),
-          child: ChkobbaAvatarFlip(trigger: spinTick, child: avatar),
+        ],
+      ),
+      child: avatar,
+    );
+    // Avatar et gains tournent ensemble (#988). Emplacement de taille fixe (#954).
+    // Appui sur l'avatar : popup avec les cartes gagnées et les Chkobbas (#984).
+    final avatarSlot = GestureDetector(
+      key: ValueKey('seat-avatar:${player.name}'),
+      behavior: HitTestBehavior.opaque,
+      onTap: () => ChkobbaSeatInfo.show(
+        context,
+        name: name,
+        wonCards: game.won[player]?.length ?? 0,
+        chkobbas: game.chkobbas[player] ?? 0,
+        avatarId: avatarId,
+        avatarState: avatarState,
+      ),
+      child: ChkobbaAvatarFlip(
+        trigger: spinTick,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: _sideAvatarActiveSize + 8,
+              height: _sideAvatarActiveSize + 8,
+              child: Center(child: ring),
+            ),
+            const SizedBox(height: 4),
+            pile,
+          ],
         ),
       ),
     );

@@ -71,31 +71,29 @@ void main() {
     cardAnimations.value = false;
   });
 
-  testWidgets('#800 : pile adverse et avatar adverse sur sa rangée', (
+  testWidgets('#800 : gains adverses sous son avatar, en haut', (
     tester,
   ) async {
     await _pump(tester, _state(starter: Player.player));
     final table = tester.getRect(find.byType(ChkobbaTable));
     final oppAvatar = tester.getCenter(find.byType(TurnAvatar).at(0));
     final oppPile = tester.getCenter(_piles(tester)[0]);
-    // Rangée du haut, au-dessus du tapis : pile à gauche, avatar à droite.
+    // Rangée du haut, au-dessus du tapis : gains centrés sous l'avatar.
     expect(oppAvatar.dy, lessThan(table.top));
-    expect(oppPile.dy, lessThan(table.top));
-    expect(oppPile.dx, lessThan(oppAvatar.dx));
+    expect(oppPile.dy, greaterThan(oppAvatar.dy));
+    expect(oppPile.dx, closeTo(oppAvatar.dx, 1));
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('#800 : avatar joueur à gauche, pile joueur à droite', (
-    tester,
-  ) async {
+  testWidgets('#800 : gains joueur sous son avatar, en bas', (tester) async {
     await _pump(tester, _state(starter: Player.player));
     final table = tester.getRect(find.byType(ChkobbaTable));
     final playerAvatar = tester.getCenter(find.byType(TurnAvatar).at(1));
     final playerPile = tester.getCenter(_piles(tester)[1]);
-    // Rangée du bas, sous le tapis.
+    // Rangée du bas, sous le tapis : gains centrés sous l'avatar.
     expect(playerAvatar.dy, greaterThan(table.bottom));
-    expect(playerPile.dy, greaterThan(table.bottom));
-    expect(playerPile.dx, greaterThan(playerAvatar.dx));
+    expect(playerPile.dy, greaterThan(playerAvatar.dy));
+    expect(playerPile.dx, closeTo(playerAvatar.dx, 1));
     expect(tester.takeException(), isNull);
   });
 

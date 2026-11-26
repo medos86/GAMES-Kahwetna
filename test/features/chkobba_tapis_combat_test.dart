@@ -88,26 +88,21 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('pile du joueur hors contour, à droite de son avatar (#800)', (
-    tester,
-  ) async {
+  testWidgets('gains du joueur sous son avatar (#800)', (tester) async {
     final won = [
       _card(ChkobbaSuit.coupes, 1),
       _card(ChkobbaSuit.coupes, 2),
       _card(ChkobbaSuit.coupes, 3),
     ];
     await _pump(tester, _state(playerWon: won));
-    final table = tester.getRect(find.byType(ChkobbaTable));
     final pile = _piles(tester)[1];
-    expect(tester.getRect(pile).overlaps(table), isFalse);
     final me = tester.getCenter(find.byType(TurnAvatar).at(1));
-    expect(tester.getCenter(pile).dx, greaterThan(me.dx));
+    expect(tester.getCenter(pile).dx, closeTo(me.dx, 1));
+    expect(tester.getCenter(pile).dy, greaterThan(me.dy));
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('pile adverse hors contour, à gauche de son avatar (#800)', (
-    tester,
-  ) async {
+  testWidgets('gains adverses sous son avatar (#800)', (tester) async {
     final won = [
       _card(ChkobbaSuit.deniers, 1),
       _card(ChkobbaSuit.deniers, 4),
@@ -115,11 +110,10 @@ void main() {
       _card(ChkobbaSuit.deniers, 7),
     ];
     await _pump(tester, _state(opponentWon: won));
-    final table = tester.getRect(find.byType(ChkobbaTable));
     final pile = _piles(tester)[0];
-    expect(tester.getRect(pile).overlaps(table), isFalse);
     final opp = tester.getCenter(find.byType(TurnAvatar).at(0));
-    expect(tester.getCenter(pile).dx, lessThan(opp.dx));
+    expect(tester.getCenter(pile).dx, closeTo(opp.dx, 1));
+    expect(tester.getCenter(pile).dy, greaterThan(opp.dy));
     expect(tester.takeException(), isNull);
   });
 
