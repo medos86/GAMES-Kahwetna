@@ -54,4 +54,8 @@ void main() {
     final colors = Seat.values.map(coincheSeatRingColor).toSet();
     expect(colors, hasLength(4));
   });
+
+  test('la main du joueur est plus grande qu\'avant (#1008)', () {
+    expect(coincheHandScale, greaterThan(1.2));
+  });
 }

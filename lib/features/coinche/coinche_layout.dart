@@ -35,3 +35,6 @@ Color coincheSeatRingColor(Seat seat) => switch (seat) {
       Seat.north => const Color(0xFF2563EB),
       Seat.east => const Color(0xFFEAB308),
     };
+
+/// Agrandissement des cartes de la main du joueur, par rapport à la largeur de base (#1008).
+const double coincheHandScale = 1.4;

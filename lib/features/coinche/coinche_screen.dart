@@ -313,7 +313,7 @@ class _CoincheScreenState extends State<CoincheScreen>
                       footer: _HandFooter(
                         controller: c,
                         // Cartes du joueur agrandies (#831).
-                        cardWidth: metrics.coincheCardWidth * 1.2,
+                        cardWidth: metrics.coincheCardWidth * coincheHandScale,
                         keyOf: _key,
                         landing: landing,
                         avatarId: _avatarIds[0],
