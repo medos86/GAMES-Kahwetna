@@ -19,11 +19,13 @@ Float64List samplesOf(Uint8List bytes) {
     }
     offset += 8 + size + (size.isOdd ? 1 : 0);
   }
-  if (dataStart == null) throw StateError('chunk data absent');
-  final count = dataSize! ~/ 2;
+  if (dataStart == null || dataSize == null) {
+    throw StateError('chunk data absent');
+  }
+  final count = dataSize ~/ 2;
   final out = Float64List(count);
   for (var i = 0; i < count; i++) {
-    out[i] = data.getInt16(dataStart! + i * 2, Endian.little) / 32768;
+    out[i] = data.getInt16(dataStart + i * 2, Endian.little) / 32768;
   }
   return out;
 }
