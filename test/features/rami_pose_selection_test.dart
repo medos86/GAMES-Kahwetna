@@ -52,6 +52,19 @@ void main() {
     });
   });
 
+  test('un groupe valide reste en main tant qu\'il n\'est pas déposé (#972)', () {
+    fakeAsync((async) {
+      final c = controllerWith([...kings, extra, filler]);
+      c.tap('ks');
+      c.tap('kh');
+      c.tap('kc');
+      expect(c.canPoseSelection, isTrue);
+      expect(c.hand.map((card) => card.id), containsAll(['ks', 'kh', 'kc']));
+      expect(c.game.table, isEmpty);
+      c.dispose();
+    });
+  });
+
   test('un tap sur l\'aperçu pose le groupe et vide la sélection', () {
     fakeAsync((async) {
       final c = controllerWith([...kings, extra, filler]);

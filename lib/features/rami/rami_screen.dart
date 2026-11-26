@@ -1117,7 +1117,7 @@ class _RamiScreenState extends State<RamiScreen>
     final rowOf = ramiPackMelds(sizes, meldWidth, areaWidth) ??
         List<int>.generate(sizes.length, (i) => i);
     final ordered = [for (final i in ramiPackedOrder(rowOf)) melds[i]];
-    return Container(
+    final table = Container(
       key: _key('table'),
       width: double.infinity,
       padding: const EdgeInsets.all(6),
@@ -1151,16 +1151,6 @@ class _RamiScreenState extends State<RamiScreen>
                 ),
               ),
             ...ordered,
-            // Aperçu : la sélection valide apparaît sur le tapis, un tap la pose (#940).
-            if (c.canPoseSelection)
-              _MeldView(
-                key: _key('preview'),
-                cards: c.selectedCards,
-                cardWidth: meldWidth,
-                owner: 0,
-                eligible: true,
-                onTap: c.pose,
-              ),
             // Paquet en cours : cartes glissées sur le tapis, pas encore valides (#874).
             if (c.draftCards.isNotEmpty)
               _MeldView(
@@ -1173,6 +1163,11 @@ class _RamiScreenState extends State<RamiScreen>
           ],
         ),
       ),
+    );
+    // Sélection valide : un tap sur le tapis la pose, sans aperçu avant la pose (#972).
+    return GestureDetector(
+      onTap: c.canPoseSelection ? c.pose : null,
+      child: table,
     );
   }
 
