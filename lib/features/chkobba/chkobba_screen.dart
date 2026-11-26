@@ -23,6 +23,7 @@ import '../menu/menu_models.dart';
 import 'chkobba_card_face.dart';
 import 'chkobba_controller.dart';
 import 'chkobba_opponent_name.dart';
+import 'chkobba_seat_info.dart';
 import 'chkobba_table.dart';
 import 'chkobba_table_layout.dart';
 import '../../widgets/exit_guard.dart';

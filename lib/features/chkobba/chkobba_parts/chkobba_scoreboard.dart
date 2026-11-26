@@ -34,26 +34,40 @@ class _SidePanel extends StatelessWidget {
     final winners = game.winner == null ? <int>[] : [game.winner!.index];
     final score = game.scores[player]!;
     final active = game.winner == null && game.turn == player;
+    final avatarState = gameAvatarState(
+      seat: player.index,
+      finished: finished,
+      winners: winners,
+    );
     final avatar = TurnAvatar(
       tone: color,
       active: active,
       avatarId: avatarId,
-      state: gameAvatarState(
-        seat: player.index,
-        finished: finished,
-        winners: winners,
-      ),
+      state: avatarState,
       semanticLabel: name,
       baseSize: _sideAvatarSize,
       activeSize: _sideAvatarActiveSize,
     );
     // Emplacement de taille fixe (#954) : l'avatar actif grossit sans faire bouger le tapis.
     // Les réactions BD ne sont plus près de l'avatar : elles s'affichent sur le tapis (#965).
+    // Appui sur l'avatar : popup avec les cartes gagnées et les Chkobbas (#984).
     final avatarSlot = SizedBox(
       width: _sideAvatarActiveSize,
       height: _sideAvatarActiveSize,
       child: Align(
-        child: ChkobbaAvatarFlip(trigger: spinTick, child: avatar),
+        child: GestureDetector(
+          key: ValueKey('seat-avatar:${player.name}'),
+          behavior: HitTestBehavior.opaque,
+          onTap: () => ChkobbaSeatInfo.show(
+            context,
+            name: name,
+            wonCards: game.won[player]?.length ?? 0,
+            chkobbas: game.chkobbas[player] ?? 0,
+            avatarId: avatarId,
+            avatarState: avatarState,
+          ),
+          child: ChkobbaAvatarFlip(trigger: spinTick, child: avatar),
+        ),
       ),
     );
     return Semantics(
