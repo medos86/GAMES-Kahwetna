@@ -525,15 +525,13 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                         // Rangée de l'adversaire : pile et pioche à gauche, main, avatar à droite (#800).
                         _SeatRow(
                           corner: corner,
-                          left: _pileLane(
-                            game: game,
-                            owner: Player.opponent,
-                            color: ScobaPalette.redText,
-                          ),
+                          left: const SizedBox.shrink(),
                           hand: KeyedSubtree(
                             key: _key('opp-hand'),
                             child: _Hand(
                               cards: game.hands[Player.opponent]!,
+                              arc: true,
+                              mirror: true,
                               width: cardWidth * 0.8,
                               height: cardHeight * 0.8,
                               builder: (card) => _opponentCard(card, revealed),
@@ -590,15 +588,12 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                           ),
                           hand: _Hand(
                             cards: game.hands[Player.player]!,
-                            width: playerHandHeight * 0.7,
-                            height: playerHandHeight,
+                            arc: true,
+                            width: playerHandHeight * 0.7 * 1.15,
+                            height: playerHandHeight * 1.15,
                             builder: (card) => _playerHandCard(card, canPlay),
                           ),
-                          right: _pileLane(
-                            game: game,
-                            owner: Player.player,
-                            color: ScobaPalette.blueText,
-                          ),
+                          right: const SizedBox.shrink(),
                         ),
                         const SizedBox(height: 6),
                       ],
@@ -708,25 +703,12 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
         color: color,
         avatarId: _avatarIds[player.index],
         spinTick: _spinTick[player]!,
+        pile: _WonPile(
+          key: _key('won:${player.name}'),
+          color: color,
+          chkobbaCards: _shownChkobbaCards(player),
+        ),
       ),
-    );
-  }
-
-  /// Coin de pile (#800), côté opposé aux avatars. La pioche n'est plus affichée (#983) :
-  /// le compteur des cartes restantes est sur le tapis.
-  Widget _pileLane({
-    required ChkobbaState game,
-    required Player owner,
-    required Color color,
-  }) {
-    final pile = _WonPile(
-      key: _key('won:${owner.name}'),
-      color: color,
-      chkobbaCards: _shownChkobbaCards(owner),
-    );
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      child: pile,
     );
   }
 

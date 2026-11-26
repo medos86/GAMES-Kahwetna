@@ -44,9 +44,17 @@ class _Hand extends StatefulWidget {
     required this.width,
     required this.height,
     required this.builder,
+    this.arc = false,
+    this.mirror = false,
   });
 
   final List<ChkobbaCard> cards;
+
+  /// Cartes en éventail (arc), comme en main.
+  final bool arc;
+
+  /// Éventail retourné (adversaire, en haut de l'écran).
+  final bool mirror;
   final double width;
   final double height;
   final Widget Function(ChkobbaCard card) builder;
@@ -57,6 +65,22 @@ class _Hand extends StatefulWidget {
 
 class _HandState extends State<_Hand> {
   Map<String, int> _slots = {};
+
+  /// Éventail : le milieu reste droit, les bords penchent et descendent (ou montent, adversaire).
+  Widget _fan(int slot, Widget child) {
+    if (!widget.arc) return child;
+    final t = slot - 1; // -1, 0, 1
+    final dir = widget.mirror ? -1.0 : 1.0;
+    return Transform.translate(
+      offset: Offset(0, dir * t.abs() * 6),
+      child: Transform.rotate(
+        angle: -t * 0.14 * dir,
+        alignment:
+            widget.mirror ? Alignment.topCenter : Alignment.bottomCenter,
+        child: child,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +95,7 @@ class _HandState extends State<_Hand> {
             width: widget.width,
             height: widget.height,
             child: layout[i] != null
-                ? widget.builder(layout[i]!)
+                ? _fan(i, widget.builder(layout[i]!))
                 : const _EmptySlot(),
           ),
         ],
