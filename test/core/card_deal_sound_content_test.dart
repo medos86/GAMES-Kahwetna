@@ -41,9 +41,42 @@ int countOnsets(Uint8List bytes) {
   return onsets;
 }
 
+/// Pic absolu et RMS des 10 dernières ms du WAV (fin sans coupure brutale, #966).
+double tailRms(Uint8List bytes) {
+  final data = ByteData.sublistView(bytes);
+  final samples = (bytes.length - 44) ~/ 2;
+  const tail = 441; // 10 ms à 44,1 kHz
+  var sum = 0.0;
+  for (var i = samples - tail; i < samples; i++) {
+    final s = data.getInt16(44 + i * 2, Endian.little) / 32768;
+    sum += s * s;
+  }
+  return sum / tail;
+}
+
+double peakOf(Uint8List bytes) {
+  final data = ByteData.sublistView(bytes);
+  final samples = (bytes.length - 44) ~/ 2;
+  var peak = 0.0;
+  for (var i = 0; i < samples; i++) {
+    final s = (data.getInt16(44 + i * 2, Endian.little) / 32768).abs();
+    if (s > peak) peak = s;
+  }
+  return peak;
+}
+
 void main() {
-  test('card_deal.wav : plusieurs cartes distribuées, pas un son unique', () {
-    final bytes = File('assets/sounds/cards/card_deal.wav').readAsBytesSync();
-    expect(countOnsets(bytes), greaterThanOrEqualTo(5));
+  final bytes = File('assets/sounds/cards/card_deal.wav').readAsBytesSync();
+
+  test('card_deal.wav : un seul coup de carte par fichier (la boucle du code en fait la distribution)', () {
+    expect(countOnsets(bytes), 1);
+  });
+
+  test('card_deal.wav : fin en fondu, pas de coupure brutale', () {
+    expect(tailRms(bytes), lessThan(1e-6));
+  });
+
+  test('card_deal.wav : pas d écrêtage, niveau sous 0 dBFS', () {
+    expect(peakOf(bytes), lessThanOrEqualTo(0.5));
   });
 }
