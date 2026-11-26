@@ -21,9 +21,7 @@ class _TeamCorner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final round = controller.round;
-    final color = team == Team.ns
-        ? const Color(0xFF047857)
-        : const Color(0xFFB91C1C);
+    final color = _teamTone(team);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -98,6 +96,62 @@ class _CornerAvatar extends StatelessWidget {
       semanticLabel: name,
       baseSize: 28,
       activeSize: 40,
+    );
+  }
+}
+
+/// Couleur d'une équipe : vert pour le Nous, rouge pour les Eux.
+Color _teamTone(Team team) =>
+    team == Team.ns ? const Color(0xFF047857) : const Color(0xFFB91C1C);
+
+/// Coin de l'annonce : atout et contrat, puis avatar de l'annonceur (#1005).
+class _ContractCorner extends StatelessWidget {
+  const _ContractCorner({
+    required this.controller,
+    required this.avatarIds,
+    required this.seatNames,
+    required this.me,
+  });
+
+  final CoincheController controller;
+  final List<String> avatarIds;
+  final Map<Seat, String> seatNames;
+  final String me;
+
+  @override
+  Widget build(BuildContext context) {
+    final round = controller.round;
+    final contract = round.contract;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: contract == null ? Colors.white : _goldColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: _frameColor, width: 2),
+          ),
+          child: Text(
+            coincheCornerTitle(contract),
+            style: const TextStyle(
+              color: _inkColor,
+              fontWeight: FontWeight.w900,
+              fontSize: 14,
+            ),
+          ),
+        ),
+        if (contract != null) ...[
+          const SizedBox(height: 2),
+          _CornerAvatar(
+            seat: contract.seat,
+            round: round,
+            tone: _teamTone(teamOf(contract.seat)),
+            avatarId: avatarIds[contract.seat.index],
+            name: coincheSeatName(seatNames, contract.seat, me),
+          ),
+        ],
+      ],
     );
   }
 }

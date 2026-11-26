@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../game/coinche.dart';
+import 'coinche_card_view.dart';
 
 /// Tapis rouge en dégradé radial, même style que le Chkobba (#1001).
 RadialGradient coincheFeltGradient() => const RadialGradient(
@@ -18,3 +19,8 @@ List<Seat> coincheTeamSeats(Team team) => [
       for (final seat in Seat.values)
         if (teamOf(seat) == team) seat,
     ];
+
+/// Titre du coin d'annonce : « Enchères » tant qu'aucun contrat n'est posé (#1005).
+String coincheCornerTitle(Contract? contract) => contract == null
+    ? 'Enchères'
+    : '${contract.value} ${coincheSuitSymbol(contract.mode)}';

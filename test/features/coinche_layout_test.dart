@@ -26,4 +26,15 @@ void main() {
     expect(coincheTeamSeats(Team.ns), [Seat.south, Seat.north]);
     expect(coincheTeamSeats(Team.ew), [Seat.west, Seat.east]);
   });
+
+  test('le coin d\'annonce affiche « Enchères » sans contrat (#1005)', () {
+    expect(coincheCornerTitle(null), 'Enchères');
+    const contract = Contract(
+      seat: Seat.north,
+      value: 80,
+      mode: CoincheSuit.coupes,
+      multiplier: 1,
+    );
+    expect(coincheCornerTitle(contract), '80 ♥');
+  });
 }

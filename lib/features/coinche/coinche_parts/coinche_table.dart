@@ -132,6 +132,16 @@ class _Table extends StatelessWidget {
                     me: me,
                   ),
                 ),
+                Positioned(
+                  bottom: 4,
+                  left: 4,
+                  child: _ContractCorner(
+                    controller: controller,
+                    avatarIds: avatarIds,
+                    seatNames: seatNames,
+                    me: me,
+                  ),
+                ),
                 if (status != null)
                   Positioned(
                     left: 8,
@@ -225,9 +235,6 @@ class _SeatInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final call = round.phase == CoinchePhase.bidding ? round.calls[seat] : null;
     // Annonceur (#733) : son contrat reste affiché pendant tout le jeu.
-    final contract =
-        round.phase == CoinchePhase.bidding ? null : round.contract;
-    final announces = contract != null && contract.seat == seat;
     final count = round.hands[seat]!.length;
     final active = round.turn == seat &&
         (round.phase == CoinchePhase.bidding ||
@@ -257,27 +264,6 @@ class _SeatInfo extends StatelessWidget {
                 ),
                 child: Text(
                   _callText(call),
-                  style: const TextStyle(
-                    color: _inkColor,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ),
-          if (announces)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Container(
-                key: ValueKey('contract:${seat.name}'),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: _goldColor,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: _frameColor, width: 2),
-                ),
-                child: Text(
-                  coincheContractLabel(contract),
                   style: const TextStyle(
                     color: _inkColor,
                     fontWeight: FontWeight.w900,
