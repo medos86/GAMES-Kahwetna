@@ -16,8 +16,6 @@ class _SidePanel extends StatelessWidget {
     required this.name,
     required this.color,
     required this.avatarId,
-    required this.opponentSide,
-    this.reaction,
   });
 
   final ChkobbaState game;
@@ -25,12 +23,6 @@ class _SidePanel extends StatelessWidget {
   final String name;
   final Color color;
   final String avatarId;
-
-  /// Vrai pour l'adversaire : le sticker de réaction part vers l'intérieur du tapis.
-  final bool opponentSide;
-
-  /// Sticker BD près de l'avatar (#761), ou null.
-  final ReactionMood? reaction;
 
   @override
   Widget build(BuildContext context) {
@@ -51,28 +43,12 @@ class _SidePanel extends StatelessWidget {
       baseSize: _sideAvatarSize,
       activeSize: _sideAvatarActiveSize,
     );
-    // Sticker de réaction posé à côté de l'avatar, sans décaler la mise en page (#761).
     // Emplacement de taille fixe (#954) : l'avatar actif grossit sans faire bouger le tapis.
+    // Les réactions BD ne sont plus près de l'avatar : elles s'affichent sur le tapis (#965).
     final avatarSlot = SizedBox(
       width: _sideAvatarActiveSize,
       height: _sideAvatarActiveSize,
-      child: Stack(
-        alignment: Alignment.center,
-        clipBehavior: Clip.none,
-        children: [
-          Align(child: avatar),
-          Positioned(
-            left: opponentSide ? -44 : null,
-            right: opponentSide ? null : -44,
-            top: -30,
-            child: ReactionSticker(
-              mood: reaction,
-              size: 58,
-              semanticLabel: name,
-            ),
-          ),
-        ],
-      ),
+      child: Align(child: avatar),
     );
     return Semantics(
       container: true,
