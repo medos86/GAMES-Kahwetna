@@ -20,30 +20,40 @@ void main() {
   });
 
   test('chaque couleur a son emplacement d arrivée, dans le centre', () {
-    final slots = {
-      for (final color in LudoColor.values) color: ludoGoalSlot(color),
-    };
-    expect(slots.values.toSet().length, 4);
-    for (final slot in slots.values) {
+    for (final color in LudoColor.values) {
+      final slot = ludoGoalSlot(color);
       expect(slot.x, inInclusiveRange(6, 9));
       expect(slot.y, inInclusiveRange(6, 9));
     }
   });
 
-  test('les 4 pions arrivés d une couleur ne se chevauchent pas (#859)', () {
+  test('les 4 pions arrivés partent du point central (#980)', () {
     for (final color in LudoColor.values) {
-      final slots = [for (var i = 0; i < 4; i++) ludoGoalSlot(color, i)];
-      for (var a = 0; a < slots.length; a++) {
-        for (var b = a + 1; b < slots.length; b++) {
-          final d = math.sqrt(
-            math.pow(slots[a].x - slots[b].x, 2) +
-                math.pow(slots[a].y - slots[b].y, 2),
-          );
-          expect(d, greaterThanOrEqualTo(0.5), reason: '${color.name} $a/$b');
-        }
-      }
+      final first = ludoGoalSlot(color, 0);
+      expect(first.x, ludoGoalCentre);
+      expect(first.y, ludoGoalCentre);
     }
   });
+
+  test(
+    'les 3 autres pions d une couleur sont alignés, espacés d un diamètre (#980)',
+    () {
+      for (final color in LudoColor.values) {
+        final slots = [for (var i = 0; i < 4; i++) ludoGoalSlot(color, i)];
+        for (var i = 1; i < 4; i++) {
+          // Alignés sur l'axe de la maison : une seule coordonnée varie, l'autre reste au centre.
+          final onAxis = slots[i].x == ludoGoalCentre ||
+              slots[i].y == ludoGoalCentre;
+          expect(onAxis, isTrue, reason: '${color.name} $i');
+          final d = math.sqrt(
+            math.pow(slots[i].x - slots[i - 1].x, 2) +
+                math.pow(slots[i].y - slots[i - 1].y, 2),
+          );
+          expect(d, closeTo(0.5, 1e-9), reason: '${color.name} $i');
+        }
+      }
+    },
+  );
 
   test('les 4 couleurs ont la même figure, tournée de 90 degrés (#859)', () {
     List<double> rel(LudoColor color) => [

@@ -73,15 +73,14 @@ class PlacedToken {
 /// Centre du plateau, en unités de case.
 const ludoGoalCentre = 7.5;
 
-/// Quatre emplacements d'arrivée d'une couleur, relatifs au centre, pour la couleur rouge
-/// (triangle dans la pointe ouest du centre) : trois sommets et le centre du triangle (#859).
-/// Côté 0,9 case, distance centre-sommet 0,52 case : un pion arrivé (diamètre 0,5 case)
-/// ne touche aucun de ses voisins, et le triangle reste dans la pointe ouest.
-const _ludoGoalTriangleRed = <List<double>>[
-  [-1.21, -0.45],
-  [-1.21, 0.45],
-  [-0.43, 0],
-  [-0.95, 0],
+/// Emplacements d'arrivée pour la couleur rouge, relatifs au centre (#980) : le premier pion
+/// part du point central, les trois suivants s'alignent vers la maison (ouest), espacés
+/// d'un diamètre de pion (0,5 case) pour se toucher sans se chevaucher.
+const _ludoGoalLineRed = <List<double>>[
+  [0, 0],
+  [-0.5, 0],
+  [-1.0, 0],
+  [-1.5, 0],
 ];
 
 /// Nombre de quarts de tour (sens horaire) depuis le rouge : ouest, nord, est, sud.
@@ -92,12 +91,12 @@ int _ludoQuarterTurns(LudoColor color) => switch (color) {
       LudoColor.blue => 3,
     };
 
-/// Emplacement d'arrivée du pion de rang [order] (0 à 3) parmi les pions arrivés de [color] (#378, #859).
-/// Les quatre pions d'une couleur forment un triangle dans la pointe de sa maison ; les autres
+/// Emplacement d'arrivée du pion de rang [order] (0 à 3) parmi les pions arrivés de [color] (#378, #980).
+/// Les quatre pions d'une couleur partent du centre et s'alignent vers sa maison ; les autres
 /// couleurs reprennent la même figure, tournée de 90° autour du centre : le plateau reste symétrique.
 ({double x, double y}) ludoGoalSlot(LudoColor color, [int order = 0]) {
-  var dx = _ludoGoalTriangleRed[order % _ludoGoalTriangleRed.length][0];
-  var dy = _ludoGoalTriangleRed[order % _ludoGoalTriangleRed.length][1];
+  var dx = _ludoGoalLineRed[order % _ludoGoalLineRed.length][0];
+  var dy = _ludoGoalLineRed[order % _ludoGoalLineRed.length][1];
   for (var turn = 0; turn < _ludoQuarterTurns(color); turn++) {
     final rx = -dy;
     dy = dx;
