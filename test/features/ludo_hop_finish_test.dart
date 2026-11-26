@@ -19,48 +19,52 @@ void main() {
     expect(ludoHopWaypoints(LudoColor.red, 5, 6), isEmpty);
   });
 
-  test('chaque couleur a son emplacement d arrivée, dans le centre', () {
+  test('chaque emplacement d arrivée reste dans la zone centrale', () {
     for (final color in LudoColor.values) {
-      final slot = ludoGoalSlot(color);
-      expect(slot.x, inInclusiveRange(6, 9));
-      expect(slot.y, inInclusiveRange(6, 9));
-    }
-  });
-
-  test('les 4 pions arrivés partent du point central (#980)', () {
-    for (final color in LudoColor.values) {
-      final first = ludoGoalSlot(color, 0);
-      expect(first.x, ludoGoalCentre);
-      expect(first.y, ludoGoalCentre);
-    }
-  });
-
-  test('les 3 autres pions sont alignés, espacés d un pion (#980)', () {
-    for (final color in LudoColor.values) {
-      final slots = [for (var i = 0; i < 4; i++) ludoGoalSlot(color, i)];
-      for (var i = 1; i < 4; i++) {
-        final onAxisX = slots[i].x == ludoGoalCentre;
-        final onAxisY = slots[i].y == ludoGoalCentre;
-        expect(onAxisX || onAxisY, isTrue, reason: '${color.name} $i');
-        final dx = slots[i].x - slots[i - 1].x;
-        final dy = slots[i].y - slots[i - 1].y;
-        final d = math.sqrt(dx * dx + dy * dy);
-        expect(d, closeTo(0.5, 1e-9), reason: '${color.name} $i');
+      for (var i = 0; i < 4; i++) {
+        final slot = ludoGoalSlot(color, i);
+        expect(slot.x, inInclusiveRange(5, 10));
+        expect(slot.y, inInclusiveRange(5, 10));
       }
     }
   });
 
-  test('les pions arrivés d une couleur ne se chevauchent pas (#859)', () {
+  test('le premier pion d une couleur est à côté du centre (#982)', () {
     for (final color in LudoColor.values) {
-      final slots = [for (var i = 1; i < 4; i++) ludoGoalSlot(color, i)];
-      for (var a = 0; a < slots.length; a++) {
-        for (var b = a + 1; b < slots.length; b++) {
-          final d = math.sqrt(
-            math.pow(slots[a].x - slots[b].x, 2) +
-                math.pow(slots[a].y - slots[b].y, 2),
-          );
-          expect(d, greaterThanOrEqualTo(0.5), reason: '${color.name} $a/$b');
-        }
+      final first = ludoGoalSlot(color, 0);
+      final dx = first.x - ludoGoalCentre;
+      final dy = first.y - ludoGoalCentre;
+      expect(dx * dx + dy * dy, closeTo(0.25, 1e-9), reason: color.name);
+    }
+  });
+
+  test('les pions arrivés des 4 couleurs ne se chevauchent pas (#982)', () {
+    final all = [
+      for (final color in LudoColor.values)
+        for (var i = 0; i < 4; i++) ludoGoalSlot(color, i),
+    ];
+    for (var a = 0; a < all.length; a++) {
+      for (var b = a + 1; b < all.length; b++) {
+        final dx = all[a].x - all[b].x;
+        final dy = all[a].y - all[b].y;
+        final d = math.sqrt(dx * dx + dy * dy);
+        expect(d, greaterThanOrEqualTo(0.5), reason: '$a/$b');
+      }
+    }
+  });
+
+  test('4 pions d une couleur alignés, espacés d un pion', () {
+    for (final color in LudoColor.values) {
+      final slots = [for (var i = 0; i < 4; i++) ludoGoalSlot(color, i)];
+      for (var i = 0; i < 4; i++) {
+        final onAxisX = slots[i].x == ludoGoalCentre;
+        final onAxisY = slots[i].y == ludoGoalCentre;
+        expect(onAxisX || onAxisY, isTrue, reason: '${color.name} $i');
+        if (i == 0) continue;
+        final dx = slots[i].x - slots[i - 1].x;
+        final dy = slots[i].y - slots[i - 1].y;
+        final d = math.sqrt(dx * dx + dy * dy);
+        expect(d, closeTo(0.5, 1e-9), reason: '${color.name} $i');
       }
     }
   });

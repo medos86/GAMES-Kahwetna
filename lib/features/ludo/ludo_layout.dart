@@ -73,14 +73,14 @@ class PlacedToken {
 /// Centre du plateau, en unités de case.
 const ludoGoalCentre = 7.5;
 
-/// Emplacements d'arrivée pour la couleur rouge, relatifs au centre (#980) : le premier pion
-/// part du point central, les trois suivants s'alignent vers la maison (ouest), espacés
-/// d'un diamètre de pion (0,5 case) pour se toucher sans se chevaucher.
+/// Emplacements d'arrivée pour la couleur rouge, relatifs au centre (#982) : chaque pion
+/// s'aligne à 0,5 case du précédent, en partant juste à côté du centre (pas dessus), vers
+/// la maison (ouest). Les pions des autres couleurs partent chacun de leur côté du centre.
 const _ludoGoalLineRed = <List<double>>[
-  [0, 0],
   [-0.5, 0],
   [-1.0, 0],
   [-1.5, 0],
+  [-2.0, 0],
 ];
 
 /// Nombre de quarts de tour (sens horaire) depuis le rouge : ouest, nord, est, sud.
