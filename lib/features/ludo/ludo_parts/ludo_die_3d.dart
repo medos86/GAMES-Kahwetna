@@ -13,28 +13,34 @@ const int _kSpinTurnsY = 4;
 const double _kDiePerspective = 0.0015;
 
 /// Placement de la face [value] (1 à 6) : sa normale devient l'axe Z local.
-Matrix4 ludoDieFacePlacement(int value) => switch (value) {
-  2 => Matrix4.rotationX(math.pi / 2),
-  3 => Matrix4.rotationY(math.pi / 2),
-  4 => Matrix4.rotationY(-math.pi / 2),
-  5 => Matrix4.rotationX(-math.pi / 2),
-  6 => Matrix4.rotationY(math.pi),
-  _ => Matrix4.identity(),
-};
+Matrix4 ludoDieFacePlacement(int value) {
+  switch (value) {
+    case 2:
+      return Matrix4.rotationX(math.pi / 2);
+    case 3:
+      return Matrix4.rotationY(math.pi / 2);
+    case 4:
+      return Matrix4.rotationY(-math.pi / 2);
+    case 5:
+      return Matrix4.rotationX(-math.pi / 2);
+    case 6:
+      return Matrix4.rotationY(math.pi);
+    default:
+      return Matrix4.identity();
+  }
+}
 
 /// Orientation finale du cube : ramène la face [value] face à l'écran.
-Matrix4 ludoDiePose(int value) =>
-    Matrix4.inverted(ludoDieFacePlacement(value));
+Matrix4 ludoDiePose(int value) => Matrix4.inverted(ludoDieFacePlacement(value));
 
 /// Orientation du cube à l'instant [t] (de 0 à 1). Les tours restants
 /// s'annulent à la fin : la face [value] se retrouve face à l'écran.
 Matrix4 ludoDieCubeMatrix(int value, double t) {
   final progress = math.min(math.max(t, 0.0), 1.0);
   final remain = 1 - Curves.easeOutCubic.transform(progress);
-  final spin =
-      Matrix4.rotationY(remain * _kSpinTurnsY * 2 * math.pi) *
-      Matrix4.rotationX(remain * _kSpinTurnsX * 2 * math.pi);
-  return spin * ludoDiePose(value);
+  final spinY = Matrix4.rotationY(remain * _kSpinTurnsY * 2 * math.pi);
+  final spinX = Matrix4.rotationX(remain * _kSpinTurnsX * 2 * math.pi);
+  return spinY * spinX * ludoDiePose(value);
 }
 
 /// Valeur de la face la plus tournée vers l'écran pour l'orientation [cube].
@@ -94,8 +100,7 @@ class _LudoDieCube extends StatelessWidget {
   Widget build(BuildContext context) {
     final half = size / 2;
     // Entrée (3,2) négative : l'œil est en +Z, les faces de +Z sont vers l'écran.
-    final perspective = Matrix4.identity()
-      ..setEntry(3, 2, -_kDiePerspective);
+    final perspective = Matrix4.identity()..setEntry(3, 2, -_kDiePerspective);
     final faces = <({double depth, Matrix4 matrix, int value})>[];
     for (var v = 1; v <= 6; v++) {
       final facing = cube * ludoDieFacePlacement(v);
