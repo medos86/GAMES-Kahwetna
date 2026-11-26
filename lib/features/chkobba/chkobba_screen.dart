@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -363,37 +362,32 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
   void _distribute() {
     final from = rectOfKey(_key('deck'));
     if (from == null) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final game = _controller.game;
-      var i = 0;
-      for (final card in game.hands[Player.player]!) {
-        if (rectOfKey(_key('hand:${card.id}')) == null) continue;
-        unawaited(
-          flyCard(
-            context: context,
-            from: from,
-            to: () => rectOfKey(_key('hand:${card.id}')),
-            child: ChkobbaCardFace(card: card),
-            delay: _stagger * i,
-          ),
-        );
-        i++;
-      }
-      for (final card in game.hands[Player.opponent]!) {
-        if (rectOfKey(_key('opp:${card.id}')) == null) continue;
-        unawaited(
-          flyCard(
-            context: context,
-            from: from,
-            to: () => rectOfKey(_key('opp:${card.id}')),
-            child: const ChkobbaCardBack(),
-            delay: _stagger * i,
-          ),
-        );
-        i++;
-      }
-    });
+    // Cases masquées dès le premier rendu de la donne : la carte n'apparaît qu'à l'arrivée du vol (#993).
+    final game = _controller.game;
+    final flights = <CardFlight>[];
+    for (final card in game.hands[Player.player]!) {
+      flights.add(
+        CardFlight(
+          from: from,
+          to: () => rectOfKey(_key('hand:${card.id}')),
+          child: ChkobbaCardFace(card: card),
+          delay: _stagger * flights.length,
+          landingId: card.id,
+        ),
+      );
+    }
+    for (final card in game.hands[Player.opponent]!) {
+      flights.add(
+        CardFlight(
+          from: from,
+          to: () => rectOfKey(_key('opp:${card.id}')),
+          child: const ChkobbaCardBack(),
+          delay: _stagger * flights.length,
+          landingId: card.id,
+        ),
+      );
+    }
+    flyAfterRender(flights);
   }
 
   static ChkobbaAiLevel _levelFor(Difficulty d) =>
@@ -642,25 +636,31 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
   /// Carte de la main du joueur. Appui maintenu : le tapis s'allume sur ses prises (#923).
   /// Tap : la carte est jouée (ou choisie parmi les prises).
   Widget _playerHandCard(ChkobbaCard card, bool canPlay) {
-    return Listener(
-      onPointerDown: (_) => _setPreview(canPlay ? card.id : null),
-      onPointerUp: (_) => _setPreview(null),
-      onPointerCancel: (_) => _setPreview(null),
-      child: ChkobbaCardFace(
-        key: _key('hand:${card.id}'),
-        card: card,
-        onTap: canPlay ? () => _onPlayerCard(card.id) : null,
+    return MaskedSlot(
+      hidden: landing.contains(card.id),
+      child: Listener(
+        onPointerDown: (_) => _setPreview(canPlay ? card.id : null),
+        onPointerUp: (_) => _setPreview(null),
+        onPointerCancel: (_) => _setPreview(null),
+        child: ChkobbaCardFace(
+          key: _key('hand:${card.id}'),
+          card: card,
+          onTap: canPlay ? () => _onPlayerCard(card.id) : null,
+        ),
       ),
     );
   }
 
   /// Carte de l'adversaire : dos, sauf celle qu'il montre (#766).
   Widget _opponentCard(ChkobbaCard card, String? revealedId) {
-    return KeyedSubtree(
-      key: _key('opp:${card.id}'),
-      child: card.id == revealedId
-          ? ChkobbaCardFace(card: card, highlight: true)
-          : const ChkobbaCardBack(),
+    return MaskedSlot(
+      hidden: landing.contains(card.id),
+      child: KeyedSubtree(
+        key: _key('opp:${card.id}'),
+        child: card.id == revealedId
+            ? ChkobbaCardFace(card: card, highlight: true)
+            : const ChkobbaCardBack(),
+      ),
     );
   }
 
