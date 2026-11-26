@@ -35,25 +35,35 @@ void main() {
     }
   });
 
-  test(
-    'les 3 autres pions d une couleur sont alignés, espacés d un diamètre (#980)',
-    () {
-      for (final color in LudoColor.values) {
-        final slots = [for (var i = 0; i < 4; i++) ludoGoalSlot(color, i)];
-        for (var i = 1; i < 4; i++) {
-          // Alignés sur l'axe de la maison : une seule coordonnée varie, l'autre reste au centre.
-          final onAxis = slots[i].x == ludoGoalCentre ||
-              slots[i].y == ludoGoalCentre;
-          expect(onAxis, isTrue, reason: '${color.name} $i');
+  test('les 3 autres pions sont alignés, espacés d un pion (#980)', () {
+    for (final color in LudoColor.values) {
+      final slots = [for (var i = 0; i < 4; i++) ludoGoalSlot(color, i)];
+      for (var i = 1; i < 4; i++) {
+        final onAxisX = slots[i].x == ludoGoalCentre;
+        final onAxisY = slots[i].y == ludoGoalCentre;
+        expect(onAxisX || onAxisY, isTrue, reason: '${color.name} $i');
+        final dx = slots[i].x - slots[i - 1].x;
+        final dy = slots[i].y - slots[i - 1].y;
+        final d = math.sqrt(dx * dx + dy * dy);
+        expect(d, closeTo(0.5, 1e-9), reason: '${color.name} $i');
+      }
+    }
+  });
+
+  test('les pions arrivés d une couleur ne se chevauchent pas (#859)', () {
+    for (final color in LudoColor.values) {
+      final slots = [for (var i = 1; i < 4; i++) ludoGoalSlot(color, i)];
+      for (var a = 0; a < slots.length; a++) {
+        for (var b = a + 1; b < slots.length; b++) {
           final d = math.sqrt(
-            math.pow(slots[i].x - slots[i - 1].x, 2) +
-                math.pow(slots[i].y - slots[i - 1].y, 2),
+            math.pow(slots[a].x - slots[b].x, 2) +
+                math.pow(slots[a].y - slots[b].y, 2),
           );
-          expect(d, closeTo(0.5, 1e-9), reason: '${color.name} $i');
+          expect(d, greaterThanOrEqualTo(0.5), reason: '${color.name} $a/$b');
         }
       }
-    },
-  );
+    }
+  });
 
   test('les 4 couleurs ont la même figure, tournée de 90 degrés (#859)', () {
     List<double> rel(LudoColor color) => [
