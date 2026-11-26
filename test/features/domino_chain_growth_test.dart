@@ -94,6 +94,23 @@ void main() {
     }
   });
 
+  test('#978 : la taille de départ remplit le tapis, sans plafond', () {
+    for (final width in [360.0, 390.0, 800.0, 1200.0]) {
+      final halfWidth = width >= 480 ? 8 : 6;
+      final unit = chainStartUnit(width: width, halfWidth: halfWidth);
+      expect(unit * 2 * halfWidth, closeTo(width, 1e-9));
+      final slots = layoutChainAroundCenter(
+        count: 1,
+        openIndex: 0,
+        halfWidth: halfWidth,
+      );
+      expect(
+        chainScale(slots: slots, unit: unit, width: width, height: 600),
+        1.0,
+      );
+    }
+  });
+
   test('#960 : un virage ne se fait qu\'en bout de rangée', () {
     for (final halfWidth in [6, 8]) {
       final slots = layoutChainAroundCenter(

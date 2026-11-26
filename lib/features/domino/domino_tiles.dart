@@ -276,7 +276,10 @@ class DominoChain extends StatelessWidget {
         // Demi-largeur du tapis en unités de demi-pierre (pair).
         final halfWidth = availableWidth >= 480 ? 8 : 6;
         // Taille de départ fixe (#960) : la chaîne commence grande, le zoom ne fait que réduire.
-        final unit = math.min(36.0, availableWidth / (2 * halfWidth));
+        final unit = chainStartUnit(
+          width: availableWidth,
+          halfWidth: halfWidth,
+        );
         final length = unit * 2;
         final slots = layoutChainAroundCenter(
           count: chain.length,
