@@ -1,6 +1,7 @@
 // Belote : mise en page du tapis, des sièges et de la distribution (issues #1001 à #1009).
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/coinche/coinche_layout.dart';
+import 'package:kahwetne/game/coinche.dart';
 import 'package:material_ui/material_ui.dart';
 
 void main() {
@@ -19,5 +20,10 @@ void main() {
     expect(coincheTablePadding.left, lessThan(12));
     expect(coincheTablePadding.right, lessThan(12));
     expect(coincheTablePadding.top, lessThan(12));
+  });
+
+  test('chaque équipe a deux sièges face à face (#1004)', () {
+    expect(coincheTeamSeats(Team.ns), [Seat.south, Seat.north]);
+    expect(coincheTeamSeats(Team.ew), [Seat.west, Seat.east]);
   });
 }

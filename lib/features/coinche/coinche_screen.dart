@@ -42,6 +42,7 @@ part 'coinche_parts/coinche_score.dart';
 part 'coinche_parts/coinche_table.dart';
 part 'coinche_parts/coinche_bid_panel.dart';
 part 'coinche_parts/coinche_footer_summary.dart';
+part 'coinche_parts/coinche_corners.dart';
 
 const _frameColor = ComicPalette.ink;
 const _creamColor = Color(0xFFFFF8E7);
@@ -307,6 +308,7 @@ class _CoincheScreenState extends State<CoincheScreen>
                       landing: landing,
                       avatarIds: _avatarIds,
                       seatNames: _seatNames,
+                      me: _myName,
                       // Main du joueur dans le même tapis (#838).
                       footer: _HandFooter(
                         controller: c,

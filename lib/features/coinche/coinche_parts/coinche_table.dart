@@ -9,6 +9,7 @@ class _Table extends StatelessWidget {
     required this.avatarIds,
     required this.seatNames,
     required this.footer,
+    required this.me,
   });
 
   final CoincheController controller;
@@ -24,6 +25,9 @@ class _Table extends StatelessWidget {
 
   // Main du joueur, posée dans le même tapis (#838) : un seul grand tapis.
   final Widget footer;
+
+  // Pseudo du joueur, affiché dans son coin (#1004).
+  final String me;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +66,6 @@ class _Table extends StatelessWidget {
                         seat: Seat.north,
                         round: round,
                         cardWidth: cardWidth * 0.6,
-                        avatarId: avatarIds[Seat.north.index],
                         name: coincheSeatName(seatNames, Seat.north),
                       ),
                     ),
@@ -78,7 +81,6 @@ class _Table extends StatelessWidget {
                         seat: Seat.west,
                         round: round,
                         cardWidth: cardWidth * 0.6,
-                        avatarId: avatarIds[Seat.west.index],
                         name: coincheSeatName(seatNames, Seat.west),
                       ),
                     ),
@@ -94,7 +96,6 @@ class _Table extends StatelessWidget {
                         seat: Seat.east,
                         round: round,
                         cardWidth: cardWidth * 0.6,
-                        avatarId: avatarIds[Seat.east.index],
                         name: coincheSeatName(seatNames, Seat.east),
                       ),
                     ),
@@ -107,6 +108,28 @@ class _Table extends StatelessWidget {
                     cardWidth: cardWidth,
                     keyOf: keyOf,
                     landing: landing,
+                  ),
+                ),
+                Positioned(
+                  top: 4,
+                  left: 4,
+                  child: _TeamCorner(
+                    controller: controller,
+                    team: Team.ns,
+                    avatarIds: avatarIds,
+                    seatNames: seatNames,
+                    me: me,
+                  ),
+                ),
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: _TeamCorner(
+                    controller: controller,
+                    team: Team.ew,
+                    avatarIds: avatarIds,
+                    seatNames: seatNames,
+                    me: me,
                   ),
                 ),
                 if (status != null)
@@ -188,16 +211,12 @@ class _SeatInfo extends StatelessWidget {
     required this.seat,
     required this.round,
     required this.cardWidth,
-    required this.avatarId,
     required this.name,
   });
 
   final Seat seat;
   final RoundState round;
   final double cardWidth;
-
-  // Avatar du siège (issue #554).
-  final String avatarId;
 
   // Nom affiché sous l'avatar (issue #770).
   final String name;
@@ -219,22 +238,6 @@ class _SeatInfo extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Médaillon 3D (#735) : le joueur dont c'est le tour est agrandi, comme au Ludo.
-          TurnAvatar(
-            tone: teamOf(seat) == Team.ns
-                ? const Color(0xFF047857)
-                : const Color(0xFFB91C1C),
-            active: active,
-            avatarId: avatarId,
-            state: gameAvatarState(
-              seat: seat.index,
-              finished: round.phase == CoinchePhase.done,
-              winners: coincheWinnerSeats(round),
-            ),
-            semanticLabel: name,
-            baseSize: 28,
-            activeSize: 40,
-          ),
           const SizedBox(height: 2),
           _SeatNamePill(
             seat: seat,
