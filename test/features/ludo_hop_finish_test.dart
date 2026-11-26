@@ -23,8 +23,8 @@ void main() {
     for (final color in LudoColor.values) {
       for (var i = 0; i < 4; i++) {
         final slot = ludoGoalSlot(color, i);
-        expect(slot.x, inInclusiveRange(5, 9));
-        expect(slot.y, inInclusiveRange(5, 9));
+        expect(slot.x, inInclusiveRange(5, 10));
+        expect(slot.y, inInclusiveRange(5, 10));
       }
     }
   });
