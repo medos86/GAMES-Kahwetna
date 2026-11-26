@@ -14,4 +14,10 @@ void main() {
   test('la barre du score du haut est retirée (#1002)', () {
     expect(coincheShowTopScoreBar, isFalse);
   });
+
+  test('la marge du tapis est plus serrée qu\'avant (#1003)', () {
+    expect(coincheTablePadding.left, lessThan(12));
+    expect(coincheTablePadding.right, lessThan(12));
+    expect(coincheTablePadding.top, lessThan(12));
+  });
 }

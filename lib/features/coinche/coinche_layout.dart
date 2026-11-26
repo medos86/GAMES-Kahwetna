@@ -7,3 +7,6 @@ RadialGradient coincheFeltGradient() => const RadialGradient(
 
 /// La barre du score en haut est retirée : les scores vivent dans les coins (#1002).
 const bool coincheShowTopScoreBar = false;
+
+/// Marge autour du tapis, resserrée pour agrandir la surface de jeu (#1003).
+const EdgeInsets coincheTablePadding = EdgeInsets.fromLTRB(6, 6, 6, 0);

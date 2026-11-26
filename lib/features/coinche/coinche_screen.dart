@@ -294,7 +294,7 @@ class _CoincheScreenState extends State<CoincheScreen>
                 ),
             ],
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              padding: coincheTablePadding,
               child: Column(
                 children: [
                   _Header(controller: c, difficulty: widget.difficulty),
