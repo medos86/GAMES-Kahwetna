@@ -94,8 +94,8 @@ class _CornerAvatar extends StatelessWidget {
         winners: coincheWinnerSeats(round),
       ),
       semanticLabel: name,
-      baseSize: 28,
-      activeSize: 40,
+      baseSize: coincheAvatarSize(active: false),
+      activeSize: coincheAvatarSize(active: true),
     );
   }
 }

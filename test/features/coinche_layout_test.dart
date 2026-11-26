@@ -37,4 +37,16 @@ void main() {
     );
     expect(coincheCornerTitle(contract), '80 ♥');
   });
+
+  test(
+    'les avatars sont plus grands qu\'avant, le joueur actif le plus (#1006)',
+    () {
+      expect(coincheAvatarSize(active: false), greaterThan(28));
+      expect(coincheAvatarSize(active: true), greaterThan(40));
+      expect(
+        coincheAvatarSize(active: true),
+        greaterThan(coincheAvatarSize(active: false)),
+      );
+    },
+  );
 }

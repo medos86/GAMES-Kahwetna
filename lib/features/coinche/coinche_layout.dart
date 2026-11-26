@@ -24,3 +24,6 @@ List<Seat> coincheTeamSeats(Team team) => [
 String coincheCornerTitle(Contract? contract) => contract == null
     ? 'Enchères'
     : '${contract.value} ${coincheSuitSymbol(contract.mode)}';
+
+/// Taille des avatars des coins : un peu plus grands qu'avant, le joueur actif encore plus (#1006).
+double coincheAvatarSize({required bool active}) => active ? 44 : 32;
