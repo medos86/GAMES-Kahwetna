@@ -148,25 +148,39 @@ final _defaultRandom = math.Random();
 // ---------------------------------------------------------------------------
 
 class Token {
-  const Token({required this.id, required this.color, required this.progress});
+  const Token({
+    required this.id,
+    required this.color,
+    required this.progress,
+    this.arrival,
+  });
 
   factory Token.fromJson(Map<String, dynamic> json) => Token(
         id: json['id'] as String,
         color: LudoColor.values.byName(json['color'] as String),
         progress: json['progress'] as int,
+        arrival: json['arrival'] as int?,
       );
 
   final String id;
   final LudoColor color;
   final int progress;
 
-  Token copyWith({int? progress}) =>
-      Token(id: id, color: color, progress: progress ?? this.progress);
+  /// Rang d'arrivée au centre (1 = premier arrivé), null tant que le pion n'est pas arrivé (#996).
+  final int? arrival;
+
+  Token copyWith({int? progress, int? arrival}) => Token(
+        id: id,
+        color: color,
+        progress: progress ?? this.progress,
+        arrival: arrival ?? this.arrival,
+      );
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'color': color.name,
         'progress': progress,
+        if (arrival != null) 'arrival': arrival,
       };
 }
 
@@ -469,6 +483,15 @@ LudoState moveToken(LudoState state, String tokenId) {
     }
     victims.add(item.color);
     tokens.add(item.copyWith(progress: 0));
+  }
+
+  // Ordre d'arrivée au centre (#996) : le premier pion arrivé reçoit le rang 1.
+  if (progress == ludoFinish && token.progress != ludoFinish) {
+    final lastArrival = tokens
+        .map((item) => item.arrival ?? 0)
+        .fold(0, math.max);
+    final index = tokens.indexWhere((item) => item.id == tokenId);
+    tokens[index] = tokens[index].copyWith(arrival: lastArrival + 1);
   }
 
   final finishedNow = tokens

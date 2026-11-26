@@ -73,14 +73,14 @@ class PlacedToken {
 /// Centre du plateau, en unités de case.
 const ludoGoalCentre = 7.5;
 
-/// Emplacements d'arrivée pour la couleur rouge, relatifs au centre (#982) : chaque pion
-/// s'aligne à 0,5 case du précédent, en partant juste à côté du centre (pas dessus), vers
-/// la maison (ouest). Les pions des autres couleurs partent chacun de leur côté du centre.
-const _ludoGoalLineRed = <List<double>>[
-  [-0.5, 0],
-  [-1.0, 0],
-  [-1.5, 0],
-  [-2.0, 0],
+/// Emplacements d'arrivée pour la couleur rouge, relatifs au centre (#996) : grille 2×2 dans
+/// le triangle rouge (dx négatif, |dy| ≤ |dx|). Le rang 0 est le premier arrivé, le même ordre
+/// pour toutes les couleurs (les autres couleurs tournent cette figure de 90° autour du centre).
+const _ludoGoalGridRed = <List<double>>[
+  [-0.6, -0.35],
+  [-0.6, 0.35],
+  [-1.2, -0.35],
+  [-1.2, 0.35],
 ];
 
 /// Nombre de quarts de tour (sens horaire) depuis le rouge : ouest, nord, est, sud.
@@ -91,12 +91,12 @@ int _ludoQuarterTurns(LudoColor color) => switch (color) {
       LudoColor.blue => 3,
     };
 
-/// Emplacement d'arrivée du pion de rang [order] (0 à 3) parmi les pions arrivés de [color] (#378, #980).
-/// Les quatre pions d'une couleur partent du centre et s'alignent vers sa maison ; les autres
-/// couleurs reprennent la même figure, tournée de 90° autour du centre : le plateau reste symétrique.
+/// Emplacement d'arrivée du pion de rang [order] (0 à 3) parmi les pions arrivés de [color] (#378, #996).
+/// Les quatre couleurs reprennent la même figure, tournée de 90° autour du centre.
 ({double x, double y}) ludoGoalSlot(LudoColor color, [int order = 0]) {
-  var dx = _ludoGoalLineRed[order % _ludoGoalLineRed.length][0];
-  var dy = _ludoGoalLineRed[order % _ludoGoalLineRed.length][1];
+  final base = _ludoGoalGridRed[order % _ludoGoalGridRed.length];
+  var dx = base[0];
+  var dy = base[1];
   for (var turn = 0; turn < _ludoQuarterTurns(color); turn++) {
     final rx = -dy;
     dy = dx;
@@ -182,11 +182,30 @@ List<PlacedToken> layoutTokens(List<Token> tokens) {
       if (p.cell == null)
         _basePlacement(p.token, ownRank[p.token.id]!)
       else if (p.token.progress == ludoFinish)
-        _finishPlacement(p.token, ownRank[p.token.id]!)
+        _finishPlacement(p.token, _arrivalRank(p.token, tokens))
       else
         _trackPlacement(p.token, p.cell!, counts, seen),
   ];
 }
+
+/// Rang d'arrivée parmi les pions de la même couleur (0 = premier arrivé) (#996).
+/// Sans rang enregistré (sauvegarde ancienne), l'ordre de la liste départage.
+int _arrivalRank(Token token, List<Token> tokens) {
+  const unknown = 1 << 30;
+  final mine = token.arrival ?? unknown;
+  var rank = 0;
+  for (final item in tokens) {
+    if (item.color != token.color || item.progress != ludoFinish) continue;
+    final theirs = item.arrival ?? unknown;
+    if (theirs < mine || (theirs == mine && item.id != token.id && _listIndex(tokens, item) < _listIndex(tokens, token))) {
+      rank++;
+    }
+  }
+  return rank;
+}
+
+int _listIndex(List<Token> tokens, Token token) =>
+    tokens.indexWhere((item) => item.id == token.id);
 
 PlacedToken _finishPlacement(Token token, int rank) {
   final slot = ludoGoalSlot(token.color, rank);

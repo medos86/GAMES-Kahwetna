@@ -29,16 +29,25 @@ void main() {
     }
   });
 
-  test('le premier pion d une couleur est à côté du centre (#982)', () {
+  test('les emplacements forment une grille 2×2 dans le triangle (#996)', () {
     for (final color in LudoColor.values) {
-      final first = ludoGoalSlot(color, 0);
-      final dx = first.x - ludoGoalCentre;
-      final dy = first.y - ludoGoalCentre;
-      expect(dx * dx + dy * dy, closeTo(0.25, 1e-9), reason: color.name);
+      for (var i = 0; i < 4; i++) {
+        final slot = ludoGoalSlot(color, i);
+        final dx = slot.x - ludoGoalCentre;
+        final dy = slot.y - ludoGoalCentre;
+        final d = math.sqrt(dx * dx + dy * dy);
+        expect(d, inInclusiveRange(0.6, 1.4), reason: '${color.name} $i');
+      }
+    }
+    for (var i = 0; i < 4; i++) {
+      final slot = ludoGoalSlot(LudoColor.red, i);
+      expect(slot.x, lessThan(ludoGoalCentre));
+      expect((slot.y - ludoGoalCentre).abs(),
+          lessThanOrEqualTo((slot.x - ludoGoalCentre).abs()));
     }
   });
 
-  test('les pions arrivés des 4 couleurs ne se chevauchent pas (#982)', () {
+  test('les pions arrivés des 4 couleurs ne se chevauchent pas (#996)', () {
     final all = [
       for (final color in LudoColor.values)
         for (var i = 0; i < 4; i++) ludoGoalSlot(color, i),
@@ -49,22 +58,6 @@ void main() {
         final dy = all[a].y - all[b].y;
         final d = math.sqrt(dx * dx + dy * dy);
         expect(d, greaterThanOrEqualTo(0.5), reason: '$a/$b');
-      }
-    }
-  });
-
-  test('4 pions d une couleur alignés, espacés d un pion', () {
-    for (final color in LudoColor.values) {
-      final slots = [for (var i = 0; i < 4; i++) ludoGoalSlot(color, i)];
-      for (var i = 0; i < 4; i++) {
-        final onAxisX = slots[i].x == ludoGoalCentre;
-        final onAxisY = slots[i].y == ludoGoalCentre;
-        expect(onAxisX || onAxisY, isTrue, reason: '${color.name} $i');
-        if (i == 0) continue;
-        final dx = slots[i].x - slots[i - 1].x;
-        final dy = slots[i].y - slots[i - 1].y;
-        final d = math.sqrt(dx * dx + dy * dy);
-        expect(d, closeTo(0.5, 1e-9), reason: '${color.name} $i');
       }
     }
   });
@@ -103,6 +96,22 @@ void main() {
       final slot = ludoGoalSlot(p.token.color);
       expect(p.x, slot.x);
       expect(p.y, slot.y);
+    }
+  });
+
+  test('le premier arrivé prend le premier emplacement, même ordre pour toutes les couleurs (#996)', () {
+    for (final color in LudoColor.values) {
+      final tokens = [
+        Token(id: '${color.name}-0', color: color, progress: ludoFinish, arrival: 2),
+        Token(id: '${color.name}-1', color: color, progress: ludoFinish, arrival: 1),
+      ];
+      final placed = {for (final p in layoutTokens(tokens)) p.token.id: p};
+      final first = ludoGoalSlot(color, 0);
+      final second = ludoGoalSlot(color, 1);
+      expect(placed['${color.name}-1']!.x, first.x, reason: color.name);
+      expect(placed['${color.name}-1']!.y, first.y, reason: color.name);
+      expect(placed['${color.name}-0']!.x, second.x, reason: color.name);
+      expect(placed['${color.name}-0']!.y, second.y, reason: color.name);
     }
   });
 }
