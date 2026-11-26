@@ -95,6 +95,17 @@ class LudoDie extends StatelessWidget {
         child: LudoDie(value: value, tone: tone, size: size, animate: false),
       );
     }
+    final rolled = value;
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    if (animate && rolled != null && !reduceMotion) {
+      // Lancer en 3D : le cube roule et se pose sur la valeur tirée (#998).
+      return Semantics(
+        label: tf('sDieValue', {'v': '$rolled'}),
+        child: ExcludeSemantics(
+          child: _LudoDieTumble(value: rolled, tone: tone, size: size),
+        ),
+      );
+    }
     final face = value ?? 5;
     final pips = ludoPipIndexes(face);
     final reduce = MediaQuery.disableAnimationsOf(context);
