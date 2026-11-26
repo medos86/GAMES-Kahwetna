@@ -163,11 +163,11 @@ class _WonPile extends StatelessWidget {
       width: _pileWidth,
       height: _pileHeight,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(chkobbaCardRadius),
         boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 3))],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(chkobbaCardRadius),
         child: Stack(
           fit: StackFit.expand,
           children: [
