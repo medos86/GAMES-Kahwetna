@@ -320,7 +320,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       arrivals.add(_landThenPile(card, from, landing, winnerKey));
     }
 
-    if (taker != null && arrivals.isNotEmpty) _spinAvatar(taker!, arrivals);
+    if (taker != null && arrivals.isNotEmpty) _spinAvatar(taker, arrivals);
 
     // Cartes posées sans capture : vers leur case du tapis (après le rendu).
     if (plain.isNotEmpty) {
