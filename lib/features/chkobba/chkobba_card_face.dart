@@ -36,6 +36,10 @@ String _assetSuitName(ChkobbaSuit suit) => switch (suit) {
     };
 
 const String _cardsFolder = 'assets/images/cards_cartoon';
+
+/// Rayon des coins d'une carte Chkobba : face, dos et tas partagent la même valeur (#985).
+const double chkobbaCardRadius = 12;
+
 const String cardBackAsset = '$_cardsFolder/Chkobba_back.webp';
 
 /// Chemin de l'image cartoon d'une carte, par ex. assets/images/cards_cartoon/Chkobba_pique_08.webp.
@@ -65,7 +69,7 @@ class ChkobbaCardFace extends StatelessWidget {
       aspectRatio: 480 / 707,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(chkobbaCardRadius),
           // Contour BD (#745) : trait noir épais et ombre dure.
           border: Border.all(
             color: highlight ? const Color(0xFFFACC15) : Colors.black,
@@ -76,7 +80,7 @@ class ChkobbaCardFace extends StatelessWidget {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(chkobbaCardRadius),
           child: Image.asset(
             chkobbaCardAsset(card),
             fit: BoxFit.fill,
@@ -107,13 +111,13 @@ class ChkobbaCardBack extends StatelessWidget {
       aspectRatio: 480 / 707,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(chkobbaCardRadius),
           boxShadow: const [
             BoxShadow(color: Colors.black, offset: Offset(0, 3)),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(chkobbaCardRadius),
           // Seule une partie centrale du dos est affichée (zoom) : le motif n'est plus écrasé.
           child: Transform.scale(
             scale: 2,
