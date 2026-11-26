@@ -75,8 +75,7 @@ class _HandState extends State<_Hand> {
       offset: Offset(0, dir * t.abs() * 6),
       child: Transform.rotate(
         angle: -t * 0.14 * dir,
-        alignment:
-            widget.mirror ? Alignment.topCenter : Alignment.bottomCenter,
+        alignment: widget.mirror ? Alignment.topCenter : Alignment.bottomCenter,
         child: child,
       ),
     );
