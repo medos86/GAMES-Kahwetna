@@ -36,7 +36,7 @@ void main() {
         final dx = slot.x - ludoGoalCentre;
         final dy = slot.y - ludoGoalCentre;
         final d = math.sqrt(dx * dx + dy * dy);
-        expect(d, inInclusiveRange(0.6, 1.4), reason: '${color.name} $i');
+        expect(d, inInclusiveRange(0.9, 1.6), reason: '${color.name} $i');
       }
     }
     for (var i = 0; i < 4; i++) {

@@ -77,10 +77,10 @@ const ludoGoalCentre = 7.5;
 /// le triangle rouge (dx négatif, |dy| ≤ |dx|). Le rang 0 est le premier arrivé, le même ordre
 /// pour toutes les couleurs (les autres couleurs tournent cette figure de 90° autour du centre).
 const _ludoGoalGridRed = <List<double>>[
-  [-0.6, -0.35],
-  [-0.6, 0.35],
-  [-1.2, -0.35],
-  [-1.2, 0.35],
+  [-0.85, -0.35],
+  [-0.85, 0.35],
+  [-1.5, -0.35],
+  [-1.5, 0.35],
 ];
 
 /// Nombre de quarts de tour (sens horaire) depuis le rouge : ouest, nord, est, sud.

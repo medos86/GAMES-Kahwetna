@@ -487,9 +487,10 @@ LudoState moveToken(LudoState state, String tokenId) {
 
   // Ordre d'arrivée au centre (#996) : le premier pion arrivé reçoit le rang 1.
   if (progress == ludoFinish && token.progress != ludoFinish) {
-    final lastArrival = tokens
-        .map((item) => item.arrival ?? 0)
-        .fold(0, math.max);
+    var lastArrival = 0;
+    for (final item in tokens) {
+      lastArrival = math.max(lastArrival, item.arrival ?? 0);
+    }
     final index = tokens.indexWhere((item) => item.id == tokenId);
     tokens[index] = tokens[index].copyWith(arrival: lastArrival + 1);
   }
