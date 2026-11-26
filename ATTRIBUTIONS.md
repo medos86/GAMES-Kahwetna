@@ -21,8 +21,10 @@
 
 ## Sons
 
-- Effets du Domino (`assets/sounds/domino/*.wav`) : origine et licence à renseigner avant publication.
-- Sons de remplacement (`assets/sounds/{common,menu,cards,ludo}/*.wav`, issue #820) : synthétisés par `tool/gen_placeholder_sounds.py`, sans source tierce. Ils peuvent être remplacés par des sons CC0 (Kenney Casino Audio, UI Audio) en gardant les mêmes noms et durées max.
+- **Kenney Casino Audio** (licence CC0 1.0, Kenney Vleugels / kenney.nl) : `cards/card_deal.wav` (`card-slide-2`), `cards/card_flip.wav` (`card-place-1`), `common/capture.wav` (`chips-stack-1`), `common/dice.wav` (`dice-shake-3`), `domino/draw.wav` (`card-slide-1`), `domino/pass.wav` (`chips-handle-1`), `domino/place.wav` (`chip-lay-1`), `ludo/pawn_move.wav` (`chip-lay-2`), `ludo/step.wav` (`chips-collide-2`).
+- **Kenney Interface Sounds** (licence CC0 1.0, Kenney / kenney.nl) : `domino/win.wav` (`confirmation_001`), `domino/lose.wav` (`error_002`), `ludo/pawn_home.wav` (`confirmation_002`), `menu/ui_click.wav` (`click_001`), `menu/ui_open.wav` (`open_001`).
+- Traitement (issue #968) : extraits coupés à la durée maximale, mono 44,1 kHz 16 bits, fondu d'entrée et de sortie, niveau de crête à -6,5 dBFS.
+- Les anciens sons synthétisés par `tool/gen_placeholder_sounds.py` (issue #820) ne sont plus utilisés par l'application.
 
 ## Non repris du React
 
