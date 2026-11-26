@@ -58,4 +58,8 @@ void main() {
   test('la main du joueur est plus grande qu\'avant (#1008)', () {
     expect(coincheHandScale, greaterThan(1.2));
   });
+
+  test('la distribution est plus lente qu\'avant (#1009)', () {
+    expect(coincheDealStep, greaterThan(const Duration(milliseconds: 90)));
+  });
 }

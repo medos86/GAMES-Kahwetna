@@ -91,7 +91,6 @@ class _CoincheScreenState extends State<CoincheScreen>
   );
 
   // Mouvements animés (#266) : donne, jeu, pli ramassé, pour toutes les places.
-  static const _dealStep = Duration(milliseconds: 90);
   static const _stagger = Duration(milliseconds: 40);
   final Map<String, GlobalKey> _keys = {};
   bool _ready = false;
@@ -240,7 +239,7 @@ class _CoincheScreenState extends State<CoincheScreen>
     }
     final flights = <CardFlight>[];
     for (var k = 0; k < rounds; k++) {
-      final delay = _dealStep * k;
+      final delay = coincheDealStep * k;
       if (k < mine.length) {
         final card = mine[k];
         flights.add(

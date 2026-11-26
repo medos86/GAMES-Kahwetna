@@ -38,3 +38,6 @@ Color coincheSeatRingColor(Seat seat) => switch (seat) {
 
 /// Agrandissement des cartes de la main du joueur, par rapport à la largeur de base (#1008).
 const double coincheHandScale = 1.4;
+
+/// Délai entre deux cartes de la distribution, ralenti pour être lisible (#1009).
+const Duration coincheDealStep = Duration(milliseconds: 180);
