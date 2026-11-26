@@ -9,6 +9,7 @@ import '../../core/avatars/game_avatars.dart';
 import '../../core/layout/device_metrics.dart';
 import '../../game/coinche.dart';
 import 'coinche_contract_label.dart';
+import 'coinche_layout.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/theme/game_style.dart';
 import '../menu/menu_models.dart';
@@ -41,9 +42,8 @@ part 'coinche_parts/coinche_score.dart';
 part 'coinche_parts/coinche_table.dart';
 part 'coinche_parts/coinche_bid_panel.dart';
 part 'coinche_parts/coinche_footer_summary.dart';
+part 'coinche_parts/coinche_corners.dart';
 
-/// Clé partagée avec le mode sans pub (même nom que le web).
-const _feltColor = ComicPalette.felt;
 const _frameColor = ComicPalette.ink;
 const _creamColor = Color(0xFFFFF8E7);
 const _inkColor = Color(0xFF20284B);
@@ -91,7 +91,6 @@ class _CoincheScreenState extends State<CoincheScreen>
   );
 
   // Mouvements animés (#266) : donne, jeu, pli ramassé, pour toutes les places.
-  static const _dealStep = Duration(milliseconds: 90);
   static const _stagger = Duration(milliseconds: 40);
   final Map<String, GlobalKey> _keys = {};
   bool _ready = false;
@@ -240,7 +239,7 @@ class _CoincheScreenState extends State<CoincheScreen>
     }
     final flights = <CardFlight>[];
     for (var k = 0; k < rounds; k++) {
-      final delay = _dealStep * k;
+      final delay = coincheDealStep * k;
       if (k < mine.length) {
         final card = mine[k];
         flights.add(
@@ -295,16 +294,10 @@ class _CoincheScreenState extends State<CoincheScreen>
                 ),
             ],
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+              padding: coincheTablePadding,
               child: Column(
                 children: [
                   _Header(controller: c, difficulty: widget.difficulty),
-                  const SizedBox(height: 8),
-                  _ScoreBar(
-                    controller: c,
-                    seatNames: _seatNames,
-                    me: _myName,
-                  ),
                   const SizedBox(height: 8),
                   Expanded(
                     child: _Table(
@@ -314,14 +307,14 @@ class _CoincheScreenState extends State<CoincheScreen>
                       landing: landing,
                       avatarIds: _avatarIds,
                       seatNames: _seatNames,
+                      me: _myName,
                       // Main du joueur dans le même tapis (#838).
                       footer: _HandFooter(
                         controller: c,
                         // Cartes du joueur agrandies (#831).
-                        cardWidth: metrics.coincheCardWidth * 1.2,
+                        cardWidth: metrics.coincheCardWidth * coincheHandScale,
                         keyOf: _key,
                         landing: landing,
-                        avatarId: _avatarIds[0],
                         name: _myName,
                       ),
                     ),
