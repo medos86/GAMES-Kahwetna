@@ -48,11 +48,15 @@ const double _meldPadding = 12;
 const double _meldGap = 3;
 const double _minTableCardWidth = 36;
 
+/// Ouverture de l'emplacement de dépôt, en fraction de la largeur d'une carte : assez
+/// large pour que la carte qui arrive se voie entre ses voisines (bug : 5e et 6e collées).
+const double ramiGapRatio = 0.6;
+
 /// Décalage horizontal de la carte [index] pendant un glissement : à partir de [gapAt],
-/// les cartes s'écartent pour ouvrir l'emplacement où la carte va atterrir.
+/// les cartes s'écartent d'une ouverture fixe [ramiGapRatio] × [cardWidth].
 /// [gapAt] vaut -1 quand il n'y a pas de dépôt dans la main.
-double ramiGapOffset(int index, int gapAt, double step) =>
-    gapAt >= 0 && index >= gapAt ? step * 0.9 : 0;
+double ramiGapOffset(int index, int gapAt, double cardWidth) =>
+    gapAt >= 0 && index >= gapAt ? cardWidth * ramiGapRatio : 0;
 
 /// Pas entre deux cartes de la main (#896, #922) : 60 % de la largeur de carte, resserré
 /// pour tenir exactement sur [maxW]. La largeur de carte ne change jamais : seul le

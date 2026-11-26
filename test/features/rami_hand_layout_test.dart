@@ -6,14 +6,19 @@ import 'package:kahwetne/features/rami/rami_hand_layout.dart';
 void main() {
   test('écartement : rien sans dépôt dans la main', () {
     for (var i = 0; i < 5; i++) {
-      expect(ramiGapOffset(i, -1, 30), 0);
+      expect(ramiGapOffset(i, -1, 100), 0);
     }
   });
 
   test('écartement : le dépôt écarte à partir de l\'emplacement', () {
-    expect(ramiGapOffset(1, 2, 30), 0);
-    expect(ramiGapOffset(2, 2, 30), closeTo(27, 1e-9));
-    expect(ramiGapOffset(4, 2, 30), closeTo(27, 1e-9));
+    expect(ramiGapOffset(1, 2, 100), 0);
+    expect(ramiGapOffset(2, 2, 100), closeTo(60, 1e-9));
+    expect(ramiGapOffset(4, 2, 100), closeTo(60, 1e-9));
+  });
+
+  test('écartement : l\'ouverture reste visible même avec une main serrée', () {
+    // Pas très serré (carte 100, pas 10) : l'écart doit tout de même dépasser le pas.
+    expect(ramiGapOffset(2, 2, 100), greaterThan(10 * 2));
   });
 
   test('ordre de dessin : de gauche à droite', () {

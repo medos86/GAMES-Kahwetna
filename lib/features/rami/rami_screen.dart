@@ -1233,6 +1233,13 @@ class _RamiScreenState extends State<RamiScreen>
           }
         }
 
+        // Pendant un dépôt, la main se remet en place pour ouvrir un vrai emplacement :
+        // l'ouverture est retirée de la largeur, puis le pas se resserre pour la tenir.
+        final gap = gapAt >= 0 ? width * ramiGapRatio : 0.0;
+        final spreadStep = ramiHandStep(m, width, maxW - gap);
+        final spreadTotal = m == 0 ? 0.0 : width + spreadStep * (m - 1) + gap;
+        final spreadPad = (maxW - spreadTotal) / 2;
+
         // Ordre de dessin : de gauche à droite, la carte déplacée en dernier.
         final dragAt = shown.indexWhere((card) => card.id == dragId);
         final order = ramiDrawOrder(m, dragAt >= 0 ? dragAt : null);
@@ -1250,7 +1257,9 @@ class _RamiScreenState extends State<RamiScreen>
                   key: ValueKey('pos:${shown[j].id}'),
                   duration: const Duration(milliseconds: 180),
                   curve: Curves.easeOut,
-                  left: pad + j * step + ramiGapOffset(j, gapAt, step),
+                  left: (gapAt >= 0 ? spreadPad : pad) +
+                      j * (gapAt >= 0 ? spreadStep : step) +
+                      ramiGapOffset(j, gapAt, width),
                   top: lift,
                   child: _handCard(
                     shown[j],
