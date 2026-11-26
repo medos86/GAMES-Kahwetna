@@ -53,7 +53,7 @@ void main() {
     }
   });
 
-  test('les 4 pions d une couleur sont alignés, espacés d un pion (#980)', () {
+  test('4 pions d une couleur alignés, espacés d un pion', () {
     for (final color in LudoColor.values) {
       final slots = [for (var i = 0; i < 4; i++) ludoGoalSlot(color, i)];
       for (var i = 0; i < 4; i++) {
