@@ -81,6 +81,22 @@ void main() {
     expect(ok.staged, isEmpty);
   });
 
+  test('paquet posé après l’ouverture dans le même tour : il compte aussi', () {
+    final state = withHand(
+      playing(base, turn: 0, last: 0),
+      0,
+      [...kings3, ...queens3, ...fives3, extra],
+    );
+    final after = poseMeld(
+      poseMeld(poseMeld(state, ['ks', 'kh', 'kc']), ['qs', 'qh', 'qd']),
+      ['fs', 'fh', 'fc'],
+    );
+    expect(after.opened[0], isTrue);
+    expect(after.lastOpening, 75);
+    expect(after.openings[0], 75);
+    expect(minOpening(after), 76);
+  });
+
   test('ouverture suivante : refusée à 60, acceptée à 61 et plus', () {
     final state = withHand(
       playing(base, turn: 1, last: 60),

@@ -648,7 +648,7 @@ RamiState poseMeld(RamiState state, List<String> cardIds) {
     ],
     turnMeldIds: [...state.turnMeldIds, meldId],
   );
-  if (state.opened[seat]) return placed;
+  if (state.opened[seat]) return _refreshTurnOpening(placed, seat);
 
   final turnCards = [...state.staged, cards];
   final total = turnCards.fold<int>(0, (sum, item) => sum + pointsOf(item));
@@ -670,6 +670,20 @@ RamiState _open(RamiState state, int seat, int points) => state.copyWith(
           state.opened[i] || i == seat,
       ],
     );
+
+/// Ouverture faite pendant ce tour : tous les paquets posés dans le tour comptent, y compris
+/// ceux posés après le passage du seuil. Sans effet hors ouverture du tour (turnOpenMin = 0).
+RamiState _refreshTurnOpening(RamiState state, int seat) {
+  if (state.turnOpenMin == 0) return state;
+  final points = _turnPoints(state);
+  return state.copyWith(
+    lastOpening: points,
+    openings: [
+      for (var i = 0; i < state.openings.length; i++)
+        i == seat ? points : state.openings[i],
+    ],
+  );
+}
 
 /// Annule les poses du tour en cours, avant ouverture (#496) : les combinaisons repartent
 /// de la table et les cartes reviennent en main. Après ouverture, rien n'est annulé.
@@ -758,7 +772,7 @@ RamiState layOff(RamiState state, String cardId, String meldId) {
     seat,
     hand.where((item) => item.id != cardId).toList(),
   );
-  if (stagedIndex < 0) return next;
+  if (stagedIndex < 0) return _refreshTurnOpening(next, seat);
 
   // Avant ouverture : le paquet compte pour l'ouverture avec sa nouvelle carte.
   final turnCards = [
@@ -823,7 +837,7 @@ RamiState takeBackFromMeld(RamiState state, String cardId, String meldId) {
   if (state.turnOpenMin > 0 && _turnPoints(next) < state.turnOpenMin) {
     return state; // l'ouverture du tour ne tiendrait plus
   }
-  return next;
+  return _refreshTurnOpening(next, seat);
 }
 
 /// Déplace une carte d'un paquet posé pendant le tour vers un autre paquet (#898).
@@ -869,7 +883,10 @@ RamiState takeBackMeld(RamiState state, String meldId) {
   } else if (state.turnOpenMin > 0 && _turnPoints(next) < state.turnOpenMin) {
     return state; // l'ouverture du tour ne tiendrait plus
   }
-  return _setHand(next, seat, [...state.hands[seat], ...meld.cards]);
+  return _refreshTurnOpening(
+    _setHand(next, seat, [...state.hands[seat], ...meld.cards]),
+    seat,
+  );
 }
 
 /// Reprise d'un joker posé sur la table (#390) : la carte naturelle de la main
