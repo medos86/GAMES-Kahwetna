@@ -1,6 +1,7 @@
 // Cartes restantes à distribuer (#983) : plus de pioche empilée, un compteur mis à jour.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kahwetne/features/chkobba/chkobba_card_face.dart';
 import 'package:kahwetne/features/chkobba/chkobba_screen.dart';
 
 Widget _counter(int count) {

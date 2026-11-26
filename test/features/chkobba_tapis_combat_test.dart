@@ -123,21 +123,12 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('pioche à droite quand le joueur commence', (tester) async {
+  testWidgets('compteur au centre bas du tapis', (tester) async {
     await _pump(tester, _state(starter: Player.player));
-    final deck = tester.getCenter(find.byType(ChkobbaDeckPile));
+    final counter = tester.getCenter(find.byType(ChkobbaDeckCounter));
     final table = tester.getRect(find.byType(ChkobbaTable));
-    expect(deck.dx, greaterThan(table.center.dx));
-    expect(deck.dy, greaterThan(table.center.dy));
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('pioche à gauche quand l\'adversaire commence', (tester) async {
-    await _pump(tester, _state(starter: Player.opponent));
-    final deck = tester.getCenter(find.byType(ChkobbaDeckPile));
-    final table = tester.getRect(find.byType(ChkobbaTable));
-    expect(deck.dx, lessThan(table.center.dx));
-    expect(deck.dy, lessThan(table.center.dy));
+    expect(counter.dx, closeTo(table.center.dx, 1));
+    expect(counter.dy, greaterThan(table.center.dy));
     expect(tester.takeException(), isNull);
   });
 
