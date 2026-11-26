@@ -1,69 +1,56 @@
-// Rotation 3D de l'avatar après une prise (#988) : déclenchée une fois, puis retour à l'état initial.
+// Rotation 3D de l'avatar après une prise (#988) : une fois par prise, puis retour initial.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/services/card_animations.dart';
 import 'package:kahwetne/features/chkobba/chkobba_screen.dart';
 
+const _flipKey = ValueKey('chkobba-avatar-flip');
+
+Widget _app(int trigger) {
+  return MaterialApp(
+    home: Scaffold(
+      body: Center(
+        child: ChkobbaAvatarFlip(
+          trigger: trigger,
+          child: const SizedBox(width: 40, height: 40),
+        ),
+      ),
+    ),
+  );
+}
+
 void main() {
   setUp(() => cardAnimations.value = true);
 
-  Widget app(int trigger) => MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: ChkobbaAvatarFlip(
-              trigger: trigger,
-              child: const SizedBox(
-                key: ValueKey('avatar'),
-                width: 40,
-                height: 40,
-              ),
-            ),
-          ),
-        ),
-      );
-
-  testWidgets('#988 : pas de rotation sans prise (trigger inchangé)', (
-    tester,
-  ) async {
-    await tester.pumpWidget(app(0));
-    await tester.pumpWidget(app(0));
+  testWidgets('pas de rotation sans nouvelle prise', (tester) async {
+    await tester.pumpWidget(_app(0));
+    await tester.pumpWidget(_app(0));
     await tester.pump(const Duration(milliseconds: 200));
 
-    expect(find.byType(Transform), findsNothing);
-    expect(find.byKey(const ValueKey('avatar')), findsOneWidget);
+    expect(find.byKey(_flipKey), findsNothing);
   });
 
-  testWidgets('#988 : la rotation se déclenche à chaque prise puis revient à l\'état initial', (
-    tester,
-  ) async {
-    await tester.pumpWidget(app(0));
-    await tester.pumpWidget(app(1));
+  testWidgets('rotation à chaque prise puis retour initial', (tester) async {
+    await tester.pumpWidget(_app(0));
+    await tester.pumpWidget(_app(1));
     await tester.pump(const Duration(milliseconds: 300));
 
-    // En plein tour : une transformation 3D est appliquée à l'avatar.
-    final mid = tester.widget<Transform>(
-      find.descendant(
-        of: find.byType(ChkobbaAvatarFlip),
-        matching: find.byType(Transform),
-      ),
-    );
+    // En plein tour : une transformation 3D est appliquée.
+    final mid = tester.widget<Transform>(find.byKey(_flipKey));
     expect(mid.transform.storage[0], isNot(closeTo(1, 1e-3)));
 
-    // Fin de l'animation : plus de transformation, l'avatar est à sa place.
+    // Fin : plus de transformation, l'avatar est à sa place.
     await tester.pumpAndSettle();
-    expect(find.byType(Transform), findsNothing);
-    expect(find.byKey(const ValueKey('avatar')), findsOneWidget);
+    expect(find.byKey(_flipKey), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('#988 : pas de rotation si les animations sont désactivées', (
-    tester,
-  ) async {
+  testWidgets('pas de rotation si animations désactivées', (tester) async {
     cardAnimations.value = false;
-    await tester.pumpWidget(app(0));
-    await tester.pumpWidget(app(1));
+    await tester.pumpWidget(_app(0));
+    await tester.pumpWidget(_app(1));
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.byType(Transform), findsNothing);
+    expect(find.byKey(_flipKey), findsNothing);
   });
 }

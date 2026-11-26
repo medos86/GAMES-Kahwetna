@@ -232,7 +232,11 @@ class _WonPile extends StatelessWidget {
 /// Avatar qui fait un tour complet sur lui-même (rotation 3D) à chaque hausse de [trigger] (#988).
 /// Revient à l'état initial à la fin : plus de transformation, donc pas de saut visuel.
 class ChkobbaAvatarFlip extends StatefulWidget {
-  const ChkobbaAvatarFlip({super.key, required this.trigger, required this.child});
+  const ChkobbaAvatarFlip({
+    super.key,
+    required this.trigger,
+    required this.child,
+  });
 
   final int trigger;
   final Widget child;
@@ -245,19 +249,29 @@ class ChkobbaAvatarFlip extends StatefulWidget {
 
 class _ChkobbaAvatarFlipState extends State<ChkobbaAvatarFlip>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: ChkobbaAvatarFlip.duration,
-  )..addStatusListener((status) {
-      // Tour terminé : on remet l'angle à zéro, la transformation disparaît.
-      if (status == AnimationStatus.completed) _controller.reset();
-    });
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: ChkobbaAvatarFlip.duration,
+    )..addStatusListener(_onStatus);
+  }
+
+  void _onStatus(AnimationStatus status) {
+    // Tour terminé : l'angle revient à zéro, la transformation disparaît.
+    if (status == AnimationStatus.completed) _controller.reset();
+  }
 
   @override
   void didUpdateWidget(ChkobbaAvatarFlip oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.trigger == oldWidget.trigger) return;
-    if (!cardAnimations.value || MediaQuery.disableAnimationsOf(context)) return;
+    if (!cardAnimations.value || MediaQuery.disableAnimationsOf(context)) {
+      return;
+    }
     _controller.forward(from: 0);
   }
 
@@ -279,6 +293,7 @@ class _ChkobbaAvatarFlipState extends State<ChkobbaAvatarFlip>
           ..setEntry(3, 2, 0.001)
           ..rotateY(angle);
         return Transform(
+          key: const ValueKey('chkobba-avatar-flip'),
           alignment: Alignment.center,
           transform: transform,
           child: child,
