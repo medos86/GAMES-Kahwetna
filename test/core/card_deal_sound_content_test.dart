@@ -68,7 +68,7 @@ double peakOf(Uint8List bytes) {
 void main() {
   final bytes = File('assets/sounds/cards/card_deal.wav').readAsBytesSync();
 
-  test('card_deal.wav : un seul coup de carte par fichier (la boucle du code en fait la distribution)', () {
+  test('card_deal.wav : un seul coup de carte par fichier', () {
     expect(countOnsets(bytes), 1);
   });
 
