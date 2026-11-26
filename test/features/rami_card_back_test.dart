@@ -32,9 +32,10 @@ void main() {
     expect(File(ramiCardBackAsset).existsSync(), isTrue);
   });
 
-  test('les dos bleu et rouge sont au format 1500x2100 des cartes Rami', () async {
+  test('les dos bleu et rouge sont au format 1500x2100', () async {
     for (final path in [ramiCardBackBlueAsset, ramiCardBackAsset]) {
-      final codec = await ui.instantiateImageCodec(await File(path).readAsBytes());
+      final bytes = await File(path).readAsBytes();
+      final codec = await ui.instantiateImageCodec(bytes);
       final frame = await codec.getNextFrame();
       expect(frame.image.width, 1500, reason: path);
       expect(frame.image.height, 2100, reason: path);
