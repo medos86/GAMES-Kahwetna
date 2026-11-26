@@ -6,7 +6,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/avatars/avatar_catalog.dart';
 import '../../core/avatars/game_avatars.dart';
-import '../../core/reactions/reaction_mood.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/interstitial_service.dart';
 import '../../core/services/game_end_sequence.dart';
@@ -550,6 +549,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                                 ),
                                 child: Center(child: centre),
                               ),
+                              ..._tableReactions(),
                             ],
                           ),
                         ),
@@ -635,6 +635,32 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     );
   }
 
+  /// Réactions BD (#965) : sur le tapis, dans un coin, jamais à côté de l'avatar.
+  List<Widget> _tableReactions() {
+    final opponentMood = _controller.reactionOf(Player.opponent);
+    final playerMood = _controller.reactionOf(Player.player);
+    return [
+      if (opponentMood != null)
+        Align(
+          alignment: Alignment.topLeft,
+          child: ReactionSticker(
+            mood: opponentMood,
+            size: 58,
+            semanticLabel: _opponentName,
+          ),
+        ),
+      if (playerMood != null)
+        Align(
+          alignment: Alignment.bottomRight,
+          child: ReactionSticker(
+            mood: playerMood,
+            size: 58,
+            semanticLabel: _playerName,
+          ),
+        ),
+    ];
+  }
+
   /// Coin d'avatar (#800) : identité seule, à l'extérieur de la rangée.
   Widget _avatarLane({
     required ChkobbaState game,
@@ -651,8 +677,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
         name: name,
         color: color,
         avatarId: _avatarIds[player.index],
-        opponentSide: player == Player.opponent,
-        reaction: _controller.reactionOf(player),
       ),
     );
   }
