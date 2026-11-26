@@ -73,7 +73,8 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  test('feutre toujours vert', () {
-    expect(ScobaPalette.tapisVert.g, greaterThan(ScobaPalette.tapisVert.r));
+  test('feutre bleu premium (#955)', () {
+    const m = ScobaPalette.tapisBleuMilieu;
+    expect(m.b, greaterThan(m.r));
   });
 }

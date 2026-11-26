@@ -80,7 +80,7 @@ void main() {
 
   test('#752 : fond bleu BD et feutre vert BD', () {
     expect(ScobaPalette.tapisBleu.b, greaterThan(ScobaPalette.tapisBleu.r));
-    expect(ScobaPalette.tapisVert.g, greaterThan(ScobaPalette.tapisVert.r));
-    expect(ScobaPalette.tapisVert.g, greaterThan(ScobaPalette.tapisVert.b));
+    const m = ScobaPalette.tapisBleuMilieu;
+    expect(m.b, greaterThan(m.r));
   });
 }

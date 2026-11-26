@@ -12,8 +12,20 @@ abstract final class ScobaPalette {
   /// Fond bleu BD de la Chkobba (#752) : bleu vif de dessin animé, plus clair que le bleu tunisien.
   static const Color tapisBleu = Color(0xFF1E9BFF);
 
-  /// Feutre vert BD du tapis de Chkobba (#752) : vert vif de dessin animé, contour encre.
-  static const Color tapisVert = Color(0xFF2FBF5B);
+  /// Tapis Chkobba bleu premium (#955) : bleu roi au centre, bleu nuit sur les bords.
+  static const Color tapisBleuRoi = Color(0xFF2A5FBF);
+  static const Color tapisBleuMilieu = Color(0xFF1A3F8F);
+  static const Color tapisBleuNuit = Color(0xFF0B1F5C);
+
+  /// Décor du tapis : dégradé radial bleu, nuances du centre vers les bords.
+  static const BoxDecoration tapisPremiumDecoration = BoxDecoration(
+    gradient: RadialGradient(
+      center: Alignment.center,
+      radius: 0.85,
+      colors: [tapisBleuRoi, tapisBleuMilieu, tapisBleuNuit],
+      stops: [0.0, 0.6, 1.0],
+    ),
+  );
 
   /// Fond des panneaux (cartes de manche, choix de prise).
   static const Color panel = ComicPalette.paper;

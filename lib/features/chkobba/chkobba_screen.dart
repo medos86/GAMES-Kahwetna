@@ -515,8 +515,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: ColoredBox(
-                    color: ScobaPalette.tapisVert,
+                  child: DecoratedBox(
+                    decoration: ScobaPalette.tapisPremiumDecoration,
                     child: Column(
                       children: [
                         const SizedBox(height: 6),

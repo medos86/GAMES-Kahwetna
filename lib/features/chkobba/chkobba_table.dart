@@ -34,7 +34,7 @@ class ChkobbaTable extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           DecoratedBox(
-            decoration: BoxDecoration(color: ScobaPalette.tapisVert),
+            decoration: ScobaPalette.tapisPremiumDecoration,
           ),
           LayoutBuilder(
             builder: (context, constraints) {
