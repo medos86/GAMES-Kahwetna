@@ -20,6 +20,7 @@ enum Sfx {
   pawnMove,
   pawnHome,
   pawnStep,
+  bell,
 }
 
 extension SfxPath on Sfx {
@@ -33,13 +34,14 @@ extension SfxPath on Sfx {
         Sfx.pawnMove => 'assets/sounds/ludo/pawn_move.wav',
         Sfx.pawnHome => 'assets/sounds/ludo/pawn_home.wav',
         Sfx.pawnStep => 'assets/sounds/ludo/step.wav',
+        Sfx.bell => 'assets/sounds/common/bell.wav',
         _ => 'assets/sounds/domino/$name.wav',
       };
 }
 
 /// Effets prévus par jeu (issue #24). Un fichier absent laisse le jeu silencieux, sans erreur bloquante.
 const gameSfx = <String, List<Sfx>>{
-  'chkobba': [Sfx.place, Sfx.draw, Sfx.cardDeal, Sfx.win, Sfx.lose],
+  'chkobba': [Sfx.place, Sfx.draw, Sfx.cardDeal, Sfx.win, Sfx.lose, Sfx.bell],
   'coinche': [Sfx.place, Sfx.cardDeal, Sfx.win, Sfx.lose],
   'ludo': [
     Sfx.dice,

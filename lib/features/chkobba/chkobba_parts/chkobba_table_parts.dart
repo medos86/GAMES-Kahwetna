@@ -1,26 +1,71 @@
 part of '../chkobba_screen.dart';
 
-/// Cartes restantes à distribuer (#983) : simple pastille, sans dos de cartes empilés.
-class ChkobbaDeckCounter extends StatelessWidget {
-  const ChkobbaDeckCounter({super.key, required this.count});
+/// Alerte « dernier tour » (pioche vide) : bulle BD avec clochette qui oscille et son unique.
+class ChkobbaLastTurnAlert extends StatefulWidget {
+  const ChkobbaLastTurnAlert({super.key});
 
-  final int count;
+  @override
+  State<ChkobbaLastTurnAlert> createState() => _ChkobbaLastTurnAlertState();
+}
+
+class _ChkobbaLastTurnAlertState extends State<ChkobbaLastTurnAlert>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _swing = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 180),
+  )..repeat(reverse: true);
+
+  @override
+  void initState() {
+    super.initState();
+    Sounds.play(Sfx.bell);
+  }
+
+  @override
+  void dispose() {
+    _swing.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFDF5),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black, width: 2),
-      ),
-      child: Text(
-        '$count à distribuer',
-        style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w900,
-          color: ScobaPalette.ink,
+    return Semantics(
+      liveRegion: true,
+      label: t('sLastTurn'),
+      child: ExcludeSemantics(
+        child: ComicPanel(
+          color: ComicPalette.yellow,
+          outlineColor: ComicPalette.ink,
+          radius: 10,
+          shadowOffset: const Offset(4, 4),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedBuilder(
+                animation: _swing,
+                builder: (context, child) => Transform.rotate(
+                  angle: (_swing.value - 0.5) * 0.7,
+                  child: child,
+                ),
+                child: const Icon(
+                  Icons.notifications_active,
+                  size: 26,
+                  color: ComicPalette.ink,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                t('sLastTurn'),
+                style: const TextStyle(
+                  fontFamily: 'Bangers',
+                  fontSize: 22,
+                  letterSpacing: 1.5,
+                  color: ComicPalette.ink,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

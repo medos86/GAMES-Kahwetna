@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/avatars/avatar_catalog.dart';
 import '../../core/avatars/game_avatars.dart';
+import '../../core/audio/sounds.dart';
 import '../../core/services/ad_free_service.dart';
 import '../../core/services/card_animations.dart';
 import '../../core/services/interstitial_service.dart';
@@ -557,20 +558,16 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                                 child: Center(child: centre),
                               ),
                               ..._tableReactions(),
+                              // Point d'envol de la donne : toujours présent (#993), l'alerte ne s'affiche qu'à la fin de pioche.
                               Align(
                                 alignment: Alignment.bottomCenter,
                                 child: Padding(
                                   padding: const EdgeInsets.only(bottom: 4),
-                                  child: Semantics(
-                                    label: tf('sDeckLeft', {
-                                      'n': '${game.deck.length}',
-                                    }),
-                                    child: KeyedSubtree(
-                                      key: _key('deck'),
-                                      child: ChkobbaDeckCounter(
-                                        count: game.deck.length,
-                                      ),
-                                    ),
+                                  child: KeyedSubtree(
+                                    key: _key('deck'),
+                                    child: game.deck.isEmpty
+                                        ? const ChkobbaLastTurnAlert()
+                                        : const SizedBox(width: 90, height: 28),
                                   ),
                                 ),
                               ),
