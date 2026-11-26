@@ -99,14 +99,6 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('#800 : pioche loin de l\'avatar joueur', (tester) async {
-    await _pump(tester, _state(starter: Player.player));
-    final playerAvatar = tester.getCenter(find.byType(TurnAvatar).at(1));
-    final deck = tester.getCenter(find.byType(ChkobbaDeckPile));
-    expect(deck.dx - playerAvatar.dx, greaterThan(200));
-    expect(tester.takeException(), isNull);
-  });
-
   testWidgets('#800 : le tapis garde plus de 200 dp de haut', (tester) async {
     await _pump(tester, _state(starter: Player.player));
     final table = tester.getRect(find.byType(ChkobbaTable));

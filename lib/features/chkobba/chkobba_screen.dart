@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../core/avatars/avatar_catalog.dart';
 import '../../core/avatars/game_avatars.dart';
 import '../../core/services/ad_free_service.dart';
+import '../../core/services/card_animations.dart';
 import '../../core/services/interstitial_service.dart';
 import '../../core/services/game_end_sequence.dart';
 import '../../widgets/reaction_sticker.dart';
@@ -172,6 +173,17 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
   /// Zone du tableau de score : les cartes qui vont au tas s'y enfoncent (#357).
   Rect? _scoreboardRect() => rectOfKey(_key('scoreboard'));
 
+  /// Rotation 3D de l'avatar d'un joueur après une prise (#988), un compteur par joueur.
+  final Map<Player, int> _spinTick = {for (final p in Player.values) p: 0};
+
+  /// Une prise : l'avatar tourne une seule fois, une fois toutes les cartes arrivées au tas.
+  void _spinAvatar(Player taker, List<Future<void>> arrivals) {
+    Future.wait(arrivals).then((_) {
+      if (!mounted) return;
+      setState(() => _spinTick[taker] = _spinTick[taker]! + 1);
+    });
+  }
+
   void _release(String id) {
     if (!mounted) return;
     setState(() => _capturing.remove(id));
@@ -235,6 +247,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       if ((game.won[p]?.length ?? 0) > (beforeWon[p] ?? 0)) taker = p;
     }
     final winnerKey = taker == null ? null : _key('won:${taker.name}');
+    // Cartes qui arrivent au tas du gagnant : l'avatar tourne quand elles sont toutes arrivées (#988).
+    final arrivals = <Future<void>>[];
     bool wonNow(String id) =>
         taker != null && (game.won[taker]?.any((c) => c.id == id) ?? false);
 
@@ -252,7 +266,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
         final from = rectOfKey(_key('tbl:${card.id}'));
         if (from == null) continue;
         _capturing.add(card.id);
-        unawaited(
+        arrivals.add(
           flyCard(
             context: context,
             from: from,
@@ -292,7 +306,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       _capturing.add(card.id);
       if (landing == null) {
         // Rien à poser : la carte jouée rejoint directement le tas.
-        unawaited(
+        arrivals.add(
           flyCard(
             context: context,
             from: from,
@@ -303,8 +317,10 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
         );
         continue;
       }
-      unawaited(_landThenPile(card, from, landing, winnerKey));
+      arrivals.add(_landThenPile(card, from, landing, winnerKey));
     }
+
+    if (taker != null && arrivals.isNotEmpty) _spinAvatar(taker, arrivals);
 
     // Cartes posées sans capture : vers leur case du tapis (après le rendu).
     if (plain.isNotEmpty) {
@@ -518,8 +534,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                             game: game,
                             owner: Player.opponent,
                             color: ScobaPalette.redText,
-                            showDeck: game.starter == Player.opponent,
-                            deckAbove: true,
                           ),
                           hand: KeyedSubtree(
                             key: _key('opp-hand'),
@@ -550,6 +564,23 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                                 child: Center(child: centre),
                               ),
                               ..._tableReactions(),
+                              Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(bottom: 4),
+                                  child: Semantics(
+                                    label: tf('sDeckLeft', {
+                                      'n': '${game.deck.length}',
+                                    }),
+                                    child: KeyedSubtree(
+                                      key: _key('deck'),
+                                      child: ChkobbaDeckCounter(
+                                        count: game.deck.length,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -572,8 +603,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                             game: game,
                             owner: Player.player,
                             color: ScobaPalette.blueText,
-                            showDeck: game.starter == Player.player,
-                            deckAbove: false,
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -677,41 +706,26 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
         name: name,
         color: color,
         avatarId: _avatarIds[player.index],
+        spinTick: _spinTick[player]!,
       ),
     );
   }
 
-  /// Coin de pile et de pioche (#800), côté opposé aux avatars. La pioche n'est
-  /// là que chez celui qui commence : au-dessus de la pile en haut, dessous en bas.
+  /// Coin de pile (#800), côté opposé aux avatars. La pioche n'est plus affichée (#983) :
+  /// le compteur des cartes restantes est sur le tapis.
   Widget _pileLane({
     required ChkobbaState game,
     required Player owner,
     required Color color,
-    required bool showDeck,
-    required bool deckAbove,
   }) {
     final pile = _WonPile(
       key: _key('won:${owner.name}'),
       color: color,
       chkobbaCards: _shownChkobbaCards(owner),
     );
-    final deck = Semantics(
-      label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
-      child: KeyedSubtree(
-        key: _key('deck'),
-        child: ChkobbaDeckPile(count: game.deck.length),
-      ),
-    );
     return FittedBox(
       fit: BoxFit.scaleDown,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (showDeck && deckAbove) ...[deck, const SizedBox(height: 6)],
-          pile,
-          if (showDeck && !deckAbove) ...[const SizedBox(height: 6), deck],
-        ],
-      ),
+      child: pile,
     );
   }
 

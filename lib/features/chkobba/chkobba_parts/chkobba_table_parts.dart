@@ -1,67 +1,28 @@
 part of '../chkobba_screen.dart';
 
-/// Pioche (#766) : dos de cartes Chkobba empilés hors du tapis, avec le nombre de cartes restantes.
-class ChkobbaDeckPile extends StatelessWidget {
-  const ChkobbaDeckPile({super.key, required this.count});
+/// Cartes restantes à distribuer (#983) : simple pastille, sans dos de cartes empilés.
+class ChkobbaDeckCounter extends StatelessWidget {
+  const ChkobbaDeckCounter({super.key, required this.count});
 
   final int count;
 
-  /// Largeur d'une carte du tas : même dos que les cartes Chkobba.
-  static const double _cardWidth = 38;
-
-  /// Une carte du tas, décalée et tournée pour faire une pile.
-  Widget _back({required double angle, required Offset offset}) {
-    return Transform.translate(
-      offset: offset,
-      child: Transform.rotate(
-        angle: angle,
-        child: const SizedBox(width: _cardWidth, child: ChkobbaCardBack()),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          width: _cardWidth + 12,
-          height: _cardWidth * 707 / 480 + 6,
-          child: Stack(
-            alignment: Alignment.center,
-            clipBehavior: Clip.none,
-            children: [
-              _back(angle: -0.12, offset: const Offset(-3, 2)),
-              _back(angle: 0.1, offset: const Offset(3, 0)),
-              _back(angle: 0, offset: Offset.zero),
-              Positioned(
-                top: -4,
-                right: -4,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 5,
-                    vertical: 1,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFFDF5),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.black, width: 2),
-                  ),
-                  child: Text(
-                    '$count',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w900,
-                      color: ScobaPalette.ink,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFDF5),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.black, width: 2),
+      ),
+      child: Text(
+        '$count à distribuer',
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w900,
+          color: ScobaPalette.ink,
         ),
-      ],
+      ),
     );
   }
 }
