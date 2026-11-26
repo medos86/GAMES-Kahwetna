@@ -10,6 +10,7 @@ import '../../core/services/ad_free_service.dart';
 import '../../core/services/card_animations.dart';
 import '../../core/services/interstitial_service.dart';
 import '../../core/services/game_end_sequence.dart';
+import '../../widgets/comic/comic_panel.dart';
 import '../../widgets/reaction_sticker.dart';
 import '../../widgets/turn_avatar.dart';
 import '../../widgets/game_rays_background.dart';
