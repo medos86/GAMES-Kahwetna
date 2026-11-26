@@ -52,7 +52,7 @@ void main() {
     });
   });
 
-  test('un groupe valide reste en main tant qu\'il n\'est pas déposé (#972)', () {
+  test("un groupe valide reste en main tant qu'il n'est pas déposé (#972)", () {
     fakeAsync((async) {
       final c = controllerWith([...kings, extra, filler]);
       c.tap('ks');
