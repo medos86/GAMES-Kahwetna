@@ -63,10 +63,11 @@ void main() {
     );
     await tester.pump();
 
-    // Ouverture : appui sur l'avatar du joueur.
+    // Ouverture : appui sur l'avatar du joueur. Pas de pumpAndSettle : l'avatar actif
+    // tourne en boucle (tour du joueur), la frame ne s'arrête jamais.
     expect(find.text(Strings.seatWonCards), findsNothing);
     await tester.tap(find.byKey(const ValueKey('seat-avatar:player')));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text(Strings.seatWonCards), findsOneWidget);
     expect(find.text(Strings.seatChkobbas), findsOneWidget);
@@ -75,16 +76,16 @@ void main() {
 
     // Fermeture par le bouton.
     await tester.tap(find.text(Strings.close));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 400));
     expect(find.text(Strings.seatWonCards), findsNothing);
 
     // Réouverture puis fermeture par un tap en dehors de la boîte.
     await tester.tap(find.byKey(const ValueKey('seat-avatar:opponent')));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 400));
     expect(_value(tester, 'seat-info:won'), '1');
     expect(_value(tester, 'seat-info:chkobbas'), '0');
     await tester.tapAt(const Offset(4, 4));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 400));
     expect(find.text(Strings.seatWonCards), findsNothing);
 
     expect(tester.takeException(), isNull);
