@@ -237,8 +237,9 @@ class ChainTile extends StatelessWidget {
   }
 }
 
-/// Chaîne posée autour de la première pierre (#930) : elle grandit vers la gauche et la droite,
-/// le bras droit descend et le bras gauche monte, pour que le tapis reste centré et visible.
+/// Chaîne posée autour de la première pierre (#930, #960). La pierre d'ouverture reste au centre
+/// et chaque pierre a une place fixe : ajouter une pierre ne déplace jamais les autres.
+/// Le zoom ne réduit la chaîne que lorsqu'elle déborde du tapis.
 class DominoChain extends StatelessWidget {
   const DominoChain({
     super.key,
@@ -269,8 +270,12 @@ class DominoChain extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
+        final availableHeight = constraints.maxHeight.isFinite
+            ? constraints.maxHeight
+            : availableWidth;
         // Demi-largeur du tapis en unités de demi-pierre (pair).
         final halfWidth = availableWidth >= 480 ? 8 : 6;
+        // Taille de départ fixe (#960) : la chaîne commence grande, le zoom ne fait que réduire.
         final unit = math.min(36.0, availableWidth / (2 * halfWidth));
         final length = unit * 2;
         final slots = layoutChainAroundCenter(
@@ -278,16 +283,12 @@ class DominoChain extends StatelessWidget {
           openIndex: _openingIndex(),
           halfWidth: halfWidth,
         );
-        var minX = 0;
-        var minY = 0;
-        var maxX = 0;
-        var maxY = 0;
-        for (final slot in slots) {
-          minX = math.min(minX, slot.x);
-          minY = math.min(minY, slot.y);
-          maxX = math.max(maxX, slot.x + slot.width);
-          maxY = math.max(maxY, slot.y + slot.height);
-        }
+        final scale = chainScale(
+          slots: slots,
+          unit: unit,
+          width: availableWidth,
+          height: availableHeight,
+        );
 
         final last = chain.length - 1;
         final tiles = <Widget>[];
@@ -320,13 +321,12 @@ class DominoChain extends StatelessWidget {
             highlight: onTap != null,
             onTap: onTap,
           );
+          // Position absolue depuis le centre fixe : la pierre d'ouverture (x=-1..1, y=0..1) est centrée.
           tiles.add(
-            AnimatedPositioned(
+            Positioned(
               key: ValueKey(chain[i].id),
-              duration: const Duration(milliseconds: 350),
-              curve: Curves.easeOutCubic,
-              left: (slot.x - minX) * unit,
-              top: (slot.y - minY) * unit,
+              left: availableWidth / 2 + slot.x * unit,
+              top: availableHeight / 2 + (slot.y - 0.5) * unit,
               width: slot.width * unit,
               height: slot.height * unit,
               child: sides.isNotEmpty
@@ -340,12 +340,12 @@ class DominoChain extends StatelessWidget {
           );
         }
 
-        return Center(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
+        return ClipRect(
+          child: Transform.scale(
+            scale: scale,
             child: SizedBox(
-              width: (maxX - minX) * unit,
-              height: (maxY - minY) * unit,
+              width: availableWidth,
+              height: availableHeight,
               child: Stack(clipBehavior: Clip.none, children: tiles),
             ),
           ),
