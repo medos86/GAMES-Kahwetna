@@ -10,4 +10,8 @@ void main() {
     expect(gradient.colors, hasLength(3));
     expect(gradient.colors.first, const Color(0xFFEF4444));
   });
+
+  test('la barre du score du haut est retirée (#1002)', () {
+    expect(coincheShowTopScoreBar, isFalse);
+  });
 }
