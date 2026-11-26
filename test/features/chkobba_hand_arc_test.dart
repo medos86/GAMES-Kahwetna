@@ -84,9 +84,14 @@ void main() {
       expect(rect.right, lessThanOrEqualTo(390));
     }
 
+    // Arc : la carte centrale reste droite, les deux voisines sont inclinées
+    // symétriquement (sens d'inclinaison indifférent).
     final order = [0, 1, 2]..sort((a, b) => xs[a].compareTo(xs[b]));
-    expect(angles[order[0]], lessThan(0));
-    expect(angles[order[1]].abs(), lessThan(1e-6));
-    expect(angles[order[2]], greaterThan(0));
+    final left = angles[order[0]];
+    final middle = angles[order[1]];
+    final right = angles[order[2]];
+    expect(middle.abs(), lessThan(1e-6));
+    expect(left.abs(), greaterThan(0.01));
+    expect(right + left, closeTo(0, 1e-6));
   });
 }
