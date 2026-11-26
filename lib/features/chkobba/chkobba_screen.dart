@@ -15,11 +15,9 @@ import '../../widgets/turn_avatar.dart';
 import '../../widgets/game_rays_background.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/strings.dart';
-import '../../core/theme/game_style.dart';
 import '../../core/theme/scoba_palette.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../game/chkobba.dart';
-import '../../game/chkobba_reactions.dart';
 import '../../game/common.dart';
 import '../menu/menu_models.dart';
 import 'chkobba_card_face.dart';
@@ -433,18 +431,12 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     final summary = _controller.roundSummary;
     final over = summary != null;
     final revealed = _controller.revealedCardId;
-    final hayaBy = _controller.hayaBy;
-    final burstText = chkobbaBurstText(
-      chkobba: _controller.chkobbaBy,
-      haya: hayaBy,
-    );
     final canPlay = !over && game.winner == null && game.turn == Player.player;
     final cardWidth = cardHeight * 0.7;
     // Main du joueur agrandie (#chkobba-hand) : lisible sans toucher au tapis.
     final playerHandHeight = chkobbaHandCardHeight(
       MediaQuery.sizeOf(context).height,
     );
-    final style = GameStyle.current;
 
     // Emplacements du tapis : au moins 12, multiple du nombre de colonnes (comme TABLE_MIN_SLOTS).
     // Cartes posées au centre du tapis : chaque carte garde sa place tant qu'elle est sur la table.
@@ -558,25 +550,6 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                                 ),
                                 child: Center(child: centre),
                               ),
-                              // Un seul éclat BD par coup, au centre du tapis : mis à l'échelle, jamais tronqué.
-                              if (burstText != null)
-                                Positioned.fill(
-                                  child: Center(
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: ChkobbaBanner(
-                                        text: burstText,
-                                        colors: _controller.chkobbaBy != null
-                                            ? style.chkobbaGradient
-                                            : style.ayaGradient,
-                                        angle: _controller.chkobbaBy != null
-                                            ? -0.1
-                                            : 0.09,
-                                        burstSize: 130,
-                                      ),
-                                    ),
-                                  ),
-                                ),
                             ],
                           ),
                         ),

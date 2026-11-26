@@ -9,12 +9,12 @@ void main() {
       expect(chkobbaReactions(), isEmpty);
     });
 
-    test('Chkobba : aucun sticker, l\'éclat BD suffit', () {
+    test('Chkobba : aucun sticker', () {
       expect(chkobbaReactions(chkobba: Player.player), isEmpty);
       expect(chkobbaReactions(chkobba: Player.opponent), isEmpty);
     });
 
-    test('7AYA : aucun sticker, l\'éclat BD suffit', () {
+    test('7AYA : aucun sticker', () {
       expect(chkobbaReactions(haya: Player.opponent), isEmpty);
     });
 
@@ -24,31 +24,10 @@ void main() {
       });
     });
 
-    test('Chkobba et prise : aucun sticker, un seul élément BD', () {
+    test('Chkobba et prise : aucun sticker', () {
       expect(
         chkobbaReactions(chkobba: Player.player, capturer: Player.player),
         isEmpty,
-      );
-    });
-  });
-
-  group('chkobbaBurstText', () {
-    test('sans action, aucun éclat', () {
-      expect(chkobbaBurstText(), isNull);
-    });
-
-    test('Chkobba seule : « Chkobba ! »', () {
-      expect(chkobbaBurstText(chkobba: Player.opponent), 'Chkobba !');
-    });
-
-    test('7AYA seule : « ♦ 7AYA ! »', () {
-      expect(chkobbaBurstText(haya: Player.player), '♦ 7AYA !');
-    });
-
-    test('Chkobba et 7AYA en même temps : la Chkobba l\'emporte', () {
-      expect(
-        chkobbaBurstText(chkobba: Player.player, haya: Player.player),
-        'Chkobba !',
       );
     });
   });
