@@ -19,7 +19,7 @@ Float64List samplesOf(Uint8List bytes) {
     }
     offset += 8 + size + (size.isOdd ? 1 : 0);
   }
-  expect(dataStart, isNotNull, reason: 'chunk data absent');
+  if (dataStart == null) throw StateError('chunk data absent');
   final count = dataSize! ~/ 2;
   final out = Float64List(count);
   for (var i = 0; i < count; i++) {
@@ -31,8 +31,10 @@ Float64List samplesOf(Uint8List bytes) {
 void main() {
   for (final sfx in Sfx.values) {
     group(sfx.name, () {
-      final bytes = File(sfx.assetPath).readAsBytesSync();
-      final samples = samplesOf(bytes);
+      late Float64List samples;
+      setUpAll(() {
+        samples = samplesOf(File(sfx.assetPath).readAsBytesSync());
+      });
 
       test('pas d écrêtage : crête sous 0 dBFS avec marge', () {
         var peak = 0.0;
