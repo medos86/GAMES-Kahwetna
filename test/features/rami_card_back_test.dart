@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/rami/rami_card_view.dart';
@@ -29,5 +30,16 @@ void main() {
   test('les deux dos existent dans les assets', () {
     expect(File(ramiCardBackBlueAsset).existsSync(), isTrue);
     expect(File(ramiCardBackAsset).existsSync(), isTrue);
+  });
+
+  test('les dos bleu et rouge sont au format 1500x2100', () async {
+    for (final path in [ramiCardBackBlueAsset, ramiCardBackAsset]) {
+      final bytes = await File(path).readAsBytes();
+      final codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+      expect(frame.image.width, 1500, reason: path);
+      expect(frame.image.height, 2100, reason: path);
+      frame.image.dispose();
+    }
   });
 }
