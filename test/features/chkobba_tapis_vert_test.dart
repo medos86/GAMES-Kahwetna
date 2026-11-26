@@ -91,19 +91,19 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('#745 : pioche côté adversaire quand il commence', (
+  testWidgets('#983 : compteur côté joueur même quand l\'adversaire commence', (
     tester,
   ) async {
     await _pump(tester, Player.opponent);
-    final deck = tester.getCenter(find.byType(ChkobbaDeckPile));
+    final deck = tester.getCenter(find.byType(ChkobbaDeckCounter));
     final table = tester.getCenter(find.byType(ChkobbaTable));
-    expect(deck.dy, lessThan(table.dy));
+    expect(deck.dy, greaterThan(table.dy));
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('#745 : pioche côté joueur quand il commence', (tester) async {
+  testWidgets('#745 : compteur côté joueur quand il commence', (tester) async {
     await _pump(tester, Player.player);
-    final deck = tester.getCenter(find.byType(ChkobbaDeckPile));
+    final deck = tester.getCenter(find.byType(ChkobbaDeckCounter));
     final table = tester.getCenter(find.byType(ChkobbaTable));
     expect(deck.dy, greaterThan(table.dy));
     expect(tester.takeException(), isNull);

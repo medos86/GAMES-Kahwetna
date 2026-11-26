@@ -518,7 +518,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                             game: game,
                             owner: Player.opponent,
                             color: ScobaPalette.redText,
-                            showDeck: game.starter == Player.opponent,
+                            showDeck: false,
                             deckAbove: true,
                           ),
                           hand: KeyedSubtree(
@@ -572,7 +572,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
                             game: game,
                             owner: Player.player,
                             color: ScobaPalette.blueText,
-                            showDeck: game.starter == Player.player,
+                            showDeck: true,
                             deckAbove: false,
                           ),
                         ),
@@ -681,8 +681,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     );
   }
 
-  /// Coin de pile et de pioche (#800), côté opposé aux avatars. La pioche n'est
-  /// là que chez celui qui commence : au-dessus de la pile en haut, dessous en bas.
+  /// Coin de pile et compteur de cartes à distribuer (#800, #983), côté opposé aux
+  /// avatars. Le compteur n'est affiché que dans le coin du joueur (en bas).
   Widget _pileLane({
     required ChkobbaState game,
     required Player owner,
@@ -699,7 +699,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
       label: tf('sDeckLeft', {'n': '${game.deck.length}'}),
       child: KeyedSubtree(
         key: _key('deck'),
-        child: ChkobbaDeckPile(count: game.deck.length),
+        child: ChkobbaDeckCounter(count: game.deck.length),
       ),
     );
     return FittedBox(

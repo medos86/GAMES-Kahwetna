@@ -102,7 +102,7 @@ void main() {
   testWidgets('#800 : pioche loin de l\'avatar joueur', (tester) async {
     await _pump(tester, _state(starter: Player.player));
     final playerAvatar = tester.getCenter(find.byType(TurnAvatar).at(1));
-    final deck = tester.getCenter(find.byType(ChkobbaDeckPile));
+    final deck = tester.getCenter(find.byType(ChkobbaDeckCounter));
     expect(deck.dx - playerAvatar.dx, greaterThan(200));
     expect(tester.takeException(), isNull);
   });
