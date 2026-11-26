@@ -9,6 +9,7 @@ import '../../core/avatars/game_avatars.dart';
 import '../../core/layout/device_metrics.dart';
 import '../../game/coinche.dart';
 import 'coinche_contract_label.dart';
+import 'coinche_layout.dart';
 import '../../core/i18n/app_language.dart';
 import '../../core/theme/game_style.dart';
 import '../menu/menu_models.dart';
@@ -42,8 +43,6 @@ part 'coinche_parts/coinche_table.dart';
 part 'coinche_parts/coinche_bid_panel.dart';
 part 'coinche_parts/coinche_footer_summary.dart';
 
-/// Clé partagée avec le mode sans pub (même nom que le web).
-const _feltColor = ComicPalette.felt;
 const _frameColor = ComicPalette.ink;
 const _creamColor = Color(0xFFFFF8E7);
 const _inkColor = Color(0xFF20284B);

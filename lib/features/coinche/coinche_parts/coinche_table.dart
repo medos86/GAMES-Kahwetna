@@ -35,7 +35,7 @@ class _Table extends StatelessWidget {
     return Container(
       key: keyOf('table'),
       decoration: BoxDecoration(
-        color: _feltColor,
+        gradient: coincheFeltGradient(),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: _frameColor, width: 6),
         boxShadow: [
