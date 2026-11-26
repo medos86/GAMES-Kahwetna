@@ -315,7 +315,6 @@ class _CoincheScreenState extends State<CoincheScreen>
                         cardWidth: metrics.coincheCardWidth * coincheHandScale,
                         keyOf: _key,
                         landing: landing,
-                        avatarId: _avatarIds[0],
                         name: _myName,
                       ),
                     ),

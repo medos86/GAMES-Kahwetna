@@ -234,7 +234,6 @@ class _SeatInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final call = round.phase == CoinchePhase.bidding ? round.calls[seat] : null;
-    // Annonceur (#733) : son contrat reste affiché pendant tout le jeu.
     final count = round.hands[seat]!.length;
     final active = round.turn == seat &&
         (round.phase == CoinchePhase.bidding ||
@@ -245,7 +244,6 @@ class _SeatInfo extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 2),
           _SeatNamePill(
             seat: seat,
             name: name,

@@ -6,7 +6,6 @@ class _HandFooter extends StatelessWidget {
     required this.cardWidth,
     required this.keyOf,
     required this.landing,
-    required this.avatarId,
     required this.name,
   });
 
@@ -15,8 +14,7 @@ class _HandFooter extends StatelessWidget {
   final GlobalKey Function(String name) keyOf;
   final Set<String> landing;
 
-  // Avatar et pseudo du joueur (#838), affichés comme ceux des adversaires.
-  final String avatarId;
+  // Pseudo du joueur (#838) ; son avatar est dans le coin de son équipe (#1004).
   final String name;
 
   /// Une carte de la main : elle reste vide tant qu'elle vole vers la main.
@@ -59,20 +57,6 @@ class _HandFooter extends StatelessWidget {
         children: [
           Row(
             children: [
-              TurnAvatar(
-                tone: const Color(0xFF047857),
-                active: active,
-                avatarId: avatarId,
-                state: gameAvatarState(
-                  seat: Seat.south.index,
-                  finished: round.phase == CoinchePhase.done,
-                  winners: coincheWinnerSeats(round),
-                ),
-                semanticLabel: name,
-                baseSize: 28,
-                activeSize: 40,
-              ),
-              const SizedBox(width: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
