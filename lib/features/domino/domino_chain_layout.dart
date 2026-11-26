@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 // Placement de la chaîne autour de la première pierre (#930).
 // Grille en unités d'une demi-pierre : une horizontale fait 2 x 1, une verticale 1 x 2.
 // La première pierre est au centre. Le bras droit part vers la droite et descend ;
@@ -91,3 +93,28 @@ ChainSlot _mirror(ChainSlot slot) => ChainSlot(
       vertical: slot.vertical,
       reverse: slot.reverse,
     );
+
+/// Zoom de la chaîne (#960) : 1 tant qu'elle tient dans le tapis, réduit seulement quand elle déborde.
+/// [unit] est la taille d'une demi-pierre ; la première pierre est centrée en (0, 0.5).
+double chainScale({
+  required List<ChainSlot> slots,
+  required double unit,
+  required double width,
+  required double height,
+}) {
+  var minX = 0;
+  var minY = 0;
+  var maxX = 0;
+  var maxY = 1;
+  for (final slot in slots) {
+    minX = math.min(minX, slot.x);
+    minY = math.min(minY, slot.y);
+    maxX = math.max(maxX, slot.x + slot.width);
+    maxY = math.max(maxY, slot.y + slot.height);
+  }
+  final halfWidth = math.max(-minX, maxX) * unit;
+  final halfHeight = math.max(0.5 - minY, maxY - 0.5) * unit;
+  final byWidth = halfWidth <= 0 ? 1.0 : (width / 2) / halfWidth;
+  final byHeight = halfHeight <= 0 ? 1.0 : (height / 2) / halfHeight;
+  return math.min(1.0, math.min(byWidth, byHeight));
+}
