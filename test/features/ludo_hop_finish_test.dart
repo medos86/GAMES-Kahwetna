@@ -41,9 +41,10 @@ void main() {
     }
     for (var i = 0; i < 4; i++) {
       final slot = ludoGoalSlot(LudoColor.red, i);
+      final dx = (slot.x - ludoGoalCentre).abs();
+      final dy = (slot.y - ludoGoalCentre).abs();
       expect(slot.x, lessThan(ludoGoalCentre));
-      expect((slot.y - ludoGoalCentre).abs(),
-          lessThanOrEqualTo((slot.x - ludoGoalCentre).abs()));
+      expect(dy, lessThanOrEqualTo(dx));
     }
   });
 
@@ -99,11 +100,21 @@ void main() {
     }
   });
 
-  test('le premier arrivé prend le premier emplacement, même ordre pour toutes les couleurs (#996)', () {
+  test('le premier arrivé prend le premier emplacement (#996)', () {
     for (final color in LudoColor.values) {
       final tokens = [
-        Token(id: '${color.name}-0', color: color, progress: ludoFinish, arrival: 2),
-        Token(id: '${color.name}-1', color: color, progress: ludoFinish, arrival: 1),
+        Token(
+          id: '${color.name}-0',
+          color: color,
+          progress: ludoFinish,
+          arrival: 2,
+        ),
+        Token(
+          id: '${color.name}-1',
+          color: color,
+          progress: ludoFinish,
+          arrival: 1,
+        ),
       ];
       final placed = {for (final p in layoutTokens(tokens)) p.token.id: p};
       final first = ludoGoalSlot(color, 0);

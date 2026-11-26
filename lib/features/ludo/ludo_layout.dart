@@ -193,13 +193,14 @@ List<PlacedToken> layoutTokens(List<Token> tokens) {
 int _arrivalRank(Token token, List<Token> tokens) {
   const unknown = 1 << 30;
   final mine = token.arrival ?? unknown;
+  final mineIndex = _listIndex(tokens, token);
   var rank = 0;
   for (final item in tokens) {
     if (item.color != token.color || item.progress != ludoFinish) continue;
     final theirs = item.arrival ?? unknown;
-    if (theirs < mine || (theirs == mine && item.id != token.id && _listIndex(tokens, item) < _listIndex(tokens, token))) {
-      rank++;
-    }
+    final before = theirs < mine ||
+        (theirs == mine && _listIndex(tokens, item) < mineIndex);
+    if (before) rank++;
   }
   return rank;
 }
