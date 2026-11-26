@@ -94,6 +94,11 @@ ChainSlot _mirror(ChainSlot slot) => ChainSlot(
       reverse: slot.reverse,
     );
 
+/// Taille d'une demi-pierre au départ (#978) : le tapis remplit la largeur, sans plafond,
+/// pour que la chaîne commence grande sur tous les écrans.
+double chainStartUnit({required double width, required int halfWidth}) =>
+    width / (2 * halfWidth);
+
 /// Zoom de la chaîne (#960) : 1 tant qu'elle tient dans le tapis, réduit seulement quand elle déborde.
 /// [unit] est la taille d'une demi-pierre ; la première pierre est centrée en (0, 0.5).
 double chainScale({
