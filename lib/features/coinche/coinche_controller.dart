@@ -44,6 +44,24 @@ class CoincheController extends PersistentGameController {
   /// Récapitulatif de la manche terminée, affiché tant qu'il n'est pas fermé.
   CoincheRoundResult? get summary => _summary;
 
+  /// Avatars des 4 sièges (siège 0 = joueur), sauvegardés avec la partie.
+  List<String>? _avatarIds;
+  List<String>? get avatarIds => _avatarIds;
+
+  /// Avatars de la partie sauvegardée en attente de « Reprendre », s'il y en a.
+  List<String>? get savedAvatarIds => _readAvatars(savedJson);
+
+  static List<String>? _readAvatars(Map<String, dynamic>? json) {
+    final raw = json?['avatars'];
+    return raw is List ? List<String>.from(raw) : null;
+  }
+
+  /// Fixe les avatars des sièges ; ils sont sauvegardés avec la partie.
+  void setAvatarIds(List<String> ids) {
+    _avatarIds = List.unmodifiable(ids);
+    notifyListeners();
+  }
+
   CoincheSuit? get choiceMode => _choiceMode;
   int? get choiceValue => _choiceValue;
 
@@ -194,12 +212,17 @@ class CoincheController extends PersistentGameController {
   @override
   Map<String, dynamic>? snapshot() => _match.winner != null
       ? null
-      : {'match': _match.toJson(), 'round': _round.toJson()};
+      : {
+          'match': _match.toJson(),
+          'round': _round.toJson(),
+          if (_avatarIds != null) 'avatars': _avatarIds,
+        };
 
   @override
   void applySnapshot(Map<String, dynamic> json) {
     _match = CoincheMatch.fromJson(json['match'] as Map<String, dynamic>);
     _round = RoundState.fromJson(json['round'] as Map<String, dynamic>);
+    _avatarIds = _readAvatars(json) ?? _avatarIds;
   }
 
   @override

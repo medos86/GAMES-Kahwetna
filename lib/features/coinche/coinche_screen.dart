@@ -112,9 +112,6 @@ class _CoincheScreenState extends State<CoincheScreen>
   void initState() {
     super.initState();
     InterstitialService.instance.preload();
-    loadGameAvatars(seats: 4).then((ids) {
-      if (mounted) setState(() => _avatarIds = ids);
-    });
     loadProfile().then((profile) {
       if (mounted && profile.name.trim().isNotEmpty) {
         setState(() => _myName = profile.name.trim());
@@ -122,10 +119,15 @@ class _CoincheScreenState extends State<CoincheScreen>
     });
     _controller.addListener(_endWatcher.check);
     _controller.addListener(_onChanged);
-    _controller.restore().then((_) {
+    final freshAvatars = loadGameAvatars(seats: 4);
+    _controller.restore().then((_) async {
+      // Avatars de la partie sauvegardée s'il y en a (#1027), sinon tirage neuf.
+      final fresh = await freshAvatars;
       if (!mounted) return;
       _ready = true;
       _lastRound = _controller.round;
+      _controller.setAvatarIds(_controller.savedAvatarIds ?? fresh);
+      setState(() => _avatarIds = _controller.avatarIds!);
       if (!_restored) _distribute();
       offerResume(context, _controller);
     });

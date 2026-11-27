@@ -21,6 +21,10 @@ abstract class PersistentGameController extends ChangeNotifier {
   /// Vrai quand une partie sauvegardée attend la décision du joueur.
   bool get awaitingResume => _saved != null;
 
+  /// Sauvegarde en attente de « Reprendre » (null si aucune), lecture seule.
+  @protected
+  Map<String, dynamic>? get savedJson => _saved;
+
   /// État à sauvegarder, ou null si la partie est terminée.
   @protected
   Map<String, dynamic>? snapshot();
