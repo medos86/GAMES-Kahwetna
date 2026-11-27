@@ -1,5 +1,6 @@
-// Captures du Domino (#1050, #1051, #1052) : FR et AR, 360×780.
-// Les PNG sont générés par la CI (workflow « Captures Domino »), pas en local.
+// Captures du Domino (#1050, #1051, #1052) : FR et AR, 360×780 dp.
+// Hors shards de test/ (voir analyze.yml) : seul le workflow « Captures Domino » les exécute.
+// Les PNG sont générés par la CI, pas en local.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/core/i18n/app_language.dart';
 import 'package:kahwetne/features/domino/domino_screen.dart';
@@ -12,7 +13,8 @@ void main() {
 
   Future<void> pumpDomino(WidgetTester tester, AppLanguage language) async {
     appLanguage.value = language;
-    tester.view.physicalSize = const Size(360, 780);
+    // 360×780 dp : physique = 720×1560 à dpr 2.
+    tester.view.physicalSize = const Size(360 * 2, 780 * 2);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);

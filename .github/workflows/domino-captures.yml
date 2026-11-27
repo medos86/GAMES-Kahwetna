@@ -25,13 +25,13 @@ jobs:
         run: flutter pub get
 
       - name: Générer les captures
-        run: flutter test --update-goldens test/features/domino_goldens_test.dart
+        run: flutter test --update-goldens test/captures/domino_captures_test.dart
 
       - name: Versionner les captures sur la branche
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add test/features/goldens
+          git add test/captures/goldens
           if git diff --cached --quiet; then
             echo "Aucune capture"
           else
