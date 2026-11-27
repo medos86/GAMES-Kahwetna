@@ -213,6 +213,7 @@ class _SeatInfo extends StatelessWidget {
     required this.round,
     required this.cardWidth,
     required this.name,
+    required this.avatarId,
   });
 
   final Seat seat;
