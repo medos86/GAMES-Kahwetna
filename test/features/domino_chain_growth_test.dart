@@ -20,7 +20,7 @@ void main() {
     expect(scale, 1.0);
   });
 
-  test('#960 : le zoom ne baisse que quand la chaîne déborde', () {
+  test('#960 : le zoom ne baisse que quand la chaîne déborde en largeur', () {
     final few = layoutChainAroundCenter(
       count: 5,
       openIndex: 2,
@@ -35,9 +35,9 @@ void main() {
       openIndex: 40,
       halfWidth: 6,
     );
+    // #1036 : la hauteur ne déclenche plus de zoom, la chaîne défile.
     final scale = chainScale(slots: many, unit: 30, width: 360);
-    expect(scale < 1.0, isTrue);
-    expect(scale > 0.0, isTrue);
+    expect(scale, 1.0);
   });
 
   test('#960 : ajouter en bout ne déplace aucune pierre existante', () {
