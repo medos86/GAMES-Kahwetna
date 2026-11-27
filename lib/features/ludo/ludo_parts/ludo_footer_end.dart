@@ -12,15 +12,17 @@ class _Footer extends StatelessWidget {
     final turnName = _colorName(controller.shownTurn, solo);
     final prompt = controller.roundOver
         ? ''
-        : controller.refusedColor != null
-            ? t('sLudoNoMove')
-            : game.note != null
-                ? _noteText(game.note!, solo)
-                : controller.humanTurn
-                    ? game.phase == LudoPhase.roll
-                        ? '${solo ? 'À toi' : 'À $turnName'} : lance le dé'
-                        : 'Touche un pion en surbrillance'
-                    : '$turnName joue…';
+        : controller.rolling
+            ? '${_colorName(controller.shownTurn, solo)} lance le dé…'
+            : controller.refusedColor != null
+                ? t('sLudoNoMove')
+                : game.note != null
+                    ? _noteText(game.note!, solo)
+                    : controller.humanTurn
+                        ? game.phase == LudoPhase.roll
+                            ? '${solo ? 'À toi' : 'À $turnName'} : lance le dé'
+                            : 'Touche un pion en surbrillance'
+                        : '$turnName joue…';
 
     return Container(
       padding: const EdgeInsets.all(10),

@@ -29,7 +29,7 @@ void main() {
         random: () => 0.0,
       );
       c.roll();
-      async.elapse(ludoNoMoveHold);
+      async.elapse(kLudoDieRollDuration + ludoNoMoveHold);
       expect(c.refusedColor, isNull);
       expect(c.shownTurn, LudoColor.red);
       c.dispose();
@@ -48,6 +48,45 @@ void main() {
       expect(c.game.note, isNull);
       expect(c.refusedColor, isNull);
       expect(c.shownTurn, LudoColor.blue);
+      c.dispose();
+    });
+  });
+
+  test('#1046 : le dé roule entièrement avant le « non » et la pause', () {
+    fakeAsync((async) {
+      final c = LudoController(
+        playerCount: 1,
+        difficulty: LudoAiLevel.facile,
+        random: () => 0.0,
+      );
+      c.roll();
+      expect(c.rolling, isTrue);
+      expect(c.refusedColor, isNull);
+      async.elapse(kLudoDieRollDuration - const Duration(milliseconds: 1));
+      expect(c.rolling, isTrue);
+      expect(c.refusedColor, isNull);
+      async.elapse(const Duration(milliseconds: 1));
+      expect(c.rolling, isFalse);
+      expect(c.refusedColor, LudoColor.blue);
+      expect(c.shownTurn, LudoColor.blue);
+      c.dispose();
+    });
+  });
+
+  test('#1046 : un lancer avec coup possible reste bloqué le temps du dé', () {
+    fakeAsync((async) {
+      final c = LudoController(
+        playerCount: 1,
+        difficulty: LudoAiLevel.facile,
+        random: () => 0.99,
+      );
+      c.roll();
+      expect(c.rolling, isTrue);
+      expect(c.legalIds, isEmpty);
+      async.elapse(kLudoDieRollDuration);
+      expect(c.rolling, isFalse);
+      expect(c.refusedColor, isNull);
+      expect(c.legalIds, isNotEmpty);
       c.dispose();
     });
   });

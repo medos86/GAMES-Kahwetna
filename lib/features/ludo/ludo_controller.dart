@@ -18,6 +18,10 @@ const ludoHumanOrder = [
 /// Délai de l'IA quand la fin de partie est accélérée (#387).
 const ludoFastAiDelay = Duration(milliseconds: 150);
 
+/// Durée du lancer 3D, calée sur `dice.wav` (environ 1,09 s) : le son et le
+/// mouvement partent et se posent ensemble (#998).
+const Duration kLudoDieRollDuration = Duration(milliseconds: 1090);
+
 /// Pause après un lancer sans coup possible (ou trois 6) : le dé secoue la tête
 /// « non » et le tour ne passe qu'ensuite, pour que le joueur comprenne (#855).
 const ludoNoMoveHold = Duration(milliseconds: 1500);
@@ -56,7 +60,15 @@ class LudoController extends PersistentGameController {
 
   /// Animation du dernier coup en cours : personne ne lance ni ne joue (#778).
   Timer? _settleTimer;
-  bool get _settling => _settleTimer != null;
+
+  /// Lancer 3D en cours (#1046) : le dé roule, la valeur n'est pas encore lue.
+  Timer? _rollTimer;
+  bool get rolling => _rollTimer != null;
+
+  bool get _settling => _settleTimer != null || _rollTimer != null;
+
+  /// Pause « non » visible seulement une fois le lancer 3D posé (#1046).
+  bool _refuseRevealed = false;
 
   LudoState get game => _game;
 
@@ -65,7 +77,8 @@ class LudoController extends PersistentGameController {
   LudoColor get shownTurn => _holdColor ?? _game.turn;
 
   /// Joueur qui a lancé sans coup possible, pendant la pause ; null sinon.
-  LudoColor? get refusedColor => _holdColor;
+  /// Null tant que le dé roule : le « non » vient après la valeur (#1046).
+  LudoColor? get refusedColor => _refuseRevealed ? _holdColor : null;
 
   /// Attente (ms) avant la galipette de la victime du dernier coup : l'attaquant arrive d'abord (#882).
   int _victimDelayMs = 0;
@@ -139,6 +152,9 @@ class LudoController extends PersistentGameController {
     _settleTimer = null;
     _captureSfxTimer?.cancel();
     _captureSfxTimer = null;
+    _rollTimer?.cancel();
+    _rollTimer = null;
+    _refuseRevealed = false;
     _holdColor = null;
     _choiceMade = false;
     _fastAi = false;
@@ -176,10 +192,25 @@ class LudoController extends PersistentGameController {
     if (settle > 0) {
       _settleTimer?.cancel();
       _settleTimer = Timer(Duration(milliseconds: settle), _endSettle);
-    } else if (refused && freshRoll) {
-      // Lancer sans coup : le dé dit « non » et le tour reste à ce joueur un instant (#855).
+    } else if (freshRoll) {
+      // Lancer 3D (#1046) : le dé roule en entier, puis la valeur reste affichée.
+      // Lancer sans coup : le « non » et la pause ne viennent qu'après (#855).
+      _holdColor = refused ? next.diceOwner : null;
+      _refuseRevealed = false;
+      _rollTimer?.cancel();
+      _rollTimer = Timer(kLudoDieRollDuration, () => _endRoll(refused));
+    }
+    _reschedule();
+    notifyListeners();
+  }
+
+  /// Fin du lancer 3D (#1046) : la valeur est posée ; si rien n'est jouable,
+  /// le dé dit « non » puis le tour passe.
+  void _endRoll(bool refused) {
+    _rollTimer = null;
+    if (refused) {
+      _refuseRevealed = true;
       Sounds.play(Sfx.pass);
-      _holdColor = next.diceOwner;
       _settleTimer?.cancel();
       _settleTimer = Timer(ludoNoMoveHold, _endSettle);
     }
@@ -191,6 +222,7 @@ class LudoController extends PersistentGameController {
   void _endSettle() {
     _settleTimer = null;
     _holdColor = null;
+    _refuseRevealed = false;
     _reschedule();
     notifyListeners();
   }
@@ -245,6 +277,8 @@ class LudoController extends PersistentGameController {
     _settleTimer = null;
     _captureSfxTimer?.cancel();
     _captureSfxTimer = null;
+    _rollTimer?.cancel();
+    _rollTimer = null;
     super.dispose();
   }
 }

@@ -1,9 +1,5 @@
 part of '../ludo_screen.dart';
 
-/// Durée du lancer 3D, calée sur `dice.wav` (environ 1,09 s) : le son et le
-/// mouvement partent et se posent ensemble (#998).
-const Duration kLudoDieRollDuration = Duration(milliseconds: 1090);
-
 /// Tours complets autour de chaque axe pendant le lancer : les six faces défilent
 /// plusieurs fois avant la pose. Entiers, pour que la pose finale soit exacte.
 const int _kSpinTurnsX = 3;
@@ -11,6 +7,9 @@ const int _kSpinTurnsY = 4;
 
 /// Perspective du cube (valeur absolue plus petite = vue plus plate).
 const double _kDiePerspective = 0.0015;
+
+/// Assombrissement maximal d'une face vue de biais (0 à 1).
+const double _kDieMaxShade = 0.45;
 
 /// Placement de la face [value] (1 à 6) : sa normale devient l'axe Z local.
 Matrix4 ludoDieFacePlacement(int value) {
@@ -41,6 +40,14 @@ Matrix4 ludoDieCubeMatrix(int value, double t) {
   final spinY = Matrix4.rotationY(remain * _kSpinTurnsY * 2 * math.pi);
   final spinX = Matrix4.rotationX(remain * _kSpinTurnsX * 2 * math.pi);
   return spinY * spinX * ludoDiePose(value);
+}
+
+/// Ombrage d'une face selon son inclinaison (0 = face à l'écran, 1 = de profil) :
+/// les faces penchées sont plus sombres, ce qui donne du volume au cube (#1046).
+double ludoDieFaceShade(Matrix4 cube, int value) {
+  final facing =
+      (cube * ludoDieFacePlacement(value)).storage[10].clamp(0.0, 1.0).toDouble();
+  return (1 - facing) * _kDieMaxShade;
 }
 
 /// Valeur de la face la plus tournée vers l'écran pour l'orientation [cube].
@@ -124,11 +131,29 @@ class _LudoDieCube extends StatelessWidget {
             Transform(
               alignment: Alignment.center,
               transform: face.matrix,
-              child: LudoDie(
-                value: face.value,
-                tone: tone,
-                size: size,
-                animate: false,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  LudoDie(
+                    value: face.value,
+                    tone: tone,
+                    size: size,
+                    animate: false,
+                  ),
+                  // Ombre de la face : plus elle est penchée, plus elle est sombre.
+                  IgnorePointer(
+                    child: Container(
+                      width: size,
+                      height: size,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(
+                          alpha: ludoDieFaceShade(cube, face.value),
+                        ),
+                        borderRadius: BorderRadius.circular(size * 0.21),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
         ],

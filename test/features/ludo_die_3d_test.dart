@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kahwetne/features/ludo/ludo_controller.dart';
 import 'package:kahwetne/features/ludo/ludo_screen.dart';
 
 void main() {
@@ -15,6 +16,18 @@ void main() {
       seen.add(ludoDieFrontFace(ludoDieCubeMatrix(4, i / 10)));
     }
     expect(seen.length, greaterThanOrEqualTo(3));
+  });
+
+  test("#1046 : la face posée à l'écran n'est pas ombrée", () {
+    for (var v = 1; v <= 6; v++) {
+      expect(ludoDieFaceShade(ludoDieCubeMatrix(v, 1.0), v), 0);
+    }
+  });
+
+  test('#1046 : une face de profil est ombrée au maximum', () {
+    // Pose de la face 4 : la face 1 est alors de profil par rapport à l'écran.
+    final sideways = ludoDieCubeMatrix(4, 0.0);
+    expect(ludoDieFaceShade(sideways, 1), closeTo(0.45, 1e-6));
   });
 
   test('#998 : la durée du lancer correspond au son dice.wav', () {
