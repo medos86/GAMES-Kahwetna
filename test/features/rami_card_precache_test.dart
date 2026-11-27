@@ -6,7 +6,7 @@ import 'package:kahwetne/features/rami/rami_card_view.dart';
 /// Issue #1056 : toutes les faces et tous les dos Rami sont préchargés,
 /// et chacun correspond à un fichier réel du dépôt.
 void main() {
-  test('les 56 images (52 cartes, 2 jokers, 2 dos) sont listées une seule fois', () {
+  test('56 images listées une seule fois', () {
     final assets = ramiCardAssets();
     expect(assets.length, 56);
     expect(assets.toSet().length, 56);
