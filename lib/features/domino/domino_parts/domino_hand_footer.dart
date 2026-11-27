@@ -52,13 +52,28 @@ class _Footer extends StatelessWidget {
     final hand = game.hands[Player.player]!;
 
     // Pas de planche : la main est posée directement sur le tapis (#1038).
-    // La pioche est en bas, à gauche de la main, et cliquable (#1040).
+    // Avatar et score à gauche, pioche puis main sur la même ligne : plus de place
+    // pour le tapis (#1042). La pioche reste cliquable en bas (#1040).
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Text(
+            'TA MAIN · ${hand.length} PIERRES',
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 2,
+              color: Colors.white,
+              shadows: [
+                Shadow(offset: Offset(1, 1), color: Color(0xFF123B2B)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 4),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Petit écran : le score rétrécit au lieu de déborder.
               if (MediaQuery.sizeOf(context).width < 340)
@@ -67,42 +82,22 @@ class _Footer extends StatelessWidget {
                 )
               else
                 seat,
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'TA MAIN · ${hand.length} PIERRES',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 2,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(offset: Offset(1, 1), color: Color(0xFF123B2B)),
-                    ],
+              _ShakeOnTrigger(
+                trigger: controller.drawInvalidCount,
+                child: Pressable(
+                  semanticLabel: game.boneyard.isEmpty
+                      ? '$label, ${Strings.dominoDrawUnavailable}'
+                      : label,
+                  onTap: () => _onDraw(context),
+                  child: SizedBox(
+                    width: unit * 2.2,
+                    child: FittedBox(fit: BoxFit.scaleDown, child: pile),
                   ),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: sm ? 96 : 76,
-            child: Row(
-              children: [
-                _ShakeOnTrigger(
-                  trigger: controller.drawInvalidCount,
-                  child: Pressable(
-                    semanticLabel: game.boneyard.isEmpty
-                        ? '$label, ${Strings.dominoDrawUnavailable}'
-                        : label,
-                    onTap: () => _onDraw(context),
-                    child: SizedBox(
-                      width: unit * 2.2,
-                      child: FittedBox(fit: BoxFit.scaleDown, child: pile),
-                    ),
-                  ),
-                ),
-                Expanded(
+              Expanded(
+                child: SizedBox(
+                  height: sm ? 96 : 76,
                   child: hand.isEmpty
                       ? Center(
                           child: Text(
@@ -143,8 +138,8 @@ class _Footer extends StatelessWidget {
                           ],
                         ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
