@@ -87,23 +87,24 @@ class _OpponentHand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: unit * 3.4,
-      child: Row(
-        children: [
-          SizedBox(
-            width: unit * 3.4,
-            child: Center(
-              child: FittedBox(fit: BoxFit.scaleDown, child: pile),
-            ),
+    // Hauteur naturelle : le médaillon adverse n'est plus réduit (#1039).
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: unit * 3.4,
+          child: Center(
+            child: FittedBox(fit: BoxFit.scaleDown, child: pile),
           ),
-          Expanded(
+        ),
+        Expanded(
+          child: SizedBox(
+            height: unit * 3.4,
             child: FittedBox(fit: BoxFit.scaleDown, child: _cards()),
           ),
-          // Avatar non réduit : même taille que celui du joueur (#1039).
-          seat,
-        ],
-      ),
+        ),
+        seat,
+      ],
     );
   }
 
