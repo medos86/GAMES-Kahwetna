@@ -153,55 +153,55 @@ class _DominoScreenState extends State<DominoScreen> {
                           decoration: ScobaPalette.tapisPremiumDecoration,
                           child: Column(
                             children: [
-                          SizedBox(height: unit * (sm ? 0.2 : 0.6)),
-                          _OpponentHand(
-                            unit: unit,
-                            count: game.hands[Player.opponent]!.length,
-                            pile: _Pile(
-                              unit: unit,
-                              count: game.boneyard.length,
-                              bounce: _controller.mustDraw &&
-                                  game.boneyard.isNotEmpty,
-                            ),
-                            seat: _ScoreBox(
-                              label: t('opponentShort'),
-                              value: game.scores[Player.opponent]!,
-                              color: const Color(0xFFB91C1C),
-                              active: opponentTurn,
-                              unit: unit,
-                              avatarId: _avatarIds[Player.opponent.index],
-                              avatarState: dominoAvatarState(
-                                game,
-                                Player.opponent,
+                              SizedBox(height: unit * (sm ? 0.2 : 0.6)),
+                              _OpponentHand(
+                                unit: unit,
+                                count: game.hands[Player.opponent]!.length,
+                                pile: _Pile(
+                                  unit: unit,
+                                  count: game.boneyard.length,
+                                  bounce: _controller.mustDraw &&
+                                      game.boneyard.isNotEmpty,
+                                ),
+                                seat: _ScoreBox(
+                                  label: t('opponentShort'),
+                                  value: game.scores[Player.opponent]!,
+                                  color: const Color(0xFFB91C1C),
+                                  active: opponentTurn,
+                                  unit: unit,
+                                  avatarId: _avatarIds[Player.opponent.index],
+                                  avatarState: dominoAvatarState(
+                                    game,
+                                    Player.opponent,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          SizedBox(height: unit * (sm ? 0.2 : 0.6)),
-                          Expanded(
-                            child: _Table(
-                              unit: unit,
-                              sm: sm,
-                              controller: _controller,
-                            ),
-                          ),
-                          SizedBox(height: unit * (sm ? 0.2 : 0.6)),
-                          _Footer(
-                            unit: unit,
-                            sm: sm,
-                            controller: _controller,
-                            seat: _ScoreBox(
-                              label: t('you'),
-                              value: game.scores[Player.player]!,
-                              color: const Color(0xFF047857),
-                              active: playerTurn,
-                              unit: unit,
-                              avatarId: _avatarIds[Player.player.index],
-                              avatarState: dominoAvatarState(
-                                game,
-                                Player.player,
+                              SizedBox(height: unit * (sm ? 0.2 : 0.6)),
+                              Expanded(
+                                child: _Table(
+                                  unit: unit,
+                                  sm: sm,
+                                  controller: _controller,
+                                ),
                               ),
-                            ),
-                          ),
+                              SizedBox(height: unit * (sm ? 0.2 : 0.6)),
+                              _Footer(
+                                unit: unit,
+                                sm: sm,
+                                controller: _controller,
+                                seat: _ScoreBox(
+                                  label: t('you'),
+                                  value: game.scores[Player.player]!,
+                                  color: const Color(0xFF047857),
+                                  active: playerTurn,
+                                  unit: unit,
+                                  avatarId: _avatarIds[Player.player.index],
+                                  avatarState: dominoAvatarState(
+                                    game,
+                                    Player.player,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
