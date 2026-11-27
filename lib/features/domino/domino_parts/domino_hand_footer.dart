@@ -5,11 +5,15 @@ class _Footer extends StatelessWidget {
     required this.unit,
     required this.sm,
     required this.controller,
+    required this.seat,
   });
 
   final double unit;
   final bool sm;
   final DominoController controller;
+
+  // Score et avatar du joueur, à gauche de la légende de la main (comme Chkobba).
+  final Widget seat;
 
   void _onTile(
     BuildContext context,
@@ -58,6 +62,8 @@ class _Footer extends StatelessWidget {
         children: [
           Row(
             children: [
+              seat,
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'TA MAIN · ${game.hands[Player.player]!.length} PIERRES',
