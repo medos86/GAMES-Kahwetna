@@ -181,7 +181,7 @@ class _ScorePill extends StatelessWidget {
   }
 }
 
-/// Avatar qui fait un tour complet sur lui-même (rotation 3D) à chaque hausse de [trigger] (#988).
+/// Avatar qui fait un demi-tour (rotation 3D de 180°) puis revient à sa place à chaque hausse de [trigger] (#988, #1019).
 /// Revient à l'état initial à la fin : plus de transformation, donc pas de saut visuel.
 class ChkobbaAvatarFlip extends StatefulWidget {
   const ChkobbaAvatarFlip({
@@ -240,7 +240,8 @@ class _ChkobbaAvatarFlipState extends State<ChkobbaAvatarFlip>
       child: widget.child,
       builder: (context, child) {
         if (_controller.value == 0) return child!;
-        final angle = _controller.value * 2 * math.pi;
+        // Aller-retour : 0 → demi-tour (180°) à mi-parcours, puis retour à 0 (#1019).
+        final angle = math.pi * (1 - (2 * _controller.value - 1).abs());
         final transform = Matrix4.identity()
           ..setEntry(3, 2, 0.001)
           ..rotateY(angle);

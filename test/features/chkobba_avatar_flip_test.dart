@@ -45,6 +45,22 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('demi-tour à 90° puis 180° (#1019)', (tester) async {
+    await tester.pumpWidget(_app(0));
+    await tester.pumpWidget(_app(1));
+    // Quart du parcours (150 ms sur 600 ms) : un quart de tour du demi-tour, 90°.
+    await tester.pump(const Duration(milliseconds: 150));
+    final quarter = tester.widget<Transform>(find.byKey(_flipKey));
+    expect(quarter.transform.storage[0], closeTo(0, 1e-2));
+
+    // Mi-parcours : demi-tour complet, l'avatar montre son dos (cos 180° = -1).
+    await tester.pump(const Duration(milliseconds: 150));
+    final half = tester.widget<Transform>(find.byKey(_flipKey));
+    expect(half.transform.storage[0], closeTo(-1, 1e-2));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('pas de rotation si animations désactivées', (tester) async {
     cardAnimations.value = false;
     await tester.pumpWidget(_app(0));
