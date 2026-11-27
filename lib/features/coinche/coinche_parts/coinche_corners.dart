@@ -1,63 +1,33 @@
 part of '../coinche_screen.dart';
 
-/// Coin d'équipe : les deux avatars de l'équipe, face à face, et son score (#1004).
+/// Coin d'équipe : seulement le score de l'équipe (#1032). Les avatars sont sur chaque siège.
 class _TeamCorner extends StatelessWidget {
   const _TeamCorner({
     required this.controller,
     required this.team,
-    required this.avatarIds,
-    required this.seatNames,
-    required this.me,
   });
 
   final CoincheController controller;
   final Team team;
 
-  // Avatar de chaque siège, indexé par Seat (issue #554).
-  final List<String> avatarIds;
-  final Map<Seat, String> seatNames;
-  final String me;
-
   @override
   Widget build(BuildContext context) {
-    final round = controller.round;
     final color = _teamTone(team);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final seat in coincheTeamSeats(team))
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: _CornerAvatar(
-                  seat: seat,
-                  round: round,
-                  avatarId: avatarIds[seat.index],
-                  name: coincheSeatName(seatNames, seat, me),
-                ),
-              ),
-          ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color, width: 2),
+      ),
+      child: Text(
+        '${_teamLabel[team]} ${controller.match.scores[team]}',
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w900,
+          fontSize: 12,
         ),
-        const SizedBox(height: 2),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: color, width: 2),
-          ),
-          child: Text(
-            '${_teamLabel[team]} ${controller.match.scores[team]}',
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.w900,
-              fontSize: 12,
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

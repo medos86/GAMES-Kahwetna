@@ -67,6 +67,7 @@ class _Table extends StatelessWidget {
                         round: round,
                         cardWidth: cardWidth * 0.6,
                         name: coincheSeatName(seatNames, Seat.north),
+                        avatarId: avatarIds[Seat.north.index],
                       ),
                     ),
                   ),
@@ -82,6 +83,7 @@ class _Table extends StatelessWidget {
                         round: round,
                         cardWidth: cardWidth * 0.6,
                         name: coincheSeatName(seatNames, Seat.west),
+                        avatarId: avatarIds[Seat.west.index],
                       ),
                     ),
                   ),
@@ -97,6 +99,7 @@ class _Table extends StatelessWidget {
                         round: round,
                         cardWidth: cardWidth * 0.6,
                         name: coincheSeatName(seatNames, Seat.east),
+                        avatarId: avatarIds[Seat.east.index],
                       ),
                     ),
                   ),
@@ -113,24 +116,12 @@ class _Table extends StatelessWidget {
                 Positioned(
                   top: 4,
                   left: 4,
-                  child: _TeamCorner(
-                    controller: controller,
-                    team: Team.ns,
-                    avatarIds: avatarIds,
-                    seatNames: seatNames,
-                    me: me,
-                  ),
+                  child: _TeamCorner(controller: controller, team: Team.ns),
                 ),
                 Positioned(
                   top: 4,
                   right: 4,
-                  child: _TeamCorner(
-                    controller: controller,
-                    team: Team.ew,
-                    avatarIds: avatarIds,
-                    seatNames: seatNames,
-                    me: me,
-                  ),
+                  child: _TeamCorner(controller: controller, team: Team.ew),
                 ),
                 Positioned(
                   bottom: 4,
@@ -140,6 +131,16 @@ class _Table extends StatelessWidget {
                     avatarIds: avatarIds,
                     seatNames: seatNames,
                     me: me,
+                  ),
+                ),
+                Positioned(
+                  bottom: 4,
+                  right: 4,
+                  child: _CornerAvatar(
+                    seat: Seat.south,
+                    round: round,
+                    avatarId: avatarIds[Seat.south.index],
+                    name: coincheSeatName(seatNames, Seat.south, me),
                   ),
                 ),
                 if (status != null)
@@ -222,6 +223,7 @@ class _SeatInfo extends StatelessWidget {
     required this.round,
     required this.cardWidth,
     required this.name,
+    required this.avatarId,
   });
 
   final Seat seat;
@@ -230,6 +232,9 @@ class _SeatInfo extends StatelessWidget {
 
   // Nom affiché sous l'avatar (issue #770).
   final String name;
+
+  // Avatar du siège, médaillon posé au-dessus du nom (issue #1032).
+  final String avatarId;
 
   @override
   Widget build(BuildContext context) {
@@ -244,6 +249,13 @@ class _SeatInfo extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          _CornerAvatar(
+            seat: seat,
+            round: round,
+            avatarId: avatarId,
+            name: name,
+          ),
+          const SizedBox(height: 4),
           _SeatNamePill(
             seat: seat,
             name: name,
