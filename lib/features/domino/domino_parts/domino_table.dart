@@ -195,6 +195,7 @@ class _Table extends StatelessWidget {
     final ends = controller.chainEnds;
 
     return Container(
+      key: const ValueKey('domino-table'),
       padding: EdgeInsets.symmetric(
         horizontal: sm ? 20 : 8,
         vertical: sm ? 8 : 12,
