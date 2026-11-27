@@ -138,7 +138,7 @@ class _DominoScreenState extends State<DominoScreen> {
                     onMenu: () => Navigator.of(context).maybePop(),
                   ),
                   // Paysage : espacement réduit pour tenir dans la hauteur (#344).
-                  SizedBox(height: sm ? unit * 0.25 : unit),
+                  SizedBox(height: sm ? unit * 0.25 : (compact ? unit * 0.5 : unit)),
                   Expanded(
                     child: Container(
                       key: const ValueKey('domino-felt'),
@@ -155,7 +155,9 @@ class _DominoScreenState extends State<DominoScreen> {
                           decoration: ScobaPalette.tapisPremiumDecoration,
                           child: Column(
                             children: [
-                              SizedBox(height: unit * (sm || compact ? 0.2 : 0.6)),
+                              SizedBox(
+                                height: unit * (sm || compact ? 0.2 : 0.6),
+                              ),
                               _OpponentHand(
                                 unit: unit,
                                 count: game.hands[Player.opponent]!.length,
@@ -178,7 +180,9 @@ class _DominoScreenState extends State<DominoScreen> {
                                   ),
                                 ),
                               ),
-                              SizedBox(height: unit * (sm || compact ? 0.2 : 0.6)),
+                              SizedBox(
+                                height: unit * (sm || compact ? 0.2 : 0.6),
+                              ),
                               Expanded(
                                 child: _Table(
                                   unit: unit,
@@ -186,7 +190,9 @@ class _DominoScreenState extends State<DominoScreen> {
                                   controller: _controller,
                                 ),
                               ),
-                              SizedBox(height: unit * (sm || compact ? 0.2 : 0.6)),
+                              SizedBox(
+                                height: unit * (sm || compact ? 0.2 : 0.6),
+                              ),
                               _Footer(
                                 unit: unit,
                                 sm: sm,
