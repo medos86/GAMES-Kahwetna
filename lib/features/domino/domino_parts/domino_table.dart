@@ -93,14 +93,18 @@ class _OpponentHand extends StatelessWidget {
         children: [
           SizedBox(
             width: unit * 3.4,
-            child: Center(child: pile),
+            child: Center(
+              child: FittedBox(fit: BoxFit.scaleDown, child: pile),
+            ),
           ),
           Expanded(
             child: FittedBox(fit: BoxFit.scaleDown, child: _cards()),
           ),
           SizedBox(
             width: unit * 3.4,
-            child: Center(child: seat),
+            child: Center(
+              child: FittedBox(fit: BoxFit.scaleDown, child: seat),
+            ),
           ),
         ],
       ),

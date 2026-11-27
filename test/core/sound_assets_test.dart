@@ -39,6 +39,7 @@ void main() {
     Sfx.pawnMove: 0.5,
     Sfx.pawnHome: 1.0,
     Sfx.pawnStep: 0.2,
+    Sfx.bell: 1.0,
   };
 
   test('chaque effet a une durée maximale déclarée', () {

@@ -116,9 +116,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('compteur au centre bas du tapis', (tester) async {
+  testWidgets('alerte dernier tour au centre bas du tapis', (tester) async {
     await _pump(tester, _state(starter: Player.player));
-    final counter = tester.getCenter(find.byType(ChkobbaDeckCounter));
+    final counter = tester.getCenter(find.byType(ChkobbaLastTurnAlert));
     final table = tester.getRect(find.byType(ChkobbaTable));
     expect(counter.dx, closeTo(table.center.dx, 1));
     expect(counter.dy, greaterThan(table.center.dy));

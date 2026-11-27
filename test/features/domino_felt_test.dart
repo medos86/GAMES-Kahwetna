@@ -53,7 +53,10 @@ void main() {
         findsOneWidget,
       );
       // Score adversaire et score joueur, dans le tapis.
-      expect(find.descendant(of: felt, matching: find.text('0')), findsNWidgets(2));
+      expect(
+        find.descendant(of: felt, matching: find.text('0')),
+        findsNWidgets(2),
+      );
       expect(tester.takeException(), isNull);
     },
   );

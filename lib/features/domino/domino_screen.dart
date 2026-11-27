@@ -109,6 +109,8 @@ class _DominoScreenState extends State<DominoScreen> {
     final metrics = DeviceMetrics(width: size.width, height: size.height);
     final unit = metrics.gameUnit;
     final sm = size.width >= 640;
+    // Petit écran (hauteur < 700) : espaces verticaux réduits pour tenir.
+    final compact = size.height < 700;
 
     return ExitGuard(
       active: _controller.game.matchWinner == null,
@@ -136,12 +138,19 @@ class _DominoScreenState extends State<DominoScreen> {
                     onMenu: () => Navigator.of(context).maybePop(),
                   ),
                   // Paysage : espacement réduit pour tenir dans la hauteur (#344).
-                  SizedBox(height: sm ? unit * 0.25 : unit),
+                  SizedBox(
+                    height: sm ? unit * 0.25 : (compact ? unit * 0.5 : unit),
+                  ),
                   Expanded(
                     child: Container(
                       key: const ValueKey('domino-felt'),
-                      margin: const EdgeInsets.fromLTRB(4, 6, 4, 6),
-                      padding: const EdgeInsets.all(6),
+                      margin: EdgeInsets.fromLTRB(
+                        4,
+                        compact ? 2 : 6,
+                        4,
+                        compact ? 2 : 6,
+                      ),
+                      padding: EdgeInsets.all(compact ? 2 : 6),
                       decoration: BoxDecoration(
                         color: ComicPalette.tableWood,
                         borderRadius: BorderRadius.circular(22),
@@ -153,55 +162,61 @@ class _DominoScreenState extends State<DominoScreen> {
                           decoration: ScobaPalette.tapisPremiumDecoration,
                           child: Column(
                             children: [
-                          SizedBox(height: unit * (sm ? 0.2 : 0.6)),
-                          _OpponentHand(
-                            unit: unit,
-                            count: game.hands[Player.opponent]!.length,
-                            pile: _Pile(
-                              unit: unit,
-                              count: game.boneyard.length,
-                              bounce: _controller.mustDraw &&
-                                  game.boneyard.isNotEmpty,
-                            ),
-                            seat: _ScoreBox(
-                              label: t('opponentShort'),
-                              value: game.scores[Player.opponent]!,
-                              color: const Color(0xFFB91C1C),
-                              active: opponentTurn,
-                              unit: unit,
-                              avatarId: _avatarIds[Player.opponent.index],
-                              avatarState: dominoAvatarState(
-                                game,
-                                Player.opponent,
+                              SizedBox(
+                                height: unit * (sm || compact ? 0.2 : 0.6),
                               ),
-                            ),
-                          ),
-                          SizedBox(height: unit * (sm ? 0.2 : 0.6)),
-                          Expanded(
-                            child: _Table(
-                              unit: unit,
-                              sm: sm,
-                              controller: _controller,
-                            ),
-                          ),
-                          SizedBox(height: unit * (sm ? 0.2 : 0.6)),
-                          _Footer(
-                            unit: unit,
-                            sm: sm,
-                            controller: _controller,
-                            seat: _ScoreBox(
-                              label: t('you'),
-                              value: game.scores[Player.player]!,
-                              color: const Color(0xFF047857),
-                              active: playerTurn,
-                              unit: unit,
-                              avatarId: _avatarIds[Player.player.index],
-                              avatarState: dominoAvatarState(
-                                game,
-                                Player.player,
+                              _OpponentHand(
+                                unit: unit,
+                                count: game.hands[Player.opponent]!.length,
+                                pile: _Pile(
+                                  unit: unit,
+                                  count: game.boneyard.length,
+                                  bounce: _controller.mustDraw &&
+                                      game.boneyard.isNotEmpty,
+                                ),
+                                seat: _ScoreBox(
+                                  label: t('opponentShort'),
+                                  value: game.scores[Player.opponent]!,
+                                  color: const Color(0xFFB91C1C),
+                                  active: opponentTurn,
+                                  unit: unit,
+                                  avatarId: _avatarIds[Player.opponent.index],
+                                  avatarState: dominoAvatarState(
+                                    game,
+                                    Player.opponent,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
+                              SizedBox(
+                                height: unit * (sm || compact ? 0.2 : 0.6),
+                              ),
+                              Expanded(
+                                child: _Table(
+                                  unit: unit,
+                                  sm: sm,
+                                  controller: _controller,
+                                ),
+                              ),
+                              SizedBox(
+                                height: unit * (sm || compact ? 0.2 : 0.6),
+                              ),
+                              _Footer(
+                                unit: unit,
+                                sm: sm,
+                                controller: _controller,
+                                seat: _ScoreBox(
+                                  label: t('you'),
+                                  value: game.scores[Player.player]!,
+                                  color: const Color(0xFF047857),
+                                  active: playerTurn,
+                                  unit: unit,
+                                  avatarId: _avatarIds[Player.player.index],
+                                  avatarState: dominoAvatarState(
+                                    game,
+                                    Player.player,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
