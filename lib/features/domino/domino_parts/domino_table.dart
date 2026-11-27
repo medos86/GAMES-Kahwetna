@@ -100,12 +100,8 @@ class _OpponentHand extends StatelessWidget {
           Expanded(
             child: FittedBox(fit: BoxFit.scaleDown, child: _cards()),
           ),
-          SizedBox(
-            width: unit * 3.4,
-            child: Center(
-              child: FittedBox(fit: BoxFit.scaleDown, child: seat),
-            ),
-          ),
+          // Avatar non réduit : même taille que celui du joueur (#1039).
+          seat,
         ],
       ),
     );
