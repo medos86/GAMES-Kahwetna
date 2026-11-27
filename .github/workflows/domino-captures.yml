@@ -1,0 +1,40 @@
+# Captures du Domino FR et AR (#1050-#1052), générées sur le runner Ubuntu puis versionnées sur la branche.
+name: Captures Domino
+
+on:
+  push:
+    branches: ["fix/domino-layout-1050-1052"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  captures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+
+      - name: Dépendances
+        run: flutter pub get
+
+      - name: Générer les captures
+        run: flutter test --update-goldens test/features/domino_goldens_test.dart
+
+      - name: Versionner les captures sur la branche
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add test/features/goldens
+          if git diff --cached --quiet; then
+            echo "Aucune capture"
+          else
+            git commit -m "Captures Domino FR/AR : génération par la CI"
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi
