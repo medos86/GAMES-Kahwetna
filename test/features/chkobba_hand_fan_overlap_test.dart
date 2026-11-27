@@ -54,20 +54,23 @@ void main() {
     );
     await tester.pump();
 
-    final rects = <Rect>[];
+    final centers = <Offset>[];
+    final widths = <double>[];
     for (final id in ['batons-5', 'coupes-3', 'epees-9']) {
       final card = find.byWidgetPredicate(
         (w) => w is ChkobbaCardFace && w.card.id == id,
       );
       expect(card, findsOneWidget);
-      rects.add(tester.getRect(card));
+      centers.add(tester.getCenter(card));
+      widths.add(tester.getSize(card).width);
     }
-    rects.sort((a, b) => a.left.compareTo(b.left));
-    // Chaque carte recouvre la suivante : le décalage est inférieur à la largeur.
-    for (var i = 1; i < rects.length; i++) {
-      final shift = rects[i].left - rects[i - 1].left;
+    // Centres espacés d'un pas inférieur à la largeur d'une carte : recouvrement.
+    final order = [0, 1, 2]..sort((a, b) => centers[a].dx.compareTo(centers[b].dx));
+    final cardWidth = widths[order[1]];
+    for (var i = 1; i < order.length; i++) {
+      final shift = centers[order[i]].dx - centers[order[i - 1]].dx;
       expect(shift, greaterThan(0));
-      expect(shift, lessThan(rects[i].width));
+      expect(shift, lessThan(cardWidth));
     }
   });
 }
