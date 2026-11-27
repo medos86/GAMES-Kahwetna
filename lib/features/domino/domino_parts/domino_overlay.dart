@@ -144,21 +144,3 @@ class DominoRoundOverlay extends StatelessWidget {
 }
 
 /// Bouton « Menu » du Domino en case BD (issue #97).
-/// Bouton « Piocher / Passer » en case BD (#146) : rouge, contour encre, libellé en Bangers.
-Widget _comicDrawChip(String label) {
-  return ComicPanel(
-    color: ComicPalette.red,
-    radius: 8,
-    shadowOffset: const Offset(3, 3),
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    child: Text(
-      label,
-      style: const TextStyle(
-        fontFamily: 'Bangers',
-        fontSize: 20,
-        letterSpacing: 1,
-        color: ComicPalette.paper,
-      ),
-    ),
-  );
-}
