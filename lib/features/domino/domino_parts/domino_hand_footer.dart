@@ -62,7 +62,13 @@ class _Footer extends StatelessWidget {
         children: [
           Row(
             children: [
-              seat,
+              // Petit écran : le score rétrécit au lieu de déborder.
+              if (MediaQuery.sizeOf(context).width < 340)
+                Flexible(
+                  child: FittedBox(fit: BoxFit.scaleDown, child: seat),
+                )
+              else
+                seat,
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
