@@ -55,13 +55,18 @@ class _ChkobbaLastTurnAlertState extends State<ChkobbaLastTurnAlert>
                 ),
               ),
               const SizedBox(width: 6),
-              Text(
-                t('sLastTurn'),
-                style: const TextStyle(
-                  fontFamily: 'Bangers',
-                  fontSize: 22,
-                  letterSpacing: 1.5,
-                  color: ComicPalette.ink,
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    t('sLastTurn'),
+                    style: const TextStyle(
+                      fontFamily: 'Bangers',
+                      fontSize: 22,
+                      letterSpacing: 1.5,
+                      color: ComicPalette.ink,
+                    ),
+                  ),
                 ),
               ),
             ],
