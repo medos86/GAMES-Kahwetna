@@ -133,6 +133,16 @@ class _Table extends StatelessWidget {
                     me: me,
                   ),
                 ),
+                Positioned(
+                  bottom: 4,
+                  right: 4,
+                  child: _CornerAvatar(
+                    seat: Seat.south,
+                    round: round,
+                    avatarId: avatarIds[Seat.south.index],
+                    name: coincheSeatName(seatNames, Seat.south, me),
+                  ),
+                ),
                 if (status != null)
                   Positioned(
                     left: 8,

@@ -22,7 +22,7 @@ void main() {
         ),
       );
       await tester.pump();
-      // Sud (joueur, footer) + nord, ouest, est. Les coins d'équipe n'en ajoutent plus.
+      // Sud (coin bas-droite) + nord, ouest, est : un médaillon par siège.
       expect(find.byType(TurnAvatar), findsNWidgets(4));
     },
   );
