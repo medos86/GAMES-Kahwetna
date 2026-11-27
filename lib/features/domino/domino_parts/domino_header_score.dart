@@ -72,7 +72,7 @@ AvatarState dominoAvatarState(DominoState game, Player player) {
 
 /// Taille de l'avatar inactif et de l'avatar du joueur dont c'est le tour, en dp.
 /// Mêmes tailles que le Chkobba (`_SidePanel`).
-const double _seatAvatarActiveSize = 48;
+const double _seatAvatarActiveSize = 40;
 
 /// Coin d'un joueur, affiché comme au Chkobba (`_SidePanel`) : avatar en médaillon,
 /// pastille du pseudo, puis pastille du score.
