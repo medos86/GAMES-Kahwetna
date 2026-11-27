@@ -172,6 +172,7 @@ class _DominoScreenState extends State<DominoScreen> {
                                   color: const Color(0xFFB91C1C),
                                   active: opponentTurn,
                                   unit: unit,
+                                  horizontal: true,
                                   avatarId: _avatarIds[Player.opponent.index],
                                   avatarState: dominoAvatarState(
                                     game,
@@ -208,6 +209,7 @@ class _DominoScreenState extends State<DominoScreen> {
                                   color: const Color(0xFF047857),
                                   active: playerTurn,
                                   unit: unit,
+                                  horizontal: true,
                                   avatarId: _avatarIds[Player.player.index],
                                   avatarState: dominoAvatarState(
                                     game,
