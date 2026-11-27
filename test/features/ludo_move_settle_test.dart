@@ -42,6 +42,7 @@ void main() {
         random: () => 0.99,
       );
       c.roll();
+      async.elapse(kLudoDieRollDuration);
       expect(c.legalIds, isNotEmpty);
       c.tapToken(c.legalIds.first);
 
@@ -63,6 +64,7 @@ void main() {
         random: () => 0.99,
       );
       c.roll();
+      async.elapse(kLudoDieRollDuration);
       c.tapToken(c.legalIds.first);
       expect(async.pendingTimers, isNotEmpty);
       c.dispose();

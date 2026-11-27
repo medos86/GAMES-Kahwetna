@@ -20,10 +20,15 @@ void main() {
 
       c.roll();
       expect(c.game.turn, LudoColor.red); // rouge = IA
+      // Le dé roule d'abord : le « non » n'apparaît pas avant la valeur (#1046).
+      expect(c.shownTurn, LudoColor.blue);
+      expect(c.refusedColor, isNull);
+      final rollsBefore = c.game.rollId;
+
+      async.elapse(kLudoDieRollDuration);
       // Pendant la pause « non », le tour reste affiché au bleu (#855).
       expect(c.shownTurn, LudoColor.blue);
       expect(c.refusedColor, LudoColor.blue);
-      final rollsBefore = c.game.rollId;
 
       async.elapse(ludoNoMoveHold - const Duration(milliseconds: 1));
       expect(c.shownTurn, LudoColor.blue);
