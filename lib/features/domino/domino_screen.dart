@@ -138,7 +138,9 @@ class _DominoScreenState extends State<DominoScreen> {
                     onMenu: () => Navigator.of(context).maybePop(),
                   ),
                   // Paysage : espacement réduit pour tenir dans la hauteur (#344).
-                  SizedBox(height: sm ? unit * 0.25 : (compact ? unit * 0.5 : unit)),
+                  SizedBox(
+                    height: sm ? unit * 0.25 : (compact ? unit * 0.5 : unit),
+                  ),
                   Expanded(
                     child: Container(
                       key: const ValueKey('domino-felt'),
