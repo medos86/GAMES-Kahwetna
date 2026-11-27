@@ -6,6 +6,7 @@ class _Footer extends StatelessWidget {
     required this.sm,
     required this.controller,
     required this.seat,
+    required this.pile,
   });
 
   final double unit;
@@ -14,6 +15,9 @@ class _Footer extends StatelessWidget {
 
   // Score et avatar du joueur, à gauche de la légende de la main (comme Chkobba).
   final Widget seat;
+
+  // Pioche, en bas à gauche de la main ; un tap pioche ou passe (#1040).
+  final Widget pile;
 
   void _onTile(
     BuildContext context,
@@ -44,10 +48,11 @@ class _Footer extends StatelessWidget {
     final game = controller.game;
     final playable = controller.playable.map((t) => t.id).toSet();
     final canAct = game.turn == Player.player && game.roundWinner == null;
-
     final label = game.boneyard.isNotEmpty ? t('pickUp') : t('pass');
+    final hand = game.hands[Player.player]!;
 
     // Pas de planche : la main est posée directement sur le tapis (#1038).
+    // La pioche est en bas, à gauche de la main, et cliquable (#1040).
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
       child: Column(
@@ -65,7 +70,7 @@ class _Footer extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'TA MAIN · ${game.hands[Player.player]!.length} PIERRES',
+                  'TA MAIN · ${hand.length} PIERRES',
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -77,87 +82,69 @@ class _Footer extends StatelessWidget {
                   ),
                 ),
               ),
-              _ShakeOnTrigger(
-                trigger: controller.drawInvalidCount,
-                child: Pressable(
-                  semanticLabel: game.boneyard.isEmpty
-                      ? '$label, ${Strings.dominoDrawUnavailable}'
-                      : label,
-                  onTap: () => _onDraw(context),
-                  child: kComicDomino
-                      ? _comicDrawChip(label)
-                      : Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFFF5A3C), Color(0xFFD71920)],
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: const Color(0xFF4A0A0A),
-                              width: 2,
-                            ),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color(0xFFFF8A4C),
-                                spreadRadius: 3,
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            label,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 8),
           SizedBox(
             height: sm ? 96 : 76,
-            child: game.hands[Player.player]!.isEmpty
-                ? Center(
-                    child: Text(
-                      t('emptyHand'),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: Color(0x9920284B),
-                      ),
+            child: Row(
+              children: [
+                _ShakeOnTrigger(
+                  trigger: controller.drawInvalidCount,
+                  child: Pressable(
+                    semanticLabel: game.boneyard.isEmpty
+                        ? '$label, ${Strings.dominoDrawUnavailable}'
+                        : label,
+                    onTap: () => _onDraw(context),
+                    child: SizedBox(
+                      width: unit * 2.2,
+                      child: FittedBox(fit: BoxFit.scaleDown, child: pile),
                     ),
-                  )
-                : _HandScroller(
-                    children: [
-                      for (final tile in game.hands[Player.player]!)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: _ShakeOnTrigger(
-                            trigger: controller.invalidTileId == tile.id
-                                ? controller.invalidCount
-                                : 0,
-                            child: _HandTile(
-                              tile: tile,
-                              sm: sm,
-                              selected: controller.selectedTileId == tile.id,
-                              enabled: canAct && playable.contains(tile.id),
-                              onTap: () => _onTile(
-                                context,
-                                tile,
-                                playable.contains(tile.id),
-                                canAct,
-                              ),
+                  ),
+                ),
+                Expanded(
+                  child: hand.isEmpty
+                      ? Center(
+                          child: Text(
+                            t('emptyHand'),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: Color(0x9920284B),
                             ),
                           ),
+                        )
+                      : _HandScroller(
+                          children: [
+                            for (final tile in hand)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                child: _ShakeOnTrigger(
+                                  trigger: controller.invalidTileId == tile.id
+                                      ? controller.invalidCount
+                                      : 0,
+                                  child: _HandTile(
+                                    tile: tile,
+                                    sm: sm,
+                                    selected:
+                                        controller.selectedTileId == tile.id,
+                                    enabled:
+                                        canAct && playable.contains(tile.id),
+                                    onTap: () => _onTile(
+                                      context,
+                                      tile,
+                                      playable.contains(tile.id),
+                                      canAct,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
-                    ],
-                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

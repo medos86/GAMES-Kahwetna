@@ -74,15 +74,13 @@ class _OpponentHand extends StatelessWidget {
   const _OpponentHand({
     required this.unit,
     required this.count,
-    required this.pile,
     required this.seat,
   });
 
   final double unit;
   final int count;
 
-  // Pioche à gauche, score et avatar de l'adversaire à droite (comme Chkobba).
-  final Widget pile;
+  // Score et avatar de l'adversaire à droite (comme Chkobba) ; la pioche est en bas (#1040).
   final Widget seat;
 
   @override
@@ -91,12 +89,6 @@ class _OpponentHand extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(
-          width: unit * 3.4,
-          child: Center(
-            child: FittedBox(fit: BoxFit.scaleDown, child: pile),
-          ),
-        ),
         Expanded(
           child: SizedBox(
             height: unit * 3.4,

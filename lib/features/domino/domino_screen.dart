@@ -7,7 +7,6 @@ import 'package:material_ui/material_ui.dart';
 import '../../core/theme/comic_palette.dart';
 import '../../core/theme/scoba_palette.dart';
 import '../../core/theme/game_style.dart';
-import '../../widgets/comic/comic_panel.dart';
 
 import 'package:flutter/foundation.dart' show ValueListenable;
 
@@ -168,12 +167,6 @@ class _DominoScreenState extends State<DominoScreen> {
                               _OpponentHand(
                                 unit: unit,
                                 count: game.hands[Player.opponent]!.length,
-                                pile: _Pile(
-                                  unit: unit,
-                                  count: game.boneyard.length,
-                                  bounce: _controller.mustDraw &&
-                                      game.boneyard.isNotEmpty,
-                                ),
                                 seat: _ScoreBox(
                                   label: t('opponentShort'),
                                   value: game.scores[Player.opponent]!,
@@ -204,6 +197,12 @@ class _DominoScreenState extends State<DominoScreen> {
                                 unit: unit,
                                 sm: sm,
                                 controller: _controller,
+                                pile: _Pile(
+                                  unit: unit,
+                                  count: game.boneyard.length,
+                                  bounce: _controller.mustDraw &&
+                                      game.boneyard.isNotEmpty,
+                                ),
                                 seat: _ScoreBox(
                                   label: t('you'),
                                   value: game.scores[Player.player]!,
