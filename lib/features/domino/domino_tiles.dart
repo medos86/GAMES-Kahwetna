@@ -281,17 +281,16 @@ class DominoChain extends StatelessWidget {
           halfWidth: halfWidth,
         );
         final length = unit * 2;
-        final slots = layoutChainAroundCenter(
+        // Bord du tapis recalculé au zoom appliqué (#1028).
+        final fitted = layoutChainFitted(
           count: chain.length,
           openIndex: _openingIndex(),
-          halfWidth: halfWidth,
-        );
-        final scale = chainScale(
-          slots: slots,
-          unit: unit,
           width: availableWidth,
           height: availableHeight,
+          unit: unit,
         );
+        final slots = fitted.slots;
+        final scale = fitted.scale;
 
         final last = chain.length - 1;
         final tiles = <Widget>[];

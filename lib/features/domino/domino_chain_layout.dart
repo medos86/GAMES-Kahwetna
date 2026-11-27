@@ -123,3 +123,47 @@ double chainScale({
   final byHeight = halfHeight <= 0 ? 1.0 : (height / 2) / halfHeight;
   return math.min(1.0, math.min(byWidth, byHeight));
 }
+
+/// Chaîne placée et zoomée ensemble (#1028) : le bord du tapis est recalculé à partir du zoom appliqué.
+class FittedChain {
+  const FittedChain({required this.slots, required this.scale});
+
+  final List<ChainSlot> slots;
+  final double scale;
+}
+
+/// Demi-largeur du tapis en unités de demi-pierre, à un zoom donné : paire, au moins 4.
+int chainEdgeAtZoom({
+  required double width,
+  required double unit,
+  required double zoom,
+}) {
+  final edge = (width / 2 / (unit * zoom)).floor();
+  return math.max(4, edge - edge % 2);
+}
+
+/// Place la chaîne au zoom réel : on part du zoom 1, on recalcule le bord du tapis à ce zoom,
+/// puis on réduit le zoom si la chaîne déborde. Le virage se fait donc au bord affiché.
+FittedChain layoutChainFitted({
+  required int count,
+  required int openIndex,
+  required double width,
+  required double height,
+  required double unit,
+}) {
+  var zoom = 1.0;
+  var slots = <ChainSlot>[];
+  var fit = 1.0;
+  for (var i = 0; i < 12; i++) {
+    final edge = chainEdgeAtZoom(width: width, unit: unit, zoom: zoom);
+    slots = layoutChainAroundCenter(
+      count: count,
+      openIndex: openIndex,
+      halfWidth: edge,
+    );
+    fit = chainScale(slots: slots, unit: unit, width: width, height: height);
+    if (fit >= zoom - 1e-9) break;
+    zoom = fit;
+  }
+  return FittedChain(slots: slots, scale: fit);
+}
