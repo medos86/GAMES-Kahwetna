@@ -81,6 +81,24 @@ void main() {
     expect(ok.staged, isEmpty);
   });
 
+  test('après ouverture, les paquets posés dans le tour comptent pour la mise min (#1054)', () {
+    final state = withHand(
+      playing(base, turn: 0, last: 0),
+      0,
+      [...kings3, ...queens3, ...fives3, extra],
+    );
+    final opened = poseMeld(
+      poseMeld(state, ['ks', 'kh', 'kc']),
+      ['qs', 'qh', 'qd'],
+    );
+    expect(opened.lastOpening, 60);
+    final more = poseMeld(opened, ['fs', 'fh', 'fc']);
+    final done = discardCard(more, 'x');
+    expect(done.lastOpening, 75);
+    expect(done.openings[0], 75);
+    expect(minOpening(done), 76);
+  });
+
   test('ouverture suivante : refusée à 60, acceptée à 61 et plus', () {
     final state = withHand(
       playing(base, turn: 1, last: 60),

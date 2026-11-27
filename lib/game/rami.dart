@@ -671,6 +671,16 @@ RamiState _open(RamiState state, int seat, int points) => state.copyWith(
       ],
     );
 
+/// Fin de tour (#1054) : le total d'ouverture du tour devient le total de tous ses paquets.
+/// Il fixe la mise min suivante (lastOpening + 1).
+RamiState _closeOpening(RamiState state, int seat, int points) => state.copyWith(
+      lastOpening: points,
+      openings: [
+        for (var i = 0; i < state.openings.length; i++)
+          i == seat ? points : state.openings[i],
+      ],
+    );
+
 /// Annule les poses du tour en cours, avant ouverture (#496) : les combinaisons repartent
 /// de la table et les cartes reviennent en main. Après ouverture, rien n'est annulé.
 RamiState cancelStaged(RamiState state) {
@@ -929,11 +939,15 @@ RamiState discardCard(RamiState state, String cardId) {
     return state;
   }
 
-  final next = _setHand(
+  // Fin de tour : si le joueur a ouvert pendant ce tour, la mise min suivante prend le total de
+  // tous les paquets posés depuis le début du tour, et non le total au moment de l'ouverture.
+  final closing = state.turnOpenMin > 0 ? _turnPoints(state) : null;
+  var next = _setHand(
     state.copyWith(discard: [...state.discard, card], takenId: null),
     seat,
     hand.where((item) => item.id != cardId).toList(),
   );
+  if (closing != null) next = _closeOpening(next, seat, closing);
   if (next.hands[seat].isEmpty) return _finish(next, seat);
   return next.copyWith(
     turn: nextSeat(seat),
