@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 part of '../chkobba_screen.dart';
 
 /// Cartes restantes à distribuer (#983) : simple pastille, sans dos de cartes empilés.
@@ -92,7 +90,8 @@ class _HandState extends State<_Hand> {
     if (widget.arc) {
       // Éventail : la carte garde son format (480 x 707) ; chaque carte
       // recouvre la précédente d'environ 45 %.
-      final faceW = math.min(widget.width, widget.height * 480 / 707);
+      final byHeight = widget.height * 480 / 707;
+      final faceW = widget.width < byHeight ? widget.width : byHeight;
       final step = faceW * 0.55;
       return SizedBox(
         width: faceW + 2 * step,
