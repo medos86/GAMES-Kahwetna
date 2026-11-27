@@ -53,6 +53,7 @@ List<ChainSlot> layoutChainAroundCenter({
 }
 
 /// Un bras : rangées horizontales, virage vertical en bout de rangée, vers le bas.
+/// Chaque rangée va jusqu'au bord du tapis (droit puis gauche, en alternance) avant de tourner.
 List<ChainSlot> _arm(int count, int halfWidth) {
   final out = <ChainSlot>[];
   var y = 0;
@@ -72,14 +73,17 @@ List<ChainSlot> _arm(int count, int halfWidth) {
         cx = halfWidth - 2;
       }
     } else {
-      if (cx >= 2) {
+      // La rangée de retour va jusqu'au bord gauche du tapis, comme la première rangée va jusqu'au bord droit.
+      if (cx >= 2 - halfWidth) {
         out.add(ChainSlot(x: cx, y: y, vertical: false, reverse: true));
         cx -= 2;
       } else {
-        out.add(ChainSlot(x: 1, y: y, vertical: true, reverse: false));
+        out.add(
+          ChainSlot(x: 1 - halfWidth, y: y, vertical: true, reverse: false),
+        );
         y += 2;
         rightward = true;
-        cx = 1;
+        cx = 1 - halfWidth;
       }
     }
   }
