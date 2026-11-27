@@ -34,6 +34,7 @@ import '../../widgets/game_header.dart';
 import '../../core/avatars/avatar_catalog.dart';
 import '../../core/avatars/game_avatars.dart';
 import '../../widgets/avatar_view.dart';
+import '../../widgets/turn_avatar.dart';
 import '../../widgets/game_scaffold.dart';
 import '../../widgets/dialog_button.dart';
 import '../../widgets/round_result_panel.dart';
