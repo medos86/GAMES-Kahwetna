@@ -66,15 +66,17 @@ class _Hand extends StatefulWidget {
 class _HandState extends State<_Hand> {
   Map<String, int> _slots = {};
 
-  /// Éventail : le milieu reste droit, les bords penchent et descendent (ou montent, adversaire).
+  /// Éventail : cartes qui se chevauchent, le milieu reste droit, les bords
+  /// penchent vers l'extérieur et descendent (arc en arc-en-ciel), ou montent
+  /// pour l'adversaire.
   Widget _fan(int slot, Widget child) {
     if (!widget.arc) return child;
     final t = slot - 1; // -1, 0, 1
     final dir = widget.mirror ? -1.0 : 1.0;
     return Transform.translate(
-      offset: Offset(0, dir * t.abs() * 6),
+      offset: Offset(0, dir * t.abs() * 10),
       child: Transform.rotate(
-        angle: -t * 0.14 * dir,
+        angle: t * 0.22 * dir,
         alignment: widget.mirror ? Alignment.topCenter : Alignment.bottomCenter,
         child: child,
       ),
@@ -85,6 +87,28 @@ class _HandState extends State<_Hand> {
   Widget build(BuildContext context) {
     _slots = assignTableSlots(_slots, [for (final c in widget.cards) c.id]);
     final layout = handLayout(_slots, widget.cards);
+    if (widget.arc) {
+      // Éventail : chaque carte recouvre la précédente d'environ 45 %.
+      final step = widget.width * 0.55;
+      return SizedBox(
+        width: widget.width + 2 * step,
+        height: widget.height + 14,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            for (var i = 0; i < layout.length; i++)
+              if (layout[i] != null)
+                Positioned(
+                  left: step * i,
+                  top: 0,
+                  width: widget.width,
+                  height: widget.height,
+                  child: _fan(i, widget.builder(layout[i]!)),
+                ),
+          ],
+        ),
+      );
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
