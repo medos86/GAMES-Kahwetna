@@ -27,11 +27,13 @@ void main() {
     expect(find.text(t('pickUp')), findsNothing);
     // La pioche (compteur + libellé) reste visible, sous forme cliquable.
     expect(find.text(t('draw')), findsOneWidget);
-    final pile = find.ancestor(
-      of: find.text(t('draw')),
-      matching: find.byType(Pressable),
+    expect(
+      find.ancestor(
+        of: find.text(t('draw')),
+        matching: find.byType(Pressable),
+      ),
+      findsWidgets,
     );
-    expect(pile, findsWidgetsWithAnyDescendant(find.byType(Pressable)));
     expect(tester.takeException(), isNull);
   });
 }

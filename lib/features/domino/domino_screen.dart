@@ -6,7 +6,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/theme/comic_palette.dart';
 import '../../core/theme/scoba_palette.dart';
-import '../../core/theme/game_style.dart';
 
 import 'package:flutter/foundation.dart' show ValueListenable;
 
