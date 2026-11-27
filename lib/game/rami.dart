@@ -673,13 +673,13 @@ RamiState _open(RamiState state, int seat, int points) => state.copyWith(
 
 /// Fin de tour (#1054) : le total d'ouverture du tour devient le total de tous ses paquets.
 /// Il fixe la mise min suivante (lastOpening + 1).
-RamiState _closeOpening(RamiState state, int seat, int points) => state.copyWith(
-      lastOpening: points,
-      openings: [
-        for (var i = 0; i < state.openings.length; i++)
-          i == seat ? points : state.openings[i],
-      ],
-    );
+RamiState _closeOpening(RamiState state, int seat, int points) {
+  final openings = [
+    for (var i = 0; i < state.openings.length; i++)
+      i == seat ? points : state.openings[i],
+  ];
+  return state.copyWith(lastOpening: points, openings: openings);
+}
 
 /// Annule les poses du tour en cours, avant ouverture (#496) : les combinaisons repartent
 /// de la table et les cartes reviennent en main. Après ouverture, rien n'est annulé.

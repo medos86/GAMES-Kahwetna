@@ -81,7 +81,7 @@ void main() {
     expect(ok.staged, isEmpty);
   });
 
-  test('après ouverture, les paquets posés dans le tour comptent pour la mise min (#1054)', () {
+  test('mise min : total du tour après ouverture (#1054)', () {
     final state = withHand(
       playing(base, turn: 0, last: 0),
       0,
