@@ -240,7 +240,7 @@ class ChainTile extends StatelessWidget {
 /// Chaîne posée autour de la première pierre (#930, #960). La pierre d'ouverture reste au centre
 /// et chaque pierre a une place fixe : ajouter une pierre ne déplace jamais les autres.
 /// Le zoom ne réduit la chaîne que lorsqu'elle déborde du tapis.
-class DominoChain extends StatelessWidget {
+class DominoChain extends StatefulWidget {
   const DominoChain({
     super.key,
     required this.chain,
@@ -258,10 +258,24 @@ class DominoChain extends StatelessWidget {
   /// Id de la première pierre posée. Sans lui (partie rechargée), la pierre du milieu sert de centre.
   final String? openingId;
 
+  @override
+  State<DominoChain> createState() => _DominoChainState();
+}
+
+class _DominoChainState extends State<DominoChain> {
+  final _scroll = ScrollController();
+  bool _centered = false;
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
   int _openingIndex() {
-    final index = openingId == null
-        ? -1
-        : chain.indexWhere((tile) => tile.id == openingId);
+    final chain = widget.chain;
+    final id = widget.openingId;
+    final index = id == null ? -1 : chain.indexWhere((tile) => tile.id == id);
     return index >= 0 ? index : chain.length ~/ 2;
   }
 
@@ -269,45 +283,60 @@ class DominoChain extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final chain = widget.chain;
         final availableWidth = constraints.maxWidth;
         final availableHeight = constraints.maxHeight.isFinite
             ? constraints.maxHeight
             : availableWidth;
         // Demi-largeur du tapis en unités de demi-pierre (pair).
         final halfWidth = availableWidth >= 480 ? 8 : 6;
-        // Taille de départ fixe (#960) : la chaîne commence grande, le zoom ne fait que réduire.
-        final unit = chainStartUnit(
+        // Taille de départ : la chaîne commence grande (#960, #1022).
+        final startUnit = chainStartUnit(
           width: availableWidth,
           halfWidth: halfWidth,
         );
-        final length = unit * 2;
-        // Bord du tapis recalculé au zoom appliqué (#1028).
+        // Zoom arrière seulement si la largeur déborde ; le serpent est recalé à ce zoom (#1036).
         final fitted = layoutChainFitted(
           count: chain.length,
           openIndex: _openingIndex(),
           width: availableWidth,
-          height: availableHeight,
-          unit: unit,
+          unit: startUnit,
         );
         final slots = fitted.slots;
-        final scale = fitted.scale;
+        // Taille réelle à l'écran : le zoom est appliqué à la taille de pierre, sans transformation.
+        final unit = startUnit * fitted.scale;
+        final length = unit * 2;
+        // Hauteur du contenu : au moins l'écran, sinon on défile verticalement sans réduire les pierres.
+        final contentHeight = math.max(
+          availableHeight,
+          2 * chainHalfHeight(slots: slots, unit: unit),
+        );
+
+        if (!_centered) {
+          // Au premier affichage, on se place au milieu : la pierre d'ouverture reste visible.
+          _centered = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted || !_scroll.hasClients) return;
+            _scroll.jumpTo(_scroll.position.maxScrollExtent / 2);
+          });
+        }
 
         final last = chain.length - 1;
         final tiles = <Widget>[];
         for (var i = 0; i < chain.length; i++) {
           final slot = slots[i];
           final sides = <DominoSide>[
-            if (i == 0 && leftOpen) DominoSide.left,
-            if (i == last && rightOpen) DominoSide.right,
+            if (i == 0 && widget.leftOpen) DominoSide.left,
+            if (i == last && widget.rightOpen) DominoSide.right,
           ];
           void Function(TapUpDetails)? onTap;
           if (sides.isNotEmpty) {
             onTap = (details) {
               if (sides.length == 1) {
-                onEndTap(sides.first);
+                widget.onEndTap(sides.first);
               } else {
                 final tileWidth = slot.vertical ? unit : length;
-                onEndTap(
+                widget.onEndTap(
                   details.localPosition.dx < tileWidth / 2
                       ? DominoSide.left
                       : DominoSide.right,
@@ -328,7 +357,7 @@ class DominoChain extends StatelessWidget {
             Positioned(
               key: ValueKey(chain[i].id),
               left: availableWidth / 2 + slot.x * unit,
-              top: availableHeight / 2 + (slot.y - 0.5) * unit,
+              top: contentHeight / 2 + (slot.y - 0.5) * unit,
               width: slot.width * unit,
               height: slot.height * unit,
               child: sides.isNotEmpty
@@ -342,14 +371,12 @@ class DominoChain extends StatelessWidget {
           );
         }
 
-        return ClipRect(
-          child: Transform.scale(
-            scale: scale,
-            child: SizedBox(
-              width: availableWidth,
-              height: availableHeight,
-              child: Stack(clipBehavior: Clip.none, children: tiles),
-            ),
+        return SingleChildScrollView(
+          controller: _scroll,
+          child: SizedBox(
+            width: availableWidth,
+            height: contentHeight,
+            child: Stack(clipBehavior: Clip.none, children: tiles),
           ),
         );
       },
