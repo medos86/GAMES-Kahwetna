@@ -85,7 +85,11 @@ class _ScoreBox extends StatelessWidget {
     required this.unit,
     required this.avatarId,
     required this.avatarState,
+    this.horizontal = false,
   });
+
+  /// Vrai : avatar et pastilles en rangée (#1052). Faux : en colonne (ancien rendu).
+  final bool horizontal;
 
   /// Pseudo affiché sous l'avatar.
   final String label;
@@ -139,20 +143,43 @@ class _ScoreBox extends StatelessWidget {
         'v': '$value',
       }),
       excludeSemantics: true,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: _seatAvatarActiveSize + 8,
-            height: _seatAvatarActiveSize + 8,
-            child: Center(child: ring),
-          ),
-          const SizedBox(height: 2),
-          _NamePill(name: label, active: active),
-          const SizedBox(height: 4),
-          _ScorePill(score: value, color: color),
-        ],
-      ),
+      // Disposition horizontale (#1052) : médaillon à gauche, pastilles à droite.
+      // Une seule rangée de hauteur gagne de la place au tapis (#1051).
+      child: horizontal
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: _seatAvatarActiveSize + 8,
+                  height: _seatAvatarActiveSize + 8,
+                  child: Center(child: ring),
+                ),
+                const SizedBox(width: 6),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _NamePill(name: label, active: active),
+                    const SizedBox(height: 4),
+                    _ScorePill(score: value, color: color),
+                  ],
+                ),
+              ],
+            )
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: _seatAvatarActiveSize + 8,
+                  height: _seatAvatarActiveSize + 8,
+                  child: Center(child: ring),
+                ),
+                const SizedBox(height: 2),
+                _NamePill(name: label, active: active),
+                const SizedBox(height: 4),
+                _ScorePill(score: value, color: color),
+              ],
+            ),
     );
   }
 }

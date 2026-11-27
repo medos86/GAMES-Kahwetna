@@ -59,7 +59,10 @@ class _Footer extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
+          // Libellé réduit à la largeur disponible au lieu d'être rogné (#1050).
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
             'TA MAIN · ${hand.length} PIERRES',
             style: const TextStyle(
               fontSize: 11,
@@ -70,6 +73,7 @@ class _Footer extends StatelessWidget {
                 Shadow(offset: Offset(1, 1), color: Color(0xFF123B2B)),
               ],
             ),
+          ),
           ),
           const SizedBox(height: 4),
           Row(
