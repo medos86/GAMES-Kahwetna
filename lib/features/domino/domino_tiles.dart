@@ -275,8 +275,7 @@ class _DominoChainState extends State<DominoChain> {
   int _openingIndex() {
     final chain = widget.chain;
     final id = widget.openingId;
-    final index =
-        id == null ? -1 : chain.indexWhere((tile) => tile.id == id);
+    final index = id == null ? -1 : chain.indexWhere((tile) => tile.id == id);
     return index >= 0 ? index : chain.length ~/ 2;
   }
 
