@@ -10,14 +10,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  testWidgets('Belote : exactement quatre avatars, un par siège', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: CoincheScreen(difficulty: Difficulty.facile, targetScore: 1000),
-      ),
-    );
-    await tester.pump();
-    // Sud (joueur, footer) + nord, ouest, est. Les coins d'équipe n'en ajoutent plus.
-    expect(find.byType(TurnAvatar), findsNWidgets(4));
-  });
+  testWidgets(
+    'Belote : exactement quatre avatars, un par siège',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CoincheScreen(
+            difficulty: Difficulty.facile,
+            targetScore: 1000,
+          ),
+        ),
+      );
+      await tester.pump();
+      // Sud (joueur, footer) + nord, ouest, est. Les coins d'équipe n'en ajoutent plus.
+      expect(find.byType(TurnAvatar), findsNWidgets(4));
+    },
+  );
 }
