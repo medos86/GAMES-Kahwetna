@@ -17,7 +17,7 @@ class _SidePanel extends StatelessWidget {
     required this.color,
     required this.avatarId,
     this.spinTick = 0,
-    required this.pile,
+    required this.avatarKey,
   });
 
   final ChkobbaState game;
@@ -29,8 +29,8 @@ class _SidePanel extends StatelessWidget {
   /// Compteur de prises : chaque hausse fait tourner l'avatar une fois (#988).
   final int spinTick;
 
-  /// Gains (cartes et Chkobba) posés sous l'avatar, tournant avec lui.
-  final Widget pile;
+  /// Repère des cartes gagnées : elles volent vers l'avatar et s'y cachent (#1018).
+  final GlobalKey avatarKey;
 
   @override
   Widget build(BuildContext context) {
@@ -89,17 +89,11 @@ class _SidePanel extends StatelessWidget {
       ),
       child: ChkobbaAvatarFlip(
         trigger: spinTick,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: _sideAvatarActiveSize + 8,
-              height: _sideAvatarActiveSize + 8,
-              child: Center(child: ring),
-            ),
-            const SizedBox(height: 4),
-            pile,
-          ],
+        child: SizedBox(
+          key: avatarKey,
+          width: _sideAvatarActiveSize + 8,
+          height: _sideAvatarActiveSize + 8,
+          child: Center(child: ring),
         ),
       ),
     );
@@ -182,95 +176,6 @@ class _ScorePill extends StatelessWidget {
           fontWeight: FontWeight.w900,
           fontSize: 20,
         ),
-      ),
-    );
-  }
-}
-
-/// Tas de cartes gagnées d'un joueur, posé de son côté du tapis (#534, #766). Sans compteur.
-class _WonPile extends StatelessWidget {
-  const _WonPile({
-    super.key,
-    required this.color,
-    this.chkobbaCards = const [],
-  });
-
-  final Color color;
-
-  /// Cartes de Chkobba (Scoba), posées légèrement tournées sous le tas (#594, #626).
-  final List<ChkobbaCard> chkobbaCards;
-
-  /// Dimensions du tas et de la carte de Chkobba affichée : seule sa moitié haute est visible (#626).
-  static const _pileWidth = 56.0;
-  static const _pileHeight = 44.0;
-  static const _cardWidth = 36.0;
-  static const _cardHeight = 50.0;
-
-  /// Décalage horizontal entre deux cartes de Chkobba, la suivante par-dessus (#626).
-  static const _overlap = 8.0;
-
-  /// Dos de carte, comme les cartes en jeu (#632). Pas de compteur de cartes.
-  @override
-  Widget build(BuildContext context) {
-    final pile = Container(
-      width: _pileWidth,
-      height: _pileHeight,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(chkobbaCardRadius),
-        boxShadow: const [BoxShadow(color: Colors.black, offset: Offset(0, 3))],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(chkobbaCardRadius),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            const ChkobbaCardBack(fullImage: true),
-          ],
-        ),
-      ),
-    );
-    if (chkobbaCards.isEmpty) return pile;
-    // Les Scobas sont glissées sous le tas : leur moitié haute est cachée par le tas, seule la
-    // moitié basse dépasse (#649). Chaque carte suivante se pose par-dessus la précédente (#626).
-    final width = _cardWidth + _overlap * (chkobbaCards.length - 1);
-    return SizedBox(
-      width: _pileWidth,
-      height: _pileHeight + _cardHeight / 2,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            top: _pileHeight - _cardHeight / 2,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Transform.rotate(
-                angle: 0.12,
-                child: SizedBox(
-                  width: width,
-                  height: _cardHeight,
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      for (var i = 0; i < chkobbaCards.length; i++)
-                        Positioned(
-                          left: i * _overlap,
-                          top: 0,
-                          width: _cardWidth,
-                          height: _cardHeight,
-                          child: ChkobbaCardFace(
-                            key: ValueKey('scoba:${chkobbaCards[i].id}'),
-                            card: chkobbaCards[i],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(top: 0, left: 0, child: pile),
-        ],
       ),
     );
   }

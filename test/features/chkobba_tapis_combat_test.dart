@@ -88,21 +88,23 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('gains du joueur sous son avatar (#800)', (tester) async {
+  testWidgets('gains du joueur cachés : aucun tas visible (#1018)', (
+    tester,
+  ) async {
     final won = [
       _card(ChkobbaSuit.coupes, 1),
       _card(ChkobbaSuit.coupes, 2),
       _card(ChkobbaSuit.coupes, 3),
     ];
     await _pump(tester, _state(playerWon: won));
-    final pile = _piles(tester)[1];
-    final me = tester.getCenter(find.byType(TurnAvatar).at(1));
-    expect(tester.getCenter(pile).dx, closeTo(me.dx, 1));
-    expect(tester.getCenter(pile).dy, greaterThan(me.dy));
+    expect(_piles(tester), isEmpty);
+    expect(find.byType(TurnAvatar), findsNWidgets(2));
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('gains adverses sous son avatar (#800)', (tester) async {
+  testWidgets('gains adverses cachés : aucun tas visible (#1018)', (
+    tester,
+  ) async {
     final won = [
       _card(ChkobbaSuit.deniers, 1),
       _card(ChkobbaSuit.deniers, 4),
@@ -110,10 +112,7 @@ void main() {
       _card(ChkobbaSuit.deniers, 7),
     ];
     await _pump(tester, _state(opponentWon: won));
-    final pile = _piles(tester)[0];
-    final opp = tester.getCenter(find.byType(TurnAvatar).at(0));
-    expect(tester.getCenter(pile).dx, closeTo(opp.dx, 1));
-    expect(tester.getCenter(pile).dy, greaterThan(opp.dy));
+    expect(_piles(tester), isEmpty);
     expect(tester.takeException(), isNull);
   });
 
