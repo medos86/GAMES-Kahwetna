@@ -109,6 +109,8 @@ class _DominoScreenState extends State<DominoScreen> {
     final metrics = DeviceMetrics(width: size.width, height: size.height);
     final unit = metrics.gameUnit;
     final sm = size.width >= 640;
+    // Petit écran (hauteur < 700) : espaces verticaux réduits pour tenir.
+    final compact = size.height < 700;
 
     return ExitGuard(
       active: _controller.game.matchWinner == null,
@@ -153,7 +155,7 @@ class _DominoScreenState extends State<DominoScreen> {
                           decoration: ScobaPalette.tapisPremiumDecoration,
                           child: Column(
                             children: [
-                              SizedBox(height: unit * (sm ? 0.2 : 0.6)),
+                              SizedBox(height: unit * (sm || compact ? 0.2 : 0.6)),
                               _OpponentHand(
                                 unit: unit,
                                 count: game.hands[Player.opponent]!.length,
@@ -176,7 +178,7 @@ class _DominoScreenState extends State<DominoScreen> {
                                   ),
                                 ),
                               ),
-                              SizedBox(height: unit * (sm ? 0.2 : 0.6)),
+                              SizedBox(height: unit * (sm || compact ? 0.2 : 0.6)),
                               Expanded(
                                 child: _Table(
                                   unit: unit,
@@ -184,7 +186,7 @@ class _DominoScreenState extends State<DominoScreen> {
                                   controller: _controller,
                                 ),
                               ),
-                              SizedBox(height: unit * (sm ? 0.2 : 0.6)),
+                              SizedBox(height: unit * (sm || compact ? 0.2 : 0.6)),
                               _Footer(
                                 unit: unit,
                                 sm: sm,
