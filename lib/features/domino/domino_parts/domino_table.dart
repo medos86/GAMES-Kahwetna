@@ -100,36 +100,77 @@ class _OpponentHand extends StatelessWidget {
     );
   }
 
+  // Au-delà de 7 pierres : 6 dos affichés, le 7ème porte « +n » (n = pierres restantes) (#1041).
+  static const _maxSlots = 7;
+
   Widget _cards() {
+    final shown = count > _maxSlots ? _maxSlots - 1 : count;
+    final extra = count - shown;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        for (var i = 0; i < count; i++)
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: unit * 0.15),
-            child: Container(
-              width: unit * 1.9,
-              height: unit * 3.4,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFFD94A61), Color(0xFF8F203D)],
-                ),
-                borderRadius: BorderRadius.circular(3),
-                border: Border.all(color: _edge, width: 2),
-                boxShadow: const [
-                  BoxShadow(color: Color(0xFF4A1022), offset: Offset(0, 3)),
-                ],
-              ),
-              child: FractionallySizedBox(
-                widthFactor: 0.6,
-                child: Container(height: 2, color: const Color(0xB3FFE16B)),
-              ),
+        for (var i = 0; i < shown; i++) _cardPadding(_back()),
+        if (extra > 0) _cardPadding(_more(extra)),
+      ],
+    );
+  }
+
+  Widget _cardPadding(Widget child) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: unit * 0.15),
+      child: child,
+    );
+  }
+
+  Widget _back() {
+    return Container(
+      width: unit * 1.9,
+      height: unit * 3.4,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFD94A61), Color(0xFF8F203D)],
+        ),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(color: _edge, width: 2),
+        boxShadow: const [
+          BoxShadow(color: Color(0xFF4A1022), offset: Offset(0, 3)),
+        ],
+      ),
+      child: FractionallySizedBox(
+        widthFactor: 0.6,
+        child: Container(height: 2, color: const Color(0xB3FFE16B)),
+      ),
+    );
+  }
+
+  Widget _more(int n) {
+    return Semantics(
+      label: '+$n',
+      excludeSemantics: true,
+      child: Container(
+        width: unit * 1.9,
+        height: unit * 3.4,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFFDF5),
+          borderRadius: BorderRadius.circular(3),
+          border: Border.all(color: _edge, width: 2),
+        ),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            '+$n',
+            style: TextStyle(
+              fontSize: unit * 0.9,
+              fontWeight: FontWeight.w900,
+              color: const Color(0xFF20284B),
             ),
           ),
-      ],
+        ),
+      ),
     );
   }
 }
