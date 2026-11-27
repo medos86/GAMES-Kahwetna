@@ -2,8 +2,8 @@
 name: Captures Domino
 
 on:
-  push:
-    branches: ["fix/domino-layout-1050-1052"]
+  # Pas de déclenchement sur push : les PNG ne sont pas déterministes et chaque
+  # régénération repousserait la branche (boucle). Lancement manuel seulement.
   workflow_dispatch:
 
 permissions:
