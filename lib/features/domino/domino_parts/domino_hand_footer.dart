@@ -47,16 +47,9 @@ class _Footer extends StatelessWidget {
 
     final label = game.boneyard.isNotEmpty ? t('pickUp') : t('pass');
 
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF8E7),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ComicPalette.ink, width: 3),
-        boxShadow: const [
-          BoxShadow(color: ComicPalette.ink, offset: Offset(0, 5)),
-        ],
-      ),
+    // Pas de planche : la main est posée directement sur le tapis (#1038).
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -77,7 +70,10 @@ class _Footer extends StatelessWidget {
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 2,
-                    color: Color(0xFF20284B),
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(offset: Offset(1, 1), color: Color(0xFF123B2B)),
+                    ],
                   ),
                 ),
               ),
