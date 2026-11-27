@@ -703,20 +703,10 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
         color: color,
         avatarId: _avatarIds[player.index],
         spinTick: _spinTick[player]!,
-        pile: _WonPile(
-          key: _key('won:${player.name}'),
-          color: color,
-          chkobbaCards: _shownChkobbaCards(player),
-        ),
+        avatarKey: _key('won:${player.name}'),
       ),
     );
   }
-
-  /// Cartes de Chkobba sous le tas, une fois arrivées (pas pendant leur vol, #594, #626).
-  List<ChkobbaCard> _shownChkobbaCards(Player p) => [
-        for (final card in _controller.chkobbaCardsOf(p))
-          if (!_capturing.contains(card.id)) card,
-      ];
 
   static int _roundUp(int value, int multiple) =>
       ((value + multiple - 1) ~/ multiple) * multiple;

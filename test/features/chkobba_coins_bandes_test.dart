@@ -77,11 +77,9 @@ void main() {
     await _pump(tester, _state(starter: Player.player));
     final table = tester.getRect(find.byType(ChkobbaTable));
     final oppAvatar = tester.getCenter(find.byType(TurnAvatar).at(0));
-    final oppPile = tester.getCenter(_piles(tester)[0]);
-    // Rangée du haut, au-dessus du tapis : gains centrés sous l'avatar.
+    // Rangée du haut, au-dessus du tapis : l'avatar seul, sans tas (#1018).
     expect(oppAvatar.dy, lessThan(table.top));
-    expect(oppPile.dy, greaterThan(oppAvatar.dy));
-    expect(oppPile.dx, closeTo(oppAvatar.dx, 1));
+    expect(_piles(tester), isEmpty);
     expect(tester.takeException(), isNull);
   });
 
@@ -89,11 +87,9 @@ void main() {
     await _pump(tester, _state(starter: Player.player));
     final table = tester.getRect(find.byType(ChkobbaTable));
     final playerAvatar = tester.getCenter(find.byType(TurnAvatar).at(1));
-    final playerPile = tester.getCenter(_piles(tester)[1]);
-    // Rangée du bas, sous le tapis : gains centrés sous l'avatar.
+    // Rangée du bas, sous le tapis : l'avatar seul, sans tas (#1018).
     expect(playerAvatar.dy, greaterThan(table.bottom));
-    expect(playerPile.dy, greaterThan(playerAvatar.dy));
-    expect(playerPile.dx, closeTo(playerAvatar.dx, 1));
+    expect(_piles(tester), isEmpty);
     expect(tester.takeException(), isNull);
   });
 
