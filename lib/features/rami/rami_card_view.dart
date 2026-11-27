@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 
 import '../../game/rami.dart' as rules;
@@ -69,6 +71,26 @@ String ramiCardAsset(rules.RamiCard card) {
   }
   final suit = _ramiSuitFileName(card.suit!);
   return '$ramiCardsFolder/${_ramiRankFileName(card.rank)}_of_$suit.webp';
+}
+
+/// Chemins des 54 faces (52 cartes et 2 jokers) et des 2 dos du jeu Rami.
+List<String> ramiCardAssets() => <String>[
+      ramiCardBackAsset,
+      ramiCardBackBlueAsset,
+      '$ramiCardsFolder/black_joker.webp',
+      '$ramiCardsFolder/red_joker.webp',
+      for (final suit in rules.RamiSuit.values)
+        for (var rank = 1; rank <= 13; rank++)
+          '$ramiCardsFolder/${_ramiRankFileName(rank)}_of_${_ramiSuitFileName(suit)}.webp',
+    ];
+
+/// Précharge les 54 faces et les 2 dos, à la même largeur de décodage que [RamiCardView] :
+/// le premier coup adverse n'attend plus le décodage d'une image (#1056).
+void precacheRamiCards(BuildContext context) {
+  for (final path in ramiCardAssets()) {
+    final provider = ResizeImage(AssetImage(path), width: _ramiCacheWidth);
+    unawaited(precacheImage(provider, context).catchError((Object _) {}));
+  }
 }
 
 /// Carte Rami : image du jeu CC0. Seul le coin haut-gauche est visible dans la main,

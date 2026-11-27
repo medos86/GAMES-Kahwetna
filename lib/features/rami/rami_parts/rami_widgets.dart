@@ -127,11 +127,15 @@ class _MeldView extends StatelessWidget {
     this.onTap,
     this.onLongPress,
     this.onCardPointerDown,
+    this.slotKey,
   });
 
   final List<rules.RamiCard> cards;
   final double cardWidth;
   final int owner;
+
+  /// Clé de la case de chaque carte : le vol y vise sa vraie place et sa vraie taille (#1056).
+  final GlobalKey Function(String cardId)? slotKey;
 
   /// Avatar du propriétaire, affiché en miniature sur le bord (#942) ; absent, pas d'étiquette.
   final String? avatarId;
@@ -188,7 +192,15 @@ class _MeldView extends StatelessWidget {
                           onPointerDown: onCardPointerDown == null
                               ? null
                               : (event) => onCardPointerDown!(i, event),
-                          child: RamiCardView(card: cards[i], width: cardWidth),
+                          child: SizedBox(
+                            key: slotKey?.call(cards[i].id),
+                            width: cardWidth,
+                            height: cardWidth * 1.4,
+                            child: RamiCardView(
+                              card: cards[i],
+                              width: cardWidth,
+                            ),
+                          ),
                         ),
                       ),
                     ),
