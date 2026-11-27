@@ -89,8 +89,8 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     expect(tester.takeException(), isNull);
     expect(faceOf('coupes-5'), findsNothing);
-    // Chkobba (#594) : la carte jouée reste posée sous le tas du joueur, une seule fois.
-    expect(faceOf('batons-5'), findsOneWidget);
+    // #1018 : plus de tas visible, la carte jouée rentre dans l'avatar et disparaît.
+    expect(faceOf('batons-5'), findsNothing);
     await tester.pumpWidget(const SizedBox());
     await tester.pump();
   });
