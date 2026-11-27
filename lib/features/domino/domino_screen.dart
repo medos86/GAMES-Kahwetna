@@ -144,8 +144,13 @@ class _DominoScreenState extends State<DominoScreen> {
                   Expanded(
                     child: Container(
                       key: const ValueKey('domino-felt'),
-                      margin: const EdgeInsets.fromLTRB(4, 6, 4, 6),
-                      padding: const EdgeInsets.all(6),
+                      margin: EdgeInsets.fromLTRB(
+                        4,
+                        compact ? 2 : 6,
+                        4,
+                        compact ? 2 : 6,
+                      ),
+                      padding: EdgeInsets.all(compact ? 2 : 6),
                       decoration: BoxDecoration(
                         color: ComicPalette.tableWood,
                         borderRadius: BorderRadius.circular(22),
