@@ -34,28 +34,14 @@ class GameHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Rétrécit au lieu de déborder quand la largeur manque (arabe, petit écran).
-        Flexible(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Pressable(
-              semanticLabel: Strings.menuLabel,
-              onTap: onMenu,
-              pressedScale: 0.92,
-              child: _MenuPill(unit: unit),
-            ),
-          ),
+        Pressable(
+          semanticLabel: Strings.menuLabel,
+          onTap: onMenu,
+          pressedScale: 0.92,
+          child: _MenuPill(unit: unit),
         ),
         center ?? const Spacer(),
-        if (trailing != null)
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerRight,
-              child: trailing!,
-            ),
-          ),
+        if (trailing != null) trailing!,
       ],
     );
   }

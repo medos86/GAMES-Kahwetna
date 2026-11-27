@@ -50,10 +50,14 @@ class _Header extends StatelessWidget {
           ),
         ),
       ),
-      trailing: TrophyBadge(
-        target: target,
-        size: unit * 3,
-        tint: difficultyTint(difficulty),
+      // Trophée réduit à la place restante au lieu de déborder en arabe.
+      trailing: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: TrophyBadge(
+          target: target,
+          size: unit * 3,
+          tint: difficultyTint(difficulty),
+        ),
       ),
     );
   }
