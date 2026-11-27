@@ -74,39 +74,33 @@ class _OpponentHand extends StatelessWidget {
   const _OpponentHand({
     required this.unit,
     required this.count,
-    required this.avatarId,
-    required this.avatarState,
+    required this.pile,
+    required this.seat,
   });
 
   final double unit;
   final int count;
 
-  // Avatar de l'adversaire et son état (issue #555).
-  final String avatarId;
-  final AvatarState avatarState;
+  // Pioche à gauche, score et avatar de l'adversaire à droite (comme Chkobba).
+  final Widget pile;
+  final Widget seat;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: unit * 3.4,
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.center,
+      child: Row(
         children: [
-          _cards(),
-          // Avatar à gauche de la main, sans la décaler.
-          Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            child: Center(
-              child: AvatarView(
-                avatarId: avatarId,
-                state: avatarState,
-                size: unit * 2.2,
-                semanticLabel: t('opponent'),
-              ),
-            ),
+          SizedBox(
+            width: unit * 3.4,
+            child: Center(child: pile),
+          ),
+          Expanded(
+            child: FittedBox(fit: BoxFit.scaleDown, child: _cards()),
+          ),
+          SizedBox(
+            width: unit * 3.4,
+            child: Center(child: seat),
           ),
         ],
       ),
@@ -170,20 +164,6 @@ class _Table extends StatelessWidget {
       padding: EdgeInsets.symmetric(
         horizontal: sm ? 20 : 8,
         vertical: sm ? 8 : 12,
-      ),
-      decoration: BoxDecoration(
-        color: ComicPalette.felt,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: ComicPalette.ink, width: 6),
-        boxShadow: const [
-          BoxShadow(color: ComicPalette.ink, spreadRadius: 3),
-          BoxShadow(
-            color: Color(0x59281405),
-            offset: Offset(0, 8),
-            blurRadius: 20,
-            spreadRadius: 3,
-          ),
-        ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),

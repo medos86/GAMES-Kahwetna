@@ -5,6 +5,7 @@ import '../../core/audio/sounds.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/theme/comic_palette.dart';
+import '../../core/theme/scoba_palette.dart';
 import '../../core/theme/game_style.dart';
 import '../../widgets/comic/comic_panel.dart';
 
@@ -136,34 +137,43 @@ class _DominoScreenState extends State<DominoScreen> {
                   ),
                   // Paysage : espacement réduit pour tenir dans la hauteur (#344).
                   SizedBox(height: sm ? unit * 0.25 : unit),
-                  _ScoreStrip(
-                    unit: unit,
-                    game: game,
-                    avatarIds: _avatarIds,
-                    turnIsPlayer: playerTurn,
-                    turnIsOpponent: opponentTurn,
-                    onDrawTap: _controller.drawOrPass,
-                    mustDraw: _controller.mustDraw,
-                  ),
                   Expanded(
                     child: Container(
                       key: const ValueKey('domino-felt'),
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      margin: const EdgeInsets.fromLTRB(4, 6, 4, 6),
+                      padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: ComicPalette.felt,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: ComicPalette.ink, width: 3),
+                        color: ComicPalette.tableWood,
+                        borderRadius: BorderRadius.circular(22),
+                        border: Border.all(color: Colors.black, width: 3),
                       ),
-                      child: Column(
-                        children: [
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: DecoratedBox(
+                          decoration: ScobaPalette.tapisPremiumDecoration,
+                          child: Column(
+                            children: [
                           SizedBox(height: unit * (sm ? 0.2 : 0.6)),
                           _OpponentHand(
                             unit: unit,
                             count: game.hands[Player.opponent]!.length,
-                            avatarId: _avatarIds[Player.opponent.index],
-                            avatarState: dominoAvatarState(
-                              game,
-                              Player.opponent,
+                            pile: _Pile(
+                              unit: unit,
+                              count: game.boneyard.length,
+                              bounce: _controller.mustDraw &&
+                                  game.boneyard.isNotEmpty,
+                            ),
+                            seat: _ScoreBox(
+                              label: t('opponentShort'),
+                              value: game.scores[Player.opponent]!,
+                              color: const Color(0xFFB91C1C),
+                              active: opponentTurn,
+                              unit: unit,
+                              avatarId: _avatarIds[Player.opponent.index],
+                              avatarState: dominoAvatarState(
+                                game,
+                                Player.opponent,
+                              ),
                             ),
                           ),
                           SizedBox(height: unit * (sm ? 0.2 : 0.6)),
@@ -179,8 +189,22 @@ class _DominoScreenState extends State<DominoScreen> {
                             unit: unit,
                             sm: sm,
                             controller: _controller,
+                            seat: _ScoreBox(
+                              label: t('you'),
+                              value: game.scores[Player.player]!,
+                              color: const Color(0xFF047857),
+                              active: playerTurn,
+                              unit: unit,
+                              avatarId: _avatarIds[Player.player.index],
+                              avatarState: dominoAvatarState(
+                                game,
+                                Player.player,
+                              ),
+                            ),
                           ),
-                        ],
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
