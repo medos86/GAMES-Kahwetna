@@ -94,11 +94,13 @@ void main() {
     }
   });
 
-  test('#978 : la taille de départ remplit le tapis, sans plafond', () {
+  test('#1022 : la taille de départ est grande, sans plafond', () {
     for (final width in [360.0, 390.0, 800.0, 1200.0]) {
       final halfWidth = width >= 480 ? 8 : 6;
       final unit = chainStartUnit(width: width, halfWidth: halfWidth);
-      expect(unit * 2 * halfWidth, closeTo(width, 1e-9));
+      // #1022 : une pierre fait le tiers de la largeur au départ.
+      expect(unit * 6, closeTo(width, 1e-9));
+      expect(unit * 2 * 2, closeTo(width * 2 / 3, 1e-9));
       final slots = layoutChainAroundCenter(
         count: 1,
         openIndex: 0,
