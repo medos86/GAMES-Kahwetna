@@ -16,7 +16,6 @@ void main() {
       slots: slots,
       unit: 30,
       width: 360,
-      height: 600,
     );
     expect(scale, 1.0);
   });
@@ -28,7 +27,7 @@ void main() {
       halfWidth: 6,
     );
     expect(
-      chainScale(slots: few, unit: 30, width: 360, height: 600),
+      chainScale(slots: few, unit: 30, width: 360),
       1.0,
     );
     final many = layoutChainAroundCenter(
@@ -36,7 +35,7 @@ void main() {
       openIndex: 40,
       halfWidth: 6,
     );
-    final scale = chainScale(slots: many, unit: 30, width: 360, height: 600);
+    final scale = chainScale(slots: many, unit: 30, width: 360);
     expect(scale < 1.0, isTrue);
     expect(scale > 0.0, isTrue);
   });
@@ -107,7 +106,7 @@ void main() {
         halfWidth: halfWidth,
       );
       expect(
-        chainScale(slots: slots, unit: unit, width: width, height: 600),
+        chainScale(slots: slots, unit: unit, width: width),
         1.0,
       );
     }
