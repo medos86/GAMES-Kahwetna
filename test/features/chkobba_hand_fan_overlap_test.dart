@@ -65,7 +65,8 @@ void main() {
       widths.add(tester.getSize(card).width);
     }
     // Centres espacés d'un pas inférieur à la largeur d'une carte : recouvrement.
-    final order = [0, 1, 2]..sort((a, b) => centers[a].dx.compareTo(centers[b].dx));
+    final order = [0, 1, 2]
+      ..sort((a, b) => centers[a].dx.compareTo(centers[b].dx));
     final cardWidth = widths[order[1]];
     for (var i = 1; i < order.length; i++) {
       final shift = centers[order[i]].dx - centers[order[i - 1]].dx;
