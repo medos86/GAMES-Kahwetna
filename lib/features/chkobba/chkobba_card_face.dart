@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 
 import '../../game/chkobba.dart';
@@ -41,6 +43,24 @@ const String _cardsFolder = 'assets/images/cards_cartoon';
 const double chkobbaCardRadius = 12;
 
 const String cardBackAsset = '$_cardsFolder/Chkobba_back.webp';
+
+/// Chemins des 40 faces et du dos du jeu Chkobba.
+List<String> chkobbaCardAssets() => <String>[
+      cardBackAsset,
+      for (final suit in ChkobbaSuit.values)
+        for (var rank = 1; rank <= 10; rank++)
+          chkobbaCardAsset(ChkobbaCard(suit: suit, rank: rank, id: '')),
+    ];
+
+/// Précharge faces et dos à l'ouverture de l'écran : le premier vol de carte
+/// n'attend plus le décodage d'une image (même principe que Rami, #1056).
+void precacheChkobbaCards(BuildContext context) {
+  for (final path in chkobbaCardAssets()) {
+    unawaited(
+      precacheImage(AssetImage(path), context).catchError((Object _) {}),
+    );
+  }
+}
 
 /// Chemin de l'image cartoon d'une carte, par ex. assets/images/cards_cartoon/Chkobba_pique_08.webp.
 String chkobbaCardAsset(ChkobbaCard card) {
