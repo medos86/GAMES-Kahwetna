@@ -88,7 +88,7 @@ void main() {
     }
   });
 
-  test('#1064 : la chaîne remplie reste dans le tapis, rangées jusqu au bord', () {
+  test('#1064 : la chaîne reste dans le tapis', () {
     final slots = layoutChainAroundCenter(
       count: 30,
       openIndex: 0,
