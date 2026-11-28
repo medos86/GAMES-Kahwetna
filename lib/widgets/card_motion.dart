@@ -15,6 +15,7 @@ class CardFlight {
     this.duration = const Duration(milliseconds: 300),
     this.hold = false,
     this.landingId,
+    this.curve = Curves.easeInOutCubic,
   });
 
   final Rect from;
@@ -24,6 +25,9 @@ class CardFlight {
   final Duration duration;
   final bool hold;
   final String? landingId;
+
+  /// Courbe du vol : décélération à l'arrivée pour les coups adverses (#1057).
+  final Curve curve;
 }
 
 /// Case d'arrivée : vide (opacité 0) tant qu'une carte est en route vers elle (#266).
@@ -66,6 +70,7 @@ mixin CardMotionMixin<T extends StatefulWidget> on State<T> {
           delay: flight.delay,
           duration: flight.duration,
           hold: flight.hold,
+          curve: flight.curve,
         );
         if (id == null) continue;
         unawaited(

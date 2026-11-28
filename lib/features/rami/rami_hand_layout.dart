@@ -25,12 +25,17 @@ double ramiMeldSlotLeft(double left, double cardWidth, int index) =>
 /// Délai de la carte n°[index] posée : les cartes d'un paquet volent une à une (#592).
 Duration ramiPoseDelay(int index) => ramiPoseStagger * index;
 
-/// Pause entre deux paquets posés : le suivant part quand le précédent est presque posé (#943).
-const Duration ramiPackGap = Duration(milliseconds: 400);
+/// Part du trajet d'un vol à partir de laquelle le paquet suivant peut partir (#1057).
+/// Le vol précédent est alors à ~60 % : le mouvement ne s'arrête plus entre deux paquets.
+const double ramiPackOverlap = 0.6;
 
 /// Délai de chaque carte de paquets posés (#943) : un paquet part après le précédent,
 /// et ses cartes volent une à une à [ramiPoseStagger] d'écart. Les paquets vides sont ignorés.
-List<Duration> ramiPackDelays(List<int> packSizes) {
+/// [flight] : durée d'un vol ; le paquet suivant part à [ramiPackOverlap] de ce trajet (#1057).
+List<Duration> ramiPackDelays(
+  List<int> packSizes, {
+  Duration flight = const Duration(milliseconds: 800),
+}) {
   final delays = <Duration>[];
   var start = Duration.zero;
   for (final size in packSizes) {
@@ -38,7 +43,8 @@ List<Duration> ramiPackDelays(List<int> packSizes) {
     for (var i = 0; i < size; i++) {
       delays.add(start + ramiPoseStagger * i);
     }
-    start += ramiPoseStagger * (size - 1) + ramiPackGap;
+    final lastStart = start + ramiPoseStagger * (size - 1);
+    start = lastStart + flight * ramiPackOverlap;
   }
   return delays;
 }
