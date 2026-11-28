@@ -43,6 +43,9 @@ Matrix4 ludoDieCubeMatrix(int value, double t) {
   return spinY * spinX * ludoDiePose(value);
 }
 
+/// Face projetée du cube : profondeur, matrice, valeur et ombrage.
+typedef _LudoFace = ({double depth, Matrix4 matrix, int value, double shade});
+
 /// Part d'ombre maximale d'une face (0 = face pleine lumière).
 const double kLudoDieMaxShade = 0.45;
 
@@ -114,10 +117,10 @@ class _LudoDieCube extends StatelessWidget {
     final half = size / 2;
     // Entrée (3,2) négative : l'œil est en +Z, les faces de +Z sont vers l'écran.
     final perspective = Matrix4.identity()..setEntry(3, 2, -_kDiePerspective);
-    final faces = <({double depth, Matrix4 matrix, int value, double shade})>[];
+    final faces = <_LudoFace>[];
     for (var v = 1; v <= 6; v++) {
       final facing = cube * ludoDieFacePlacement(v);
-      // Face de biais (quasi de profil) : trait fin qui ferait des lignes parasites (#1072).
+      // Face quasi de profil : son trait fin ferait des lignes parasites (#1072).
       if (facing.storage[10] <= kLudoDieEdgeCull) continue;
       final model = facing * Matrix4.translationValues(0, 0, half);
       faces.add((
