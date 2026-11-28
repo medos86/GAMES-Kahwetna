@@ -7,7 +7,6 @@ import '../../core/strings.dart';
 const _overlayFrame = ComicPalette.ink;
 const _overlayCream = Color(0xFFFFF8E7);
 const _overlayInk = Color(0xFF20284B);
-const _overlayGold = Color(0xFFFFE16B);
 
 /// Voile sombre derrière le panneau des scores (#591) : il s'estompe en même
 /// temps que le panneau. Ignoré par les gestes quand le panneau est fermé.
