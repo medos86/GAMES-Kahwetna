@@ -71,13 +71,23 @@ class RamiScoresPanel extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
             decoration: BoxDecoration(
               color: felt ?? _overlayCream,
+              // Mêmes arrondis (22) et ombre que le tapis : le panneau semble en sortir (#1086).
               borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(14),
+                bottom: Radius.circular(22),
               ),
               border: Border.all(
                 color: frameColor ?? _overlayFrame,
                 width: integrated ? 6 : 3,
               ),
+              boxShadow: integrated
+                  ? [
+                      BoxShadow(
+                        color: frameColor ?? _overlayFrame,
+                        spreadRadius: 3,
+                        offset: const Offset(0, 8),
+                      ),
+                    ]
+                  : null,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
