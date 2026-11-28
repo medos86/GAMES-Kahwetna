@@ -113,37 +113,32 @@ void main() {
     }
   });
 
-  test('#960 : un virage ne se fait qu\'en bout de rangée', () {
+  test('#960 : virages au bord de bande, jamais deux de suite', () {
     for (final halfWidth in [6, 8]) {
       final slots = layoutChainAroundCenter(
         count: 60,
         openIndex: 0,
         halfWidth: halfWidth,
       );
+      final center = slots[0];
       for (var i = 1; i < slots.length; i++) {
         final s = slots[i];
         if (!s.vertical) continue;
         final prev = slots[i - 1];
-        expect(
-          prev.vertical,
-          isFalse,
-          reason: 'deux virages de suite (index $i, demi $halfWidth)',
-        );
-        if (s.x == halfWidth - 1) {
-          // Virage à droite : la rangée précédente touche le bord.
+        if (i > 1) {
           expect(
-            prev.x + prev.width,
-            halfWidth - 1,
-            reason: 'virage droit avant la fin de rangée (index $i)',
-          );
-        } else if (s.x == 1) {
-          // Virage à gauche : rangée précédente jusqu'au bord intérieur.
-          expect(
-            prev.x,
-            2,
-            reason: 'virage gauche avant la fin de rangée (index $i)',
+            prev.vertical,
+            isFalse,
+            reason: 'deux virages de suite (index $i, demi $halfWidth)',
           );
         }
+        final onEdge = s.x == halfWidth - 1 || s.x == -halfWidth;
+        final onInner = s.x == center.x + 2 || s.x == center.x - 1;
+        expect(
+          onEdge || onInner,
+          isTrue,
+          reason: 'virage hors bande (index $i, demi $halfWidth)',
+        );
       }
     }
   });
