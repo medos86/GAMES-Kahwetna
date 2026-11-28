@@ -155,9 +155,11 @@ int chainEdgeAtZoom({
   return math.max(4, edge - edge % 2);
 }
 
-/// Place la chaîne au zoom réel : on part du zoom 1, on recalcule le bord du tapis à ce zoom,
-/// puis on réduit le zoom tant que la chaîne déborde en largeur ou en hauteur. Le virage se fait
-/// donc au bord affiché, et la chaîne tient toujours dans la zone sans défilement (#1043).
+/// Place la chaîne pour un écran donné (#1069) : le tapis est calculé à partir de la largeur réelle.
+/// On prend le plus grand nombre pair de demi-pierres qui tient en largeur, puis la taille de demi-pierre
+/// est recalée pour que le bord tombe exactement sur le bord de l'écran. Si la chaîne déborde en hauteur,
+/// on réduit le bord (toujours pair) et on recalcule. Chaque rangée reste donc complète : n pierres
+/// entières puis le virage au bord.
 FittedChain layoutChainFitted({
   required int count,
   required int openIndex,
@@ -165,42 +167,22 @@ FittedChain layoutChainFitted({
   required double height,
   required double unit,
 }) {
-  var zoom = 1.0;
-  var slots = <ChainSlot>[];
-  var fit = 1.0;
-  for (var i = 0; i < 40; i++) {
-    final edge = chainEdgeAtZoom(width: width, unit: unit, zoom: zoom);
-    slots = layoutChainAroundCenter(
+  final half = width / 2;
+  var edge = math.max(4, (half / unit).floor());
+  edge -= edge % 2;
+  while (true) {
+    final cellUnit = half / edge;
+    final slots = layoutChainAroundCenter(
       count: count,
       openIndex: openIndex,
       halfWidth: edge,
     );
-    fit = chainScale(slots: slots, unit: unit, width: width, height: height);
-    if (fit >= zoom - 1e-9) break;
-    zoom = fit;
-  }
-  // Remplissage de la largeur (#1064) : l'arrondi pair peut laisser une case vide au bord du tapis.
-  // On agrandit l'échelle pour que le bord calculé tombe exactement sur le bord de l'écran,
-  // tant que la chaîne tient toujours en hauteur. Toujours : une rangée ne tourne qu'au bord.
-  final edge = chainEdgeAtZoom(width: width, unit: unit, zoom: fit);
-  final fill = fullWidthScale(edge: edge, width: width, unit: unit);
-  if (fill > fit) {
-    final filled = layoutChainAroundCenter(
-      count: count,
-      openIndex: openIndex,
-      halfWidth: edge,
-    );
-    final heightFit = chainScale(
-      slots: filled,
-      unit: unit * fill,
-      width: width,
-      height: height,
-    );
-    if (heightFit >= 1.0 - 1e-9) {
-      return FittedChain(slots: filled, scale: fill);
+    final halfHeight = chainHalfHeight(slots: slots, unit: cellUnit);
+    if (halfHeight <= height / 2 || edge <= 4) {
+      return FittedChain(slots: slots, scale: cellUnit / unit);
     }
+    edge -= 2;
   }
-  return FittedChain(slots: slots, scale: fit);
 }
 
 /// Échelle qui fait tenir exactement [edge] demi-pierres dans la moitié de la largeur.
