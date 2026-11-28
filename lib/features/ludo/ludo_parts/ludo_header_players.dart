@@ -216,10 +216,7 @@ class _PlayerCard extends StatelessWidget {
         value: controller.lastFaceOf(color),
         tone: tone,
         size: _dieSize,
-        animate: ludoDieShouldTumble(
-          rolledHere: rolledHere,
-          phase: game.phase,
-        ),
+        animate: ludoDieShouldTumble(rolledHere: rolledHere, phase: game.phase),
         refused: controller.refusedColor == color,
       ),
     );
