@@ -103,13 +103,14 @@ ChainSlot _mirror(ChainSlot slot) => ChainSlot(
 double chainStartUnit({required double width, required int halfWidth}) =>
     width / 6;
 
-/// Zoom de la chaîne (#960, #1036) : 1 tant qu'elle tient en largeur, réduit seulement si elle déborde.
-/// La hauteur ne réduit jamais les pierres : le débordement vertical se fait par défilement.
+/// Zoom de la chaîne (#960, #1036, #1043) : 1 tant qu'elle tient en largeur ET en hauteur,
+/// réduit dès qu'elle déborde dans l'une ou l'autre. La chaîne ne défile jamais.
 /// [unit] est la taille d'une demi-pierre ; la première pierre est centrée en (0, 0.5).
 double chainScale({
   required List<ChainSlot> slots,
   required double unit,
   required double width,
+  required double height,
 }) {
   var minX = 0;
   var maxX = 0;
@@ -119,7 +120,9 @@ double chainScale({
   }
   final halfWidth = math.max(-minX, maxX) * unit;
   final byWidth = halfWidth <= 0 ? 1.0 : (width / 2) / halfWidth;
-  return math.min(1.0, byWidth);
+  final halfHeight = chainHalfHeight(slots: slots, unit: unit);
+  final byHeight = halfHeight <= 0 ? 1.0 : (height / 2) / halfHeight;
+  return math.min(1.0, math.min(byWidth, byHeight));
 }
 
 /// Demi-hauteur de la chaîne en pixels, depuis le centre de la première pierre (#1036).
@@ -153,24 +156,26 @@ int chainEdgeAtZoom({
 }
 
 /// Place la chaîne au zoom réel : on part du zoom 1, on recalcule le bord du tapis à ce zoom,
-/// puis on réduit le zoom si la chaîne déborde. Le virage se fait donc au bord affiché.
+/// puis on réduit le zoom tant que la chaîne déborde en largeur ou en hauteur. Le virage se fait
+/// donc au bord affiché, et la chaîne tient toujours dans la zone sans défilement (#1043).
 FittedChain layoutChainFitted({
   required int count,
   required int openIndex,
   required double width,
+  required double height,
   required double unit,
 }) {
   var zoom = 1.0;
   var slots = <ChainSlot>[];
   var fit = 1.0;
-  for (var i = 0; i < 12; i++) {
+  for (var i = 0; i < 40; i++) {
     final edge = chainEdgeAtZoom(width: width, unit: unit, zoom: zoom);
     slots = layoutChainAroundCenter(
       count: count,
       openIndex: openIndex,
       halfWidth: edge,
     );
-    fit = chainScale(slots: slots, unit: unit, width: width);
+    fit = chainScale(slots: slots, unit: unit, width: width, height: height);
     if (fit >= zoom - 1e-9) break;
     zoom = fit;
   }

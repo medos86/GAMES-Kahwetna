@@ -263,15 +263,6 @@ class DominoChain extends StatefulWidget {
 }
 
 class _DominoChainState extends State<DominoChain> {
-  final _scroll = ScrollController();
-  bool _centered = false;
-
-  @override
-  void dispose() {
-    _scroll.dispose();
-    super.dispose();
-  }
-
   int _openingIndex() {
     final chain = widget.chain;
     final id = widget.openingId;
@@ -295,31 +286,21 @@ class _DominoChainState extends State<DominoChain> {
           width: availableWidth,
           halfWidth: halfWidth,
         );
-        // Zoom arrière seulement si la largeur déborde ; le serpent est recalé à ce zoom (#1036).
+        // Zoom arrière dès que la chaîne déborde en largeur OU en hauteur ; le serpent est
+        // recalé à ce zoom. Jamais de défilement (#1043).
         final fitted = layoutChainFitted(
           count: chain.length,
           openIndex: _openingIndex(),
           width: availableWidth,
+          height: availableHeight,
           unit: startUnit,
         );
         final slots = fitted.slots;
         // Taille réelle à l'écran : le zoom est appliqué à la taille de pierre, sans transformation.
         final unit = startUnit * fitted.scale;
         final length = unit * 2;
-        // Hauteur du contenu : au moins l'écran, sinon on défile verticalement sans réduire les pierres.
-        final contentHeight = math.max(
-          availableHeight,
-          2 * chainHalfHeight(slots: slots, unit: unit),
-        );
-
-        if (!_centered) {
-          // Au premier affichage, on se place au milieu : la pierre d'ouverture reste visible.
-          _centered = true;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted || !_scroll.hasClients) return;
-            _scroll.jumpTo(_scroll.position.maxScrollExtent / 2);
-          });
-        }
+        // Hauteur du contenu = zone disponible : la chaîne tient entière, sans défilement (#1043).
+        final contentHeight = availableHeight;
 
         final last = chain.length - 1;
         final tiles = <Widget>[];
@@ -371,8 +352,7 @@ class _DominoChainState extends State<DominoChain> {
           );
         }
 
-        return SingleChildScrollView(
-          controller: _scroll,
+        return ClipRect(
           child: SizedBox(
             width: availableWidth,
             height: contentHeight,
