@@ -92,8 +92,9 @@ class LudoDie extends StatelessWidget {
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     if (refused) {
       // Lancer bloquant (#1080) : le dé roule d'abord, puis secoue la tête pour dire « non ».
-      if (animate && value != null && !reduceMotion) {
-        return _RefusedRoll(value: value, tone: tone, size: size);
+      final face = value;
+      if (animate && face != null && !reduceMotion) {
+        return _RefusedRoll(value: face, tone: tone, size: size);
       }
       // Le dé garde sa face et secoue la tête pour dire « non », sans mot affiché (#883 / #855).
       return _HeadShake(
