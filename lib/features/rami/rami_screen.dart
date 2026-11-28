@@ -723,6 +723,7 @@ class _RamiScreenState extends State<RamiScreen>
             ),
             delay: drawDelay,
             duration: ramiAiFlightDuration,
+            curve: Curves.easeOutCubic,
           ));
         case RamiAiMove.takeDiscard:
           if (prev.discard.isEmpty) break;
@@ -732,6 +733,7 @@ class _RamiScreenState extends State<RamiScreen>
             to: () => _seatTarget(seat, pile),
             child: RamiCardView(card: top, width: pile.width),
             duration: ramiAiFlightDuration,
+            curve: Curves.easeOutCubic,
           ));
         case RamiAiMove.discard:
           final card = next.discard.last;
@@ -746,12 +748,16 @@ class _RamiScreenState extends State<RamiScreen>
             child: RamiCardView(card: card, width: pile.width),
             duration: ramiAiFlightDuration,
             landingId: card.id,
+            curve: Curves.easeOutCubic,
           ));
       }
     }
     // Paquets posés par l'adversaire (#878) : un paquet après l'autre (#943), carte par carte.
     final packs = ramiNewTablePacks(prev, next);
-    final delays = ramiPackDelays([for (final pack in packs) pack.length]);
+    final delays = ramiPackDelays(
+      [for (final pack in packs) pack.length],
+      flight: ramiAiFlightDuration,
+    );
     var posed = 0;
     for (final pack in packs) {
       for (final card in pack) {
@@ -767,6 +773,7 @@ class _RamiScreenState extends State<RamiScreen>
           delay: delays[posed++],
           duration: ramiAiFlightDuration,
           landingId: card.id,
+          curve: Curves.easeOutCubic,
         ));
       }
     }

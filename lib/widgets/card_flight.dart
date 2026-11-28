@@ -29,6 +29,7 @@ Future<void> flyCard({
   Duration delay = Duration.zero,
   bool hold = false,
   Rect? Function()? occluder,
+  Curve curve = Curves.easeInOutCubic,
 }) {
   final start = to();
   if (from == null || start == null) return Future<void>.value();
@@ -41,9 +42,7 @@ Future<void> flyCard({
   final total = delay + duration;
   // Part du temps d'attente : la courbe reste à 0 pendant le délai.
   final wait = delay.inMicroseconds / total.inMicroseconds;
-  final Curve curve = wait == 0
-      ? Curves.easeInOutCubic
-      : Interval(wait, 1, curve: Curves.easeInOutCubic);
+  final Curve motion = wait == 0 ? curve : Interval(wait, 1, curve: curve);
   var lastTo = start;
   final done = Completer<void>();
   late final OverlayEntry entry;
@@ -51,7 +50,7 @@ Future<void> flyCard({
     builder: (_) => TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
       duration: total,
-      curve: curve,
+      curve: motion,
       onEnd: () {
         entry.remove();
         done.complete();
