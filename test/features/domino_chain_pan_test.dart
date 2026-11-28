@@ -1,4 +1,4 @@
-// Défilement vertical de la chaîne Domino (#1036) : pas de zoom en hauteur, pan au lieu.
+// Chaîne Domino (#1043) : jamais de défilement, le zoom arrière couvre aussi la hauteur.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/domino/domino_chain_layout.dart';
@@ -15,7 +15,7 @@ void main() {
     expect(chainHalfHeight(slots: slots, unit: 30), 15.0);
   });
 
-  testWidgets('#1036 : une chaîne longue défile au lieu de rétrécir',
+  testWidgets('#1043 : une chaîne longue ne défile jamais, elle rétrécit',
       (tester) async {
     tester.view.physicalSize = const Size(360, 780);
     tester.view.devicePixelRatio = 1;
@@ -53,8 +53,7 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.byType(ChainTile), findsNWidgets(60));
-    final scroll = tester.state<ScrollableState>(find.byType(Scrollable));
-    expect(scroll.position.maxScrollExtent > 0, isTrue,
-        reason: 'la chaîne doit pouvoir défiler verticalement');
+    expect(find.byType(Scrollable), findsNothing,
+        reason: 'la chaîne ne doit jamais défiler');
   });
 }

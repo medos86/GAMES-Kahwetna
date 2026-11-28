@@ -16,6 +16,7 @@ void main() {
       slots: slots,
       unit: 30,
       width: 360,
+      height: 600,
     );
     expect(scale, 1.0);
   });
@@ -27,7 +28,7 @@ void main() {
       halfWidth: 6,
     );
     expect(
-      chainScale(slots: few, unit: 30, width: 360),
+      chainScale(slots: few, unit: 30, width: 360, height: 600),
       1.0,
     );
     final many = layoutChainAroundCenter(
@@ -35,9 +36,9 @@ void main() {
       openIndex: 40,
       halfWidth: 6,
     );
-    // #1036 : la hauteur ne déclenche plus de zoom, la chaîne défile.
-    final scale = chainScale(slots: many, unit: 30, width: 360);
-    expect(scale, 1.0);
+    // #1043 : la hauteur déclenche le zoom arrière ; la chaîne ne défile jamais.
+    final scale = chainScale(slots: many, unit: 30, width: 360, height: 600);
+    expect(scale < 1.0, isTrue);
   });
 
   test('#960 : ajouter en bout ne déplace aucune pierre existante', () {
@@ -106,7 +107,7 @@ void main() {
         halfWidth: halfWidth,
       );
       expect(
-        chainScale(slots: slots, unit: unit, width: width),
+        chainScale(slots: slots, unit: unit, width: width, height: 600),
         1.0,
       );
     }

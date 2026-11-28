@@ -4,6 +4,7 @@ import 'package:kahwetne/features/domino/domino_chain_layout.dart';
 
 void main() {
   const width = 360.0;
+  const height = 600.0;
   final unit = width / 6;
 
   test('#1028 : la chaîne commence à taille pleine', () {
@@ -11,6 +12,7 @@ void main() {
       count: 1,
       openIndex: 0,
       width: width,
+      height: height,
       unit: unit,
     );
     expect(fitted.scale, 1.0);
@@ -23,6 +25,7 @@ void main() {
           count: n,
           openIndex: open,
           width: width,
+          height: height,
           unit: unit,
         );
         final s = fitted.scale;
@@ -44,12 +47,14 @@ void main() {
       count: 2,
       openIndex: 0,
       width: width,
+      height: height,
       unit: unit,
     );
     final many = layoutChainFitted(
       count: 40,
       openIndex: 20,
       width: width,
+      height: height,
       unit: unit,
     );
     expect(many.scale < few.scale, isTrue);
@@ -59,5 +64,35 @@ void main() {
     expect(chainEdgeAtZoom(width: width, unit: unit, zoom: 1.0), 4);
     expect(chainEdgeAtZoom(width: width, unit: unit, zoom: 0.5), 6);
     expect(chainEdgeAtZoom(width: width, unit: unit, zoom: 0.25), 12);
+  });
+
+  test('#1043 : la chaîne tient toujours en hauteur, sans défilement', () {
+    for (var n = 1; n <= 80; n += 3) {
+      for (var open = 0; open < n; open += 4) {
+        final fitted = layoutChainFitted(
+          count: n,
+          openIndex: open,
+          width: width,
+          height: height,
+          unit: unit,
+        );
+        final s = fitted.scale;
+        expect(s > 0 && s <= 1.0, isTrue, reason: 'zoom $s (n=$n)');
+        final halfH = chainHalfHeight(slots: fitted.slots, unit: unit * s);
+        expect(2 * halfH <= height + 1e-6, isTrue,
+            reason: 'débordement en hauteur (n=$n, open=$open)');
+      }
+    }
+  });
+
+  test('#1043 : la chaîne longue est réduite pour tenir dans la hauteur', () {
+    final fitted = layoutChainFitted(
+      count: 60,
+      openIndex: 30,
+      width: width,
+      height: height,
+      unit: unit,
+    );
+    expect(fitted.scale < 1.0, isTrue);
   });
 }
