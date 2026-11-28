@@ -25,7 +25,8 @@ void main() {
       expect(seatName, findsWidgets);
 
       // La rangée de la main (défilement horizontal) est entièrement au-dessus du score.
-      final handRowBottom = tester.getBottomLeft(find.byType(ListView).first).dy;
+      final handRowBottom =
+          tester.getBottomLeft(find.byType(ListView).first).dy;
       final seatTop = tester.getTopLeft(seatName.first).dy;
       expect(seatTop, greaterThan(handRowBottom));
     },
