@@ -119,7 +119,7 @@ void main() {
     expect(maxX * unit * fitted.scale, closeTo(width / 2, 1e-6));
   });
 
-  test('#1069 : bord du tapis sur le bord de l écran, virages seulement au bord, pour chaque téléphone', () {
+  test('#1069 : bord exact, virages au bord, par téléphone', () {
     const phones = [
       [360.0, 800.0],
       [390.0, 844.0],
@@ -154,10 +154,11 @@ void main() {
               reason: 'bord non aligné (w=$width, n=$count, open=$open)',
             );
           }
+          final edge = (width / 2 / cell).round();
           for (final s in fitted.slots) {
             if (s.vertical) {
               expect(
-                s.x + s.width == maxX || s.x == minX,
+                s.x + s.width == edge || s.x == -edge,
                 isTrue,
                 reason: 'virage hors bord (w=$width, n=$count, open=$open)',
               );
