@@ -179,5 +179,34 @@ FittedChain layoutChainFitted({
     if (fit >= zoom - 1e-9) break;
     zoom = fit;
   }
+  // Remplissage de la largeur (#1064) : l'arrondi pair peut laisser une case vide au bord du tapis.
+  // On agrandit l'échelle pour que le bord calculé tombe exactement sur le bord de l'écran,
+  // tant que la chaîne tient toujours en hauteur.
+  final edge = chainEdgeAtZoom(width: width, unit: unit, zoom: fit);
+  final fill = fullWidthScale(edge: edge, width: width, unit: unit);
+  if (fill > fit && fill <= 1.0) {
+    final filled = layoutChainAroundCenter(
+      count: count,
+      openIndex: openIndex,
+      halfWidth: edge,
+    );
+    final heightFit = chainScale(
+      slots: filled,
+      unit: unit * fill,
+      width: width,
+      height: height,
+    );
+    if (heightFit >= 1.0 - 1e-9) {
+      return FittedChain(slots: filled, scale: fill);
+    }
+  }
   return FittedChain(slots: slots, scale: fit);
 }
+
+/// Échelle qui fait tenir exactement [edge] demi-pierres dans la moitié de la largeur.
+double fullWidthScale({
+  required int edge,
+  required double width,
+  required double unit,
+}) =>
+    (width / 2) / (edge * unit);

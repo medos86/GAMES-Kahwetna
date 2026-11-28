@@ -79,4 +79,24 @@ void main() {
     expect(slots.last.y > 0, isTrue);
     expect(slots.first.y < 0, isTrue);
   });
+
+  test('#1064 : le remplissage de largeur fait toucher le bord du tapis', () {
+    const width = 400.0;
+    for (final edge in [4, 6, 8]) {
+      final scale = fullWidthScale(edge: edge, width: width, unit: 20);
+      expect(edge * 20 * scale, closeTo(width / 2, 1e-9));
+    }
+  });
+
+  test('#1064 : la chaîne remplie reste dans le tapis, rangées jusqu au bord', () {
+    final slots = layoutChainAroundCenter(
+      count: 30,
+      openIndex: 0,
+      halfWidth: 6,
+    );
+    for (final s in slots) {
+      expect(s.x >= -6 && s.x + s.width <= 6, isTrue);
+    }
+    expect(slots.any((s) => s.vertical && s.x + s.width == 6), isTrue);
+  });
 }
