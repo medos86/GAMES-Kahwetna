@@ -104,6 +104,10 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
     _snapshotCaptures();
     // Issue #471 : l'interstitiel entre deux parties est préchargé.
     InterstitialService.instance.preload();
+    // Faces et dos en cache avant la première donne animée (#1082, comme Rami #1056).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) precacheChkobbaCards(context);
+    });
     _controller.addListener(_onChanged);
     _controller.restore().then((_) {
       _snapshotCaptures();
@@ -139,6 +143,9 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
   GlobalKey _key(String name) => _keys.putIfAbsent(name, () => GlobalKey());
 
   static const _stagger = Duration(milliseconds: 60);
+
+  /// Vol d'une carte distribuée : même durée que la distribution de Rami (420 ms).
+  static const _dealDuration = Duration(milliseconds: 420);
   bool _ready = false;
   bool _restored = false;
   bool _dealPending = false;
@@ -335,6 +342,7 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
             to: () => _targetFor(id),
             child: ChkobbaCardFace(card: card),
             delay: _stagger * flights.length,
+            curve: Curves.easeOutCubic,
             landingId: id,
           ),
         );
@@ -375,6 +383,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
           to: () => rectOfKey(_key('hand:${card.id}')),
           child: ChkobbaCardFace(card: card),
           delay: _stagger * flights.length,
+          duration: _dealDuration,
+          curve: Curves.easeOutCubic,
           landingId: card.id,
         ),
       );
@@ -386,6 +396,8 @@ class _ChkobbaScreenState extends State<ChkobbaScreen>
           to: () => rectOfKey(_key('opp:${card.id}')),
           child: const ChkobbaCardBack(),
           delay: _stagger * flights.length,
+          duration: _dealDuration,
+          curve: Curves.easeOutCubic,
           landingId: card.id,
         ),
       );
