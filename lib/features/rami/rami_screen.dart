@@ -96,6 +96,10 @@ class _RamiScreenState extends State<RamiScreen>
   void initState() {
     super.initState();
     InterstitialService.instance.preload();
+    // Faces et dos en cache avant le premier coup adverse (#1056).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) precacheRamiCards(context);
+    });
     loadGameAvatars(seats: 4).then((ids) {
       if (mounted) setState(() => _avatarIds = ids);
     });
@@ -155,6 +159,8 @@ class _RamiScreenState extends State<RamiScreen>
     RamiDropTarget? table;
     var inHandRow = false;
     for (final entry in _keys.entries) {
+      // Cases des cartes du tapis : servent seulement aux vols, pas à la pose (#1056).
+      if (entry.key.startsWith('slot:')) continue;
       final rect = _rectOf(entry.value);
       if (rect == null || !rect.contains(point)) continue;
       final name = entry.key;
@@ -807,6 +813,9 @@ class _RamiScreenState extends State<RamiScreen>
     for (final meld in g.table) {
       final index = meld.cards.indexWhere((card) => card.id == id);
       if (index >= 0) {
+        // Case réelle de la carte : sa taille est celle du tapis, pas celle de la pioche (#1056).
+        final slot = _rectOf(_key('slot:$id'));
+        if (slot != null) return slot;
         final r = _rectOf(_key('meld:${meld.id}'));
         if (r == null) return null;
         // Chaque carte vise sa place dans le paquet, pas le paquet entier (#592).
@@ -1095,6 +1104,7 @@ class _RamiScreenState extends State<RamiScreen>
           key: _key('meld:${meld.id}'),
           cards: meld.cards,
           cardWidth: meldWidth,
+          slotKey: (id) => _key('slot:$id'),
           owner: meld.owner,
           avatarId: _ownerAvatar(meld.owner),
           avatarState: _ownerAvatarState(meld.owner, g),
