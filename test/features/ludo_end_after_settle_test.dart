@@ -4,30 +4,28 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kahwetne/features/ludo/ludo_controller.dart';
 import 'package:kahwetne/game/ludo.dart';
 
+List<Token> _tokens(LudoColor color, List<int> progress) {
+  return [
+    for (var i = 0; i < progress.length; i++)
+      Token(id: '${color.name}-$i', color: color, progress: progress[i]),
+  ];
+}
+
 void main() {
-  test('le dernier pion arrivé n affiche la fin qu après son animation', () {
+  test('la fin ne s affiche qu après l animation du dernier pion', () {
     fakeAsync((async) {
-      // Rouge et vert sont déjà classés : le bleu, dernier pion à 56, rend la partie finie.
-      final tokens = <Token>[
-        for (var i = 0; i < 4; i++)
-          Token(id: 'red-$i', color: LudoColor.red, progress: ludoFinish),
-        for (var i = 0; i < 4; i++)
-          Token(id: 'green-$i', color: LudoColor.green, progress: ludoFinish),
-        for (var i = 0; i < 4; i++)
-          Token(id: 'yellow-$i', color: LudoColor.yellow, progress: 0),
-        for (var i = 0; i < 4; i++)
-          Token(
-            id: 'blue-$i',
-            color: LudoColor.blue,
-            progress: i == 0 ? 56 : ludoFinish,
-          ),
-      ];
+      // Rouge et vert sont déjà classés : le bleu, dernier pion à 56, finit la partie.
       final state = newLudoGame().copyWith(
         turn: LudoColor.blue,
         phase: LudoPhase.move,
         dice: 1,
         rankings: [LudoColor.red, LudoColor.green],
-        tokens: tokens,
+        tokens: [
+          ..._tokens(LudoColor.red, [57, 57, 57, 57]),
+          ..._tokens(LudoColor.green, [57, 57, 57, 57]),
+          ..._tokens(LudoColor.yellow, [0, 0, 0, 0]),
+          ..._tokens(LudoColor.blue, [56, 57, 57, 57]),
+        ],
       );
       final c = LudoController(
         playerCount: 1,
@@ -49,24 +47,17 @@ void main() {
     });
   });
 
-  test('le choix de fin s affiche seulement une fois le dernier pion arrivé', () {
+  test('le choix de fin attend l animation du dernier pion', () {
     fakeAsync((async) {
-      final tokens = <Token>[
-        for (var i = 0; i < 4; i++)
-          Token(
-            id: 'blue-$i',
-            color: LudoColor.blue,
-            progress: i == 0 ? 56 : ludoFinish,
-          ),
-        for (var i = 0; i < 4; i++)
-          Token(id: 'red-$i', color: LudoColor.red, progress: 10),
-      ];
       final state = newLudoGame().copyWith(
         turn: LudoColor.blue,
         phase: LudoPhase.move,
         dice: 1,
         rankings: [],
-        tokens: tokens,
+        tokens: [
+          ..._tokens(LudoColor.blue, [56, 57, 57, 57]),
+          ..._tokens(LudoColor.red, [10, 10, 10, 10]),
+        ],
       );
       final c = LudoController(
         playerCount: 1,
@@ -79,8 +70,14 @@ void main() {
       expect(c.humansDone, isTrue);
       expect(c.choiceOpen, isFalse);
 
-      async.elapse(const Duration(seconds: 10));
+      // Le choix s'ouvre dès que l'animation est finie (l'IA peut jouer entre-temps).
+      var waited = 0;
+      while (!c.choiceOpen && waited < 60000) {
+        async.elapse(const Duration(milliseconds: 100));
+        waited += 100;
+      }
       expect(c.choiceOpen, isTrue);
+      expect(c.roundOver, isFalse);
       c.dispose();
     });
   });
