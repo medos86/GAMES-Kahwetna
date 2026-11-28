@@ -25,8 +25,10 @@ class ChainSlot {
   int get height => vertical ? 2 : 1;
 }
 
-/// Place [count] pierres ; la pierre d'index [openIndex] est au centre.
-/// [halfWidth] est la demi-largeur du tapis en unités (pair, au moins 4).
+/// Place [count] pierres ; la pierre d'index [openIndex] est la pierre de départ.
+/// Deux bras partent de la pierre de départ, chacun ouvert à une extrémité en permanence (#1069).
+/// Chaque rangée complète a exactement un virage, au bord du tapis. [halfWidth] est la demi-largeur
+/// du tapis en demi-pierres ; le tapis va de -halfWidth à halfWidth.
 List<ChainSlot> layoutChainAroundCenter({
   required int count,
   required int openIndex,
@@ -35,68 +37,88 @@ List<ChainSlot> layoutChainAroundCenter({
   if (count < 1 || openIndex < 0 || openIndex >= count) {
     throw ArgumentError('index d\'ouverture hors de la chaîne');
   }
-  if (halfWidth < 4 || halfWidth.isOdd) {
-    throw ArgumentError('halfWidth doit être pair et au moins 4');
+  if (halfWidth < 4) {
+    throw ArgumentError('halfWidth doit être au moins 4');
   }
-  final right = _arm(count - 1 - openIndex, halfWidth);
-  final left = _arm(openIndex, halfWidth).map(_mirror).toList();
+  final hw = halfWidth;
+  final width = 2 * hw;
+  // Pierre de départ : centrée si la parité le permet, décalée d'une case sinon.
+  final c = hw.isEven ? hw - 1 : hw - 2;
   final slots = List<ChainSlot?>.filled(count, null);
   slots[openIndex] =
-      const ChainSlot(x: -1, y: 0, vertical: false, reverse: false);
-  for (var j = 0; j < right.length; j++) {
-    slots[openIndex + 1 + j] = right[j];
+      ChainSlot(x: c - hw, y: 0, vertical: false, reverse: false);
+  final leftTotal = openIndex;
+  final rightTotal = count - 1 - openIndex;
+  if (leftTotal > 0) {
+    slots[openIndex - 1] =
+        ChainSlot(x: c - 1 - hw, y: 0, vertical: true, reverse: false);
+    final arm = _armSlots(
+      isLeft: true,
+      lo: 0,
+      hi: c,
+      vCol: c - 1,
+      n: leftTotal - 1,
+      offset: hw,
+    );
+    for (var j = 0; j < arm.length; j++) {
+      slots[openIndex - 2 - j] = arm[j];
+    }
   }
-  for (var j = 0; j < left.length; j++) {
-    slots[openIndex - 1 - j] = left[j];
+  if (rightTotal > 0) {
+    slots[openIndex + 1] =
+        ChainSlot(x: c + 2 - hw, y: 0, vertical: true, reverse: false);
+    final arm = _armSlots(
+      isLeft: false,
+      lo: c + 2,
+      hi: width,
+      vCol: c + 2,
+      n: rightTotal - 1,
+      offset: hw,
+    );
+    for (var j = 0; j < arm.length; j++) {
+      slots[openIndex + 2 + j] = arm[j];
+    }
   }
   return [for (final slot in slots) slot!];
 }
 
-/// Un bras : rangées horizontales, virage vertical en bout de rangée, vers le bas.
-/// Chaque rangée va jusqu'au bord du tapis (droit puis gauche, en alternance) avant de tourner.
-List<ChainSlot> _arm(int count, int halfWidth) {
+/// Un bras, en coordonnées du tapis (de 0 à la largeur), décalé de [offset] à la fin.
+/// Chaque rangée a toutes ses horizontales puis un virage au bord, et la rangée suivante repart
+/// du bord opposé. Les virages occupent deux bandes : les rangées sont donc sur les bandes paires.
+List<ChainSlot> _armSlots({
+  required bool isLeft,
+  required int lo,
+  required int hi,
+  required int vCol,
+  required int n,
+  required int offset,
+}) {
   final out = <ChainSlot>[];
-  var y = 0;
-  var rightward = true;
-  var cx = 1;
-  while (out.length < count) {
-    if (rightward) {
-      if (cx <= halfWidth - 3) {
-        out.add(ChainSlot(x: cx, y: y, vertical: false, reverse: false));
-        cx += 2;
-      } else {
-        out.add(
-          ChainSlot(x: halfWidth - 1, y: y, vertical: true, reverse: false),
-        );
-        y += 2;
-        rightward = false;
-        cx = halfWidth - 2;
-      }
-    } else {
-      // La rangée de retour va jusqu'au bord gauche du tapis, comme la première rangée va jusqu'au bord droit.
-      if (cx >= 2 - halfWidth) {
-        out.add(ChainSlot(x: cx, y: y, vertical: false, reverse: true));
-        cx -= 2;
-      } else {
-        out.add(
-          ChainSlot(x: 1 - halfWidth, y: y, vertical: true, reverse: false),
-        );
-        y += 2;
-        rightward = true;
-        cx = 1 - halfWidth;
-      }
+  final halves = (hi - lo - 1) ~/ 2;
+  var y = 2;
+  var vAtLeft = isLeft;
+  var cur = vCol;
+  while (out.length < n) {
+    final vx = vAtLeft ? lo : hi - 1;
+    final starts = <int>[
+      for (var j = 0; j < halves; j++) vAtLeft ? lo + 1 + 2 * j : lo + 2 * j,
+    ];
+    starts.sort((a, b) => (a - cur).abs().compareTo((b - cur).abs()));
+    for (final x in starts) {
+      if (out.length >= n) break;
+      out.add(
+        ChainSlot(x: x - offset, y: y, vertical: false, reverse: vAtLeft),
+      );
     }
+    if (out.length < n) {
+      out.add(ChainSlot(x: vx - offset, y: y, vertical: true, reverse: false));
+    }
+    cur = vx;
+    y += 2;
+    vAtLeft = !vAtLeft;
   }
   return out;
 }
-
-/// Symétrie par rapport à l'axe vertical du centre, puis miroir vertical autour de la pierre d'ouverture.
-ChainSlot _mirror(ChainSlot slot) => ChainSlot(
-      x: -(slot.x + slot.width),
-      y: 1 - (slot.y + slot.height),
-      vertical: slot.vertical,
-      reverse: slot.reverse,
-    );
 
 /// Taille d'une demi-pierre au départ (#1022) : une pierre horizontale fait le tiers de la largeur,
 /// pour que la chaîne commence grande sur tous les écrans. Le zoom arrière ne s'applique qu'en cas de débordement.

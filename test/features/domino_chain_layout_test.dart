@@ -72,14 +72,15 @@ void main() {
     }
   });
 
-  test('#930 : le bras droit descend, le bras gauche monte', () {
+  test('#1069 : les deux bras descendent depuis la pierre de départ', () {
     final slots = layoutChainAroundCenter(
       count: 25,
       openIndex: 12,
       halfWidth: 6,
     );
+    expect(slots.every((s) => s.y >= 0), isTrue);
     expect(slots.last.y > 0, isTrue);
-    expect(slots.first.y < 0, isTrue);
+    expect(slots.first.y > 0, isTrue);
   });
 
   test('#1064 : le remplissage de largeur fait toucher le bord du tapis', () {
@@ -155,10 +156,14 @@ void main() {
             );
           }
           final edge = (width / 2 / cell).round();
+          final center = fitted.slots[open];
           for (final s in fitted.slots) {
             if (s.vertical) {
               expect(
-                s.x + s.width == edge || s.x == -edge,
+                s.x + s.width == edge ||
+                    s.x == -edge ||
+                    s.x == center.x - 1 ||
+                    s.x == center.x + 2,
                 isTrue,
                 reason: 'virage hors bord (w=$width, n=$count, open=$open)',
               );
