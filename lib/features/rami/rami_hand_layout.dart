@@ -1,7 +1,20 @@
 import '../../game/rami.dart' as rules;
 
-/// Facteur d'agrandissement des cartes de la main (#314 : plus grandes, lisibles).
-const double ramiHandCardScale = 1.55;
+/// Facteur d'agrandissement des cartes de la main (#314 : plus grandes, lisibles ; #1076 : encore plus grandes).
+const double ramiHandCardScale = 1.7;
+
+/// Padding intérieur du tapis sous la main (#1076).
+const double ramiTableFeltPadding = 8;
+
+/// Épaisseur de la bordure noire du tapis (#1076).
+const double ramiTableFrameWidth = 6;
+
+/// Espace entre le bas du contenu et la pub (#1076, voir GameScaffold).
+const double ramiAdSafeGap = 16;
+
+/// Descente de la main (#1076) : les cartes touchent le bord extérieur de la bordure noire,
+/// sans jamais descendre jusqu'à la zone de la pub.
+const double ramiHandDrop = ramiTableFeltPadding + ramiTableFrameWidth;
 
 /// Remontée d'une carte sélectionnée, en fraction de sa largeur (#906).
 const double ramiSelectLift = 0.25;

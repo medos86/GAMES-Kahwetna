@@ -610,9 +610,13 @@ class _RamiScreenState extends State<RamiScreen>
             ),
           ),
           // Ma main est posée dans le même tapis : un seul grand tapis (#838).
+          // La main descend jusqu'au bord de la bordure noire (#1076), sans toucher la pub.
           Padding(
             padding: const EdgeInsets.only(top: 6),
-            child: _handRow(handWidth),
+            child: Transform.translate(
+              offset: const Offset(0, ramiHandDrop),
+              child: _handRow(handWidth),
+            ),
           ),
         ],
       ),
