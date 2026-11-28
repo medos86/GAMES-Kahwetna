@@ -13,10 +13,10 @@ class _Footer extends StatelessWidget {
   final bool sm;
   final DominoController controller;
 
-  // Score et avatar du joueur, à gauche de la légende de la main (comme Chkobba).
+  // Score et avatar du joueur, sur la rangée du bas avec la pioche.
   final Widget seat;
 
-  // Pioche, en bas à gauche de la main ; un tap pioche ou passe (#1040).
+  // Pioche, sur la rangée du bas ; un tap pioche ou passe (#1040).
   final Widget pile;
 
   void _onTile(
@@ -51,9 +51,7 @@ class _Footer extends StatelessWidget {
     final label = game.boneyard.isNotEmpty ? t('pickUp') : t('pass');
     final hand = game.hands[Player.player]!;
 
-    // Pas de planche : la main est posée directement sur le tapis (#1038).
-    // Avatar et score à gauche, pioche puis main sur la même ligne : plus de place
-    // pour le tapis (#1042). La pioche reste cliquable en bas (#1040).
+    // Deux rangées : 1) les pierres de la main ; 2) avatar, score et pioche.
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 0, 4, 4),
       child: Column(
@@ -76,7 +74,52 @@ class _Footer extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
+          // Rangée 1 : les pierres de la main, pleine largeur.
+          SizedBox(
+            width: double.infinity,
+            height: sm ? 96 : 76,
+            child: hand.isEmpty
+                ? Center(
+                    child: Text(
+                      t('emptyHand'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: Color(0x9920284B),
+                      ),
+                    ),
+                  )
+                : _HandScroller(
+                    children: [
+                      for (final tile in hand)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                          ),
+                          child: _ShakeOnTrigger(
+                            trigger: controller.invalidTileId == tile.id
+                                ? controller.invalidCount
+                                : 0,
+                            child: _HandTile(
+                              tile: tile,
+                              sm: sm,
+                              selected: controller.selectedTileId == tile.id,
+                              enabled: canAct && playable.contains(tile.id),
+                              onTap: () => _onTile(
+                                context,
+                                tile,
+                                playable.contains(tile.id),
+                                canAct,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+          ),
+          const SizedBox(height: 6),
+          // Rangée 2 : avatar et score, puis pioche.
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Petit écran : le score rétrécit au lieu de déborder.
@@ -86,6 +129,7 @@ class _Footer extends StatelessWidget {
                 )
               else
                 seat,
+              const SizedBox(width: 16),
               _ShakeOnTrigger(
                 trigger: controller.drawInvalidCount,
                 child: Pressable(
@@ -97,50 +141,6 @@ class _Footer extends StatelessWidget {
                     width: unit * 2.2,
                     child: FittedBox(fit: BoxFit.scaleDown, child: pile),
                   ),
-                ),
-              ),
-              Expanded(
-                child: SizedBox(
-                  height: sm ? 96 : 76,
-                  child: hand.isEmpty
-                      ? Center(
-                          child: Text(
-                            t('emptyHand'),
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: Color(0x9920284B),
-                            ),
-                          ),
-                        )
-                      : _HandScroller(
-                          children: [
-                            for (final tile in hand)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 4,
-                                ),
-                                child: _ShakeOnTrigger(
-                                  trigger: controller.invalidTileId == tile.id
-                                      ? controller.invalidCount
-                                      : 0,
-                                  child: _HandTile(
-                                    tile: tile,
-                                    sm: sm,
-                                    selected:
-                                        controller.selectedTileId == tile.id,
-                                    enabled:
-                                        canAct && playable.contains(tile.id),
-                                    onTap: () => _onTile(
-                                      context,
-                                      tile,
-                                      playable.contains(tile.id),
-                                      canAct,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
                 ),
               ),
             ],
