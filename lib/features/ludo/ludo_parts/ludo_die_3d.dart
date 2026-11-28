@@ -43,6 +43,19 @@ Matrix4 ludoDieCubeMatrix(int value, double t) {
   return spinY * spinX * ludoDiePose(value);
 }
 
+/// Part d'ombre maximale d'une face (0 = face pleine lumière).
+const double kLudoDieMaxShade = 0.45;
+
+/// Face vue de biais sous ce seuil de « z » n'est pas dessinée (#1072).
+const double kLudoDieEdgeCull = 0.08;
+
+/// Ombrage d'une face selon son orientation [facing] (composante z de la normale) :
+/// plus elle regarde de biais, plus elle est sombre, pour un cube qui a du volume (#1072).
+double ludoDieShade(double facing) {
+  final lit = facing.clamp(0.0, 1.0);
+  return kLudoDieMaxShade * (1 - lit);
+}
+
 /// Valeur de la face la plus tournée vers l'écran pour l'orientation [cube].
 int ludoDieFrontFace(Matrix4 cube) {
   var best = 1;
@@ -101,15 +114,17 @@ class _LudoDieCube extends StatelessWidget {
     final half = size / 2;
     // Entrée (3,2) négative : l'œil est en +Z, les faces de +Z sont vers l'écran.
     final perspective = Matrix4.identity()..setEntry(3, 2, -_kDiePerspective);
-    final faces = <({double depth, Matrix4 matrix, int value})>[];
+    final faces = <({double depth, Matrix4 matrix, int value, double shade})>[];
     for (var v = 1; v <= 6; v++) {
       final facing = cube * ludoDieFacePlacement(v);
-      if (facing.storage[10] <= 0) continue;
+      // Face de biais (quasi de profil) : trait fin qui ferait des lignes parasites (#1072).
+      if (facing.storage[10] <= kLudoDieEdgeCull) continue;
       final model = facing * Matrix4.translationValues(0, 0, half);
       faces.add((
         depth: model.storage[14],
         matrix: perspective * model,
         value: v,
+        shade: ludoDieShade(facing.storage[10]),
       ));
     }
     faces.sort((a, b) => a.depth.compareTo(b.depth));
@@ -121,14 +136,20 @@ class _LudoDieCube extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           for (final face in faces)
-            Transform(
-              alignment: Alignment.center,
-              transform: face.matrix,
-              child: LudoDie(
-                value: face.value,
-                tone: tone,
-                size: size,
-                animate: false,
+            ColorFiltered(
+              colorFilter: ColorFilter.mode(
+                Color.fromRGBO(0, 0, 0, face.shade),
+                BlendMode.srcATop,
+              ),
+              child: Transform(
+                alignment: Alignment.center,
+                transform: face.matrix,
+                child: LudoDie(
+                  value: face.value,
+                  tone: tone,
+                  size: size,
+                  animate: false,
+                ),
               ),
             ),
         ],
