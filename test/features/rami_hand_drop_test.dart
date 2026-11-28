@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:kahwetne/core/layout/device_metrics.dart';
 import 'package:kahwetne/features/menu/menu_models.dart';
 import 'package:kahwetne/features/rami/rami_card_view.dart';
 import 'package:kahwetne/features/rami/rami_hand_layout.dart';
@@ -15,17 +14,17 @@ void main() {
     expect(ramiHandCardScale, greaterThan(1.55));
   });
 
-  test('la descente de la main = padding du feutre + bordure (#1076)', () {
+  test('descente = padding du feutre + bordure (#1076)', () {
     expect(ramiHandDrop, ramiTableFeltPadding + ramiTableFrameWidth);
   });
 
-  test('la descente reste sous la marge avant la pub (#1076)', () {
+  test('descente sous la marge avant la pub (#1076)', () {
     expect(ramiHandDrop, lessThan(ramiAdSafeGap));
   });
 
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  testWidgets('la main descend sous la bordure sans atteindre la pub (#1076)', (
+  testWidgets('main sous la bordure, pas sur la pub (#1076)', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(360, 780) * 3;
@@ -43,8 +42,7 @@ void main() {
     final tableFinder = find.byWidgetPredicate((w) {
       if (w is! Container) return false;
       final d = w.decoration;
-      return d is BoxDecoration &&
-          d.borderRadius == BorderRadius.circular(22);
+      return d is BoxDecoration && d.borderRadius == BorderRadius.circular(22);
     });
     expect(tableFinder, findsWidgets);
     final tableRect = tester.getRect(tableFinder.first);
@@ -57,8 +55,11 @@ void main() {
       if (rect.bottom > lowest) lowest = rect.bottom;
     }
 
-    // Ne dépasse pas le bord extérieur de la bordure noire (6 px) au-delà de la descente.
-    expect(lowest, lessThanOrEqualTo(tableRect.bottom + ramiTableFrameWidth + 0.5));
+    // Pas plus bas que le bord extérieur de la bordure noire.
+    expect(
+      lowest,
+      lessThanOrEqualTo(tableRect.bottom + ramiTableFrameWidth + 0.5),
+    );
 
     final ad = find.byType(AdBanner);
     if (ad.evaluate().isNotEmpty) {
