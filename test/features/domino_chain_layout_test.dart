@@ -107,7 +107,7 @@ void main() {
       count: 40,
       openIndex: 20,
       width: width,
-      height: 2000,
+      height: 3000,
       unit: unit,
     );
     var maxX = 0;
