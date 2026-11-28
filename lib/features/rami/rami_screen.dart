@@ -40,6 +40,7 @@ import '../../widgets/trophy_badge.dart';
 import '../../widgets/card_motion.dart';
 import '../../widgets/difficulty_chip.dart';
 import '../../widgets/game_header.dart';
+import '../../widgets/pressable.dart';
 import 'rami_action_button.dart';
 import 'rami_scores_overlay.dart';
 import 'rami_seat_badge.dart';
