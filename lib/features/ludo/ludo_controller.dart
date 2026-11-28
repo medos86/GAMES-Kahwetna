@@ -81,14 +81,17 @@ class LudoController extends PersistentGameController {
 
   bool get humanTurn => humans.contains(_game.turn);
 
-  bool get roundOver => _game.phase == LudoPhase.end;
+  /// Fin affichée seulement quand le dernier pion est arrivé (#1089) :
+  /// le phase « end » est posé dès le calcul du coup, avant l'animation.
+  bool get roundOver => _game.phase == LudoPhase.end && !_settling;
 
   /// Tous les joueurs humains sont arrivés : l'IA finit seule (#387).
   bool get humansDone =>
       humans.every((color) => _game.rankings.contains(color));
 
   /// Proposer le choix « finir la partie » ou « voir la fin ».
-  bool get choiceOpen => humansDone && !roundOver && !_choiceMade;
+  bool get choiceOpen =>
+      humansDone && !_settling && _game.phase != LudoPhase.end && !_choiceMade;
 
   bool _choiceMade = false;
   bool _fastAi = false;
