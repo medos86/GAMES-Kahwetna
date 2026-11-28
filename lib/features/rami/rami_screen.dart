@@ -336,8 +336,12 @@ class _RamiScreenState extends State<RamiScreen>
             onPressed: _showRules,
             icon: const Icon(Icons.menu_book, color: Colors.white),
           ),
-          Semantics(
-            label: tf('target', {'n': '${g.targetScore}'}),
+          // La coupe ouvre le panneau des scores, comme dans les autres jeux (#1084).
+          Pressable(
+            key: _key('scoretab'),
+            semanticLabel: Strings.showScores,
+            pressedScale: 0.92,
+            onTap: () => setState(() => _scoresOpen = !_scoresOpen),
             child: SizedBox(
               width: 48,
               height: 48,
@@ -442,18 +446,6 @@ class _RamiScreenState extends State<RamiScreen>
             key: _key('scrim'),
             open: _scoresOpen,
             onTap: _closeScores,
-          ),
-        ),
-        // Onglet Score dans le coin haut-droit : il ne recouvre plus le badge
-        // du joueur de devant, centré en haut (#590).
-        Positioned(
-          top: 0,
-          right: 0,
-          child: RamiScoresTab(
-            key: _key('scoretab'),
-            open: _scoresOpen,
-            myTurn: _c.myTurn,
-            onTap: () => setState(() => _scoresOpen = true),
           ),
         ),
         Positioned(
