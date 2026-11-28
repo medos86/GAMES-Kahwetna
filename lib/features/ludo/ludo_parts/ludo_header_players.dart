@@ -12,6 +12,11 @@ Map<LudoColor, String> ludoAvatarByColor(List<String> ids) {
   return result;
 }
 
+/// Le lancer 3D ne se joue qu'à la pose du dé, tant que le joueur n'a pas encore
+/// joué son pion (phase move). Après le coup, le dé reste affiché sans rejouer (#1071).
+bool ludoDieShouldTumble({required bool rolledHere, required LudoPhase phase}) =>
+    rolledHere && phase == LudoPhase.move;
+
 /// Vainqueur de la partie : premier du classement, seulement une fois finie.
 List<int> _ludoWinners(LudoController controller) {
   final rankings = controller.game.rankings;
@@ -209,7 +214,7 @@ class _PlayerCard extends StatelessWidget {
         value: controller.lastFaceOf(color),
         tone: tone,
         size: _dieSize,
-        animate: rolledHere,
+        animate: ludoDieShouldTumble(rolledHere: rolledHere, phase: game.phase),
         refused: controller.refusedColor == color,
       ),
     );
