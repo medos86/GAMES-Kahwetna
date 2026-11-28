@@ -181,10 +181,10 @@ FittedChain layoutChainFitted({
   }
   // Remplissage de la largeur (#1064) : l'arrondi pair peut laisser une case vide au bord du tapis.
   // On agrandit l'échelle pour que le bord calculé tombe exactement sur le bord de l'écran,
-  // tant que la chaîne tient toujours en hauteur.
+  // tant que la chaîne tient toujours en hauteur. Toujours : une rangée ne tourne qu'au bord.
   final edge = chainEdgeAtZoom(width: width, unit: unit, zoom: fit);
   final fill = fullWidthScale(edge: edge, width: width, unit: unit);
-  if (fill > fit && fill <= 1.0) {
+  if (fill > fit) {
     final filled = layoutChainAroundCenter(
       count: count,
       openIndex: openIndex,

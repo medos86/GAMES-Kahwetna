@@ -99,4 +99,21 @@ void main() {
     }
     expect(slots.any((s) => s.vertical && s.x + s.width == 6), isTrue);
   });
+
+  test('#1064 : la chaîne touche toujours le bord du tapis', () {
+    const width = 960.0;
+    const unit = 95.0;
+    final fitted = layoutChainFitted(
+      count: 40,
+      openIndex: 20,
+      width: width,
+      height: 3000,
+      unit: unit,
+    );
+    var maxX = 0;
+    for (final s in fitted.slots) {
+      maxX = maxX > s.x + s.width ? maxX : s.x + s.width;
+    }
+    expect(maxX * unit * fitted.scale, closeTo(width / 2, 1e-6));
+  });
 }
