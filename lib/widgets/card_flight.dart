@@ -114,7 +114,6 @@ class _FlightLayer {
     flights.add(flight);
     view?.wake();
   }
-
 }
 
 /// Vue de la couche : son état possède le seul minuteur des vols.
