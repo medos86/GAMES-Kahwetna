@@ -31,6 +31,11 @@ jobs:
       - name: Dépendances
         run: flutter pub get
 
+      - name: DIAG format diff
+        run: |
+          dart format lib/widgets/card_flight.dart lib/widgets/card_motion.dart test/widgets/card_flight_layer_test.dart
+          git --no-pager diff
+
       - name: Formatage (dart format)
         # Le pipeline échoue si un fichier Dart n'est pas formaté.
         run: dart format --output=none --set-exit-if-changed .
