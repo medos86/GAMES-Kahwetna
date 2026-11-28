@@ -215,7 +215,10 @@ class _PlayerCard extends StatelessWidget {
         value: controller.lastFaceOf(color),
         tone: tone,
         size: _dieSize,
-        animate: ludoDieShouldTumble(rolledHere, game.phase),
+        // Lancer bloquant (#1080) : après le passage de tour la phase est revenue à roll,
+        // mais le dé de ce joueur doit quand même rouler avant de dire « non ».
+        animate: ludoDieShouldTumble(rolledHere, game.phase) ||
+            (rolledHere && controller.refusedColor == color),
         refused: controller.refusedColor == color,
       ),
     );
