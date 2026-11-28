@@ -53,7 +53,11 @@ void main() {
     fakeAsync((async) {
       final tokens = <Token>[
         for (var i = 0; i < 4; i++)
-          Token(id: 'blue-$i', color: LudoColor.blue, progress: i == 0 ? 56 : ludoFinish),
+          Token(
+            id: 'blue-$i',
+            color: LudoColor.blue,
+            progress: i == 0 ? 56 : ludoFinish,
+          ),
         for (var i = 0; i < 4; i++)
           Token(id: 'red-$i', color: LudoColor.red, progress: 10),
       ];
