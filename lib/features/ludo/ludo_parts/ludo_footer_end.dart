@@ -89,14 +89,18 @@ class LudoDie extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     if (refused) {
+      // Lancer bloquant (#1080) : le dé roule d'abord, puis secoue la tête pour dire « non ».
+      if (animate && value != null && !reduceMotion) {
+        return _RefusedRoll(value: value, tone: tone, size: size);
+      }
       // Le dé garde sa face et secoue la tête pour dire « non », sans mot affiché (#883 / #855).
       return _HeadShake(
         child: LudoDie(value: value, tone: tone, size: size, animate: false),
       );
     }
     final rolled = value;
-    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     if (animate && rolled != null && !reduceMotion) {
       // Lancer en 3D : le cube roule et se pose sur la valeur tirée (#998).
       return Semantics(
@@ -155,6 +159,66 @@ class LudoDie extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Lancer bloquant (#1080) : le cube roule pendant [kLudoDieRollDuration],
+/// puis il secoue la tête « non » sur la face tirée.
+class _RefusedRoll extends StatefulWidget {
+  const _RefusedRoll({
+    required this.value,
+    required this.tone,
+    required this.size,
+  });
+
+  final int value;
+  final Color tone;
+  final double size;
+
+  @override
+  State<_RefusedRoll> createState() => _RefusedRollState();
+}
+
+class _RefusedRollState extends State<_RefusedRoll> {
+  bool _tumbling = true;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer(kLudoDieRollDuration, () {
+      if (mounted) setState(() => _tumbling = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_tumbling) {
+      return Semantics(
+        label: tf('sDieValue', {'v': '${widget.value}'}),
+        child: ExcludeSemantics(
+          child: _LudoDieTumble(
+            value: widget.value,
+            tone: widget.tone,
+            size: widget.size,
+          ),
+        ),
+      );
+    }
+    return _HeadShake(
+      child: LudoDie(
+        value: widget.value,
+        tone: widget.tone,
+        size: widget.size,
+        animate: false,
       ),
     );
   }
