@@ -7,7 +7,7 @@ void main() {
   const height = 600.0;
   final unit = width / 6;
 
-  test('#1028 : la chaîne commence à taille pleine', () {
+  test('#1069 : la chaîne commence au bord exact de l écran', () {
     final fitted = layoutChainFitted(
       count: 1,
       openIndex: 0,
@@ -15,7 +15,8 @@ void main() {
       height: height,
       unit: unit,
     );
-    expect(fitted.scale, 1.0);
+    expect(fitted.scale > 0 && fitted.scale <= 1.0, isTrue);
+    expect(4 * unit * fitted.scale, closeTo(width / 2, 1e-6));
   });
 
   test('#1028 : la chaîne tient toujours en largeur', () {

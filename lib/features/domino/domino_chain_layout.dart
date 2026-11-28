@@ -170,6 +170,8 @@ FittedChain layoutChainFitted({
   final half = width / 2;
   var edge = math.max(4, (half / unit).floor());
   edge -= edge % 2;
+  // Une chaîne trop haute se raccourcit en élargissant le bord : plus de pierres par rangée.
+  final maxEdge = 2 * count + 4;
   while (true) {
     final cellUnit = half / edge;
     final slots = layoutChainAroundCenter(
@@ -178,10 +180,10 @@ FittedChain layoutChainFitted({
       halfWidth: edge,
     );
     final halfHeight = chainHalfHeight(slots: slots, unit: cellUnit);
-    if (halfHeight <= height / 2 || edge <= 4) {
+    if (halfHeight <= height / 2 || edge >= maxEdge) {
       return FittedChain(slots: slots, scale: cellUnit / unit);
     }
-    edge -= 2;
+    edge += 2;
   }
 }
 
